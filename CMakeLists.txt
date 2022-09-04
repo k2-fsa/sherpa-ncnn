@@ -20,7 +20,7 @@ endif()
 set(CMAKE_INSTALL_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 set(CMAKE_BUILD_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 
-set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 if(WIN32)
   message(STATUS "Set BUILD_SHARED_LIBS to OFF for Windows")
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -38,6 +38,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-include(cmake/kaldi-native-fbank.cmake)
+include(kaldi-native-fbank)
+include(ncnn)
 
 add_subdirectory(sherpa-ncnn)
