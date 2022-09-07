@@ -26,7 +26,7 @@ namespace sherpa_ncnn {
 
 /// It manages mapping between symbols and integer IDs.
 class SymbolTable {
-public:
+ public:
   SymbolTable() = default;
   /// Construct a symbol table from a file.
   /// Each line in the file contains two fields:
@@ -50,13 +50,13 @@ public:
   /// Return true if there is a given symbol in the symbol table.
   bool contains(const std::string &sym) const;
 
-private:
+ private:
   std::unordered_map<std::string, int32_t> sym2id_;
   std::unordered_map<int32_t, std::string> id2sym_;
 };
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &symbol_table);
 
-} // namespace sherpa_ncnn
+}  // namespace sherpa_ncnn
 
-#endif // SHERPA_NCNN_CSRC_SYMBOL_TABLE_H_
+#endif  // SHERPA_NCNN_CSRC_SYMBOL_TABLE_H_

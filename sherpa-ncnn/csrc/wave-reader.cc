@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
+#include "sherpa-ncnn/csrc/wave-reader.h"
+
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <utility>
 #include <vector>
-
-#include "sherpa-ncnn/csrc/wave-reader.h"
 
 namespace sherpa_ncnn {
 namespace {
@@ -38,12 +38,12 @@ struct WaveHeader {
     //                     E V A W
     assert(format == 0x45564157);
     assert(subchunk1_id == 0x20746d66);
-    assert(subchunk1_size == 16); // 16 for PCM
-    assert(audio_format == 1);    // 1 for PCM
-    assert(num_channels == 1);    // we support only single channel for now
+    assert(subchunk1_size == 16);  // 16 for PCM
+    assert(audio_format == 1);     // 1 for PCM
+    assert(num_channels == 1);     // we support only single channel for now
     assert(byte_rate == sample_rate * num_channels * bits_per_sample / 8);
     assert(block_align == num_channels * bits_per_sample / 8);
-    assert(bits_per_sample == 16); // we support only 16 bits per sample
+    assert(bits_per_sample == 16);  // we support only 16 bits per sample
   }
 
   int32_t chunk_id;
@@ -67,7 +67,7 @@ static_assert(sizeof(WaveHeader) == 44, "");
 std::vector<float> ReadWaveImpl(std::istream &is, float *sample_rate) {
   WaveHeader header;
   is.read(reinterpret_cast<char *>(&header), sizeof(header));
-  assert((bool)is);
+  assert(static_cast<bool>(is));
 
   header.Validate();
 
@@ -79,7 +79,7 @@ std::vector<float> ReadWaveImpl(std::istream &is, float *sample_rate) {
 
   is.read(reinterpret_cast<char *>(samples.data()), header.subchunk2_size);
 
-  assert((bool)is);
+  assert(static_cast<bool>(is));
 
   std::vector<float> ans(samples.size());
   for (int32_t i = 0; i != ans.size(); ++i) {
@@ -89,7 +89,7 @@ std::vector<float> ReadWaveImpl(std::istream &is, float *sample_rate) {
   return ans;
 }
 
-} // namespace
+}  // namespace
 
 std::vector<float> ReadWave(const std::string &filename,
                             float expected_sample_rate) {
@@ -104,4 +104,4 @@ std::vector<float> ReadWave(const std::string &filename,
   return samples;
 }
 
-} // namespace sherpa_ncnn
+}  // namespace sherpa_ncnn
