@@ -46,9 +46,9 @@ jobs:
           make -j2
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
-          ./bin/sherpa-ncnn ./test_wavs/1089-134686-0001.wav
-          ./bin/sherpa-ncnn ./test_wavs/1221-135766-0001.wav
-          ./bin/sherpa-ncnn ./test_wavs/1221-135766-0002.wav
+          ./bin/sherpa-ncnn ./test_wavs/1089-134686-0001.wav 1
+          ./bin/sherpa-ncnn ./test_wavs/1221-135766-0001.wav 1
+          ./bin/sherpa-ncnn ./test_wavs/1221-135766-0002.wav 1
 
       - name: Build sherpa for windows
         if: startsWith(matrix.os, 'windows')
@@ -60,7 +60,7 @@ jobs:
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
 
-          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1089-134686-0001.wav
-          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1221-135766-0001.wav
-          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1221-135766-0002.wav
+          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1089-134686-0001.wav 1
+          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1221-135766-0001.wav 1
+          ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1221-135766-0002.wav 1
 
