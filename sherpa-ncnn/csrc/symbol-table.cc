@@ -75,4 +75,4 @@ std::ostream &operator<<(std::ostream &os, const SymbolTable &symbol_table) {
   return os << symbol_table.ToString();
 }
 
-} // namespace sherpa_ncnn
+}  // namespace sherpa_ncnn
