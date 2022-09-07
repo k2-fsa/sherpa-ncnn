@@ -43,7 +43,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |
           cd build
-          make -j
+          make -j2
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
           ./bin/sherpa-ncnn ./test_wavs/1089-134686-0001.wav
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           cd build
-          cmake --build . --target sherpa-ncnn -- -m:4
+          cmake --build . --target sherpa-ncnn -- -m:2
 
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
