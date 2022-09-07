@@ -19,6 +19,12 @@ on:
     - 'cmake/**'
     - 'sherpa-ncnn/csrc/*'
 
+concurrency:
+  group: arm-linux-gnueabihf
+  cancel-in-progress: true
+permissions:
+  contents: read
+
 jobs:
   arm_linux_gnueabihf:
     runs-on: ${{ matrix.os }}

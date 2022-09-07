@@ -18,6 +18,12 @@ on:
     - 'cmake/**'
     - 'sherpa-ncnn/csrc/*'
 
+concurrency:
+  group: linux-macos-windows
+  cancel-in-progress: true
+permissions:
+  contents: read
+
 jobs:
   linux_macos_windows:
     runs-on: ${{ matrix.os }}
