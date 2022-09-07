@@ -1,15 +1,25 @@
-name: Run greedy search tests
+name: linux-macos-windows
 
 on:
   push:
     branches:
       - master
+    paths:
+    - '.github/workflows/linux-macos-windows.yaml'
+    - 'CMakeLists.txt'
+    - 'cmake/**'
+    - 'sherpa-ncnn/csrc/*'
   pull_request:
     branches:
       - master
+    paths:
+    - '.github/workflows/linux-macos-windows.yaml'
+    - 'CMakeLists.txt'
+    - 'cmake/**'
+    - 'sherpa-ncnn/csrc/*'
 
 jobs:
-  run_greedy_search_tests:
+  linux_macos_windows:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,6 +54,7 @@ jobs:
         run: |
           cd build
           make -j2
+
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/tokens.txt .
