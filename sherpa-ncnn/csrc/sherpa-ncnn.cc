@@ -216,7 +216,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   if (argc == 3) {
     num_threads = atoi(argv[2]);
   }
-  std::cout << "Number of threads: " << num_threads << "\n";
+  std::cout << "number of threads: " << num_threads << "\n";
 
   ncnn::Mat features = ComputeFeatures(wav, 16000);
 
