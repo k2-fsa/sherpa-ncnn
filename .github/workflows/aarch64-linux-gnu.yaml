@@ -98,7 +98,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
           aarch64-linux-gnu-gcc --version
 
-      - name: Display qemu-arm -h
+      - name: Display qemu-aarch64 -h
         shell: bash
         run: |
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
