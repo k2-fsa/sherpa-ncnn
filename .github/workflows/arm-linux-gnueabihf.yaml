@@ -20,8 +20,9 @@ on:
     - 'sherpa-ncnn/csrc/*'
 
 concurrency:
-  group: arm-linux-gnueabihf
+  group: arm-linux-gnueabihf-${{ github.ref }}
   cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -111,6 +112,7 @@ jobs:
 
           ./build-arm-linux-gnueabihf.sh
 
+          ls -lh build-arm-linux-gnueabihf/bin
 
       - name: Run tests
         shell: bash

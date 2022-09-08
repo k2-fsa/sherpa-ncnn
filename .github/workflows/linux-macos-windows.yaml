@@ -19,8 +19,9 @@ on:
     - 'sherpa-ncnn/csrc/*'
 
 concurrency:
-  group: linux-macos-windows
+  group: linux-macos-windows-${{ github.ref }}
   cancel-in-progress: true
+
 permissions:
   contents: read
 
