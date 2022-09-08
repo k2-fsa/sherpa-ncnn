@@ -115,6 +115,7 @@ jobs:
           ./build-arm-linux-gnueabihf.sh
 
           ls -lh build-arm-linux-gnueabihf/bin
+          file build-arm-linux-gnueabihf/sherpa-ncnn
 
       - name: Run tests
         shell: bash
