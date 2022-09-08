@@ -62,6 +62,9 @@ jobs:
           cd build
           make -j2
 
+          ls -lh bin/sherpa-ncnn
+          file bin/sherpa-ncnn
+
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/tokens.txt .
@@ -79,6 +82,8 @@ jobs:
           ln -s $PWD/../sherpa-ncnn-2022-09-05/bar .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/test_wavs .
           ln -s $PWD/../sherpa-ncnn-2022-09-05/tokens.txt .
+
+          ls -lh ./bin/Debug/sherpa-ncnn.exe
 
           ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1089-134686-0001.wav 2
           ./bin/Debug/sherpa-ncnn.exe ./test_wavs/1221-135766-0001.wav 2
