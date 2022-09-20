@@ -5,18 +5,18 @@ on:
     branches:
       - master
     paths:
-    - '.github/workflows/linux-macos-windows.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
+      - '.github/workflows/linux-macos-windows.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
   pull_request:
     branches:
       - master
     paths:
-    - '.github/workflows/linux-macos-windows.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
+      - '.github/workflows/linux-macos-windows.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
 
 concurrency:
   group: linux-macos-windows-${{ github.ref }}
