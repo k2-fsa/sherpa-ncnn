@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "portaudio.h"
+#include "portaudio.h"  // NOLINT
 
 namespace sherpa_ncnn {
 
