@@ -122,7 +122,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/aarch64-linux-gnu/libc
 
-          time ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
+          time qemu-aarch64 ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -132,7 +132,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1089-134686-0001.wav
 
-          time ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
+          time qemu-aarch64 ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -142,7 +142,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1221-135766-0001.wav
 
-          time ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
+          time qemu-aarch64 ./build-aarch64-linux-gnu/bin/sherpa-ncnn \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
