@@ -105,7 +105,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   float expected_sampling_rate = 16000;
 
-  sherpa_ncnn::SymbolTable sym("./tokens.txt");
+  sherpa_ncnn::SymbolTable sym(tokens);
 
   std::cout << "number of threads: " << num_threads << "\n";
 

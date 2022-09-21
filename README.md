@@ -24,15 +24,16 @@ cd sherpa-ncnn
 mkdir build
 cd build
 cmake ..
-make -j
+make -j6
 cd ..
 
-# Now download the pretrained model for testing
+# Now download the pretrained model
+
 git lfs install
 git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
 ./build/bin/sherpa-ncnn \
-  ./sherpa-ncnn-2022-09-05/bar/tokens.txt \
+  ./sherpa-ncnn-2022-09-05/tokens.txt \
   ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
   ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
   ./sherpa-ncnn-2022-09-05/bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
