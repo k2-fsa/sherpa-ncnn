@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
   if (argc < 9 || argc > 10) {
     const char *usage = R"usage(
 Usage:
-  ./sherpa-ncnn \
+  ./bin/sherpa-ncnn \
     /path/to/tokens.txt \
     /path/to/encoder.ncnn.param \
     /path/to/encoder.ncnn.bin \
