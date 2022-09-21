@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,7 +27,7 @@
 #include "sherpa-ncnn/csrc/microphone.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
 
-unsigned long total = 0;
+bool stop = false;
 
 static int recordCallback(const void *input_buffer, void *outputBuffer,
                           unsigned long frames_per_buffer,
@@ -38,8 +39,12 @@ static int recordCallback(const void *input_buffer, void *outputBuffer,
   feature_extractor->AcceptWaveform(
       16000, reinterpret_cast<const float *>(input_buffer), frames_per_buffer);
 
-  return paContinue;
+  return stop ? paComplete : paContinue;
 }
+static void handler(int sig) {
+  stop = true;
+  fprintf(stderr, "\nexiting...\n");
+};
 
 int main(int32_t argc, char *argv[]) {
   if (argc != 8 && argc != 9) {
@@ -63,6 +68,8 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
     return 0;
   }
+  signal(SIGINT, handler);
+
   std::string tokens = argv[1];
   std::string encoder_param = argv[2];
   std::string encoder_bin = argv[3];
@@ -127,15 +134,6 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   err = Pa_StartStream(stream);
   fprintf(stderr, "Started\n");
 
-  Pa_Sleep(3 * 1000);  // sleep 3 second
-  feature_extractor.InputFinished();
-
-  if (err != paNoError) {
-    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
-    exit(EXIT_FAILURE);
-  }
-
-  err = Pa_CloseStream(stream);
   if (err != paNoError) {
     fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
     exit(EXIT_FAILURE);
@@ -159,21 +157,36 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   ncnn::Mat hx;
   ncnn::Mat cx;
 
+  int32_t num_tokens = hyp.size();
   int32_t num_processed = 0;
-  while (feature_extractor.NumFramesReady() - num_processed >= segment) {
-    ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
-    num_processed += offset;
 
-    ncnn::Mat encoder_out = model.RunEncoder(features, &hx, &cx);
+  while (!stop) {
+    while (feature_extractor.NumFramesReady() - num_processed >= segment) {
+      ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
+      num_processed += offset;
 
-    GreedySearch(model, encoder_out, &decoder_out, &hyp);
+      ncnn::Mat encoder_out = model.RunEncoder(features, &hx, &cx);
+
+      GreedySearch(model, encoder_out, &decoder_out, &hyp);
+    }
+
+    if (hyp.size() != num_tokens) {
+      num_tokens = hyp.size();
+      std::string text;
+      for (int32_t i = context_size; i != hyp.size(); ++i) {
+        text += sym[hyp[i]];
+      }
+      fprintf(stderr, "%s\n", text.c_str());
+    }
+
+    Pa_Sleep(20);  // sleep for 20ms
   }
 
-  std::string text;
-  for (int32_t i = context_size; i != hyp.size(); ++i) {
-    text += sym[hyp[i]];
+  err = Pa_CloseStream(stream);
+  if (err != paNoError) {
+    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
+    exit(EXIT_FAILURE);
   }
-  fprintf(stderr, "result: %s\n", text.c_str());
 
   return 0;
 }
