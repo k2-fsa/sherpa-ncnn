@@ -18,9 +18,10 @@
 
 #include "sherpa-ncnn/csrc/features.h"
 
+#include <algorithm>
 #include <memory>
 
-#include "mat.h"
+#include "mat.h"  // NOLINT
 
 namespace sherpa_ncnn {
 

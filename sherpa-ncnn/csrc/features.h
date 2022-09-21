@@ -20,7 +20,7 @@
 #define SHERPA_NCNN_CSRC_FEATURES_H_
 
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
 

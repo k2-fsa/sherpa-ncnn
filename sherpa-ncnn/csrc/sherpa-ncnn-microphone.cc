@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "portaudio.h"
+#include "portaudio.h"  // NOLINT
 #include "sherpa-ncnn/csrc/decode.h"
 #include "sherpa-ncnn/csrc/features.h"
 #include "sherpa-ncnn/csrc/lstm-model.h"
@@ -29,10 +29,11 @@
 
 bool stop = false;
 
-static int recordCallback(const void *input_buffer, void *outputBuffer,
-                          unsigned long frames_per_buffer,
-                          const PaStreamCallbackTimeInfo *timeInfo,
-                          PaStreamCallbackFlags statusFlags, void *user_data) {
+static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
+                          unsigned long frames_per_buffer,  // NOLINT
+                          const PaStreamCallbackTimeInfo * /*time_info*/,
+                          PaStreamCallbackFlags /*status_flags*/,
+                          void *user_data) {
   auto feature_extractor =
       reinterpret_cast<sherpa_ncnn::FeatureExtractor *>(user_data);
 
@@ -118,14 +119,13 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   float sample_rate = 16000;
 
   PaStream *stream;
-  PaError err = Pa_OpenStream(&stream, &param, nullptr, /* &outputParameters, */
-                              sample_rate,
-                              0,         // frames per buffer
-                              paClipOff, /* we won't output out of range samples
-                                            so don't bother clipping them */
-                              recordCallback,
-                              &feature_extractor  // userdata
-  );
+  PaError err =
+      Pa_OpenStream(&stream, &param, nullptr, /* &outputParameters, */
+                    sample_rate,
+                    0,          // frames per buffer
+                    paClipOff,  // we won't output out of range samples
+                                // so don't bother clipping them
+                    RecordCallback, &feature_extractor);
   if (err != paNoError) {
     fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
     exit(EXIT_FAILURE);

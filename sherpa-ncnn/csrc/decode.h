@@ -19,7 +19,9 @@
 #ifndef SHERPA_NCNN_CSRC_DECODE_H_
 #define SHERPA_NCNN_CSRC_DECODE_H_
 
-#include "net.h"
+#include <vector>
+
+#include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/lstm-model.h"
 
 namespace sherpa_ncnn {
