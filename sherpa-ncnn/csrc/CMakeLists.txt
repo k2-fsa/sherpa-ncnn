@@ -4,6 +4,9 @@ add_executable(online-fbank-test online-fbank-test.cc)
 target_link_libraries(online-fbank-test kaldi-native-fbank-core)
 
 add_executable(sherpa-ncnn
+  decode.cc
+  features.cc
+  lstm-model.cc
   sherpa-ncnn.cc
   symbol-table.cc
   wave-reader.cc

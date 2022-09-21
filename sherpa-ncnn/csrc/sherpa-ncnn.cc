@@ -21,6 +21,9 @@
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
 #include "net.h"  // NOLINT
+#include "sherpa-ncnn/csrc/decode.h"
+#include "sherpa-ncnn/csrc/features.h"
+#include "sherpa-ncnn/csrc/lstm-model.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
@@ -65,212 +68,105 @@ static ncnn::Mat ComputeFeatures(const std::string &wav_filename,
   return features;
 }
 
-static void InitNet(ncnn::Net &net, const std::string &param,
-                    const std::string &model) {
-  if (net.load_param(param.c_str())) {
-    std::cerr << "failed to load " << param << "\n";
-    exit(-1);
-  }
-
-  if (net.load_model(model.c_str())) {
-    std::cerr << "failed to load " << model << "\n";
-    exit(-1);
-  }
-}
-
-/** Run the encoder network.
- *
- * @param encoder_net The encoder model.
- * @param features  A 2-d mat of shape (num_frames, feature_dim).
- *                  Note: features.w = feature_dim.
- *                        features.h = num_frames.
- * @param num_threads  Number of threads to use for computation.
- *
- * @return Return the output of the encoder. Its shape is
- *  (num_frames, encoder_dim).
- *  Note: ans.w == encoder_dim; ans.h == num_frames
- */
-static ncnn::Mat RunEncoder(ncnn::Net &encoder_net, ncnn::Mat &features,
-                            int32_t num_threads) {
-  int32_t num_encoder_layers = 12;
-  int32_t batch_size = 1;
-  int32_t d_model = 512;
-  int32_t rnn_hidden_size = 1024;
-
-  ncnn::Mat h0;
-  h0.create(d_model, num_encoder_layers);
-  ncnn::Mat c0;
-  c0.create(rnn_hidden_size, num_encoder_layers);
-  h0.fill(0);
-  c0.fill(0);
-
-  ncnn::Mat feature_lengths(1);
-  feature_lengths[0] = features.h;
-
-  ncnn::Extractor encoder_ex = encoder_net.create_extractor();
-  encoder_ex.set_num_threads(num_threads);
-
-  encoder_ex.input("in0", features);
-  encoder_ex.input("in1", feature_lengths);
-  encoder_ex.input("in2", h0);
-  encoder_ex.input("in3", c0);
-
-  ncnn::Mat encoder_out;
-  encoder_ex.extract("out0", encoder_out);
-
-  return encoder_out;
-}
-
-/** Run the decoder network.
- *
- * @param decoder_net The decoder network.
- * @param  decoder_input A mat of shape (context_size,). Note: Its underlying
- *                       content consists of integers, though its type is float.
- * @param num_threads  Number of threads to use for computation.
- *
- * @return Return a mat of shape (decoder_dim,)
- */
-static ncnn::Mat RunDecoder(ncnn::Net &decoder_net, ncnn::Mat &decoder_input,
-                            int32_t num_threads) {
-  ncnn::Extractor decoder_ex = decoder_net.create_extractor();
-  decoder_ex.set_num_threads(num_threads);
-
-  ncnn::Mat decoder_out;
-  decoder_ex.input("in0", decoder_input);
-  decoder_ex.extract("out0", decoder_out);
-  decoder_out = decoder_out.reshape(decoder_out.w);
-
-  return decoder_out;
-}
-
-/** Run the joiner network.
- *
- * @param joiner_net The joiner network.
- * @param encoder_out  A mat of shape (encoder_dim,)
- * @param decoder_out  A mat of shape (decoder_dim,)
- * @param num_threads  Number of threads to use for computation.
- *
- * @return Return the joiner output which is of shape (vocab_size,)
- */
-static ncnn::Mat RunJoiner(ncnn::Net &joiner_net, ncnn::Mat &encoder_out,
-                           ncnn::Mat &decoder_out, int32_t num_threads) {
-  auto joiner_ex = joiner_net.create_extractor();
-  joiner_ex.set_num_threads(num_threads);
-  joiner_ex.input("in0", encoder_out);
-  joiner_ex.input("in1", decoder_out);
-
-  ncnn::Mat joiner_out;
-  joiner_ex.extract("out0", joiner_out);
-  return joiner_out;
-}
-
 int main(int argc, char *argv[]) {
-  if (argc == 1 || argc > 3) {
+  if (argc < 9 || argc > 10) {
     const char *usage = R"usage(
 Usage:
-  ./sherpa-ncnn /path/to/foo.wav [num_threads]
+  ./sherpa-ncnn \
+    /path/to/tokens.txt \
+    /path/to/encoder.ncnn.param \
+    /path/to/encoder.ncnn.bin \
+    /path/to/decoder.ncnn.param \
+    /path/to/decoder.ncnn.bin \
+    /path/to/joiner.ncnn.param \
+    /path/to/joiner.ncnn.bin \
+    /path/to/foo.wav [num_threads]
 
-We assume that you have placed the models files in
-the directory bar. That is, you should have the
-following files:
-  bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param
-  bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin
-  bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param
-  bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin
-  bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.param
-  bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin
-
-We also assume that you have ./tokens.txt in the current directory.
-
-You can find the above files in the following repository:
-
+You can download pre-trained models from the following repository:
 https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 )usage";
     std::cerr << usage << "\n";
 
     return 0;
   }
+  std::string tokens = argv[1];
+  std::string encoder_param = argv[2];
+  std::string encoder_bin = argv[3];
+  std::string decoder_param = argv[4];
+  std::string decoder_bin = argv[5];
+  std::string joiner_param = argv[6];
+  std::string joiner_bin = argv[7];
+  std::string wav_filename = argv[8];
+
+  int32_t num_threads = 4;
+  if (argc == 10) {
+    num_threads = atoi(argv[9]);
+  }
+
+  float expected_sampling_rate = 16000;
 
   sherpa_ncnn::SymbolTable sym("./tokens.txt");
 
-  std::string encoder_param =
-      "bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param";
-
-  std::string encoder_model =
-      "bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin";
-
-  std::string decoder_param =
-      "bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param";
-
-  std::string decoder_model =
-      "bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin";
-
-  std::string joiner_param =
-      "bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.param";
-
-  std::string joiner_model =
-      "bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin";
-
-  std::string wav = argv[1];
-  int32_t num_threads = 5;
-  if (argc == 3) {
-    num_threads = atoi(argv[2]);
-  }
   std::cout << "number of threads: " << num_threads << "\n";
 
-  ncnn::Mat features = ComputeFeatures(wav, 16000);
+  sherpa_ncnn::LstmModel model(encoder_param, encoder_bin, decoder_param,
+                               decoder_bin, joiner_param, joiner_bin,
+                               num_threads);
 
-  ncnn::Net encoder_net;
-  encoder_net.opt.use_packing_layout = false;
-  encoder_net.opt.use_fp16_storage = false;
+  std::vector<float> samples =
+      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
 
-  ncnn::Net decoder_net;
-  decoder_net.opt.use_packing_layout = false;
+  float duration = samples.size() / expected_sampling_rate;
 
-  ncnn::Net joiner_net;
-  joiner_net.opt.use_packing_layout = false;
+  std::cout << "wav filename: " << wav_filename << "\n";
+  std::cout << "wav duration (s): " << duration << "\n";
 
-  InitNet(encoder_net, encoder_param, encoder_model);
-  InitNet(decoder_net, decoder_param, decoder_model);
-  InitNet(joiner_net, joiner_param, joiner_model);
+  sherpa_ncnn::FeatureExtractor feature_extractor;
+  feature_extractor.AcceptWaveform(expected_sampling_rate, samples.data(),
+                                   samples.size());
 
-  ncnn::Mat encoder_out = RunEncoder(encoder_net, features, num_threads);
+  std::vector<float> tail_paddings(
+      static_cast<int>(0.3 * expected_sampling_rate));
+  feature_extractor.AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
+                                   tail_paddings.size());
 
-  int32_t context_size = 2;
-  int32_t blank_id = 0;
+  feature_extractor.InputFinished();
+
+  int32_t segment = 9;
+  int32_t offset = 4;
+
+  int32_t context_size = model.ContextSize();
+  int32_t blank_id = model.BlankId();
 
   std::vector<int32_t> hyp(context_size, blank_id);
+
   ncnn::Mat decoder_input(context_size);
-  static_cast<int32_t *>(decoder_input)[0] = blank_id + 1;
-  static_cast<int32_t *>(decoder_input)[1] = blank_id + 2;
-  decoder_input.fill(blank_id);
-
-  ncnn::Mat decoder_out = RunDecoder(decoder_net, decoder_input, num_threads);
-
-  for (int32_t t = 0; t != encoder_out.h; ++t) {
-    ncnn::Mat encoder_out_t(512, encoder_out.row(t));
-    ncnn::Mat joiner_out =
-        RunJoiner(joiner_net, encoder_out_t, decoder_out, num_threads);
-
-    auto y = static_cast<int32_t>(std::distance(
-        static_cast<const float *>(joiner_out),
-        std::max_element(
-            static_cast<const float *>(joiner_out),
-            static_cast<const float *>(joiner_out) + joiner_out.w)));
-
-    if (y != blank_id) {
-      static_cast<int32_t *>(decoder_input)[0] = hyp.back();
-      static_cast<int32_t *>(decoder_input)[1] = y;
-      hyp.push_back(y);
-
-      decoder_out = RunDecoder(decoder_net, decoder_input, num_threads);
-    }
+  for (int32_t i = 0; i != context_size; ++i) {
+    static_cast<int32_t *>(decoder_input)[i] = blank_id;
   }
+
+  ncnn::Mat decoder_out = model.RunDecoder(decoder_input);
+
+  ncnn::Mat hx;
+  ncnn::Mat cx;
+
+  int32_t num_processed = 0;
+  while (feature_extractor.NumFramesReady() - num_processed >= segment) {
+    ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
+    num_processed += offset;
+
+    ncnn::Mat encoder_out = model.RunEncoder(features, &hx, &cx);
+
+    GreedySearch(model, encoder_out, &decoder_out, &hyp);
+  }
+
   std::string text;
   for (int32_t i = context_size; i != hyp.size(); ++i) {
     text += sym[hyp[i]];
   }
 
-  std::cout << "Recognition result for " << wav << "\n" << text << "\n";
+  std::cout << "Recognition result for " << wav_filename << "\n"
+            << text << "\n";
+
   return 0;
 }
