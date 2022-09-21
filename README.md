@@ -43,4 +43,17 @@ git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   ./sherpa-ncnn-2022-09-05/test_wavs/1089-134686-0001.wav
 ```
 
+To do speech recognition in real-time with a microphone, run:
+
+```bash
+./build/bin/sherpa-ncnn-microphone \
+  ./sherpa-ncnn-2022-09-05/tokens.txt \
+  ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
+  ./sherpa-ncnn-2022-09-05/bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-05/bar/decoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
+  ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
+```
+
 [ncnn]: https://github.com/tencent/ncnn

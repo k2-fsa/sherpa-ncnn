@@ -36,16 +36,22 @@ FeatureExtractor::FeatureExtractor() {
 
 void FeatureExtractor::AcceptWaveform(float sampling_rate,
                                       const float *waveform, int32_t n) {
+  std::lock_guard<std::mutex> lock(mutex_);
   fbank_->AcceptWaveform(sampling_rate, waveform, n);
 }
 
-void FeatureExtractor::InputFinished() { fbank_->InputFinished(); }
+void FeatureExtractor::InputFinished() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  fbank_->InputFinished();
+}
 
 int32_t FeatureExtractor::NumFramesReady() const {
+  std::lock_guard<std::mutex> lock(mutex_);
   return fbank_->NumFramesReady();
 }
 
 bool FeatureExtractor::IsLastFrame(int32_t frame) const {
+  std::lock_guard<std::mutex> lock(mutex_);
   return fbank_->IsLastFrame(frame);
 }
 
@@ -54,6 +60,7 @@ ncnn::Mat FeatureExtractor::GetFrames(int32_t frame_index, int32_t n) const {
     fprintf(stderr, "%d + %d > %d\n", frame_index, n, NumFramesReady());
     exit(-1);
   }
+  std::lock_guard<std::mutex> lock(mutex_);
 
   int32_t feature_dim = fbank_->Dim();
   ncnn::Mat features;

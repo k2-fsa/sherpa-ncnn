@@ -20,6 +20,7 @@
 #define SHERPA_NCNN_CSRC_FEATURES_H_
 
 #include <memory>
+#include <mutex>
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
 
@@ -64,6 +65,7 @@ class FeatureExtractor {
 
  private:
   std::unique_ptr<knf::OnlineFbank> fbank_;
+  mutable std::mutex mutex_;
   float expected_sampling_rate_ = 16000;
 };
 

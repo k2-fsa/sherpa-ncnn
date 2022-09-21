@@ -16,33 +16,29 @@
  * limitations under the License.
  */
 
-#include <iostream>
+#include "sherpa-ncnn/csrc/microphone.h"
 
-#include "kaldi-native-fbank/csrc/online-feature.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-int main() {
-  knf::FbankOptions opts;
-  opts.frame_opts.dither = 0;
-  opts.mel_opts.num_bins = 10;
+#include "portaudio.h"
 
-  knf::OnlineFbank fbank(opts);
-  for (int32_t i = 0; i < 1600; ++i) {
-    float s = (i * i - i / 2) / 32767.;
-    fbank.AcceptWaveform(16000, &s, 1);
+namespace sherpa_ncnn {
+
+Microphone::Microphone() {
+  PaError err = Pa_Initialize();
+  if (err != paNoError) {
+    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
+    exit(-1);
   }
-
-  std::ostringstream os;
-
-  int32_t n = fbank.NumFramesReady();
-  for (int32_t i = 0; i != n; ++i) {
-    const float *frame = fbank.GetFrame(i);
-    for (int32_t k = 0; k != opts.mel_opts.num_bins; ++k) {
-      os << frame[k] << ", ";
-    }
-    os << "\n";
-  }
-
-  std::cout << os.str() << "\n";
-
-  return 0;
 }
+
+Microphone::~Microphone() {
+  PaError err = Pa_Terminate();
+  if (err != paNoError) {
+    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
+    exit(-1);
+  }
+}
+
+}  // namespace sherpa_ncnn
