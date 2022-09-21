@@ -111,7 +111,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          ./build/Debug/sherpa-ncnn.exe \
+          ./build/bin/Debug/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -121,7 +121,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1089-134686-0001.wav
 
-          ./build/Debug/sherpa-ncnn.exe \
+          ./build/bin/Debug/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -131,7 +131,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1221-135766-0001.wav
 
-          ./build/Debug/sherpa-ncnn.exe \
+          ./build/bin/Debug/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
