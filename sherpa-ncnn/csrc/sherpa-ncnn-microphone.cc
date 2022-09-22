@@ -42,7 +42,7 @@ static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
 
   return stop ? paComplete : paContinue;
 }
-static void handler(int sig) {
+static void Handler(int sig) {
   stop = true;
   fprintf(stderr, "\nexiting...\n");
 };
@@ -51,7 +51,7 @@ int main(int32_t argc, char *argv[]) {
   if (argc != 8 && argc != 9) {
     const char *usage = R"usage(
 Usage:
-  ./bin/sherpa-ncnn \
+  ./bin/sherpa-ncnn-microphone \
     /path/to/tokens.txt \
     /path/to/encoder.ncnn.param \
     /path/to/encoder.ncnn.bin \
@@ -69,7 +69,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
     return 0;
   }
-  signal(SIGINT, handler);
+  signal(SIGINT, Handler);
 
   std::string tokens = argv[1];
   std::string encoder_param = argv[2];
@@ -96,7 +96,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   sherpa_ncnn::FeatureExtractor feature_extractor;
 
   PaDeviceIndex num_devices = Pa_GetDeviceCount();
-  fprintf(stderr, "num devices: %d\n", num_devices);
+  fprintf(stderr, "Num devices: %d\n", num_devices);
 
   PaStreamParameters param;
 
