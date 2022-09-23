@@ -9,8 +9,8 @@ function(download_ncnn)
 
   include(FetchContent)
 
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.4.tar.gz")
-  set(ncnn_HASH "SHA256=b1c3168619a87862594419fcc82adeaa38441c7228efd3800aa577bdbd610bee")
+  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.5.tar.gz")
+  set(ncnn_HASH "SHA256=73ddc84406bc8fd8aa98fc05284534e3fdfbee39ee2ec8592dfbbfad28717bfd")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
