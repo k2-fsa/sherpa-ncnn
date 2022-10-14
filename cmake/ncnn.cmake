@@ -144,7 +144,7 @@ function(download_ncnn)
 
   FetchContent_GetProperties(ncnn)
   if(NOT ncnn_POPULATED)
-    message(STATUS "Downloading ncnn")
+    message(STATUS "Downloading ncnn ${ncnn_URL}")
     FetchContent_Populate(ncnn)
   endif()
   message(STATUS "ncnn is downloaded to ${ncnn_SOURCE_DIR}")
