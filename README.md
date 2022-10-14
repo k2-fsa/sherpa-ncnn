@@ -3,8 +3,7 @@
 **Documentation**: <https://k2-fsa.github.io/sherpa/ncnn/index.html>
 
 Try it in colab:
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]
-(https://colab.research.google.com/drive/1zdNAdWgV5rh1hLbLDqvLjxTa5tjU7cPa?usp=sharing)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1zdNAdWgV5rh1hLbLDqvLjxTa5tjU7cPa?usp=sharing)
 
 We provide two YouTube videos for demonstration about real-time speech recognition
 with `sherpa-ncnn` from a microphone:
