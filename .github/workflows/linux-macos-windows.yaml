@@ -143,7 +143,7 @@ jobs:
         shell: bash
         run: |
           cd build
-          cmake --build . --target sherpa-ncnn --config Release -- -m:2
+          cmake --build . --config Release -- -m:2
 
           ls -lh ./bin/Release/sherpa-ncnn.exe
 
