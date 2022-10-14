@@ -143,15 +143,15 @@ jobs:
         shell: bash
         run: |
           cd build
-          cmake --build . --target sherpa-ncnn -- -m:2
+          cmake --build . --config Release -- -m:2
 
-          ls -lh ./bin/Debug/sherpa-ncnn.exe
+          ls -lh ./bin/Release/sherpa-ncnn.exe
 
       - name: Run tests for windows (English)
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -161,7 +161,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1089-134686-0001.wav
 
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -171,7 +171,7 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1221-135766-0001.wav
 
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
             ./sherpa-ncnn-2022-09-05/tokens.txt \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/encoder_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
@@ -185,7 +185,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
               ./sherpa-ncnn-2022-09-30/tokens.txt \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
@@ -195,7 +195,7 @@ jobs:
               ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
               ./sherpa-ncnn-2022-09-30/test_wavs/0.wav
 
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
               ./sherpa-ncnn-2022-09-30/tokens.txt \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
@@ -205,7 +205,7 @@ jobs:
               ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
               ./sherpa-ncnn-2022-09-30/test_wavs/1.wav
 
-          ./build/bin/Debug/sherpa-ncnn.exe \
+          ./build/bin/Release/sherpa-ncnn.exe \
               ./sherpa-ncnn-2022-09-30/tokens.txt \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
               ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
