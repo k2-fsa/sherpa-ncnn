@@ -27,6 +27,25 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j6
 cd ..
+```
+
+## Download the pretrained model (Chinese)
+
+**Caution**: You have to run `git lfs install`. Otherwise, you will be **SAD** later.
+
+```bash
+git lfs install
+git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30
+
+./build/bin/sherpa-ncnn \
+  ./sherpa-ncnn-2022-09-30/tokens.txt \
+  ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+  ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+  ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+  ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+  ./sherpa-ncnn-2022-09-30/test_wavs/0.wav
 
 # You will find executables in ./bin/
 ```

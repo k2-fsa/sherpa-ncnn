@@ -88,11 +88,17 @@ jobs:
           mkdir $GITHUB_WORKSPACE/toolchain
           tar xvf ./arm-linux-gcc/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz --strip-components 1 -C $GITHUB_WORKSPACE/toolchain
 
-      - name: Download pretrained model and test-data
+      - name: Download pretrained model and test-data (English)
         shell: bash
         run: |
           git lfs install
           git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
+
+      - name: Download pretrained model and test-data (Chinese)
+        shell: bash
+        run: |
+          git lfs install
+          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30
 
       - name: Display toolchain info
         shell: bash
@@ -117,7 +123,7 @@ jobs:
           ls -lh build-arm-linux-gnueabihf/bin
           file build-arm-linux-gnueabihf/sherpa-ncnn
 
-      - name: Run tests
+      - name: Run tests (English)
         shell: bash
         run: |
           export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
@@ -153,3 +159,40 @@ jobs:
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.param \
             ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin \
             ./sherpa-ncnn-2022-09-05/test_wavs/1221-135766-0002.wav
+
+      - name: Run tests (Chinese)
+        shell: bash
+        run: |
+          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
+          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
+          export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
+
+          time qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn \
+                ./sherpa-ncnn-2022-09-30/tokens.txt \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/test_wavs/0.wav
+
+          time qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn \
+                ./sherpa-ncnn-2022-09-30/tokens.txt \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/test_wavs/1.wav
+
+          time qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn \
+                ./sherpa-ncnn-2022-09-30/tokens.txt \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param \
+                ./sherpa-ncnn-2022-09-30/joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin \
+                ./sherpa-ncnn-2022-09-30/test_wavs/2.wav
