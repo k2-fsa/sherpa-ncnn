@@ -83,6 +83,10 @@ git clone https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30
   ./sherpa-ncnn-2022-09-30/test_wavs/0.wav
 
 # If you are using Windows, please use ./build/bin/Release/sherpa-ncnn
+
+# If you get encoding issues on Windows, please run
+#  CHCP 65001
+# in you commandline window.
 ```
 
 To do speech recognition in real-time with a microphone, run:
@@ -132,6 +136,10 @@ To do speech recognition in real-time with a microphone, run:
   ./sherpa-ncnn-2022-09-05/bar/joiner_jit_trace-iter-468000-avg-16-pnnx.ncnn.bin
 
 # If you are using Windows, please use ./build/bin/Release/sherpa-ncnn-microphone.exe
+
+# If you get encoding issues on Windows, please run
+#  CHCP 65001
+# in you commandline window.
 ```
 
 
