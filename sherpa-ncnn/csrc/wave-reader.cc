@@ -34,7 +34,6 @@ struct WaveHeader {
   void Validate() const {
     //                    F F I R
     assert(chunk_id == 0x46464952);
-    assert(chunk_size == 36 + subchunk2_size);
     //                  E V A W
     assert(format == 0x45564157);
     assert(subchunk1_id == 0x20746d66);
@@ -52,7 +51,7 @@ struct WaveHeader {
   // https://www.robotplanet.dk/audio/wav_meta_data/riff_mci.pdf
   void SeekToDataChunk(std::istream &is) {
     //                        a t a d
-    while (subchunk2_id != 0x61746164) {
+    while (is && subchunk2_id != 0x61746164) {
       // const char *p = reinterpret_cast<const char *>(&subchunk2_id);
       // printf("Skip chunk (%x): %c%c%c%c of size: %d\n", subchunk2_id, p[0],
       //        p[1], p[2], p[3], subchunk2_size);
@@ -87,6 +86,8 @@ std::vector<float> ReadWaveImpl(std::istream &is, float *sample_rate) {
   header.Validate();
 
   header.SeekToDataChunk(is);
+
+  assert(static_cast<bool>(is));
 
   *sample_rate = header.sample_rate;
 
