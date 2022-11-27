@@ -1,0 +1,1 @@
+../../../../sherpa-ncnn/csrc/lstm-model.cc

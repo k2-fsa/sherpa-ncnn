@@ -1,0 +1,475 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		371B40CA292BC97500D0FCDA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371B40C9292BC97500D0FCDA /* AppDelegate.swift */; };
+		371B40CC292BC97500D0FCDA /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371B40CB292BC97500D0FCDA /* SceneDelegate.swift */; };
+		371B40CE292BC97500D0FCDA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371B40CD292BC97500D0FCDA /* ViewController.swift */; };
+		371B40D1292BC97500D0FCDA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 371B40CF292BC97500D0FCDA /* Main.storyboard */; };
+		371B40D3292BC97700D0FCDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 371B40D2292BC97700D0FCDA /* Assets.xcassets */; };
+		371B40D6292BC97700D0FCDA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 371B40D4292BC97700D0FCDA /* LaunchScreen.storyboard */; };
+		374BD75C29338D41008A389F /* sherpa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 374BD75B29338D41008A389F /* sherpa.mm */; };
+		374BD7652933944C008A389F /* tokens.txt in Resources */ = {isa = PBXBuildFile; fileRef = 374BD75E2933944C008A389F /* tokens.txt */; };
+		374BD7662933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */ = {isa = PBXBuildFile; fileRef = 374BD75F2933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */; };
+		374BD7672933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */ = {isa = PBXBuildFile; fileRef = 374BD7602933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */; };
+		374BD7682933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */ = {isa = PBXBuildFile; fileRef = 374BD7612933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */; };
+		374BD7692933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */ = {isa = PBXBuildFile; fileRef = 374BD7622933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */; };
+		374BD76A2933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */ = {isa = PBXBuildFile; fileRef = 374BD7632933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */; };
+		374BD76B2933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */ = {isa = PBXBuildFile; fileRef = 374BD7642933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		371B40C6292BC97500D0FCDA /* sherpa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sherpa.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		371B40C9292BC97500D0FCDA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		371B40CB292BC97500D0FCDA /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		371B40CD292BC97500D0FCDA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		371B40D0292BC97500D0FCDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		371B40D2292BC97700D0FCDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		371B40D5292BC97700D0FCDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		371B40D7292BC97700D0FCDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		374BD75A29338D41008A389F /* sherpa-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "sherpa-Bridging-Header.h"; sourceTree = "<group>"; };
+		374BD75B29338D41008A389F /* sherpa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = sherpa.mm; sourceTree = "<group>"; };
+		374BD75D29338D79008A389F /* sherpa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sherpa.h; sourceTree = "<group>"; };
+		374BD75E2933944C008A389F /* tokens.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tokens.txt; sourceTree = "<group>"; };
+		374BD75F2933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin"; sourceTree = "<group>"; };
+		374BD7602933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin"; sourceTree = "<group>"; };
+		374BD7612933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin"; sourceTree = "<group>"; };
+		374BD7622933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param"; sourceTree = "<group>"; };
+		374BD7632933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param"; sourceTree = "<group>"; };
+		374BD7642933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		371B40C3292BC97500D0FCDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		371B40BD292BC97400D0FCDA = {
+			isa = PBXGroup;
+			children = (
+				371B40C8292BC97500D0FCDA /* sherpa */,
+				371B40C7292BC97500D0FCDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		371B40C7292BC97500D0FCDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				371B40C6292BC97500D0FCDA /* sherpa.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		371B40C8292BC97500D0FCDA /* sherpa */ = {
+			isa = PBXGroup;
+			children = (
+				374BD759293389EC008A389F /* model */,
+				374BD75829337F73008A389F /* sherpa */,
+				371B40C9292BC97500D0FCDA /* AppDelegate.swift */,
+				371B40CB292BC97500D0FCDA /* SceneDelegate.swift */,
+				371B40CD292BC97500D0FCDA /* ViewController.swift */,
+				371B40CF292BC97500D0FCDA /* Main.storyboard */,
+				371B40D2292BC97700D0FCDA /* Assets.xcassets */,
+				371B40D4292BC97700D0FCDA /* LaunchScreen.storyboard */,
+				371B40D7292BC97700D0FCDA /* Info.plist */,
+			);
+			path = sherpa;
+			sourceTree = "<group>";
+		};
+		374BD75829337F73008A389F /* sherpa */ = {
+			isa = PBXGroup;
+			children = (
+				374BD75B29338D41008A389F /* sherpa.mm */,
+				374BD75A29338D41008A389F /* sherpa-Bridging-Header.h */,
+				374BD75D29338D79008A389F /* sherpa.h */,
+			);
+			path = sherpa;
+			sourceTree = "<group>";
+		};
+		374BD759293389EC008A389F /* model */ = {
+			isa = PBXGroup;
+			children = (
+				374BD7602933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */,
+				374BD7632933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */,
+				374BD75F2933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */,
+				374BD7642933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */,
+				374BD7612933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin */,
+				374BD7622933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param */,
+				374BD75E2933944C008A389F /* tokens.txt */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		371B40C5292BC97500D0FCDA /* sherpa */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 371B40DA292BC97700D0FCDA /* Build configuration list for PBXNativeTarget "sherpa" */;
+			buildPhases = (
+				371B40C2292BC97500D0FCDA /* Sources */,
+				371B40C3292BC97500D0FCDA /* Frameworks */,
+				371B40C4292BC97500D0FCDA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sherpa;
+			productName = sherpa;
+			productReference = 371B40C6292BC97500D0FCDA /* sherpa.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		371B40BE292BC97400D0FCDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1410;
+				LastUpgradeCheck = 1410;
+				TargetAttributes = {
+					371B40C5292BC97500D0FCDA = {
+						CreatedOnToolsVersion = 14.1;
+						LastSwiftMigration = 1410;
+					};
+				};
+			};
+			buildConfigurationList = 371B40C1292BC97400D0FCDA /* Build configuration list for PBXProject "sherpa" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 371B40BD292BC97400D0FCDA;
+			productRefGroup = 371B40C7292BC97500D0FCDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				371B40C5292BC97500D0FCDA /* sherpa */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		371B40C4292BC97500D0FCDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				374BD76B2933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */,
+				374BD76A2933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */,
+				374BD7652933944C008A389F /* tokens.txt in Resources */,
+				371B40D6292BC97700D0FCDA /* LaunchScreen.storyboard in Resources */,
+				374BD7692933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.param in Resources */,
+				371B40D3292BC97700D0FCDA /* Assets.xcassets in Resources */,
+				371B40D1292BC97500D0FCDA /* Main.storyboard in Resources */,
+				374BD7672933944C008A389F /* decoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */,
+				374BD7662933944C008A389F /* encoder_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */,
+				374BD7682933944C008A389F /* joiner_jit_trace-epoch-11-avg-2-pnnx.ncnn.bin in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		371B40C2292BC97500D0FCDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				371B40CE292BC97500D0FCDA /* ViewController.swift in Sources */,
+				371B40CA292BC97500D0FCDA /* AppDelegate.swift in Sources */,
+				374BD75C29338D41008A389F /* sherpa.mm in Sources */,
+				371B40CC292BC97500D0FCDA /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		371B40CF292BC97500D0FCDA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				371B40D0292BC97500D0FCDA /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		371B40D4292BC97700D0FCDA /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				371B40D5292BC97700D0FCDA /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		371B40D8292BC97700D0FCDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		371B40D9292BC97700D0FCDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		371B40DB292BC97700D0FCDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LXGRKDMEQU;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					../,
+					"../../../../../ncnn-sherpa-0.5/build-ios/install/include/ncnn/",
+					/Users/dan/VulkanSDK/1.3.231.1/MoltenVK/include,
+				);
+				INFOPLIST_FILE = sherpa/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../build/sherpa-ncnn/csrc/Debug-iphoneos",
+					"../build/kaldi-native-fbank/csrc/Debug-iphoneos",
+					"../../../../../ncnn-sherpa-0.5/build-ios/install/lib",
+					"../../../../../ncnn-sherpa-0.5/openmp-11.0.0.src/build-ios/install/lib",
+					"/Users/dan/VulkanSDK/1.3.231.1/MoltenVK/MoltenVK.xcframework/ios-arm64",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-l\"sherpa\"",
+					"-l\"kaldi-native-fbank\"",
+					"-l\"ncnn\"",
+					"-l\"glslang\"",
+					"-l\"SPIRV\"",
+					"-l\"OSDependent\"",
+					"-l\"OGLCompiler\"",
+					"-l\"MachineIndependent\"",
+					"-l\"GenericCodeGen\"",
+					"-l\"omp\"",
+					"-l\"MoltenVK\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.k2fsa.sherpa;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sherpa/sherpa/sherpa-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		371B40DC292BC97700D0FCDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LXGRKDMEQU;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					../,
+					"../../../../../ncnn-sherpa-0.5/build-ios/install/include/ncnn/",
+					/Users/dan/VulkanSDK/1.3.231.1/MoltenVK/include,
+				);
+				INFOPLIST_FILE = sherpa/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../build/sherpa-ncnn/csrc/Release-iphoneos",
+					"../build/kaldi-native-fbank/csrc/Release-iphoneos",
+					"../../../../../ncnn-sherpa-0.5/build-ios/install/lib",
+					"../../../../../ncnn-sherpa-0.5/openmp-11.0.0.src/build-ios/install/lib",
+					"/Users/dan/VulkanSDK/1.3.231.1/MoltenVK/MoltenVK.xcframework/ios-arm64",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-l\"sherpa\"",
+					"-l\"kaldi-native-fbank\"",
+					"-l\"ncnn\"",
+					"-l\"glslang\"",
+					"-l\"SPIRV\"",
+					"-l\"OSDependent\"",
+					"-l\"OGLCompiler\"",
+					"-l\"MachineIndependent\"",
+					"-l\"GenericCodeGen\"",
+					"-l\"omp\"",
+					"-l\"MoltenVK\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.k2fsa.sherpa;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sherpa/sherpa/sherpa-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		371B40C1292BC97400D0FCDA /* Build configuration list for PBXProject "sherpa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				371B40D8292BC97700D0FCDA /* Debug */,
+				371B40D9292BC97700D0FCDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		371B40DA292BC97700D0FCDA /* Build configuration list for PBXNativeTarget "sherpa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				371B40DB292BC97700D0FCDA /* Debug */,
+				371B40DC292BC97700D0FCDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 371B40BE292BC97400D0FCDA /* Project object */;
+}
