@@ -92,7 +92,7 @@ function(download_ncnn)
     Yolov3DetectionOutput
     PSROIPooling
     ROIAlign
-    Packing
+    # Packing
     Requantize
     # Cast  # needed InnerProduct
     HardSigmoid
@@ -131,7 +131,7 @@ function(download_ncnn)
   )
   foreach(layer IN LISTS disabled_layers)
     string(TOLOWER ${layer} name)
-    # set(WITH_LAYER_${name} OFF CACHE BOOL "" FORCE)
+    set(WITH_LAYER_${name} OFF CACHE BOOL "" FORCE)
   endforeach()
 
   FetchContent_GetProperties(ncnn)
