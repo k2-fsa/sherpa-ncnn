@@ -160,12 +160,15 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   int32_t num_tokens = hyp.size();
   int32_t num_processed = 0;
 
+  std::vector<ncnn::Mat> states(2);
+  ncnn::Mat encoder_out;
+
   while (!stop) {
     while (feature_extractor.NumFramesReady() - num_processed >= segment) {
       ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
       num_processed += offset;
 
-      ncnn::Mat encoder_out = model.RunEncoder(features, &hx, &cx);
+      std::tie(encoder_out, states) = model.RunEncoder(features, states);
 
       GreedySearch(model, encoder_out, &decoder_out, &hyp);
     }

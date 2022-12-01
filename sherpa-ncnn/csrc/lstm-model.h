@@ -46,17 +46,21 @@ class LstmModel {
    * @param features  A 2-d mat of shape (num_frames, feature_dim).
    *                  Note: features.w = feature_dim.
    *                        features.h = num_frames.
-   * @param hx  Hidden state of the LSTM model. You can leave it to empty
-   *            on the first invocation. It is changed in-place.
+   * @param states Contains two tensors:
+   *          - hx  Hidden state of the LSTM model. You can leave it to empty
+   *                on the first invocation. It is changed in-place.
    *
-   * @param cx  Hidden cell state of the LSTM model. You can leave it to empty
-   *            on the first invocation. It is changed in-place.
+   *          - cx  Hidden cell state of the LSTM model. You can leave it to
+   *                empty on the first invocation. It is changed in-place.
    *
-   * @return Return the output of the encoder. Its shape is
-   *  (num_out_frames, encoder_dim).
-   *  Note: ans.w == encoder_dim; ans.h == num_out_frames
+   * @return Return a pair containing:
+   *   - the output of the encoder. Its shape is (num_out_frames, encoder_dim).
+   *     Note: ans.w == encoder_dim; ans.h == num_out_frames
+   *
+   *   - next_states, a vector containing hx and cx for the next invocation
    */
-  ncnn::Mat RunEncoder(ncnn::Mat &features, ncnn::Mat *hx, ncnn::Mat *cx);
+  std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states);
 
   /** Run the decoder network.
    *

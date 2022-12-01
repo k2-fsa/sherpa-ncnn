@@ -147,15 +147,15 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   ncnn::Mat decoder_out = model.RunDecoder(decoder_input);
 
-  ncnn::Mat hx;
-  ncnn::Mat cx;
+  std::vector<ncnn::Mat> states(2);
+  ncnn::Mat encoder_out;
 
   int32_t num_processed = 0;
   while (feature_extractor.NumFramesReady() - num_processed >= segment) {
     ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
     num_processed += offset;
 
-    ncnn::Mat encoder_out = model.RunEncoder(features, &hx, &cx);
+    std::tie(encoder_out, states) = model.RunEncoder(features, states);
 
     GreedySearch(model, encoder_out, &decoder_out, &hyp);
   }
