@@ -1,7 +1,7 @@
 function(download_ncnn)
   include(FetchContent)
 
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.6.tar.gz")
+  set(ncnn_URL  "http://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.6.tar.gz")
   set(ncnn_HASH "SHA256=aac5298f00ae9ce447c2aefa6c46579dcb3a284b9ce17687c182ecf4d499b3c8")
 
   FetchContent_Declare(ncnn
@@ -68,8 +68,8 @@ function(download_ncnn)
     # TanH
     Threshold
     Tile
-    RNN
-    LSTM
+    # RNN
+    # LSTM
     # BinaryOp
     # UnaryOp
     ConvolutionDepthWise
@@ -131,7 +131,7 @@ function(download_ncnn)
   )
   foreach(layer IN LISTS disabled_layers)
     string(TOLOWER ${layer} name)
-    set(WITH_LAYER_${name} OFF CACHE BOOL "" FORCE)
+    # set(WITH_LAYER_${name} OFF CACHE BOOL "" FORCE)
   endforeach()
 
   FetchContent_GetProperties(ncnn)
