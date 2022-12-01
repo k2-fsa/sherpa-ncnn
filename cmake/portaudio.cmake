@@ -1,27 +1,4 @@
-# Copyright     2020 Fangjun Kuang (csukuangfj@gmail.com)
-# See ../LICENSE for clarification regarding multiple authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 function(download_portaudio)
-  if(CMAKE_VERSION VERSION_LESS 3.11)
-    # FetchContent is available since 3.11,
-    # we've copied it to ${CMAKE_SOURCE_DIR}/cmake/Modules
-    # so that it can be used in lower CMake versions.
-    message(STATUS "Use FetchContent provided by sherpa-ncnn")
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-  endif()
-
   include(FetchContent)
 
   set(portaudio_URL  "http://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz")

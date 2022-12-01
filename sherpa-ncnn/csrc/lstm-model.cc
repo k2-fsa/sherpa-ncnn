@@ -112,13 +112,11 @@ void LstmModel::InitEncoder(const std::string &encoder_param,
 
 void LstmModel::InitDecoder(const std::string &decoder_param,
                             const std::string &decoder_bin) {
-  decoder_.opt.use_packing_layout = false;
   InitNet(decoder_, decoder_param, decoder_bin);
 }
 
 void LstmModel::InitJoiner(const std::string &joiner_param,
                            const std::string &joiner_bin) {
-  joiner_.opt.use_packing_layout = false;
   InitNet(joiner_, joiner_param, joiner_bin);
 }
 

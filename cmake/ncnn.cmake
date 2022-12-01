@@ -1,16 +1,8 @@
 function(download_ncnn)
-  if(CMAKE_VERSION VERSION_LESS 3.11)
-    # FetchContent is available since 3.11,
-    # we've copied it to ${CMAKE_SOURCE_DIR}/cmake/Modules
-    # so that it can be used in lower CMake versions.
-    message(STATUS "Use FetchContent provided by sherpa-ncnn")
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-  endif()
-
   include(FetchContent)
 
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.5.tar.gz")
-  set(ncnn_HASH "SHA256=73ddc84406bc8fd8aa98fc05284534e3fdfbee39ee2ec8592dfbbfad28717bfd")
+  set(ncnn_URL  "http://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.6.tar.gz")
+  set(ncnn_HASH "SHA256=aac5298f00ae9ce447c2aefa6c46579dcb3a284b9ce17687c182ecf4d499b3c8")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
@@ -76,8 +68,8 @@ function(download_ncnn)
     # TanH
     Threshold
     Tile
-    RNN
-    LSTM
+    # RNN
+    # LSTM
     # BinaryOp
     # UnaryOp
     ConvolutionDepthWise
@@ -100,7 +92,7 @@ function(download_ncnn)
     Yolov3DetectionOutput
     PSROIPooling
     ROIAlign
-    Packing
+    # Packing
     Requantize
     # Cast  # needed InnerProduct
     HardSigmoid
