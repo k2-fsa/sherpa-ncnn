@@ -59,6 +59,12 @@ class LstmModel : public Model {
 
   ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) override;
 
+  int32_t Segment() const override { return 9; }
+
+  // Advance the feature extract by this number of frames after
+  // running the encoder network
+  int32_t Offset() const override { return 4; }
+
  private:
   void InitEncoder(const std::string &encoder_param,
                    const std::string &encoder_bin);

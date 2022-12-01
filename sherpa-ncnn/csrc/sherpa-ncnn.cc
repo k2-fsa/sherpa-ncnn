@@ -138,8 +138,8 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   feature_extractor.InputFinished();
 
-  int32_t segment = 9;
-  int32_t offset = 4;
+  int32_t segment = model->Segment();
+  int32_t offset = model->Offset();
 
   int32_t context_size = model->ContextSize();
   int32_t blank_id = model->BlankId();

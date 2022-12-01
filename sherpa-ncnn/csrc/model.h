@@ -82,7 +82,15 @@ class Model {
   virtual int32_t ContextSize() const { return 2; }
 
   virtual int32_t BlankId() const { return 0; }
+
+  // The encoder takes this number of frames as input
+  virtual int32_t Segment() const = 0;
+
+  // Advance the feature extractor by this number of frames after
+  // running the encoder network
+  virtual int32_t Offset() const = 0;
 };
+
 }  // namespace sherpa_ncnn
 
 #endif  // SHERPA_NCNN_CSRC_MODEL_H_
