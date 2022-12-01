@@ -114,6 +114,10 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   std::cout << config.ToString() << "\n";
 
   auto model = sherpa_ncnn::Model::Create(config);
+  if (!model) {
+    std::cout << "Failed to create a model\n";
+    exit(EXIT_FAILURE);
+  }
 
   std::vector<float> samples =
       sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);

@@ -53,16 +53,9 @@ class LstmModel : public Model {
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
 
-  ncnn::Mat RunDecoder(ncnn::Mat &decoder_input);
+  ncnn::Mat RunDecoder(ncnn::Mat &decoder_input) override;
 
-  /** Run the joiner network.
-   *
-   * @param encoder_out  A mat of shape (encoder_dim,)
-   * @param decoder_out  A mat of shape (decoder_dim,)
-   *
-   * @return Return the joiner output which is of shape (vocab_size,)
-   */
-  ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out);
+  ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) override;
 
  private:
   void InitEncoder(const std::string &encoder_param,

@@ -90,6 +90,10 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   fprintf(stderr, "%s\n", config.ToString().c_str());
 
   auto model = sherpa_ncnn::Model::Create(config);
+  if (!model) {
+    fprintf(stderr, "Failed to create a model\n");
+    exit(EXIT_FAILURE);
+  }
 
   sherpa_ncnn::Microphone mic;
 
