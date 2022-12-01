@@ -18,6 +18,8 @@
 #include "sherpa-ncnn/csrc/lstm-model.h"
 
 #include <iostream>
+#include <utility>
+#include <vector>
 
 namespace sherpa_ncnn {
 
@@ -34,16 +36,11 @@ static void InitNet(ncnn::Net &net, const std::string &param,
   }
 }
 
-LstmModel::LstmModel(const std::string &encoder_param,
-                     const std::string &encoder_bin,
-                     const std::string &decoder_param,
-                     const std::string &decoder_bin,
-                     const std::string &joiner_param,
-                     const std::string &joiner_bin, int32_t num_threads)
-    : num_threads_(num_threads) {
-  InitEncoder(encoder_param, encoder_bin);
-  InitDecoder(decoder_param, decoder_bin);
-  InitJoiner(joiner_param, joiner_bin);
+LstmModel::LstmModel(const ModelConfig &config)
+    : num_threads_(config.num_threads) {
+  InitEncoder(config.encoder_param, config.encoder_bin);
+  InitDecoder(config.decoder_param, config.decoder_bin);
+  InitJoiner(config.joiner_param, config.joiner_bin);
 }
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(

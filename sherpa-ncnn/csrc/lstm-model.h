@@ -20,26 +20,17 @@
 #define SHERPA_NCNN_CSRC_LSTM_MODEL_H_
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "net.h"  // NOLINT
+#include "sherpa-ncnn/csrc/model.h"
 
 namespace sherpa_ncnn {
 
-class LstmModel {
+class LstmModel : public Model {
  public:
-  /**
-   * @param encoder_param Path to encoder.ncnn.param
-   * @param encoder_bin Path to encoder.ncnn.bin
-   * @param decoder_param Path to decoder.ncnn.param
-   * @param decoder_bin Path to decoder.ncnn.bin
-   * @param joiner_param Path to joiner.ncnn.param
-   * @param joiner_bin Path to joiner.ncnn.bin
-   * @param num_threads Number of threads to use when running the network
-   */
-  LstmModel(const std::string &encoder_param, const std::string &encoder_bin,
-            const std::string &decoder_param, const std::string &decoder_bin,
-            const std::string &joiner_param, const std::string &joiner_bin,
-            int32_t num_threads);
+  explicit LstmModel(const ModelConfig &config);
 
   /** Run the encoder network.
    *
@@ -60,16 +51,8 @@ class LstmModel {
    *   - next_states, a vector containing hx and cx for the next invocation
    */
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
-      ncnn::Mat &features, const std::vector<ncnn::Mat> &states);
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
 
-  /** Run the decoder network.
-   *
-   * @param  decoder_input A mat of shape (context_size,). Note: Its underlying
-   *                       content consists of integers, though its type is
-   *                       float.
-   *
-   * @return Return a mat of shape (decoder_dim,)
-   */
   ncnn::Mat RunDecoder(ncnn::Mat &decoder_input);
 
   /** Run the joiner network.
@@ -80,9 +63,6 @@ class LstmModel {
    * @return Return the joiner output which is of shape (vocab_size,)
    */
   ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out);
-
-  int32_t ContextSize() const { return 2; }
-  int32_t BlankId() const { return 0; }
 
  private:
   void InitEncoder(const std::string &encoder_param,

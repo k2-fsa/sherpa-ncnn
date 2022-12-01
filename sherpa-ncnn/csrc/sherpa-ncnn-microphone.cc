@@ -23,8 +23,8 @@
 #include "portaudio.h"  // NOLINT
 #include "sherpa-ncnn/csrc/decode.h"
 #include "sherpa-ncnn/csrc/features.h"
-#include "sherpa-ncnn/csrc/lstm-model.h"
 #include "sherpa-ncnn/csrc/microphone.h"
+#include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
 
 bool stop = false;
@@ -71,25 +71,25 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   }
   signal(SIGINT, Handler);
 
-  std::string tokens = argv[1];
-  std::string encoder_param = argv[2];
-  std::string encoder_bin = argv[3];
-  std::string decoder_param = argv[4];
-  std::string decoder_bin = argv[5];
-  std::string joiner_param = argv[6];
-  std::string joiner_bin = argv[7];
+  sherpa_ncnn::ModelConfig config;
 
-  int32_t num_threads = 4;
+  std::string tokens = argv[1];
+  config.encoder_param = argv[2];
+  config.encoder_bin = argv[3];
+  config.decoder_param = argv[4];
+  config.decoder_bin = argv[5];
+  config.joiner_param = argv[6];
+  config.joiner_bin = argv[7];
+
+  config.num_threads = 4;
   if (argc == 9) {
-    num_threads = atoi(argv[8]);
+    config.num_threads = atoi(argv[8]);
   }
 
   sherpa_ncnn::SymbolTable sym(tokens);
-  fprintf(stderr, "Number of threads: %d\n", num_threads);
+  fprintf(stderr, "%s\n", config.ToString().c_str());
 
-  sherpa_ncnn::LstmModel model(encoder_param, encoder_bin, decoder_param,
-                               decoder_bin, joiner_param, joiner_bin,
-                               num_threads);
+  auto model = sherpa_ncnn::Model::Create(config);
 
   sherpa_ncnn::Microphone mic;
 
@@ -142,8 +142,8 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   int32_t segment = 9;
   int32_t offset = 4;
 
-  int32_t context_size = model.ContextSize();
-  int32_t blank_id = model.BlankId();
+  int32_t context_size = model->ContextSize();
+  int32_t blank_id = model->BlankId();
 
   std::vector<int32_t> hyp(context_size, blank_id);
 
@@ -152,7 +152,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
     static_cast<int32_t *>(decoder_input)[i] = blank_id;
   }
 
-  ncnn::Mat decoder_out = model.RunDecoder(decoder_input);
+  ncnn::Mat decoder_out = model->RunDecoder(decoder_input);
 
   ncnn::Mat hx;
   ncnn::Mat cx;
@@ -168,9 +168,9 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
       ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
       num_processed += offset;
 
-      std::tie(encoder_out, states) = model.RunEncoder(features, states);
+      std::tie(encoder_out, states) = model->RunEncoder(features, states);
 
-      GreedySearch(model, encoder_out, &decoder_out, &hyp);
+      GreedySearch(model.get(), encoder_out, &decoder_out, &hyp);
     }
 
     if (hyp.size() != num_tokens) {
