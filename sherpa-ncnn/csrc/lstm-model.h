@@ -44,6 +44,8 @@ class LstmModel : public Model {
    *          - cx  Hidden cell state of the LSTM model. You can leave it to
    *                empty on the first invocation. It is changed in-place.
    *
+   *          - Note: on the first invocation, you can pass an empty vector.
+   *
    * @return Return a pair containing:
    *   - the output of the encoder. Its shape is (num_out_frames, encoder_dim).
    *     Note: ans.w == encoder_dim; ans.h == num_out_frames

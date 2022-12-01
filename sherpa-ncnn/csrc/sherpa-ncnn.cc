@@ -153,7 +153,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   ncnn::Mat decoder_out = model->RunDecoder(decoder_input);
 
-  std::vector<ncnn::Mat> states(2);
+  std::vector<ncnn::Mat> states;
   ncnn::Mat encoder_out;
 
   int32_t num_processed = 0;

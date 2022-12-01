@@ -48,16 +48,18 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
   int32_t num_encoder_layers = 12;
   int32_t d_model = 512;
   int32_t rnn_hidden_size = 1024;
+  ncnn::Mat hx;
+  ncnn::Mat cx;
 
-  auto hx = states[0];
-  auto cx = states[1];
-
-  if (hx.empty()) {
+  if (states.empty()) {
     hx.create(d_model, num_encoder_layers);
     cx.create(rnn_hidden_size, num_encoder_layers);
 
     hx.fill(0);
     cx.fill(0);
+  } else {
+    hx = states[0];
+    cx = states[1];
   }
 
   ncnn::Mat feature_lengths(1);

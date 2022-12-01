@@ -164,7 +164,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   int32_t num_tokens = hyp.size();
   int32_t num_processed = 0;
 
-  std::vector<ncnn::Mat> states(2);
+  std::vector<ncnn::Mat> states;
   ncnn::Mat encoder_out;
 
   while (!stop) {
