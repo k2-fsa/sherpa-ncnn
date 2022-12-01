@@ -1,12 +1,4 @@
 function(download_kaldi_native_fbank)
-  if(CMAKE_VERSION VERSION_LESS 3.11)
-    # FetchContent is available since 3.11,
-    # we've copied it to ${CMAKE_SOURCE_DIR}/cmake/Modules
-    # so that it can be used in lower CMake versions.
-    message(STATUS "Use FetchContent provided by sherpa-ncnn")
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-  endif()
-
   include(FetchContent)
 
   set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.7.tar.gz")
