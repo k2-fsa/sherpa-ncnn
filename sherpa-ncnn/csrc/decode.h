@@ -22,13 +22,13 @@
 #include <vector>
 
 #include "net.h"  // NOLINT
-#include "sherpa-ncnn/csrc/lstm-model.h"
+#include "sherpa-ncnn/csrc/model.h"
 
 namespace sherpa_ncnn {
 
 /**
  *
- * @param model  The LstmModel
+ * @param model  The neural network.
  * @param encoder_out  Its shape is (num_frames, encoder_out_dim).
  *                     encoder_out.w == encoder_out_dim
  *                     encoder_out.h == num_frames
@@ -37,8 +37,8 @@ namespace sherpa_ncnn {
  *                     decoder_out.h == 1
  * @param hyp The recognition result. It is changed in place.
  */
-void GreedySearch(LstmModel &model, ncnn::Mat &encoder_out,
-                  ncnn::Mat *decoder_out, std::vector<int32_t> *hyp);
+void GreedySearch(Model *model, ncnn::Mat &encoder_out, ncnn::Mat *decoder_out,
+                  std::vector<int32_t> *hyp);
 
 }  // namespace sherpa_ncnn
 

@@ -20,15 +20,15 @@
 
 namespace sherpa_ncnn {
 
-void GreedySearch(LstmModel &model, ncnn::Mat &encoder_out,
-                  ncnn::Mat *decoder_out, std::vector<int32_t> *hyp) {
+void GreedySearch(Model *model, ncnn::Mat &encoder_out, ncnn::Mat *decoder_out,
+                  std::vector<int32_t> *hyp) {
   int32_t context_size = 2;
   int32_t blank_id = 0;  // hard-code it to 0
   ncnn::Mat decoder_input(context_size);
 
   for (int32_t t = 0; t != encoder_out.h; ++t) {
     ncnn::Mat encoder_out_t(encoder_out.w, encoder_out.row(t));
-    ncnn::Mat joiner_out = model.RunJoiner(encoder_out_t, *decoder_out);
+    ncnn::Mat joiner_out = model->RunJoiner(encoder_out_t, *decoder_out);
 
     auto y = static_cast<int32_t>(std::distance(
         static_cast<const float *>(joiner_out),
@@ -41,7 +41,7 @@ void GreedySearch(LstmModel &model, ncnn::Mat &encoder_out,
       static_cast<int32_t *>(decoder_input)[1] = y;
       hyp->push_back(y);
 
-      *decoder_out = model.RunDecoder(decoder_input);
+      *decoder_out = model->RunDecoder(decoder_input);
     }
   }
 }

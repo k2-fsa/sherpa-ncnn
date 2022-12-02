@@ -1,0 +1,73 @@
+/**
+ * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ *
+ * See LICENSE for clarification regarding multiple authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "sherpa-ncnn/csrc/model.h"
+
+#include <sstream>
+
+#include "sherpa-ncnn/csrc/lstm-model.h"
+
+namespace sherpa_ncnn {
+
+std::string ModelConfig::ToString() const {
+  std::ostringstream os;
+  os << "encoder_param: " << encoder_param << "\n";
+  os << "encoder_bin: " << encoder_bin << "\n";
+
+  os << "decoder_param: " << decoder_param << "\n";
+  os << "decoder_bin: " << decoder_bin << "\n";
+
+  os << "joiner_param: " << joiner_param << "\n";
+  os << "joiner_bin: " << joiner_bin << "\n";
+
+  os << "num_threads: " << num_threads << "\n";
+
+  return os.str();
+}
+
+static bool IsLstmModel(const ncnn::Net &net) {
+  for (const auto &layer : net.layers()) {
+    if (layer->type == "LSTM" || layer->type == "LSTM2") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
+  // 1. Load the encoder network
+  // 2. If the encoder network has LSTM layers, we assume it is a LstmModel
+  // 3. Otherwise, we assume it is a ConvEmformer
+  // 4. TODO(fangjun): We need to change this function to support more models
+  // in the future
+
+  ncnn::Net net;
+  auto ret = net.load_param(config.encoder_param.c_str());
+  if (ret != 0) {
+    NCNN_LOGE("Failed to load %s", config.encoder_param.c_str());
+    return nullptr;
+  }
+
+  if (IsLstmModel(net)) {
+    return std::make_unique<LstmModel>(config);
+  }
+
+  return nullptr;
+}
+
+}  // namespace sherpa_ncnn

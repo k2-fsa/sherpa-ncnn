@@ -18,6 +18,8 @@
 #include "sherpa-ncnn/csrc/lstm-model.h"
 
 #include <iostream>
+#include <utility>
+#include <vector>
 
 namespace sherpa_ncnn {
 
@@ -34,30 +36,30 @@ static void InitNet(ncnn::Net &net, const std::string &param,
   }
 }
 
-LstmModel::LstmModel(const std::string &encoder_param,
-                     const std::string &encoder_bin,
-                     const std::string &decoder_param,
-                     const std::string &decoder_bin,
-                     const std::string &joiner_param,
-                     const std::string &joiner_bin, int32_t num_threads)
-    : num_threads_(num_threads) {
-  InitEncoder(encoder_param, encoder_bin);
-  InitDecoder(decoder_param, decoder_bin);
-  InitJoiner(joiner_param, joiner_bin);
+LstmModel::LstmModel(const ModelConfig &config)
+    : num_threads_(config.num_threads) {
+  InitEncoder(config.encoder_param, config.encoder_bin);
+  InitDecoder(config.decoder_param, config.decoder_bin);
+  InitJoiner(config.joiner_param, config.joiner_bin);
 }
 
-ncnn::Mat LstmModel::RunEncoder(ncnn::Mat &features, ncnn::Mat *hx,
-                                ncnn::Mat *cx) {
+std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
   int32_t num_encoder_layers = 12;
   int32_t d_model = 512;
   int32_t rnn_hidden_size = 1024;
+  ncnn::Mat hx;
+  ncnn::Mat cx;
 
-  if (hx->empty()) {
-    hx->create(d_model, num_encoder_layers);
-    cx->create(rnn_hidden_size, num_encoder_layers);
+  if (states.empty()) {
+    hx.create(d_model, num_encoder_layers);
+    cx.create(rnn_hidden_size, num_encoder_layers);
 
-    hx->fill(0);
-    cx->fill(0);
+    hx.fill(0);
+    cx.fill(0);
+  } else {
+    hx = states[0];
+    cx = states[1];
   }
 
   ncnn::Mat feature_lengths(1);
@@ -68,16 +70,18 @@ ncnn::Mat LstmModel::RunEncoder(ncnn::Mat &features, ncnn::Mat *hx,
 
   encoder_ex.input("in0", features);
   encoder_ex.input("in1", feature_lengths);
-  encoder_ex.input("in2", *hx);
-  encoder_ex.input("in3", *cx);
+  encoder_ex.input("in2", hx);
+  encoder_ex.input("in3", cx);
 
   ncnn::Mat encoder_out;
   encoder_ex.extract("out0", encoder_out);
 
-  encoder_ex.extract("out2", *hx);
-  encoder_ex.extract("out3", *cx);
+  encoder_ex.extract("out2", hx);
+  encoder_ex.extract("out3", cx);
 
-  return encoder_out;
+  std::vector<ncnn::Mat> next_states = {hx, cx};
+
+  return {encoder_out, next_states};
 }
 
 ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
