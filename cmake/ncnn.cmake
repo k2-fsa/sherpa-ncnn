@@ -1,8 +1,13 @@
 function(download_ncnn)
   include(FetchContent)
 
-  set(ncnn_URL  "http://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.6.tar.gz")
-  set(ncnn_HASH "SHA256=aac5298f00ae9ce447c2aefa6c46579dcb3a284b9ce17687c182ecf4d499b3c8")
+
+  # If you don't have access to the internet, please download it to your drive
+  # and modify the following line according to your needs.
+  set(ncnn_URL  "file:///ceph-fj/fangjun/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
+
+  # set(ncnn_URL  "https://github.com/csukuangfj/ncnn/zip/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
+  set(ncnn_HASH "SHA256=1b1bcd510085c5173a1fb1f7d1459690b8919dd2fa527b1140e39d2a820e0ae0")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
@@ -61,8 +66,8 @@ function(download_ncnn)
     ROIPooling
     Scale
     # Sigmoid
-    Slice
-    Softmax
+    # Slice
+    # Softmax
     # Split
     SPP
     # TanH
@@ -111,15 +116,15 @@ function(download_ncnn)
     GRU
     MultiHeadAttention
     GELU
-    Convolution1D
+    # Convolution1D
     Pooling1D
     # ConvolutionDepthWise1D
     Convolution3D
     ConvolutionDepthWise3D
     Pooling3D
-    MatMul
+    # MatMul
     Deconvolution1D
-    DeconvolutionDepthWise1D
+    # DeconvolutionDepthWise1D
     Deconvolution3D
     DeconvolutionDepthWise3D
     Einsum
@@ -127,7 +132,7 @@ function(download_ncnn)
     RelPositionalEncoding
     MakePadMask
     RelShift
-    GLU
+    # GLU
   )
   foreach(layer IN LISTS disabled_layers)
     string(TOLOWER ${layer} name)
