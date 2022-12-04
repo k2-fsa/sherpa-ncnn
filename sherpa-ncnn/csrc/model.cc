@@ -19,6 +19,7 @@
 
 #include <sstream>
 
+#include "sherpa-ncnn/csrc/conv-emformer-model.h"
 #include "sherpa-ncnn/csrc/lstm-model.h"
 
 namespace sherpa_ncnn {
@@ -41,12 +42,44 @@ std::string ModelConfig::ToString() const {
 
 static bool IsLstmModel(const ncnn::Net &net) {
   for (const auto &layer : net.layers()) {
-    if (layer->type == "LSTM" || layer->type == "LSTM2") {
+    if (layer->type == "LSTM") {
       return true;
     }
   }
 
   return false;
+}
+
+static bool IsConvEmformerModel(const ncnn::Net &net) {
+  // Note: We may need to add more constraints if number of models gets larger.
+  if (net.input_indexes().size() < 49) {
+    return false;
+  }
+
+  if (net.output_indexes().size() < 49) {
+    return false;
+  }
+
+  for (const auto &layer : net.layers()) {
+    if (layer->type == "GLU") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void Model::InitNet(ncnn::Net &net, const std::string &param,
+                    const std::string &bin) {
+  if (net.load_param(param.c_str())) {
+    NCNN_LOGE("failed to load %s", param.c_str());
+    exit(-1);
+  }
+
+  if (net.load_model(bin.c_str())) {
+    NCNN_LOGE("failed to load %s", bin.c_str());
+    exit(-1);
+  }
 }
 
 std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
@@ -65,6 +98,10 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
 
   if (IsLstmModel(net)) {
     return std::make_unique<LstmModel>(config);
+  }
+
+  if (IsConvEmformerModel(net)) {
+    return std::make_unique<ConvEmformerModel>(config);
   }
 
   return nullptr;

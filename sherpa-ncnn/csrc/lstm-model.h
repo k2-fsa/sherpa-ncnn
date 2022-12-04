@@ -73,6 +73,8 @@ class LstmModel : public Model {
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
 
+  std::vector<ncnn::Mat> GetEncoderInitStates() const;
+
  private:
   ncnn::Net encoder_;
   ncnn::Net decoder_;

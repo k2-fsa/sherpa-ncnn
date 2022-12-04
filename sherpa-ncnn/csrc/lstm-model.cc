@@ -17,24 +17,10 @@
  */
 #include "sherpa-ncnn/csrc/lstm-model.h"
 
-#include <iostream>
 #include <utility>
 #include <vector>
 
 namespace sherpa_ncnn {
-
-static void InitNet(ncnn::Net &net, const std::string &param,
-                    const std::string &bin) {
-  if (net.load_param(param.c_str())) {
-    std::cerr << "failed to load " << param << "\n";
-    exit(-1);
-  }
-
-  if (net.load_model(bin.c_str())) {
-    std::cerr << "failed to load " << bin << "\n";
-    exit(-1);
-  }
-}
 
 LstmModel::LstmModel(const ModelConfig &config)
     : num_threads_(config.num_threads) {
@@ -45,18 +31,13 @@ LstmModel::LstmModel(const ModelConfig &config)
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
-  int32_t num_encoder_layers = 12;
-  int32_t d_model = 512;
-  int32_t rnn_hidden_size = 1024;
   ncnn::Mat hx;
   ncnn::Mat cx;
 
   if (states.empty()) {
-    hx.create(d_model, num_encoder_layers);
-    cx.create(rnn_hidden_size, num_encoder_layers);
-
-    hx.fill(0);
-    cx.fill(0);
+    auto s = GetEncoderInitStates();
+    hx = s[0];
+    cx = s[1];
   } else {
     hx = states[0];
     cx = states[1];
@@ -122,6 +103,20 @@ void LstmModel::InitDecoder(const std::string &decoder_param,
 void LstmModel::InitJoiner(const std::string &joiner_param,
                            const std::string &joiner_bin) {
   InitNet(joiner_, joiner_param, joiner_bin);
+}
+
+std::vector<ncnn::Mat> LstmModel::GetEncoderInitStates() const {
+  int32_t num_encoder_layers = 12;
+  int32_t d_model = 512;
+  int32_t rnn_hidden_size = 1024;
+
+  auto hx = ncnn::Mat(d_model, num_encoder_layers);
+  auto cx = ncnn::Mat(rnn_hidden_size, num_encoder_layers);
+
+  hx.fill(0);
+  cx.fill(0);
+
+  return {hx, cx};
 }
 
 }  // namespace sherpa_ncnn
