@@ -7,10 +7,10 @@ function(download_ncnn)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(ncnn_URL  "file:///ceph-fj/fangjun/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
+  # set(ncnn_URL  "file:///ceph-fj/fangjun/247943a2e6efb58a33eff72dcc6b25d956f6c9bd.zip")
+  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/247943a2e6efb58a33eff72dcc6b25d956f6c9bd.zip")
 
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
-  set(ncnn_HASH "SHA256=1b1bcd510085c5173a1fb1f7d1459690b8919dd2fa527b1140e39d2a820e0ae0")
+  set(ncnn_HASH "SHA256=56b48a168a5037fff0d5066a4e7a7ce4045613c2f37cadd5f0286985e0cd2618")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
