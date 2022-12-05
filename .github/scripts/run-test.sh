@@ -11,7 +11,7 @@ log() {
 echo "EXE is $EXE"
 echo "PATH: $PATH"
 
-wchich $EXE
+which $EXE
 
 log "------------------------------------------------------------"
 log "Run LSTM transducer (Chinese)"
