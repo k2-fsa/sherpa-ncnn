@@ -40,9 +40,11 @@ class ConvEmformerModel : public Model {
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
 
-  void InitStateNames();
-
   std::vector<ncnn::Mat> GetEncoderInitStates() const;
+
+  void InitEncoderInputOutputIndexes();
+  void InitDecoderInputOutputIndexes();
+  void InitJoinerInputOutputIndexes();
 
  private:
   ncnn::Net encoder_;
@@ -59,8 +61,14 @@ class ConvEmformerModel : public Model {
   int32_t right_context_length_ = 8;
   int32_t d_model_ = 512;
 
-  std::vector<std::string> in_state_names_;
-  std::vector<std::string> out_state_names_;
+  std::vector<int32_t> encoder_input_indexes_;
+  std::vector<int32_t> encoder_output_indexes_;
+
+  std::vector<int32_t> decoder_input_indexes_;
+  std::vector<int32_t> decoder_output_indexes_;
+
+  std::vector<int32_t> joiner_input_indexes_;
+  std::vector<int32_t> joiner_output_indexes_;
 };
 
 }  // namespace sherpa_ncnn

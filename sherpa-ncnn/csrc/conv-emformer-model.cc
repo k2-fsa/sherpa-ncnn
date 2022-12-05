@@ -4,6 +4,8 @@
 
 #include "sherpa-ncnn/csrc/conv-emformer-model.h"
 
+#include <regex>
+
 #include "net.h"  // NOLINT
 
 namespace sherpa_ncnn {
@@ -14,7 +16,9 @@ ConvEmformerModel::ConvEmformerModel(const ModelConfig &config)
   InitDecoder(config.decoder_param, config.decoder_bin);
   InitJoiner(config.joiner_param, config.joiner_bin);
 
-  InitStateNames();
+  InitEncoderInputOutputIndexes();
+  InitDecoderInputOutputIndexes();
+  InitJoinerInputOutputIndexes();
 }
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
@@ -33,26 +37,17 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
   encoder_ex.set_num_threads(num_threads_);
 
   // Note: We ignore error check there
-  encoder_ex.input("in0", features);
-  for (int32_t i = 0; i != num_layers_; ++i) {
-    int32_t n = i * 4;
-
-    encoder_ex.input(in_state_names_[n].c_str(), p[n]);
-    encoder_ex.input(in_state_names_[n + 1].c_str(), p[n + 1]);
-    encoder_ex.input(in_state_names_[n + 2].c_str(), p[n + 2]);
-    encoder_ex.input(in_state_names_[n + 3].c_str(), p[n + 3]);
+  encoder_ex.input(encoder_input_indexes_[0], features);
+  for (int32_t i = 1; i != encoder_input_indexes_.size(); ++i) {
+    encoder_ex.input(encoder_input_indexes_[i], p[i - 1]);
   }
 
   ncnn::Mat encoder_out;
-  encoder_ex.extract("out0", encoder_out);
+  encoder_ex.extract(encoder_output_indexes_[0], encoder_out);
 
   std::vector<ncnn::Mat> next_states(num_layers_ * 4);
-  for (int32_t i = 0; i != num_layers_; ++i) {
-    int32_t n = i * 4;
-    encoder_ex.extract(out_state_names_[n].c_str(), next_states[n]);
-    encoder_ex.extract(out_state_names_[n + 1].c_str(), next_states[n + 1]);
-    encoder_ex.extract(out_state_names_[n + 2].c_str(), next_states[n + 2]);
-    encoder_ex.extract(out_state_names_[n + 3].c_str(), next_states[n + 3]);
+  for (int32_t i = 1; i != encoder_output_indexes_.size(); ++i) {
+    encoder_ex.extract(encoder_output_indexes_[i], next_states[i - 1]);
   }
 
   return {encoder_out, next_states};
@@ -63,8 +58,8 @@ ncnn::Mat ConvEmformerModel::RunDecoder(ncnn::Mat &decoder_input) {
   decoder_ex.set_num_threads(num_threads_);
 
   ncnn::Mat decoder_out;
-  decoder_ex.input("in0", decoder_input);
-  decoder_ex.extract("out0", decoder_out);
+  decoder_ex.input(decoder_input_indexes_[0], decoder_input);
+  decoder_ex.extract(decoder_output_indexes_[0], decoder_out);
   decoder_out = decoder_out.reshape(decoder_out.w);
 
   return decoder_out;
@@ -74,8 +69,8 @@ ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
                                        ncnn::Mat &decoder_out) {
   auto joiner_ex = joiner_.create_extractor();
   joiner_ex.set_num_threads(num_threads_);
-  joiner_ex.input("in0", encoder_out);
-  joiner_ex.input("in1", decoder_out);
+  joiner_ex.input(joiner_input_indexes_[0], encoder_out);
+  joiner_ex.input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
   joiner_ex.extract("out0", joiner_out);
@@ -95,46 +90,6 @@ void ConvEmformerModel::InitDecoder(const std::string &decoder_param,
 void ConvEmformerModel::InitJoiner(const std::string &joiner_param,
                                    const std::string &joiner_bin) {
   InitNet(joiner_, joiner_param, joiner_bin);
-}
-
-void ConvEmformerModel::InitStateNames() {
-  in_state_names_.clear();
-  in_state_names_.reserve(num_layers_ * 4);
-
-  out_state_names_.clear();
-  out_state_names_.reserve(num_layers_ * 4);
-
-  std::string in = "in";
-  std::string out = "out";
-  for (int32_t i = 0; i != num_layers_; ++i) {
-    int32_t in_offset = 1 + i * 4;
-
-    std::string name = in + std::to_string(in_offset);
-    in_state_names_.push_back(std::move(name));
-
-    name = in + std::to_string(in_offset + 1);
-    in_state_names_.push_back(std::move(name));
-
-    name = in + std::to_string(in_offset + 2);
-    in_state_names_.push_back(std::move(name));
-
-    name = in + std::to_string(in_offset + 3);
-    in_state_names_.push_back(std::move(name));
-
-    int32_t out_offset = 1 + i * 4;
-
-    name = out + std::to_string(out_offset);
-    out_state_names_.push_back(std::move(name));
-
-    name = out + std::to_string(out_offset + 1);
-    out_state_names_.push_back(std::move(name));
-
-    name = out + std::to_string(out_offset + 2);
-    out_state_names_.push_back(std::move(name));
-
-    name = out + std::to_string(out_offset + 3);
-    out_state_names_.push_back(std::move(name));
-  }
 }
 
 std::vector<ncnn::Mat> ConvEmformerModel::GetEncoderInitStates() const {
@@ -159,6 +114,89 @@ std::vector<ncnn::Mat> ConvEmformerModel::GetEncoderInitStates() const {
   }
 
   return states;
+}
+
+void ConvEmformerModel::InitEncoderInputOutputIndexes() {
+  // input indexes map
+  // [0] -> in0, features,
+  // [1] -> in1, layer0, s0
+  // [2] -> in2, layer0, s1
+  // [3] -> in3, layer0, s2
+  // [4] -> in4, layer0, s3
+  //
+  // [5] -> in5, layer1, s0
+  // [6] -> in6, layer1, s1
+  // [7] -> in7, layer1, s2
+  // [8] -> in8, layer1, s3
+  //
+  // until layer 11
+  encoder_input_indexes_.resize(1 + num_layers_ * 4);
+
+  // output indexes map
+  // [0] -> out0, encoder_out
+  //
+  // [1] -> out1, layer0, s0
+  // [2] -> out2, layer0, s1
+  // [3] -> out3, layer0, s2
+  // [4] -> out4, layer0, s3
+  //
+  // [5] -> out5, layer1, s0
+  // [6] -> out6, layer1, s1
+  // [7] -> out7, layer1, s2
+  // [8] -> out8, layer1, s3
+  encoder_output_indexes_.resize(1 + num_layers_ * 4);
+  const auto &blobs = encoder_.blobs();
+
+  std::regex in_regex("in(\\d+)");
+  std::regex out_regex("out(\\d+)");
+
+  std::smatch match;
+  for (int32_t i = 0; i != blobs.size(); ++i) {
+    const auto &b = blobs[i];
+    if (std::regex_match(b.name, match, in_regex)) {
+      auto index = std::atoi(match[1].str().c_str());
+      encoder_input_indexes_[index] = i;
+    } else if (std::regex_match(b.name, match, out_regex)) {
+      auto index = std::atoi(match[1].str().c_str());
+      encoder_output_indexes_[index] = i;
+    }
+  }
+}
+
+void ConvEmformerModel::InitDecoderInputOutputIndexes() {
+  // input indexes map
+  // [0] -> in0, decoder_input,
+  decoder_input_indexes_.resize(1);
+
+  // output indexes map
+  // [0] -> out0, decoder_out,
+  decoder_output_indexes_.resize(1);
+
+  const auto &blobs = decoder_.blobs();
+  for (int32_t i = 0; i != blobs.size(); ++i) {
+    const auto &b = blobs[i];
+    if (b.name == "in0") decoder_input_indexes_[0] = i;
+    if (b.name == "out0") decoder_output_indexes_[0] = i;
+  }
+}
+
+void ConvEmformerModel::InitJoinerInputOutputIndexes() {
+  // input indexes map
+  // [0] -> in0, encoder_input,
+  // [1] -> in1, decoder_input,
+  joiner_input_indexes_.resize(2);
+
+  // output indexes map
+  // [0] -> out0, joiner_out,
+  joiner_output_indexes_.resize(1);
+
+  const auto &blobs = joiner_.blobs();
+  for (int32_t i = 0; i != blobs.size(); ++i) {
+    const auto &b = blobs[i];
+    if (b.name == "in0") joiner_input_indexes_[0] = i;
+    if (b.name == "in1") joiner_input_indexes_[1] = i;
+    if (b.name == "out0") joiner_output_indexes_[0] = i;
+  }
 }
 
 }  // namespace sherpa_ncnn
