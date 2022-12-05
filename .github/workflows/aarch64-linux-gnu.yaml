@@ -116,9 +116,8 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/aarch64-linux-gnu/libc
 
-          export PATH=$PWD/build-aarch64-linux-gnu/bin:$PATH
-          export EXE="qemu-aarch64 sherpa-ncnn"
+          export EXE="qemu-aarch64 ./build-aarch64-linux-gnu/bin/sherpa-ncnn"
 
-          ls -lh $PWD/build-aarch64-linux-gnu/bin
+          ls -lh ./build-aarch64-linux-gnu/bin
 
           .github/scripts/run-test.sh

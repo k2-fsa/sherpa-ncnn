@@ -118,9 +118,8 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
 
-          export PATH=$PWD/build-arm-linux-gnueabihf/bin:$PATH
-          export EXE="qemu-arm sherpa-ncnn"
+          export EXE="qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn"
 
-          ls -lh $PWD/build-arm-linux-gnueabihf/bin
+          ls -lh ./build-arm-linux-gnueabihf/bin
 
           .github/scripts/run-test.sh
