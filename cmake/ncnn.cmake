@@ -1,9 +1,12 @@
 function(download_ncnn)
   include(FetchContent)
 
+  # We use a modified version of NCNN.
+  # The changed code is in
+  # https://github.com/csukuangfj/ncnn/pull/7
 
-  # If you don't have access to the internet, please download it to your drive
-  # and modify the following line according to your needs.
+  # If you don't have access to the internet, please download it to your
+  # local drive and modify the following line according to your needs.
   # set(ncnn_URL  "file:///ceph-fj/fangjun/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
 
   set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/372e5f3d0e8b4024e377388b0f336bc4397a2f06.zip")
@@ -20,9 +23,6 @@ function(download_ncnn)
   set(NCNN_PIXEL_AFFINE OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_DRAWING OFF CACHE BOOL "" FORCE)
   set(NCNN_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
-
-  set(NCNN_INT8 OFF CACHE BOOL "" FORCE) # TODO(fangjun): enable it
-  set(NCNN_BF16 OFF CACHE BOOL "" FORCE) # TODO(fangjun): enable it
 
   set(NCNN_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
   set(NCNN_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -133,7 +133,11 @@ function(download_ncnn)
     MakePadMask
     RelShift
     # GLU
+    Fold
+    Unfold
+    GridSample
   )
+
   foreach(layer IN LISTS disabled_layers)
     string(TOLOWER ${layer} name)
     set(WITH_LAYER_${name} OFF CACHE BOOL "" FORCE)
