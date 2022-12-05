@@ -73,10 +73,24 @@ class LstmModel : public Model {
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
 
+  std::vector<ncnn::Mat> GetEncoderInitStates() const;
+
+  void InitEncoderInputOutputIndexes();
+  void InitDecoderInputOutputIndexes();
+  void InitJoinerInputOutputIndexes();
+
  private:
   ncnn::Net encoder_;
   ncnn::Net decoder_;
   ncnn::Net joiner_;
+  std::vector<int32_t> encoder_input_indexes_;
+  std::vector<int32_t> encoder_output_indexes_;
+
+  std::vector<int32_t> decoder_input_indexes_;
+  std::vector<int32_t> decoder_output_indexes_;
+
+  std::vector<int32_t> joiner_input_indexes_;
+  std::vector<int32_t> joiner_output_indexes_;
 
   int32_t num_threads_;
 };

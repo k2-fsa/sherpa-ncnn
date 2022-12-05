@@ -1,6 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR})
 
 set(sherpa_ncnn_core_srcs
+  conv-emformer-model.cc
   decode.cc
   features.cc
   lstm-model.cc

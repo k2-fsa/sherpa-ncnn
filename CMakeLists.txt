@@ -38,6 +38,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "The C++ version to be used.")
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 include(kaldi-native-fbank)
 include(ncnn)
 include(portaudio)

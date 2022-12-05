@@ -39,10 +39,13 @@ struct ModelConfig {
 
 class Model {
  public:
+  virtual ~Model() = default;
+
   /** Create a model from a config. */
   static std::unique_ptr<Model> Create(const ModelConfig &config);
 
-  virtual ~Model() = default;
+  static void InitNet(ncnn::Net &net, const std::string &param,
+                      const std::string &bin);
 
   /** Run the encoder network.
    *
