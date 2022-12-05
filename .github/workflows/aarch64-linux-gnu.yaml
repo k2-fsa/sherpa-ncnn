@@ -119,4 +119,6 @@ jobs:
           export PATH=$PWD/build-aarch64-linux-gnu/bin:$PATH
           export EXE="qemu-aarch64 sherpa-ncnn"
 
+          ls -lh $PWD/build-aarch64-linux-gnu/bin
+
           .github/scripts/run-test.sh

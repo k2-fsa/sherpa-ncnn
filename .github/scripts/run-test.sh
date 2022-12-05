@@ -85,7 +85,6 @@ log "------------------------------------------------------------"
 log "Run ConvEmformer transducer (English)"
 log "------------------------------------------------------------"
 repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-04
-repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30
 log "Start testing ${repo_url}"
 repo=$(basename $repo_url)
 log "Download pretrained model and test-data from $repo_url"

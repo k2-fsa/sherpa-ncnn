@@ -109,7 +109,7 @@ jobs:
           ./build-arm-linux-gnueabihf.sh
 
           ls -lh build-arm-linux-gnueabihf/bin
-          file build-arm-linux-gnueabihf/sherpa-ncnn
+          file build-arm-linux-gnueabihf/bin/sherpa-ncnn
 
       - name: Run tests (English)
         shell: bash
@@ -120,5 +120,7 @@ jobs:
 
           export PATH=$PWD/build-arm-linux-gnueabihf/bin:$PATH
           export EXE="qemu-arm sherpa-ncnn"
+
+          ls -lh $PWD/build-arm-linux-gnueabihf/bin
 
           .github/scripts/run-test.sh
