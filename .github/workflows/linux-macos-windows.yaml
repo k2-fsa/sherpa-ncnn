@@ -59,6 +59,16 @@ jobs:
           ls -lh bin/sherpa-ncnn
           file bin/sherpa-ncnn
 
+          ls -lh bin/sherpa-ncnn-microphone
+          file bin/sherpa-ncnn-microphone
+
+      - name: Upload binary sherpa-ncnn and sherpa-ncnn-micrphone
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        with:
+          name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
+          path: ./build/bin
+
       - name: Run tests for ubuntu/macos (English)
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |

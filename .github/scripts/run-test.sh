@@ -113,3 +113,36 @@ for wave in ${waves[@]}; do
     ./sherpa-ncnn-conv-emformer-transducer-2022-12-04/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
     $wave
 done
+
+log "------------------------------------------------------------"
+log "Run ConvEmformer transducer (English + Chinese, mixed model)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
+popd
+waves=(
+$repo/0.wav
+$repo/1.wav
+$repo/2.wav
+$repo/3.wav
+$repo/4.wav
+)
+
+for wave in ${waves[@]}; do
+  time $EXE \
+    $repo/tokens.txt \
+    $repo/encoder_jit_trace-pnnx.ncnn.param \
+    $repo/encoder_jit_trace-pnnx.ncnn.bin \
+    $repo/decoder_jit_trace-pnnx.ncnn.param \
+    $repo/decoder_jit_trace-pnnx.ncnn.bin \
+    $repo/joiner_jit_trace-pnnx.ncnn.param \
+    $repo/joiner_jit_trace-pnnx.ncnn.bin \
+    $wave
+done
