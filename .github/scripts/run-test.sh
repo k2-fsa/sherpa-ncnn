@@ -128,11 +128,11 @@ git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
 git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
 popd
 waves=(
-$repo/0.wav
-$repo/1.wav
-$repo/2.wav
-$repo/3.wav
-$repo/4.wav
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+$repo/test_wavs/3.wav
+$repo/test_wavs/4.wav
 )
 
 for wave in ${waves[@]}; do
