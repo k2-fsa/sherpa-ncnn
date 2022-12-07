@@ -18,7 +18,7 @@
 
 #include "sherpa-ncnn/csrc/meta-data.h"
 
-#include "net.h"
+#include "net.h"  // NOLINT
 namespace sherpa_ncnn {
 
 ncnn::Layer *MetaDataCreator(void * /*userdata*/) { return new MetaData(); }

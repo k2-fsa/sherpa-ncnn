@@ -4,7 +4,10 @@
 
 #include "sherpa-ncnn/csrc/conv-emformer-model.h"
 
-#include <regex>
+#include <regex>  // NOLINT
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/meta-data.h"

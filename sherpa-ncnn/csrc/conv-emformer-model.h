@@ -2,6 +2,12 @@
 //
 // Copyright (c)  2022  Xiaomi Corporation
 
+#ifndef SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_
+#define SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/model.h"
 
@@ -72,3 +78,4 @@ class ConvEmformerModel : public Model {
 };
 
 }  // namespace sherpa_ncnn
+#endif  // SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_

@@ -19,8 +19,8 @@
 #ifndef SHERPA_NCNN_CSRC_META_DATA_H_
 #define SHERPA_NCNN_CSRC_META_DATA_H_
 
-#include "layer.h"
-#include "net.h"
+#include "layer.h"  // NOLINT
+#include "net.h"    // NOLINT
 
 namespace sherpa_ncnn {
 
