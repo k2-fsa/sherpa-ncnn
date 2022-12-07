@@ -5,6 +5,7 @@ set(sherpa_ncnn_core_srcs
   decode.cc
   features.cc
   lstm-model.cc
+  meta-data.cc
   model.cc
   symbol-table.cc
   wave-reader.cc
