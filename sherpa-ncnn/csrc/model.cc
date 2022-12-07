@@ -60,7 +60,10 @@ static bool IsConvEmformerModel(const ncnn::Net &net) {
 
   for (const auto *layer : net.layers()) {
     if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
-      const auto *meta_data = dynamic_cast<const MetaData *>(layer);
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
       if (meta_data->arg0 == 1) return true;
     }

@@ -89,7 +89,10 @@ void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
   // Now load parameters for member variables
   for (const auto *layer : encoder_.layers()) {
     if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
-      const auto *meta_data = dynamic_cast<const MetaData *>(layer);
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
       num_layers_ = meta_data->arg1;
       memory_size_ = meta_data->arg2;
