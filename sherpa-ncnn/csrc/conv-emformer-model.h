@@ -2,6 +2,12 @@
 //
 // Copyright (c)  2022  Xiaomi Corporation
 
+#ifndef SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_
+#define SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/model.h"
 
@@ -53,13 +59,13 @@ class ConvEmformerModel : public Model {
 
   int32_t num_threads_;
 
-  int32_t num_layers_ = 12;
-  int32_t memory_size_ = 32;
-  int32_t cnn_module_kernel_ = 31;
-  int32_t left_context_length_ = 32 / 4;
-  int32_t chunk_length_ = 32;
-  int32_t right_context_length_ = 8;
-  int32_t d_model_ = 512;
+  int32_t num_layers_ = 12;               // arg1
+  int32_t memory_size_ = 32;              // arg2
+  int32_t cnn_module_kernel_ = 31;        // arg3
+  int32_t left_context_length_ = 32 / 4;  // arg4
+  int32_t chunk_length_ = 32;             // arg5
+  int32_t right_context_length_ = 8;      // arg6
+  int32_t d_model_ = 512;                 // arg7
 
   std::vector<int32_t> encoder_input_indexes_;
   std::vector<int32_t> encoder_output_indexes_;
@@ -72,3 +78,4 @@ class ConvEmformerModel : public Model {
 };
 
 }  // namespace sherpa_ncnn
+#endif  // SHERPA_NCNN_CSRC_CONV_EMFORMER_MODEL_H_

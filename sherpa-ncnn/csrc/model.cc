@@ -21,6 +21,7 @@
 
 #include "sherpa-ncnn/csrc/conv-emformer-model.h"
 #include "sherpa-ncnn/csrc/lstm-model.h"
+#include "sherpa-ncnn/csrc/meta-data.h"
 
 namespace sherpa_ncnn {
 
@@ -52,17 +53,19 @@ static bool IsLstmModel(const ncnn::Net &net) {
 
 static bool IsConvEmformerModel(const ncnn::Net &net) {
   // Note: We may need to add more constraints if number of models gets larger.
-  if (net.input_indexes().size() < 49) {
-    return false;
-  }
+  //
+  // If the net has a layer of type SherpaMetaData and with name
+  // sherpa_meta_data1 and if attribute 0 is 1, we assume the model is
+  // a ConvEmformer model
 
-  if (net.output_indexes().size() < 49) {
-    return false;
-  }
+  for (const auto *layer : net.layers()) {
+    if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
-  for (const auto &layer : net.layers()) {
-    if (layer->type == "GLU") {
-      return true;
+      if (meta_data->arg0 == 1) return true;
     }
   }
 
@@ -90,6 +93,8 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   // in the future
 
   ncnn::Net net;
+  RegisterMetaDataLayer(net);
+
   auto ret = net.load_param(config.encoder_param.c_str());
   if (ret != 0) {
     NCNN_LOGE("Failed to load %s", config.encoder_param.c_str());

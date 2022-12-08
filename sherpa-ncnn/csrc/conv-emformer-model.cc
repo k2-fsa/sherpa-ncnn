@@ -4,9 +4,13 @@
 
 #include "sherpa-ncnn/csrc/conv-emformer-model.h"
 
-#include <regex>
+#include <regex>  // NOLINT
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "net.h"  // NOLINT
+#include "sherpa-ncnn/csrc/meta-data.h"
 
 namespace sherpa_ncnn {
 
@@ -79,7 +83,28 @@ ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
 
 void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
                                     const std::string &encoder_bin) {
+  RegisterMetaDataLayer(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
+
+  // Now load parameters for member variables
+  for (const auto *layer : encoder_.layers()) {
+    if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
+
+      num_layers_ = meta_data->arg1;
+      memory_size_ = meta_data->arg2;
+      cnn_module_kernel_ = meta_data->arg3;
+      left_context_length_ = meta_data->arg4;
+      chunk_length_ = meta_data->arg5;
+      right_context_length_ = meta_data->arg6;
+      d_model_ = meta_data->arg7;
+
+      break;
+    }
+  }
 }
 
 void ConvEmformerModel::InitDecoder(const std::string &decoder_param,
