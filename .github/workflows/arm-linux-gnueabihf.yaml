@@ -6,20 +6,22 @@ on:
     branches:
       - master
     paths:
-    - '.github/workflows/arm-linux-gnueabihf.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
-    - 'toolchains/arm-linux-gnueabihf.toolchain.cmake'
+      - '.github/workflows/arm-linux-gnueabihf.yaml'
+      - '.github/scripts/test.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'toolchains/arm-linux-gnueabihf.toolchain.cmake'
   pull_request:
     branches:
       - master
     paths:
-    - '.github/workflows/arm-linux-gnueabihf.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
-    - 'toolchains/arm-linux-gnueabihf.toolchain.cmake'
+      - '.github/workflows/arm-linux-gnueabihf.yaml'
+      - '.github/scripts/test.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'toolchains/arm-linux-gnueabihf.toolchain.cmake'
 
 concurrency:
   group: arm-linux-gnueabihf-${{ github.ref }}
