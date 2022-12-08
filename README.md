@@ -28,8 +28,16 @@ if you are interested in how the model is trained.
 We provide exported models in ncnn format and they can be downloaded using
 the following links:
 
+**LSTM transducer**
+
   - English: <https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05>
   - Chinese: <https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30>
+
+**ConvEmformer transducer**
+
+  - English: <https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-04>
+  - Chinese + English (all-in-one): <https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06>
+  - Chinese (18.6 M parameters): <https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-08>
 
 ## Build for Linux/macOS
 
