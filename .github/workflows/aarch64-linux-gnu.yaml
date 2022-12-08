@@ -6,20 +6,22 @@ on:
     branches:
       - master
     paths:
-    - '.github/workflows/aarch64-linux-gnu.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
-    - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
+      - '.github/workflows/aarch64-linux-gnu.yaml'
+      - '.github/scripts/test.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
   pull_request:
     branches:
       - master
     paths:
-    - '.github/workflows/aarch64-linux-gnu.yaml'
-    - 'CMakeLists.txt'
-    - 'cmake/**'
-    - 'sherpa-ncnn/csrc/*'
-    - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
+      - '.github/workflows/aarch64-linux-gnu.yaml'
+      - '.github/scripts/test.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
 
 concurrency:
   group: aarch64-linux-gnu-${{ github.ref }}
