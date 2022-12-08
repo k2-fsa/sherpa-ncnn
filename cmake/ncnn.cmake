@@ -7,10 +7,10 @@ function(download_ncnn)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(ncnn_URL  "file:///ceph-fj/fangjun/247943a2e6efb58a33eff72dcc6b25d956f6c9bd.zip")
-  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/247943a2e6efb58a33eff72dcc6b25d956f6c9bd.zip")
+  # set(ncnn_URL  "file:///ceph-fj/fangjun/sherpa-0.7.tar.gz")
+  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.7.tar.gz")
 
-  set(ncnn_HASH "SHA256=56b48a168a5037fff0d5066a4e7a7ce4045613c2f37cadd5f0286985e0cd2618")
+  set(ncnn_HASH "SHA256=fdf3cc29a43bfb3e2d7cdbbc98a7e69d0a3cc8922b67c47c4c2c8ac28125ae9c")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
