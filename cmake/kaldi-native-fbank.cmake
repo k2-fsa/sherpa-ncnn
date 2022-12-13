@@ -3,8 +3,8 @@ function(download_kaldi_native_fbank)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(kaldi_native_fbank_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/v1.7.tar.gz")
-  set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.7.tar.gz")
+  set(kaldi_native_fbank_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/v1.7.tar.gz")
+  # set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.7.tar.gz")
   set(kaldi_native_fbank_HASH "SHA256=7785eb1a95efd4ea46604d1a6681e89a2dd120b5214b9ae4c0d7813a735b33f0")
 
   set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -23,12 +23,13 @@ function(download_kaldi_native_fbank)
   message(STATUS "kaldi-native-fbank is downloaded to ${kaldi_native_fbank_SOURCE_DIR}")
   message(STATUS "kaldi-native-fbank's binary dir is ${kaldi_native_fbank_BINARY_DIR}")
 
-  add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR} EXCLUDE_FROM_ALL)
+  add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR})
 
   target_include_directories(kaldi-native-fbank-core
     INTERFACE
       ${kaldi_native_fbank_SOURCE_DIR}/
   )
+  install(TARGETS kaldi-native-fbank-core DESTINATION lib)
 endfunction()
 
 download_kaldi_native_fbank()

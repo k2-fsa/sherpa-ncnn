@@ -7,7 +7,7 @@ function(download_ncnn)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(ncnn_URL  "file:///ceph-fj/fangjun/sherpa-0.7.tar.gz")
+  # set(ncnn_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/sherpa-0.7.tar.gz")
   set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.7.tar.gz")
 
   set(ncnn_HASH "SHA256=fdf3cc29a43bfb3e2d7cdbbc98a7e69d0a3cc8922b67c47c4c2c8ac28125ae9c")
@@ -17,12 +17,13 @@ function(download_ncnn)
     URL_HASH          ${ncnn_HASH}
   )
 
-  set(NCNN_INSTALL_SDK OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_ROTATE OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_AFFINE OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_DRAWING OFF CACHE BOOL "" FORCE)
   set(NCNN_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
+
+  set(NCNN_SHARED_LIB ${BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
   set(NCNN_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
   set(NCNN_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -151,7 +152,8 @@ function(download_ncnn)
   message(STATUS "ncnn is downloaded to ${ncnn_SOURCE_DIR}")
   message(STATUS "ncnn's binary dir is ${ncnn_BINARY_DIR}")
 
-  add_subdirectory(${ncnn_SOURCE_DIR} ${ncnn_BINARY_DIR} EXCLUDE_FROM_ALL)
+  add_subdirectory(${ncnn_SOURCE_DIR} ${ncnn_BINARY_DIR})
+  install(TARGETS ncnn DESTINATION lib)
 endfunction()
 
 download_ncnn()

@@ -20,11 +20,8 @@ endif()
 set(CMAKE_INSTALL_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 set(CMAKE_BUILD_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 
-set(BUILD_SHARED_LIBS OFF)
-if(WIN32)
-  message(STATUS "Set BUILD_SHARED_LIBS to OFF for Windows")
-  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-endif()
+option(BUILD_SHARED_LIBS "Whether to build shared libraries" OFF)
+message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -41,8 +38,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 11 CACHE STRING "The C++ version to be used.")
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
+
 include(kaldi-native-fbank)
 include(ncnn)
-include(portaudio)
+
+if(SHERPA_NCNN_ENABLE_PORTAUDIO)
+  include(portaudio)
+endif()
 
 add_subdirectory(sherpa-ncnn)
