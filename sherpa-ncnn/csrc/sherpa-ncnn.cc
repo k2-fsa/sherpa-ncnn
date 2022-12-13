@@ -27,47 +27,6 @@
 #include "sherpa-ncnn/csrc/symbol-table.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
-/** Compute fbank features of the input wave filename.
- *
- * @param wav_filename. Path to a mono wave file.
- * @param expected_sampling_rate  Expected sampling rate of the input wave file.
- * @return Return a mat of shape (num_frames, feature_dim).
- *         Note: ans.w == feature_dim; ans.h == num_frames
- *
- */
-static ncnn::Mat ComputeFeatures(const std::string &wav_filename,
-                                 float expected_sampling_rate) {
-  std::vector<float> samples =
-      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
-
-  float duration = samples.size() / expected_sampling_rate;
-
-  std::cout << "wav filename: " << wav_filename << "\n";
-  std::cout << "wav duration (s): " << duration << "\n";
-
-  knf::FbankOptions opts;
-  opts.frame_opts.dither = 0;
-  opts.frame_opts.snip_edges = false;
-  opts.frame_opts.samp_freq = expected_sampling_rate;
-
-  opts.mel_opts.num_bins = 80;
-
-  knf::OnlineFbank fbank(opts);
-  fbank.AcceptWaveform(expected_sampling_rate, samples.data(), samples.size());
-  fbank.InputFinished();
-
-  int32_t feature_dim = 80;
-  ncnn::Mat features;
-  features.create(feature_dim, fbank.NumFramesReady());
-
-  for (int32_t i = 0; i != fbank.NumFramesReady(); ++i) {
-    const float *f = fbank.GetFrame(i);
-    std::copy(f, f + feature_dim, features.row(i));
-  }
-
-  return features;
-}
-
 int main(int argc, char *argv[]) {
   if (argc < 9 || argc > 10) {
     const char *usage = R"usage(
@@ -119,8 +78,13 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
     exit(EXIT_FAILURE);
   }
 
+  bool is_ok = false;
   std::vector<float> samples =
-      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
+      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate, &is_ok);
+  if (!is_ok) {
+    fprintf(stderr, "Failed to read %s\n", wav_filename.c_str());
+    exit(-1);
+  }
 
   float duration = samples.size() / expected_sampling_rate;
 
