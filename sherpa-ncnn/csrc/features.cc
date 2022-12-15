@@ -25,13 +25,7 @@
 
 namespace sherpa_ncnn {
 
-FeatureExtractor::FeatureExtractor() {
-  knf::FbankOptions opts;
-  opts.frame_opts.dither = 0;
-  opts.frame_opts.snip_edges = false;
-  opts.frame_opts.samp_freq = expected_sampling_rate_;
-
-  opts.mel_opts.num_bins = 80;
+FeatureExtractor::FeatureExtractor(const knf::FbankOptions &opts) {
   fbank_ = std::make_unique<knf::OnlineFbank>(opts);
 }
 

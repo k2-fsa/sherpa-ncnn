@@ -85,6 +85,21 @@ void Model::InitNet(ncnn::Net &net, const std::string &param,
   }
 }
 
+#if __ANDROID_API__ >= 9
+void Model::InitNet(AAssetManager *mgr, ncnn::Net &net,
+                    const std::string &param, const std::string &bin) {
+  if (net.load_param(mgr, param.c_str())) {
+    NCNN_LOGE("failed to load %s", param.c_str());
+    exit(-1);
+  }
+
+  if (net.load_model(mgr, bin.c_str())) {
+    NCNN_LOGE("failed to load %s", bin.c_str());
+    exit(-1);
+  }
+}
+#endif
+
 std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   // 1. Load the encoder network
   // 2. If the encoder network has LSTM layers, we assume it is a LstmModel
@@ -111,5 +126,29 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
 
   return nullptr;
 }
+
+#if __ANDROID_API__ >= 9
+std::unique_ptr<Model> Model::Create(AAssetManager *mgr,
+                                     const ModelConfig &config) {
+  ncnn::Net net;
+  RegisterMetaDataLayer(net);
+
+  auto ret = net.load_param(mgr, config.encoder_param.c_str());
+  if (ret != 0) {
+    NCNN_LOGE("Failed to load %s", config.encoder_param.c_str());
+    return nullptr;
+  }
+
+  if (IsLstmModel(net)) {
+    return std::make_unique<LstmModel>(mgr, config);
+  }
+
+  if (IsConvEmformerModel(net)) {
+    return std::make_unique<ConvEmformerModel>(mgr, config);
+  }
+
+  return nullptr;
+}
+#endif
 
 }  // namespace sherpa_ncnn

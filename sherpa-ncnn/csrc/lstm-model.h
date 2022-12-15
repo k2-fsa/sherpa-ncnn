@@ -31,6 +31,9 @@ namespace sherpa_ncnn {
 class LstmModel : public Model {
  public:
   explicit LstmModel(const ModelConfig &config);
+#if __ANDROID_API__ >= 9
+  LstmModel(AAssetManager *mgr, const ModelConfig &config);
+#endif
 
   /** Run the encoder network.
    *
@@ -72,6 +75,15 @@ class LstmModel : public Model {
                    const std::string &decoder_bin);
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
+
+#if __ANDROID_API__ >= 9
+  void InitEncoder(AAssetManager *mgr, const std::string &encoder_param,
+                   const std::string &encoder_bin);
+  void InitDecoder(AAssetManager *mgr, const std::string &decoder_param,
+                   const std::string &decoder_bin);
+  void InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
+                  const std::string &joiner_bin);
+#endif
 
   std::vector<ncnn::Mat> GetEncoderInitStates() const;
 

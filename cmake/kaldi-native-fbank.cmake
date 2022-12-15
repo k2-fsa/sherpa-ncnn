@@ -23,12 +23,13 @@ function(download_kaldi_native_fbank)
   message(STATUS "kaldi-native-fbank is downloaded to ${kaldi_native_fbank_SOURCE_DIR}")
   message(STATUS "kaldi-native-fbank's binary dir is ${kaldi_native_fbank_BINARY_DIR}")
 
-  add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR} EXCLUDE_FROM_ALL)
+  add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR})
 
   target_include_directories(kaldi-native-fbank-core
     INTERFACE
       ${kaldi_native_fbank_SOURCE_DIR}/
   )
+  install(TARGETS kaldi-native-fbank-core DESTINATION lib)
 endfunction()
 
 download_kaldi_native_fbank()
