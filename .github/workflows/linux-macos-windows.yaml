@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - '.github/workflows/linux-macos-windows.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -15,7 +15,7 @@ on:
       - master
     paths:
       - '.github/workflows/linux-macos-windows.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -74,7 +74,7 @@ jobs:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
           path: ./build/bin
 
-      - name: Run tests for ubuntu/macos (English)
+      - name: Run tests for ubuntu/macos
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |
           export PATH=$PWD/build/bin:$PATH
@@ -91,7 +91,7 @@ jobs:
 
           ls -lh ./bin/Release/sherpa-ncnn.exe
 
-      - name: Run tests for windows (English)
+      - name: Run tests for windows
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |

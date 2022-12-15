@@ -113,7 +113,7 @@ jobs:
 
           file build-aarch64-linux-gnu/bin/sherpa-ncnn
 
-      - name: Run tests (English)
+      - name: Run tests
         shell: bash
         run: |
           export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
