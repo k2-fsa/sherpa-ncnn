@@ -12,34 +12,38 @@ set(sherpa_ncnn_core_srcs
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core kaldi-native-fbank-core ncnn)
-
-add_executable(sherpa-ncnn sherpa-ncnn.cc)
-target_link_libraries(sherpa-ncnn sherpa-ncnn-core)
-install(TARGETS sherpa-ncnn DESTINATION bin)
+set_target_properties(sherpa-ncnn-core PROPERTIES VERSION ${SHERPA_NCNN_VERSION} SOVERSION ${SHERPA_NCNN_VERSION_MAJOR})
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
-if(SHERPA_NCNN_ENABLE_PORTAUDIO)
-  add_executable(sherpa-ncnn-microphone
-    sherpa-ncnn-microphone.cc
-    microphone.cc
-  )
+if(NOT DEFINED ANDROID_ABI)
+  add_executable(sherpa-ncnn sherpa-ncnn.cc)
+  target_link_libraries(sherpa-ncnn sherpa-ncnn-core)
+  install(TARGETS sherpa-ncnn DESTINATION bin)
 
-  if(BUILD_SHARED_LIBS)
-    set(PA_LIB portaudio)
-  else()
-    set(PA_LIB portaudio_static)
+  if(SHERPA_NCNN_ENABLE_PORTAUDIO)
+    add_executable(sherpa-ncnn-microphone
+      sherpa-ncnn-microphone.cc
+      microphone.cc
+    )
+
+    if(BUILD_SHARED_LIBS)
+      set(PA_LIB portaudio)
+    else()
+      set(PA_LIB portaudio_static)
+    endif()
+
+    target_link_libraries(sherpa-ncnn-microphone ${PA_LIB} sherpa-ncnn-core)
+
+    install(TARGETS sherpa-ncnn-microphone DESTINATION bin)
   endif()
-
-  target_link_libraries(sherpa-ncnn-microphone ${PA_LIB} sherpa-ncnn-core)
-
-  install(TARGETS sherpa-ncnn-microphone DESTINATION bin)
 endif()
 
-
 set(hdrs
+  decode.h
+  features.h
   model.h
   symbol-table.h
-  decode.h
+  wave-reader.h
 )
 
 install(FILES ${hdrs}

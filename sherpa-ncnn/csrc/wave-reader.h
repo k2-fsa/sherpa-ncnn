@@ -37,6 +37,9 @@ namespace sherpa_ncnn {
 std::vector<float> ReadWave(const std::string &filename,
                             float expected_sample_rate, bool *is_ok);
 
+std::vector<float> ReadWave(std::istream &is, float expected_sample_rate,
+                            bool *is_ok);
+
 }  // namespace sherpa_ncnn
 
 #endif  // SHERPA_NCNN_CSRC_WAVE_READER_H_

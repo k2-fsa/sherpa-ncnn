@@ -17,6 +17,9 @@ namespace sherpa_ncnn {
 class ConvEmformerModel : public Model {
  public:
   explicit ConvEmformerModel(const ModelConfig &config);
+#if __ANDROID_API__ >= 9
+  ConvEmformerModel(AAssetManager *mgr, const ModelConfig &config);
+#endif
 
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
@@ -45,6 +48,17 @@ class ConvEmformerModel : public Model {
                    const std::string &decoder_bin);
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
+
+  void InitEncoderPostProcessing();
+
+#if __ANDROID_API__ >= 9
+  void InitEncoder(AAssetManager *mgr, const std::string &encoder_param,
+                   const std::string &encoder_bin);
+  void InitDecoder(AAssetManager *mgr, const std::string &decoder_param,
+                   const std::string &decoder_bin);
+  void InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
+                  const std::string &joiner_bin);
+#endif
 
   std::vector<ncnn::Mat> GetEncoderInitStates() const;
 

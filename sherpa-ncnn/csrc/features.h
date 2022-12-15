@@ -32,7 +32,7 @@ namespace sherpa_ncnn {
 
 class FeatureExtractor {
  public:
-  FeatureExtractor();
+  explicit FeatureExtractor(const knf::FbankOptions &fbank_opts);
 
   /**
      @param sampling_rate The sampling_rate of the input waveform. Should match
@@ -66,7 +66,6 @@ class FeatureExtractor {
  private:
   std::unique_ptr<knf::OnlineFbank> fbank_;
   mutable std::mutex mutex_;
-  float expected_sampling_rate_ = 16000;
 };
 
 }  // namespace sherpa_ncnn

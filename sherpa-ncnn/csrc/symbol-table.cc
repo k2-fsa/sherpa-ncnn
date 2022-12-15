@@ -21,11 +21,39 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <strstream>
+
+#if __ANDROID_API__ >= 9
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#include "android/log.h"
+#endif
 
 namespace sherpa_ncnn {
 
 SymbolTable::SymbolTable(const std::string &filename) {
   std::ifstream is(filename);
+  Init(is);
+}
+
+#if __ANDROID_API__ >= 9
+SymbolTable::SymbolTable(AAssetManager *mgr, const std::string &filename) {
+  AAsset *asset = AAssetManager_open(mgr, filename.c_str(), AASSET_MODE_BUFFER);
+  if (!asset) {
+    __android_log_print(ANDROID_LOG_FATAL, "sherpa-ncnn",
+                        "SymbolTable: Load %s failed", filename.c_str());
+    exit(-1);
+  }
+
+  auto p = reinterpret_cast<const char *>(AAsset_getBuffer(asset));
+  size_t asset_length = AAsset_getLength(asset);
+  std::istrstream is(p, asset_length);
+  Init(is);
+  AAsset_close(asset);
+}
+#endif
+
+void SymbolTable::Init(std::istream &is) {
   std::string sym;
   int32_t id;
   while (is >> sym >> id) {

@@ -95,9 +95,16 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
     exit(EXIT_FAILURE);
   }
 
+  float sample_rate = 16000;
   sherpa_ncnn::Microphone mic;
 
-  sherpa_ncnn::FeatureExtractor feature_extractor;
+  knf::FbankOptions fbank_opts;
+  fbank_opts.frame_opts.dither = 0;
+  fbank_opts.frame_opts.snip_edges = false;
+  fbank_opts.frame_opts.samp_freq = sample_rate;
+  fbank_opts.mel_opts.num_bins = 80;
+
+  sherpa_ncnn::FeatureExtractor feature_extractor(fbank_opts);
 
   PaDeviceIndex num_devices = Pa_GetDeviceCount();
   fprintf(stderr, "Num devices: %d\n", num_devices);
@@ -120,7 +127,6 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   param.suggestedLatency = info->defaultLowInputLatency;
   param.hostApiSpecificStreamInfo = nullptr;
-  float sample_rate = 16000;
 
   PaStream *stream;
   PaError err =

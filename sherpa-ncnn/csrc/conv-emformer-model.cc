@@ -25,6 +25,20 @@ ConvEmformerModel::ConvEmformerModel(const ModelConfig &config)
   InitJoinerInputOutputIndexes();
 }
 
+#if __ANDROID_API__ >= 9
+ConvEmformerModel::ConvEmformerModel(AAssetManager *mgr,
+                                     const ModelConfig &config)
+    : num_threads_(config.num_threads) {
+  InitEncoder(mgr, config.encoder_param, config.encoder_bin);
+  InitDecoder(mgr, config.decoder_param, config.decoder_bin);
+  InitJoiner(mgr, config.joiner_param, config.joiner_bin);
+
+  InitEncoderInputOutputIndexes();
+  InitDecoderInputOutputIndexes();
+  InitJoinerInputOutputIndexes();
+}
+#endif
+
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
   std::vector<ncnn::Mat> _states;
@@ -81,11 +95,7 @@ ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
   return joiner_out;
 }
 
-void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
-                                    const std::string &encoder_bin) {
-  RegisterMetaDataLayer(encoder_);
-  InitNet(encoder_, encoder_param, encoder_bin);
-
+void ConvEmformerModel::InitEncoderPostProcessing() {
   // Now load parameters for member variables
   for (const auto *layer : encoder_.layers()) {
     if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
@@ -107,6 +117,13 @@ void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
   }
 }
 
+void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
+                                    const std::string &encoder_bin) {
+  RegisterMetaDataLayer(encoder_);
+  InitNet(encoder_, encoder_param, encoder_bin);
+  InitEncoderPostProcessing();
+}
+
 void ConvEmformerModel::InitDecoder(const std::string &decoder_param,
                                     const std::string &decoder_bin) {
   InitNet(decoder_, decoder_param, decoder_bin);
@@ -116,6 +133,28 @@ void ConvEmformerModel::InitJoiner(const std::string &joiner_param,
                                    const std::string &joiner_bin) {
   InitNet(joiner_, joiner_param, joiner_bin);
 }
+
+#if __ANDROID_API__ >= 9
+void ConvEmformerModel::InitEncoder(AAssetManager *mgr,
+                                    const std::string &encoder_param,
+                                    const std::string &encoder_bin) {
+  RegisterMetaDataLayer(encoder_);
+  InitNet(mgr, encoder_, encoder_param, encoder_bin);
+  InitEncoderPostProcessing();
+}
+
+void ConvEmformerModel::InitDecoder(AAssetManager *mgr,
+                                    const std::string &decoder_param,
+                                    const std::string &decoder_bin) {
+  InitNet(mgr, decoder_, decoder_param, decoder_bin);
+}
+
+void ConvEmformerModel::InitJoiner(AAssetManager *mgr,
+                                   const std::string &joiner_param,
+                                   const std::string &joiner_bin) {
+  InitNet(mgr, joiner_, joiner_param, joiner_bin);
+}
+#endif
 
 std::vector<ncnn::Mat> ConvEmformerModel::GetEncoderInitStates() const {
   std::vector<ncnn::Mat> states;

@@ -154,6 +154,11 @@ std::vector<float> ReadWaveImpl(std::istream &is, float expected_sample_rate,
 std::vector<float> ReadWave(const std::string &filename,
                             float expected_sample_rate, bool *is_ok) {
   std::ifstream is(filename, std::ifstream::binary);
+  return ReadWave(is, expected_sample_rate, is_ok);
+}
+
+std::vector<float> ReadWave(std::istream &is, float expected_sample_rate,
+                            bool *is_ok) {
   auto samples = ReadWaveImpl(is, expected_sample_rate, is_ok);
   return samples;
 }

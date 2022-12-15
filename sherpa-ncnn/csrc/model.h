@@ -46,8 +46,10 @@ class Model {
   /** Create a model from a config. */
   static std::unique_ptr<Model> Create(const ModelConfig &config);
 
-  static void InitNet(ncnn::Net &net, const std::string &param,
-                      const std::string &bin);
+#if __ANDROID_API__ >= 9
+  static std::unique_ptr<Model> Create(AAssetManager *mgr,
+                                       const ModelConfig &config);
+#endif
 
   /** Run the encoder network.
    *
@@ -94,6 +96,15 @@ class Model {
   // Advance the feature extractor by this number of frames after
   // running the encoder network
   virtual int32_t Offset() const = 0;
+
+ protected:
+  static void InitNet(ncnn::Net &net, const std::string &param,
+                      const std::string &bin);
+
+#if __ANDROID_API__ >= 9
+  static void InitNet(AAssetManager *mgr, ncnn::Net &net,
+                      const std::string &param, const std::string &bin);
+#endif
 };
 
 }  // namespace sherpa_ncnn

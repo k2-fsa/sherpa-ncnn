@@ -33,6 +33,19 @@ LstmModel::LstmModel(const ModelConfig &config)
   InitJoinerInputOutputIndexes();
 }
 
+#if __ANDROID_API__ >= 9
+LstmModel::LstmModel(AAssetManager *mgr, const ModelConfig &config)
+    : num_threads_(config.num_threads) {
+  InitEncoder(mgr, config.encoder_param, config.encoder_bin);
+  InitDecoder(mgr, config.decoder_param, config.decoder_bin);
+  InitJoiner(mgr, config.joiner_param, config.joiner_bin);
+
+  InitEncoderInputOutputIndexes();
+  InitDecoderInputOutputIndexes();
+  InitJoinerInputOutputIndexes();
+}
+#endif
+
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
   ncnn::Mat hx;
@@ -108,6 +121,27 @@ void LstmModel::InitJoiner(const std::string &joiner_param,
                            const std::string &joiner_bin) {
   InitNet(joiner_, joiner_param, joiner_bin);
 }
+
+#if __ANDROID_API__ >= 9
+void LstmModel::InitEncoder(AAssetManager *mgr,
+                            const std::string &encoder_param,
+                            const std::string &encoder_bin) {
+  encoder_.opt.use_packing_layout = false;
+  encoder_.opt.use_fp16_storage = false;
+  InitNet(mgr, encoder_, encoder_param, encoder_bin);
+}
+
+void LstmModel::InitDecoder(AAssetManager *mgr,
+                            const std::string &decoder_param,
+                            const std::string &decoder_bin) {
+  InitNet(mgr, decoder_, decoder_param, decoder_bin);
+}
+
+void LstmModel::InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
+                           const std::string &joiner_bin) {
+  InitNet(mgr, joiner_, joiner_param, joiner_bin);
+}
+#endif
 
 std::vector<ncnn::Mat> LstmModel::GetEncoderInitStates() const {
   int32_t num_encoder_layers = 12;

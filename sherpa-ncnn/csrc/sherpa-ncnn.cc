@@ -91,7 +91,13 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   std::cout << "wav filename: " << wav_filename << "\n";
   std::cout << "wav duration (s): " << duration << "\n";
 
-  sherpa_ncnn::FeatureExtractor feature_extractor;
+  knf::FbankOptions fbank_opts;
+  fbank_opts.frame_opts.dither = 0;
+  fbank_opts.frame_opts.snip_edges = false;
+  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
+  fbank_opts.mel_opts.num_bins = 80;
+
+  sherpa_ncnn::FeatureExtractor feature_extractor(fbank_opts);
   feature_extractor.AcceptWaveform(expected_sampling_rate, samples.data(),
                                    samples.size());
 
