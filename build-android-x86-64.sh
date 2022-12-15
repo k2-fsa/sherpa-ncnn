@@ -15,6 +15,18 @@ if [ -z $ANDROID_NDK ]; then
   #
   # Inside the $ANDROID_NDK directory, you can find a binary ndk-build
   # and some other files like the file "build/cmake/android.toolchain.cmake"
+
+  if [ ! -d $ANDROID_NDK ]; then
+    # For macOS, I have installed Android Studio, select the menu
+    # Tools -> SDK manager -> Android SDK
+    # and set "Android SDK location" to /Users/fangjun/software/my-android
+    ANDROID_NDK=/Users/fangjun/software/my-android/ndk/22.1.7171670
+  fi
+fi
+
+if [ ! -d $ANDROID_NDK ]; then
+  echo Please set the environment variable ANDROID_NDK before you run this script
+  exit 1
 fi
 
 echo "ANDROID_NDK: $ANDROID_NDK"
