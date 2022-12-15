@@ -71,17 +71,9 @@ class SherpaNcnn {
   std::string GetText() const {
     int32_t context_size = model_->ContextSize();
 
-    std::ostringstream os;
-    for (int32_t i = context_size; i != static_cast<int32_t>(hyp_.size());
-         ++i) {
-      os << hyp_[i] << ", ";
-    }
-    NCNN_LOGE("%s\n", os.str().c_str());
-
     std::string text;
     for (int32_t i = context_size; i != static_cast<int32_t>(hyp_.size());
          ++i) {
-      NCNN_LOGE("%d: %d, %s\n", i, hyp_[i], text.c_str());
       text += sym_[hyp_[i]];
     }
     return text;
@@ -332,19 +324,16 @@ Java_com_k2fsa_sherpa_ncnn_WaveReader_00024Companion_readWave(
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (!mgr) {
     NCNN_LOGE("Failed to get asset manager: %p", mgr);
+    return nullptr;
   }
   const char *p_filename = env->GetStringUTFChars(filename, nullptr);
-  NCNN_LOGE("filename: %s\n", p_filename);
-  NCNN_LOGE("sample_rate: %f\n", expected_sample_rate);
 
   AAsset *asset = AAssetManager_open(mgr, p_filename, AASSET_MODE_BUFFER);
-  NCNN_LOGE("asset: %p\n", asset);
   size_t asset_length = AAsset_getLength(asset);
   std::vector<char> buffer(asset_length);
   AAsset_read(asset, buffer.data(), asset_length);
 
   std::istrstream is(buffer.data(), asset_length);
-  NCNN_LOGE("length: %d\n", (int)asset_length);
 
   bool is_ok = false;
   std::vector<float> samples =
