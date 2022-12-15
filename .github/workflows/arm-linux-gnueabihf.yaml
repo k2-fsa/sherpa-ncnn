@@ -7,7 +7,7 @@ on:
       - master
     paths:
       - '.github/workflows/arm-linux-gnueabihf.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -17,7 +17,7 @@ on:
       - master
     paths:
       - '.github/workflows/arm-linux-gnueabihf.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -111,6 +111,8 @@ jobs:
           ./build-arm-linux-gnueabihf.sh
 
           ls -lh build-arm-linux-gnueabihf/bin
+          ls -lh build-arm-linux-gnueabihf/lib
+
           file build-arm-linux-gnueabihf/bin/sherpa-ncnn
 
       - name: Run tests (English)

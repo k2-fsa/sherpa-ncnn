@@ -58,6 +58,9 @@ jobs:
           cd build
           make -j2
 
+          ls -lh lib
+          ls -lh bin
+
           ls -lh bin/sherpa-ncnn
           file bin/sherpa-ncnn
 

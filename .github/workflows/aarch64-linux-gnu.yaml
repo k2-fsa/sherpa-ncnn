@@ -7,7 +7,7 @@ on:
       - master
     paths:
       - '.github/workflows/aarch64-linux-gnu.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -17,7 +17,7 @@ on:
       - master
     paths:
       - '.github/workflows/aarch64-linux-gnu.yaml'
-      - '.github/scripts/test.sh'
+      - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -109,6 +109,8 @@ jobs:
           ./build-aarch64-linux-gnu.sh
 
           ls -lh build-aarch64-linux-gnu/bin
+          ls -lh build-aarch64-linux-gnu/lib
+
           file build-aarch64-linux-gnu/bin/sherpa-ncnn
 
       - name: Run tests (English)
