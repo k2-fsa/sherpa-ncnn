@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Speech-to-text with Next-gen Kaldi</string>
+    <string name="button">Start</string>
 </resources>
