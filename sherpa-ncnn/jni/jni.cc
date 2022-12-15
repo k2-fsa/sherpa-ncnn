@@ -165,92 +165,92 @@ static knf::FbankOptions GetFbankOptions(JNIEnv *env, jobject opts) {
 
   knf::FbankOptions fbank_opts;
 
-  fid = env->GetFieldID(cls, "use_energy", "Z");
+  fid = env->GetFieldID(cls, "useEnergy", "Z");
   fbank_opts.use_energy = env->GetBooleanField(opts, fid);
 
-  fid = env->GetFieldID(cls, "energy_floor", "F");
+  fid = env->GetFieldID(cls, "energyFloor", "F");
   fbank_opts.energy_floor = env->GetFloatField(opts, fid);
 
-  fid = env->GetFieldID(cls, "raw_energy", "Z");
+  fid = env->GetFieldID(cls, "rawEnergy", "Z");
   fbank_opts.raw_energy = env->GetBooleanField(opts, fid);
 
-  fid = env->GetFieldID(cls, "htk_compat", "Z");
+  fid = env->GetFieldID(cls, "htkCompat", "Z");
   fbank_opts.htk_compat = env->GetBooleanField(opts, fid);
 
-  fid = env->GetFieldID(cls, "use_log_fbank", "Z");
+  fid = env->GetFieldID(cls, "useLogFbank", "Z");
   fbank_opts.use_log_fbank = env->GetBooleanField(opts, fid);
 
-  fid = env->GetFieldID(cls, "use_power", "Z");
+  fid = env->GetFieldID(cls, "usePower", "Z");
   fbank_opts.use_power = env->GetBooleanField(opts, fid);
 
-  fid = env->GetFieldID(cls, "frame_opts",
+  fid = env->GetFieldID(cls, "frameOpts",
                         "Lcom/k2fsa/sherpa/ncnn/FrameExtractionOptions;");
 
   jobject frame_opts = env->GetObjectField(opts, fid);
   jclass frame_opts_cls = env->GetObjectClass(frame_opts);
 
-  fid = env->GetFieldID(frame_opts_cls, "samp_freq", "F");
+  fid = env->GetFieldID(frame_opts_cls, "sampFreq", "F");
   fbank_opts.frame_opts.samp_freq = env->GetFloatField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "frame_shift_ms", "F");
+  fid = env->GetFieldID(frame_opts_cls, "frameShiftMs", "F");
   fbank_opts.frame_opts.frame_shift_ms = env->GetFloatField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "frame_length_ms", "F");
+  fid = env->GetFieldID(frame_opts_cls, "frameLengthMs", "F");
   fbank_opts.frame_opts.frame_length_ms = env->GetFloatField(frame_opts, fid);
 
   fid = env->GetFieldID(frame_opts_cls, "dither", "F");
   fbank_opts.frame_opts.dither = env->GetFloatField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "preemph_coeff", "F");
+  fid = env->GetFieldID(frame_opts_cls, "preemphCoeff", "F");
   fbank_opts.frame_opts.preemph_coeff = env->GetFloatField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "remove_dc_offset", "Z");
+  fid = env->GetFieldID(frame_opts_cls, "removeDcOffset", "Z");
   fbank_opts.frame_opts.remove_dc_offset =
       env->GetBooleanField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "window_type", "Ljava/lang/String;");
+  fid = env->GetFieldID(frame_opts_cls, "windowType", "Ljava/lang/String;");
   jstring window_type = (jstring)env->GetObjectField(frame_opts, fid);
   const char *p_window_type = env->GetStringUTFChars(window_type, nullptr);
   fbank_opts.frame_opts.window_type = p_window_type;
   env->ReleaseStringUTFChars(window_type, p_window_type);
 
-  fid = env->GetFieldID(frame_opts_cls, "round_to_power_of_two", "Z");
+  fid = env->GetFieldID(frame_opts_cls, "roundToPowerOfTwo", "Z");
   fbank_opts.frame_opts.round_to_power_of_two =
       env->GetBooleanField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "blackman_coeff", "F");
+  fid = env->GetFieldID(frame_opts_cls, "blackmanCoeff", "F");
   fbank_opts.frame_opts.blackman_coeff = env->GetFloatField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "snip_edges", "Z");
+  fid = env->GetFieldID(frame_opts_cls, "snipEdges", "Z");
   fbank_opts.frame_opts.snip_edges = env->GetBooleanField(frame_opts, fid);
 
-  fid = env->GetFieldID(frame_opts_cls, "max_feature_vectors", "I");
+  fid = env->GetFieldID(frame_opts_cls, "maxFeatureVectors", "I");
   fbank_opts.frame_opts.max_feature_vectors = env->GetIntField(frame_opts, fid);
 
-  fid = env->GetFieldID(cls, "mel_opts",
+  fid = env->GetFieldID(cls, "melOpts",
                         "Lcom/k2fsa/sherpa/ncnn/MelBanksOptions;");
   jobject mel_opts = env->GetObjectField(opts, fid);
   jclass mel_opts_cls = env->GetObjectClass(mel_opts);
 
-  fid = env->GetFieldID(mel_opts_cls, "num_bins", "I");
+  fid = env->GetFieldID(mel_opts_cls, "numBins", "I");
   fbank_opts.mel_opts.num_bins = env->GetIntField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "low_freq", "F");
+  fid = env->GetFieldID(mel_opts_cls, "lowFreq", "F");
   fbank_opts.mel_opts.low_freq = env->GetFloatField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "high_freq", "F");
+  fid = env->GetFieldID(mel_opts_cls, "highFreq", "F");
   fbank_opts.mel_opts.high_freq = env->GetFloatField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "vtln_low", "F");
+  fid = env->GetFieldID(mel_opts_cls, "vtlnLow", "F");
   fbank_opts.mel_opts.vtln_low = env->GetFloatField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "vtln_high", "F");
+  fid = env->GetFieldID(mel_opts_cls, "vtlnHigh", "F");
   fbank_opts.mel_opts.vtln_high = env->GetFloatField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "debug_mel", "Z");
+  fid = env->GetFieldID(mel_opts_cls, "debugMel", "Z");
   fbank_opts.mel_opts.debug_mel = env->GetBooleanField(mel_opts, fid);
 
-  fid = env->GetFieldID(mel_opts_cls, "htk_mode", "Z");
+  fid = env->GetFieldID(mel_opts_cls, "htkMode", "Z");
   fbank_opts.mel_opts.htk_mode = env->GetBooleanField(mel_opts, fid);
 
   return fbank_opts;

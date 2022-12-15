@@ -3,38 +3,38 @@ package com.k2fsa.sherpa.ncnn
 import android.content.res.AssetManager
 
 data class FrameExtractionOptions(
-    var samp_freq: Float = 16000.0f,
-    var frame_shift_ms: Float = 10.0f,
-    var frame_length_ms: Float = 25.0f,
+    var sampFreq: Float = 16000.0f,
+    var frameShiftMs: Float = 10.0f,
+    var frameLengthMs: Float = 25.0f,
     var dither: Float = 0.0f,
-    var preemph_coeff: Float = 0.97f,
-    var remove_dc_offset: Boolean = true,
-    var window_type: String = "povey",
-    var round_to_power_of_two: Boolean = true,
-    var blackman_coeff: Float = 0.42f,
-    var snip_edges: Boolean = true,
-    var max_feature_vectors: Int = -1
+    var preemphCoeff: Float = 0.97f,
+    var removeDcOffset: Boolean = true,
+    var windowType: String = "povey",
+    var roundToPowerOfTwo: Boolean = true,
+    var blackmanCoeff: Float = 0.42f,
+    var snipEdges: Boolean = true,
+    var maxFeatureVectors: Int = -1
 )
 
 data class MelBanksOptions(
-    var num_bins: Int = 25,
-    var low_freq: Float = 20.0f,
-    var high_freq: Float = 0.0f,
-    var vtln_low: Float = 100.0f,
-    var vtln_high: Float = -500.0f,
-    var debug_mel: Boolean = false,
-    var htk_mode: Boolean = false,
+    var numBins: Int = 25,
+    var lowFreq: Float = 20.0f,
+    var highFreq: Float = 0.0f,
+    var vtlnLow: Float = 100.0f,
+    var vtlnHigh: Float = -500.0f,
+    var debugMel: Boolean = false,
+    var htkMode: Boolean = false,
 )
 
 data class FbankOptions(
-    var frame_opts: FrameExtractionOptions = FrameExtractionOptions(),
-    var mel_opts: MelBanksOptions = MelBanksOptions(),
-    var use_energy: Boolean = false,
-    var energy_floor: Float = 0.0f,
-    var raw_energy: Boolean = true,
-    var htk_compat: Boolean = false,
-    var use_log_fbank: Boolean = true,
-    var use_power: Boolean = true,
+    var frameOpts: FrameExtractionOptions = FrameExtractionOptions(),
+    var melOpts: MelBanksOptions = MelBanksOptions(),
+    var useEnergy: Boolean = false,
+    var energyFloor: Float = 0.0f,
+    var rawEnergy: Boolean = true,
+    var htkCompat: Boolean = false,
+    var useLogFbank: Boolean = true,
+    var usePower: Boolean = true,
 )
 
 data class ModelConfig(
@@ -64,7 +64,7 @@ class SherpaNcnn(
     }
 
     fun decodeSamples(samples: FloatArray) =
-        decodeSamples(ptr, samples, sample_rate = fbankConfig.frame_opts.samp_freq)
+        decodeSamples(ptr, samples, sampleRate = fbankConfig.frameOpts.sampFreq)
 
     fun inputFinished() = inputFinished(ptr)
 
@@ -79,7 +79,7 @@ class SherpaNcnn(
     ): Long
 
     private external fun delete(ptr: Long)
-    private external fun decodeSamples(ptr: Long, samples: FloatArray, sample_rate: Float)
+    private external fun decodeSamples(ptr: Long, samples: FloatArray, sampleRate: Float)
     private external fun inputFinished(ptr: Long)
     private external fun getText(ptr: Long): String
 

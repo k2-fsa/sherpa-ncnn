@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity() {
         val tokens = "$modelDir/tokens.txt"
 
         val fbankConfig = FbankOptions()
-        fbankConfig.frame_opts.dither = 0.0f
-        fbankConfig.mel_opts.num_bins = 80
+        fbankConfig.frameOpts.dither = 0.0f
+        fbankConfig.melOpts.numBins = 80
 
         val assetManager = application.assets
         model = SherpaNcnn(
@@ -46,10 +46,12 @@ class MainActivity : AppCompatActivity() {
         val filename = "$modelDir/test_wavs/0.wav"
         val samples = WaveReader.readWave(assetManager = assetManager, filename = filename)
         if (samples != null) {
+            Log.i(TAG, "started")
             model.decodeSamples(samples)
             val tailPaddings = FloatArray(8000) { it * 0F }
             model.decodeSamples(tailPaddings)
             model.inputFinished()
+            Log.i(TAG, "done")
 
             // Get the recognition result
             Log.i(TAG, "text: ${model.text}")
