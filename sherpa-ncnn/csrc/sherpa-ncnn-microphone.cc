@@ -73,7 +73,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   sherpa_ncnn::ModelConfig config;
 
-  std::string tokens = argv[1];
+  config.tokens = argv[1];
   config.encoder_param = argv[2];
   config.encoder_bin = argv[3];
   config.decoder_param = argv[4];
@@ -86,7 +86,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
     config.num_threads = atoi(argv[8]);
   }
 
-  sherpa_ncnn::SymbolTable sym(tokens);
+  sherpa_ncnn::SymbolTable sym(config.tokens);
   fprintf(stderr, "%s\n", config.ToString().c_str());
 
   auto model = sherpa_ncnn::Model::Create(config);

@@ -25,8 +25,9 @@
 
 namespace sherpa_ncnn {
 
-FeatureExtractor::FeatureExtractor(const knf::FbankOptions &opts) {
-  fbank_ = std::make_unique<knf::OnlineFbank>(opts);
+FeatureExtractor::FeatureExtractor(const knf::FbankOptions &opts)
+    : opts_(opts) {
+  fbank_ = std::make_unique<knf::OnlineFbank>(opts_);
 }
 
 void FeatureExtractor::AcceptWaveform(float sampling_rate,
@@ -67,6 +68,10 @@ ncnn::Mat FeatureExtractor::GetFrames(int32_t frame_index, int32_t n) const {
   }
 
   return features;
+}
+
+void FeatureExtractor::Reset() {
+  fbank_ = std::make_unique<knf::OnlineFbank>(opts_);
 }
 
 }  // namespace sherpa_ncnn

@@ -40,31 +40,20 @@ namespace sherpa_ncnn {
 class SherpaNcnn {
  public:
   SherpaNcnn(AAssetManager *mgr, const ModelConfig &model_config,
-             const knf::FbankOptions &fbank_config, const std::string &tokens)
+             const knf::FbankOptions &fbank_config)
       : model_(Model::Create(mgr, model_config)),
-        feature_extractor_(fbank_config),
-        sym_(mgr, tokens) {
-    // Initialize decoder_output
-    int32_t context_size = model_->ContextSize();
-    int32_t blank_id = 0;
-
-    ncnn::Mat decoder_input(context_size);
-    for (int32_t i = 0; i != context_size; ++i) {
-      static_cast<int32_t *>(decoder_input)[i] = blank_id;
-    }
-
-    decoder_out_ = model_->RunDecoder(decoder_input);
-
-    hyp_.resize(context_size, 0);
+        feature_extractor_(std::make_unique<FeatureExtractor>(fbank_config)),
+        sym_(mgr, model_config.tokens) {
+    Reset();
   }
 
   void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
-    feature_extractor_.AcceptWaveform(sample_rate, samples, n);
+    feature_extractor_->AcceptWaveform(sample_rate, samples, n);
     Decode();
   }
 
   void InputFinished() {
-    feature_extractor_.InputFinished();
+    feature_extractor_->InputFinished();
     Decode();
   }
 
@@ -79,15 +68,33 @@ class SherpaNcnn {
     return text;
   }
 
+  void Reset() {
+    feature_extractor_->Reset();
+    num_processed_ = 0;
+    states_.clear();
+
+    int32_t context_size = model_->ContextSize();
+    int32_t blank_id = 0;
+
+    ncnn::Mat decoder_input(context_size);
+    for (int32_t i = 0; i != context_size; ++i) {
+      static_cast<int32_t *>(decoder_input)[i] = blank_id;
+    }
+
+    decoder_out_ = model_->RunDecoder(decoder_input);
+
+    hyp_.resize(context_size, 0);
+  }
+
  private:
   void Decode() {
     int32_t segment = model_->Segment();
     int32_t offset = model_->Offset();
 
     ncnn::Mat encoder_out;
-    while (feature_extractor_.NumFramesReady() - num_processed_ >= segment) {
+    while (feature_extractor_->NumFramesReady() - num_processed_ >= segment) {
       ncnn::Mat features =
-          feature_extractor_.GetFrames(num_processed_, segment);
+          feature_extractor_->GetFrames(num_processed_, segment);
       num_processed_ += offset;
 
       std::tie(encoder_out, states_) = model_->RunEncoder(features, states_);
@@ -98,7 +105,7 @@ class SherpaNcnn {
 
  private:
   std::unique_ptr<Model> model_;
-  FeatureExtractor feature_extractor_;
+  std::unique_ptr<FeatureExtractor> feature_extractor_;
   sherpa_ncnn::SymbolTable sym_;
 
   std::vector<int32_t> hyp_;
@@ -148,6 +155,12 @@ static ModelConfig GetModelConfig(JNIEnv *env, jobject config) {
   s = (jstring)env->GetObjectField(config, fid);
   p = env->GetStringUTFChars(s, nullptr);
   model_config.joiner_bin = p;
+  env->ReleaseStringUTFChars(s, p);
+
+  fid = env->GetFieldID(cls, "tokens", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(config, fid);
+  p = env->GetStringUTFChars(s, nullptr);
+  model_config.tokens = p;
   env->ReleaseStringUTFChars(s, p);
 
   fid = env->GetFieldID(cls, "numThreads", "I");
@@ -261,7 +274,7 @@ static knf::FbankOptions GetFbankOptions(JNIEnv *env, jobject opts) {
 SHERPA_EXTERN_C
 JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
     JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _model_config,
-    jobject _fbank_config, jstring tokens) {
+    jobject _fbank_config) {
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (!mgr) {
     NCNN_LOGE("Failed to get asset manager: %p", mgr);
@@ -273,10 +286,7 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   knf::FbankOptions fbank_opts =
       sherpa_ncnn::GetFbankOptions(env, _fbank_config);
 
-  const char *p_tokens = env->GetStringUTFChars(tokens, nullptr);
-  auto model =
-      new sherpa_ncnn::SherpaNcnn(mgr, model_config, fbank_opts, p_tokens);
-  env->ReleaseStringUTFChars(tokens, p_tokens);
+  auto model = new sherpa_ncnn::SherpaNcnn(mgr, model_config, fbank_opts);
 
   return (jlong)model;
 }
@@ -285,6 +295,12 @@ SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_delete(
     JNIEnv *env, jobject /*obj*/, jlong ptr) {
   delete reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
+}
+
+SHERPA_EXTERN_C
+JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_reset(
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+  reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr)->Reset();
 }
 
 SHERPA_EXTERN_C

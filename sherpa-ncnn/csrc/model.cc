@@ -36,6 +36,8 @@ std::string ModelConfig::ToString() const {
   os << "joiner_param: " << joiner_param << "\n";
   os << "joiner_bin: " << joiner_bin << "\n";
 
+  os << "tokens: " << tokens << "\n";
+
   os << "num_threads: " << num_threads << "\n";
 
   return os.str();

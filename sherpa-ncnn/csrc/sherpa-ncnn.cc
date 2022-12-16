@@ -50,8 +50,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   }
   sherpa_ncnn::ModelConfig config;
 
-  std::string tokens = argv[1];
-
+  config.tokens = argv[1];
   config.encoder_param = argv[2];
   config.encoder_bin = argv[3];
   config.decoder_param = argv[4];
@@ -68,7 +67,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   float expected_sampling_rate = 16000;
 
-  sherpa_ncnn::SymbolTable sym(tokens);
+  sherpa_ncnn::SymbolTable sym(config.tokens);
 
   std::cout << config.ToString() << "\n";
 

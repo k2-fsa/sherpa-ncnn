@@ -35,7 +35,9 @@ struct ModelConfig {
   std::string decoder_bin;    // path to decoder.ncnn.bin
   std::string joiner_param;   // path to joiner.ncnn.param
   std::string joiner_bin;     // path to joiner.ncnn.bin
+  std::string tokens;         // path to tokens.txt
   int32_t num_threads;        // number of threads to run the model
+
   std::string ToString() const;
 };
 
