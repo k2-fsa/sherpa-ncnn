@@ -37,6 +37,7 @@ struct ModelConfig {
   std::string joiner_bin;     // path to joiner.ncnn.bin
   std::string tokens;         // path to tokens.txt
   int32_t num_threads;        // number of threads to run the model
+  bool use_vulkan_compute = false;
 
   std::string ToString() const;
 };

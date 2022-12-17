@@ -21,6 +21,10 @@ class MainActivity : AppCompatActivity() {
     private var permissionToRecordAccepted = false
     private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
 
+    // If there is a GPU and useGPU is true, we will use GPU
+    // If there is no GPU and useGPU is true, we won't use GPU
+    private val useGPU: Boolean = true
+
     private lateinit var model: SherpaNcnn
     private var audioRecord: AudioRecord? = null
     private lateinit var recordButton: Button
@@ -150,7 +154,7 @@ class MainActivity : AppCompatActivity() {
     private fun initModel() {
         model = SherpaNcnn(
             assetManager = application.assets,
-            modelConfig = getModelConfig(1)!!,
+            modelConfig = getModelConfig(type = 1, useGPU = useGPU)!!,
             fbankConfig = getFbankConfig(),
         )
     }

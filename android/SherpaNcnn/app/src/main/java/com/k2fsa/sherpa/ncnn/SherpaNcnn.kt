@@ -46,6 +46,7 @@ data class ModelConfig(
     var joinerBin: String,
     var tokens: String,
     var numThreads: Int = 4,
+    var useGPU: Boolean = true, // If there is a GPU and useGPU true, we will use GPU
 )
 
 class SherpaNcnn(
@@ -110,7 +111,7 @@ fun getFbankConfig(): FbankOptions {
 2 - https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-08
     This is a small model with about 18 M parameters. It supports only Chinese
  */
-fun getModelConfig(type: Int): ModelConfig? {
+fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
     when (type) {
         1 -> {
             val modelDir = "sherpa-ncnn-conv-emformer-transducer-2022-12-06"
@@ -123,6 +124,7 @@ fun getModelConfig(type: Int): ModelConfig? {
                 joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.bin",
                 tokens = "$modelDir/tokens.txt",
                 numThreads = 4,
+                useGPU = useGPU,
             )
 
         }
@@ -137,6 +139,7 @@ fun getModelConfig(type: Int): ModelConfig? {
                 joinerBin = "$modelDir/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin",
                 tokens = "$modelDir/tokens.txt",
                 numThreads = 4,
+                useGPU = useGPU,
             )
         }
     }
