@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     private fun initModel() {
         model = SherpaNcnn(
             assetManager = application.assets,
-            modelConfig = getModelConfig(2)!!,
+            modelConfig = getModelConfig(1)!!,
             fbankConfig = getFbankConfig(),
         )
     }
