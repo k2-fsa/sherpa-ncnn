@@ -63,8 +63,11 @@ class FeatureExtractor {
    */
   ncnn::Mat GetFrames(int32_t frame_index, int32_t n) const;
 
+  void Reset();
+
  private:
   std::unique_ptr<knf::OnlineFbank> fbank_;
+  knf::FbankOptions opts_;
   mutable std::mutex mutex_;
 };
 

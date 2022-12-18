@@ -8,6 +8,19 @@ dir=build-android-x86-64
 mkdir -p $dir
 cd $dir
 
+# Note from https://github.com/Tencent/ncnn/wiki/how-to-build#build-for-android
+# (optional) remove the hardcoded debug flag in Android NDK android-ndk
+# issue: https://github.com/android/ndk/issues/243
+#
+# open $ANDROID_NDK/build/cmake/android.toolchain.cmake for ndk < r23
+# or $ANDROID_NDK/build/cmake/android-legacy.toolchain.cmake for ndk >= r23
+#
+# delete "-g" line
+#
+# list(APPEND ANDROID_COMPILER_FLAGS
+#   -g
+#   -DANDROID
+
 if [ -z $ANDROID_NDK ]; then
   ANDROID_NDK=/ceph-fj/fangjun/software/android-sdk/ndk/21.0.6113669
   # or use
