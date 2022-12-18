@@ -114,8 +114,8 @@ class MainActivity : AppCompatActivity() {
         val buffer = ShortArray(bufferSize)
 
         while (isRecording) {
-            val ret = audioRecord!!.read(buffer, 0, buffer.size)
-            if (ret > 0) {
+            val ret = audioRecord?.read(buffer, 0, buffer.size)
+            if (ret != null && ret > 0) {
                 val samples = FloatArray(ret) { buffer[it] / 32768.0f }
                 model.decodeSamples(samples)
                 runOnUiThread { textView.text = model.text }
