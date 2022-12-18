@@ -5,6 +5,8 @@ set -e
 # windows: https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html
 # linux: https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html
 # macOS: https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html
+#
+# You can read ./install-vulkan-macos.md for a note about installation on macOS.
 
 dir=build-android-arm64-v8a-with-vulkan
 
@@ -77,7 +79,7 @@ if [ ! -e my-glslang/build/install/lib/libglslang.so ]; then
     os=linux
   else
     echo "Unsupported system: $(uname -a)"
-    exit
+    exit 1
   fi
 
   cmake $SOURCE_DIR \

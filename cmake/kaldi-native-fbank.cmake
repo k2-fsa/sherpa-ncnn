@@ -3,7 +3,7 @@ function(download_kaldi_native_fbank)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(kaldi_native_fbank_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/v1.7.tar.gz")
+  # set(kaldi_native_fbank_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/v1.8.tar.gz")
   set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.8.tar.gz")
   set(kaldi_native_fbank_HASH "SHA256=1aefda7e76456e2c5005e05fa10cdc7f91c3ffc0a7fad000a90b50e7ed18087b")
 
