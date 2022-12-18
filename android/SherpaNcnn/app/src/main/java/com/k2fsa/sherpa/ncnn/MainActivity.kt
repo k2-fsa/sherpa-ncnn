@@ -18,8 +18,7 @@ private const val TAG = "sherpa-ncnn"
 private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 
 class MainActivity : AppCompatActivity() {
-    private var permissionToRecordAccepted = false
-    private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
+    private val permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
 
     // If there is a GPU and useGPU is true, we will use GPU
     // If there is no GPU and useGPU is true, we won't use GPU
@@ -43,14 +42,13 @@ class MainActivity : AppCompatActivity() {
     @Volatile
     private var isRecording: Boolean = false
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionToRecordAccepted = if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
+        val permissionToRecordAccepted = if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         } else {
             false
