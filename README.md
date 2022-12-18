@@ -22,7 +22,7 @@ for installation and usages, e.g.,
   - How to download and use pre-trained models
 
 We provide a few YouTube videos for demonstration about real-time speech recognition
-with `sherpa-ncnn` with a microphone:
+with `sherpa-ncnn` using a microphone:
 
   - `English`: <https://www.youtube.com/watch?v=m6ynSxycpX0>
   - `Chinese`: <https://www.youtube.com/watch?v=bbQfoRT75oM>
