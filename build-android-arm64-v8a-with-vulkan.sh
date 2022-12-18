@@ -82,7 +82,7 @@ if [ ! -e my-glslang/build/install/lib/libglslang.so ]; then
     exit 1
   fi
 
-  cmake $SOURCE_DIR \
+  cmake \
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_INSTALL_PREFIX="$(pwd)/install" \
     -DANDROID_ABI=arm64-v8a \
