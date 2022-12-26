@@ -7,7 +7,7 @@ function(download_ncnn)
 
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
-  # set(ncnn_URL  "file:///ceph-fj/fangjun/open-source/sherpa-ncnn/sherpa-0.7.tar.gz")
+  # set(ncnn_URL  "file:///star-fj/fangjun/download/github/ncnn-sherpa-0.7.tar.gz")
   set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.7.tar.gz")
 
   set(ncnn_HASH "SHA256=fdf3cc29a43bfb3e2d7cdbbc98a7e69d0a3cc8922b67c47c4c2c8ac28125ae9c")
@@ -93,13 +93,13 @@ function(download_ncnn)
     Clip
     Reorg
     YoloDetectionOutput
-    Quantize
-    Dequantize
+    # Quantize
+    # Dequantize
     Yolov3DetectionOutput
     PSROIPooling
     ROIAlign
     # Packing
-    Requantize
+    # Requantize
     # Cast  # needed InnerProduct
     HardSigmoid
     SELU
