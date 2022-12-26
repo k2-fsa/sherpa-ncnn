@@ -35,6 +35,8 @@ class LstmModel : public Model {
   LstmModel(AAssetManager *mgr, const ModelConfig &config);
 #endif
 
+  ncnn::Net &GetEncoder() override { return encoder_; }
+
   /** Run the encoder network.
    *
    * @param features  A 2-d mat of shape (num_frames, feature_dim).

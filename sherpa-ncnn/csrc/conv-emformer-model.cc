@@ -88,6 +88,36 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
   return {encoder_out, next_states};
 }
 
+std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+    ncnn::Extractor *encoder_ex) {
+  std::vector<ncnn::Mat> _states;
+
+  const ncnn::Mat *p;
+  if (states.empty()) {
+    _states = GetEncoderInitStates();
+    p = _states.data();
+  } else {
+    p = states.data();
+  }
+
+  // Note: We ignore error check there
+  encoder_ex->input(encoder_input_indexes_[0], features);
+  for (int32_t i = 1; i != encoder_input_indexes_.size(); ++i) {
+    encoder_ex->input(encoder_input_indexes_[i], p[i - 1]);
+  }
+
+  ncnn::Mat encoder_out;
+  encoder_ex->extract(encoder_output_indexes_[0], encoder_out);
+
+  std::vector<ncnn::Mat> next_states(num_layers_ * 4);
+  for (int32_t i = 1; i != encoder_output_indexes_.size(); ++i) {
+    encoder_ex->extract(encoder_output_indexes_[i], next_states[i - 1]);
+  }
+
+  return {encoder_out, next_states};
+}
+
 ncnn::Mat ConvEmformerModel::RunDecoder(ncnn::Mat &decoder_input) {
   ncnn::Extractor decoder_ex = decoder_.create_extractor();
   decoder_ex.set_num_threads(num_threads_);

@@ -54,6 +54,9 @@ class Model {
                                        const ModelConfig &config);
 #endif
 
+  // Return the encoder network.
+  virtual ncnn::Net &GetEncoder() = 0;
+
   /** Run the encoder network.
    *
    * @param features  A 2-d mat of shape (num_frames, feature_dim).
@@ -68,6 +71,13 @@ class Model {
    */
   virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) = 0;
+
+  // This method is for ./generate-int8-scale-table.cc
+  virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+      ncnn::Extractor *extractor) {
+    return RunEncoder(features, states);
+  }
 
   /** Run the decoder network.
    *
