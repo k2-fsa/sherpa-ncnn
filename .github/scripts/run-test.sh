@@ -166,6 +166,10 @@ pushd $repo
 git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
 git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
 git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
+
+# for in8 models
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.int8.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.int8.bin"
 popd
 waves=(
 $repo/test_wavs/0.wav
@@ -184,6 +188,19 @@ for wave in ${waves[@]}; do
     $repo/decoder_jit_trace-pnnx.ncnn.bin \
     $repo/joiner_jit_trace-pnnx.ncnn.param \
     $repo/joiner_jit_trace-pnnx.ncnn.bin \
+    $wave
+done
+
+log "test int8 models"
+for wave in ${waves[@]}; do
+  time $EXE \
+    $repo/tokens.txt \
+    $repo/encoder_jit_trace-pnnx.ncnn.int8.param \
+    $repo/encoder_jit_trace-pnnx.ncnn.int8.bin \
+    $repo/decoder_jit_trace-pnnx.ncnn.param \
+    $repo/decoder_jit_trace-pnnx.ncnn.bin \
+    $repo/joiner_jit_trace-pnnx.ncnn.int8.param \
+    $repo/joiner_jit_trace-pnnx.ncnn.int8.bin \
     $wave
 done
 
