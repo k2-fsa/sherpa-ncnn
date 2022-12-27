@@ -112,10 +112,14 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
 ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
   ncnn::Extractor decoder_ex = decoder_.create_extractor();
   decoder_ex.set_num_threads(num_threads_);
+  return RunDecoder(decoder_input, &decoder_ex);
+}
 
+ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input,
+                                ncnn::Extractor *decoder_ex) {
   ncnn::Mat decoder_out;
-  decoder_ex.input(decoder_input_indexes_[0], decoder_input);
-  decoder_ex.extract(decoder_output_indexes_[0], decoder_out);
+  decoder_ex->input(decoder_input_indexes_[0], decoder_input);
+  decoder_ex->extract(decoder_output_indexes_[0], decoder_out);
   decoder_out = decoder_out.reshape(decoder_out.w);
 
   return decoder_out;
@@ -124,11 +128,16 @@ ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
 ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) {
   auto joiner_ex = joiner_.create_extractor();
   joiner_ex.set_num_threads(num_threads_);
-  joiner_ex.input(joiner_input_indexes_[0], encoder_out);
-  joiner_ex.input(joiner_input_indexes_[1], decoder_out);
+  return RunJoiner(encoder_out, decoder_out, &joiner_ex);
+}
+
+ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
+                               ncnn::Extractor *joiner_ex) {
+  joiner_ex->input(joiner_input_indexes_[0], encoder_out);
+  joiner_ex->input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
-  joiner_ex.extract(joiner_output_indexes_[0], joiner_out);
+  joiner_ex->extract(joiner_output_indexes_[0], joiner_out);
   return joiner_out;
 }
 

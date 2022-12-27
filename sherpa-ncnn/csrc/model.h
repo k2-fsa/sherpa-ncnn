@@ -61,6 +61,12 @@ class Model {
   // Return the encoder network.
   virtual ncnn::Net &GetEncoder() = 0;
 
+  // Return the decoder network.
+  virtual ncnn::Net &GetDecoder() = 0;
+
+  // Return the joiner network.
+  virtual ncnn::Net &GetJoiner() = 0;
+
   /** Run the encoder network.
    *
    * @param features  A 2-d mat of shape (num_frames, feature_dim).
@@ -92,6 +98,11 @@ class Model {
    */
   virtual ncnn::Mat RunDecoder(ncnn::Mat &decoder_input) = 0;
 
+  /** Run the decoder network with a user provided extractor.
+   */
+  virtual ncnn::Mat RunDecoder(ncnn::Mat &decoder_input,
+                               ncnn::Extractor *extractor) = 0;
+
   /** Run the joiner network.
    *
    * @param encoder_out  A mat of shape (encoder_dim,)
@@ -101,6 +112,11 @@ class Model {
    */
   virtual ncnn::Mat RunJoiner(ncnn::Mat &encoder_out,
                               ncnn::Mat &decoder_out) = 0;
+
+  /** Run the joiner network with a user provided extractor.
+   */
+  virtual ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
+                              ncnn::Extractor *extractor) = 0;
 
   virtual int32_t ContextSize() const { return 2; }
 
