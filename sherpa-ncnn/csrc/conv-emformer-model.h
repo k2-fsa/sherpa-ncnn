@@ -21,12 +21,26 @@ class ConvEmformerModel : public Model {
   ConvEmformerModel(AAssetManager *mgr, const ModelConfig &config);
 #endif
 
+  ncnn::Net &GetEncoder() override { return encoder_; }
+  ncnn::Net &GetDecoder() override { return decoder_; }
+  ncnn::Net &GetJoiner() override { return joiner_; }
+
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
 
+  std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+      ncnn::Extractor *extractor) override;
+
   ncnn::Mat RunDecoder(ncnn::Mat &decoder_input) override;
 
+  ncnn::Mat RunDecoder(ncnn::Mat &decoder_input,
+                       ncnn::Extractor *extractor) override;
+
   ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) override;
+
+  ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
+                      ncnn::Extractor *extractor) override;
 
   int32_t Segment() const override {
     // chunk_length 32

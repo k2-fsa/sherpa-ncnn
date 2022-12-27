@@ -39,6 +39,10 @@ struct ModelConfig {
   int32_t num_threads;        // number of threads to run the model
   bool use_vulkan_compute = false;
 
+  ncnn::Option encoder_opt;
+  ncnn::Option decoder_opt;
+  ncnn::Option joiner_opt;
+
   std::string ToString() const;
 };
 
@@ -53,6 +57,15 @@ class Model {
   static std::unique_ptr<Model> Create(AAssetManager *mgr,
                                        const ModelConfig &config);
 #endif
+
+  // Return the encoder network.
+  virtual ncnn::Net &GetEncoder() = 0;
+
+  // Return the decoder network.
+  virtual ncnn::Net &GetDecoder() = 0;
+
+  // Return the joiner network.
+  virtual ncnn::Net &GetJoiner() = 0;
 
   /** Run the encoder network.
    *
@@ -69,6 +82,12 @@ class Model {
   virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) = 0;
 
+  /** Run the encoder network with a user provided extractor.
+   */
+  virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+      ncnn::Extractor *extractor) = 0;
+
   /** Run the decoder network.
    *
    * @param  decoder_input A mat of shape (context_size,). Note: Its underlying
@@ -79,6 +98,11 @@ class Model {
    */
   virtual ncnn::Mat RunDecoder(ncnn::Mat &decoder_input) = 0;
 
+  /** Run the decoder network with a user provided extractor.
+   */
+  virtual ncnn::Mat RunDecoder(ncnn::Mat &decoder_input,
+                               ncnn::Extractor *extractor) = 0;
+
   /** Run the joiner network.
    *
    * @param encoder_out  A mat of shape (encoder_dim,)
@@ -88,6 +112,11 @@ class Model {
    */
   virtual ncnn::Mat RunJoiner(ncnn::Mat &encoder_out,
                               ncnn::Mat &decoder_out) = 0;
+
+  /** Run the joiner network with a user provided extractor.
+   */
+  virtual ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
+                              ncnn::Extractor *extractor) = 0;
 
   virtual int32_t ContextSize() const { return 2; }
 

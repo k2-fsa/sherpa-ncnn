@@ -49,3 +49,6 @@ set(hdrs
 install(FILES ${hdrs}
   DESTINATION include/sherpa-ncnn/csrc
 )
+
+add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
+target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)

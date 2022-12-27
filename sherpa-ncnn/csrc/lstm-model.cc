@@ -26,6 +26,10 @@ namespace sherpa_ncnn {
 
 LstmModel::LstmModel(const ModelConfig &config)
     : num_threads_(config.num_threads) {
+  encoder_.opt = config.encoder_opt;
+  decoder_.opt = config.decoder_opt;
+  joiner_.opt = config.joiner_opt;
+
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -65,7 +69,8 @@ LstmModel::LstmModel(AAssetManager *mgr, const ModelConfig &config)
 #endif
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
-    ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+    ncnn::Extractor *encoder_ex) {
   ncnn::Mat hx;
   ncnn::Mat cx;
 
@@ -81,32 +86,40 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
   ncnn::Mat feature_length(1);
   feature_length[0] = features.h;
 
-  ncnn::Extractor encoder_ex = encoder_.create_extractor();
-  encoder_ex.set_num_threads(num_threads_);
-
-  encoder_ex.input(encoder_input_indexes_[0], features);
-  encoder_ex.input(encoder_input_indexes_[1], feature_length);
-  encoder_ex.input(encoder_input_indexes_[2], hx);
-  encoder_ex.input(encoder_input_indexes_[3], cx);
+  encoder_ex->input(encoder_input_indexes_[0], features);
+  encoder_ex->input(encoder_input_indexes_[1], feature_length);
+  encoder_ex->input(encoder_input_indexes_[2], hx);
+  encoder_ex->input(encoder_input_indexes_[3], cx);
 
   ncnn::Mat encoder_out;
-  encoder_ex.extract(encoder_output_indexes_[0], encoder_out);
+  encoder_ex->extract(encoder_output_indexes_[0], encoder_out);
 
-  encoder_ex.extract(encoder_output_indexes_[1], hx);
-  encoder_ex.extract(encoder_output_indexes_[2], cx);
+  encoder_ex->extract(encoder_output_indexes_[1], hx);
+  encoder_ex->extract(encoder_output_indexes_[2], cx);
 
   std::vector<ncnn::Mat> next_states = {hx, cx};
 
   return {encoder_out, next_states};
 }
 
+std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
+  ncnn::Extractor encoder_ex = encoder_.create_extractor();
+  encoder_ex.set_num_threads(num_threads_);
+  return RunEncoder(features, states, &encoder_ex);
+}
+
 ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
   ncnn::Extractor decoder_ex = decoder_.create_extractor();
   decoder_ex.set_num_threads(num_threads_);
+  return RunDecoder(decoder_input, &decoder_ex);
+}
 
+ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input,
+                                ncnn::Extractor *decoder_ex) {
   ncnn::Mat decoder_out;
-  decoder_ex.input(decoder_input_indexes_[0], decoder_input);
-  decoder_ex.extract(decoder_output_indexes_[0], decoder_out);
+  decoder_ex->input(decoder_input_indexes_[0], decoder_input);
+  decoder_ex->extract(decoder_output_indexes_[0], decoder_out);
   decoder_out = decoder_out.reshape(decoder_out.w);
 
   return decoder_out;
@@ -115,11 +128,16 @@ ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
 ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) {
   auto joiner_ex = joiner_.create_extractor();
   joiner_ex.set_num_threads(num_threads_);
-  joiner_ex.input(joiner_input_indexes_[0], encoder_out);
-  joiner_ex.input(joiner_input_indexes_[1], decoder_out);
+  return RunJoiner(encoder_out, decoder_out, &joiner_ex);
+}
+
+ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
+                               ncnn::Extractor *joiner_ex) {
+  joiner_ex->input(joiner_input_indexes_[0], encoder_out);
+  joiner_ex->input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
-  joiner_ex.extract(joiner_output_indexes_[0], joiner_out);
+  joiner_ex->extract(joiner_output_indexes_[0], joiner_out);
   return joiner_out;
 }
 
