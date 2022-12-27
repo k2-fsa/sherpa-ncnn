@@ -76,14 +76,6 @@ static bool IsConvEmformerModel(const ncnn::Net &net) {
 
 void Model::InitNet(ncnn::Net &net, const std::string &param,
                     const std::string &bin) {
-  ncnn::Option opt;
-  opt.num_threads = 10;
-  opt.lightmode = false;
-  opt.use_fp16_packed = false;
-  opt.use_fp16_storage = false;
-  opt.use_fp16_arithmetic = false;
-  // net.opt = opt;
-
   if (net.load_param(param.c_str())) {
     NCNN_LOGE("failed to load %s", param.c_str());
     exit(-1);

@@ -72,7 +72,6 @@ class QuantNet : public ncnn::Net {
   int quantize_EQ();
 
  public:
-  std::vector<int> input_blobs;
   std::vector<int> conv_layers;
   std::vector<int> conv_bottom_blobs;
   std::vector<int> conv_top_blobs;
@@ -89,16 +88,6 @@ QuantNet::QuantNet(sherpa_ncnn::Model *model)
       layers(model->GetEncoder().mutable_layers()) {}
 
 int QuantNet::init() {
-  // find all input layers
-  for (int i = 0; i < (int)layers.size(); i++) {
-    const ncnn::Layer *layer = layers[i];
-    if (layer->type == "Input") {
-      input_blobs.push_back(layer->tops[0]);
-    }
-  }
-  fprintf(stderr, "num input blobs: %d\n",
-          static_cast<int32_t>(input_blobs.size()));
-
   // find all conv layers
   for (int i = 0; i < (int)layers.size(); i++) {
     const ncnn::Layer *layer = layers[i];
@@ -136,7 +125,6 @@ static float compute_kl_divergence(const std::vector<float> &a,
 }
 
 int QuantNet::quantize_KL() {
-  const int input_blob_count = (int)input_blobs.size();
   const int conv_layer_count = (int)conv_layers.size();
   const int conv_bottom_blob_count = (int)conv_bottom_blobs.size();
 
@@ -646,6 +634,17 @@ int main(int argc, char **argv) {
   config.joiner_bin = argv[6];
 
   const char *scale_table = argv[7];
+
+  ncnn::Option opt;
+  opt.num_threads = 10;
+  opt.lightmode = false;
+  opt.use_fp16_packed = false;
+  opt.use_fp16_storage = false;
+  opt.use_fp16_arithmetic = false;
+
+  config.encoder_opt = opt;
+  config.decoder_opt = opt;
+  config.joiner_opt = opt;
 
   auto model = sherpa_ncnn::Model::Create(config);
 

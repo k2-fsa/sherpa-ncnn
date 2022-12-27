@@ -17,6 +17,10 @@ namespace sherpa_ncnn {
 
 ConvEmformerModel::ConvEmformerModel(const ModelConfig &config)
     : num_threads_(config.num_threads) {
+  encoder_.opt = config.encoder_opt;
+  decoder_.opt = config.decoder_opt;
+  joiner_.opt = config.joiner_opt;
+
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -58,34 +62,9 @@ ConvEmformerModel::ConvEmformerModel(AAssetManager *mgr,
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
-  std::vector<ncnn::Mat> _states;
-
-  const ncnn::Mat *p;
-  if (states.empty()) {
-    _states = GetEncoderInitStates();
-    p = _states.data();
-  } else {
-    p = states.data();
-  }
-
   ncnn::Extractor encoder_ex = encoder_.create_extractor();
   encoder_ex.set_num_threads(num_threads_);
-
-  // Note: We ignore error check there
-  encoder_ex.input(encoder_input_indexes_[0], features);
-  for (int32_t i = 1; i != encoder_input_indexes_.size(); ++i) {
-    encoder_ex.input(encoder_input_indexes_[i], p[i - 1]);
-  }
-
-  ncnn::Mat encoder_out;
-  encoder_ex.extract(encoder_output_indexes_[0], encoder_out);
-
-  std::vector<ncnn::Mat> next_states(num_layers_ * 4);
-  for (int32_t i = 1; i != encoder_output_indexes_.size(); ++i) {
-    encoder_ex.extract(encoder_output_indexes_[i], next_states[i - 1]);
-  }
-
-  return {encoder_out, next_states};
+  return RunEncoder(features, states, &encoder_ex);
 }
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(

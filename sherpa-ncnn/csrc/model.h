@@ -39,6 +39,10 @@ struct ModelConfig {
   int32_t num_threads;        // number of threads to run the model
   bool use_vulkan_compute = false;
 
+  ncnn::Option encoder_opt;
+  ncnn::Option decoder_opt;
+  ncnn::Option joiner_opt;
+
   std::string ToString() const;
 };
 
@@ -72,12 +76,11 @@ class Model {
   virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) = 0;
 
-  // This method is for ./generate-int8-scale-table.cc
+  /** Run the encoder network with a user provided extractor.
+   */
   virtual std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
-      ncnn::Extractor *extractor) {
-    return RunEncoder(features, states);
-  }
+      ncnn::Extractor *extractor) = 0;
 
   /** Run the decoder network.
    *

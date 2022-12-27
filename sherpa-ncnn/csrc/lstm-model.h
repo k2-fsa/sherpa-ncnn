@@ -60,6 +60,10 @@ class LstmModel : public Model {
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
 
+  std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
+      ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+      ncnn::Extractor *extractor) override;
+
   ncnn::Mat RunDecoder(ncnn::Mat &decoder_input) override;
 
   ncnn::Mat RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) override;

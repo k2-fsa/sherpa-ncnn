@@ -26,6 +26,10 @@ namespace sherpa_ncnn {
 
 LstmModel::LstmModel(const ModelConfig &config)
     : num_threads_(config.num_threads) {
+  encoder_.opt = config.encoder_opt;
+  decoder_.opt = config.decoder_opt;
+  joiner_.opt = config.joiner_opt;
+
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -65,7 +69,8 @@ LstmModel::LstmModel(AAssetManager *mgr, const ModelConfig &config)
 #endif
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
-    ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+    ncnn::Extractor *encoder_ex) {
   ncnn::Mat hx;
   ncnn::Mat cx;
 
@@ -81,23 +86,27 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
   ncnn::Mat feature_length(1);
   feature_length[0] = features.h;
 
-  ncnn::Extractor encoder_ex = encoder_.create_extractor();
-  encoder_ex.set_num_threads(num_threads_);
-
-  encoder_ex.input(encoder_input_indexes_[0], features);
-  encoder_ex.input(encoder_input_indexes_[1], feature_length);
-  encoder_ex.input(encoder_input_indexes_[2], hx);
-  encoder_ex.input(encoder_input_indexes_[3], cx);
+  encoder_ex->input(encoder_input_indexes_[0], features);
+  encoder_ex->input(encoder_input_indexes_[1], feature_length);
+  encoder_ex->input(encoder_input_indexes_[2], hx);
+  encoder_ex->input(encoder_input_indexes_[3], cx);
 
   ncnn::Mat encoder_out;
-  encoder_ex.extract(encoder_output_indexes_[0], encoder_out);
+  encoder_ex->extract(encoder_output_indexes_[0], encoder_out);
 
-  encoder_ex.extract(encoder_output_indexes_[1], hx);
-  encoder_ex.extract(encoder_output_indexes_[2], cx);
+  encoder_ex->extract(encoder_output_indexes_[1], hx);
+  encoder_ex->extract(encoder_output_indexes_[2], cx);
 
   std::vector<ncnn::Mat> next_states = {hx, cx};
 
   return {encoder_out, next_states};
+}
+
+std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
+  ncnn::Extractor encoder_ex = encoder_.create_extractor();
+  encoder_ex.set_num_threads(num_threads_);
+  return RunEncoder(features, states, &encoder_ex);
 }
 
 ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
