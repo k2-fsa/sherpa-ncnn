@@ -60,54 +60,51 @@ class QuantNet : public ncnn::Net {
   QuantNet(sherpa_ncnn::Model *model);
 
   sherpa_ncnn::Model *model;
-  std::vector<ncnn::Blob> &blobs;
-  std::vector<ncnn::Layer *> &layers;
+  std::vector<ncnn::Layer *> &encoder_layers;
 
  public:
   int init();
   void print_quant_info() const;
-  int save_table(const char *tablepath);
+  int save_table_encoder(const char *tablepath);
+  int save_table_decoder(const char *tablepath);
   int quantize_KL();
   int quantize_ACIQ();
   int quantize_EQ();
 
  public:
-  std::vector<int> conv_layers;
-  std::vector<int> conv_bottom_blobs;
-  std::vector<int> conv_top_blobs;
+  std::vector<int> encoder_conv_layers;
+  std::vector<int> encoder_conv_bottom_blobs;
 
   // result
-  std::vector<QuantBlobStat> quant_blob_stats;
-  std::vector<ncnn::Mat> weight_scales;
-  std::vector<ncnn::Mat> bottom_blob_scales;
+  std::vector<QuantBlobStat> encoder_quant_blob_stats;
+  std::vector<ncnn::Mat> encoder_weight_scales;
+  std::vector<ncnn::Mat> encoder_bottom_blob_scales;
 };
 
 QuantNet::QuantNet(sherpa_ncnn::Model *model)
-    : model(model),
-      blobs(model->GetEncoder().mutable_blobs()),
-      layers(model->GetEncoder().mutable_layers()) {}
+    : model(model), encoder_layers(model->GetEncoder().mutable_layers()) {}
 
 int QuantNet::init() {
-  // find all conv layers
-  for (int i = 0; i < (int)layers.size(); i++) {
-    const ncnn::Layer *layer = layers[i];
+  // find all encoder conv layers
+  for (int i = 0; i < (int)encoder_layers.size(); i++) {
+    const ncnn::Layer *layer = encoder_layers[i];
     if (layer->type == "Convolution" || layer->type == "ConvolutionDepthWise" ||
         layer->type == "InnerProduct") {
-      conv_layers.push_back(i);
-      conv_bottom_blobs.push_back(layer->bottoms[0]);
-      conv_top_blobs.push_back(layer->tops[0]);
+      encoder_conv_layers.push_back(i);
+      encoder_conv_bottom_blobs.push_back(layer->bottoms[0]);
     }
   }
 
-  fprintf(stderr, "num conv layers: %d\n",
-          static_cast<int32_t>(conv_layers.size()));
+  fprintf(stderr, "num encoder conv layers: %d\n",
+          static_cast<int32_t>(encoder_conv_layers.size()));
 
-  const int conv_layer_count = (int)conv_layers.size();
-  const int conv_bottom_blob_count = (int)conv_bottom_blobs.size();
+  const int encoder_conv_layer_count = (int)encoder_conv_layers.size();
+  const int encoder_conv_bottom_blob_count =
+      (int)encoder_conv_bottom_blobs.size();
 
-  quant_blob_stats.resize(conv_bottom_blob_count);
-  weight_scales.resize(conv_layer_count);
-  bottom_blob_scales.resize(conv_bottom_blob_count);
+  encoder_quant_blob_stats.resize(encoder_conv_bottom_blob_count);
+  encoder_weight_scales.resize(encoder_conv_layer_count);
+  encoder_bottom_blob_scales.resize(encoder_conv_bottom_blob_count);
 
   return 0;
 }
@@ -125,15 +122,16 @@ static float compute_kl_divergence(const std::vector<float> &a,
 }
 
 int QuantNet::quantize_KL() {
-  const int conv_layer_count = (int)conv_layers.size();
-  const int conv_bottom_blob_count = (int)conv_bottom_blobs.size();
+  const int encoder_conv_layer_count = (int)encoder_conv_layers.size();
+  const int encoder_conv_bottom_blob_count =
+      (int)encoder_conv_bottom_blobs.size();
 
   std::vector<std::string> wave_filenames = {
-      "/star-fj/fangjun/open-source/sherpa-ncnn/build/0.wav",
+      // "/star-fj/fangjun/open-source/sherpa-ncnn/build/0.wav",
       "/star-fj/fangjun/open-source/sherpa-ncnn/build/1.wav",
-      "/star-fj/fangjun/open-source/sherpa-ncnn/build/2.wav",
-      "/star-fj/fangjun/open-source/sherpa-ncnn/build/3.wav",
-      "/star-fj/fangjun/open-source/sherpa-ncnn/build/4.wav",
+      // "/star-fj/fangjun/open-source/sherpa-ncnn/build/2.wav",
+      // "/star-fj/fangjun/open-source/sherpa-ncnn/build/3.wav",
+      // "/star-fj/fangjun/open-source/sherpa-ncnn/build/4.wav",
   };
 
   fprintf(stderr, "num files: %d\n", (int)wave_filenames.size());
@@ -143,8 +141,8 @@ int QuantNet::quantize_KL() {
   std::vector<ncnn::UnlockedPoolAllocator> workspace_allocators(1);
 
   // initialize conv weight scales
-  for (int i = 0; i < conv_layer_count; i++) {
-    const ncnn::Layer *layer = layers[conv_layers[i]];
+  for (int i = 0; i < encoder_conv_layer_count; i++) {
+    const ncnn::Layer *layer = encoder_layers[encoder_conv_layers[i]];
     if (layer->type == "Convolution") {
       const ncnn::Convolution *convolution = (const ncnn::Convolution *)layer;
       const int num_output = convolution->num_output;
@@ -166,7 +164,7 @@ int QuantNet::quantize_KL() {
         quant_6bit = true;
       }
 
-      weight_scales[i].create(num_output);
+      encoder_weight_scales[i].create(num_output);
       for (int n = 0; n < num_output; n++) {
         const ncnn::Mat weight_data_n = convolution->weight_data.range(
             weight_data_size_output * n, weight_data_size_output);
@@ -177,9 +175,9 @@ int QuantNet::quantize_KL() {
         }
 
         if (quant_6bit) {
-          weight_scales[i][n] = 31 / absmax;
+          encoder_weight_scales[i][n] = 31 / absmax;
         } else {
-          weight_scales[i][n] = 127 / absmax;
+          encoder_weight_scales[i][n] = 127 / absmax;
         }
       }
     }  // if (layer->type == "Convolution")
@@ -194,7 +192,7 @@ int QuantNet::quantize_KL() {
 
       std::vector<float> scales;
 
-      weight_scales[i].create(group);
+      encoder_weight_scales[i].create(group);
 
       for (int n = 0; n < group; n++) {
         const ncnn::Mat weight_data_n = convolutiondepthwise->weight_data.range(
@@ -205,7 +203,7 @@ int QuantNet::quantize_KL() {
           absmax = std::max(absmax, (float)fabs(weight_data_n[k]));
         }
 
-        weight_scales[i][n] = 127 / absmax;
+        encoder_weight_scales[i][n] = 127 / absmax;
       }
     }  // if (layer->type == "ConvolutionDepthWise")
 
@@ -217,7 +215,7 @@ int QuantNet::quantize_KL() {
       const int weight_data_size_output =
           innerproduct->weight_data_size / num_output;
 
-      weight_scales[i].create(num_output);
+      encoder_weight_scales[i].create(num_output);
 
       for (int n = 0; n < num_output; n++) {
         const ncnn::Mat weight_data_n = innerproduct->weight_data.range(
@@ -228,10 +226,10 @@ int QuantNet::quantize_KL() {
           absmax = std::max(absmax, (float)fabs(weight_data_n[k]));
         }
 
-        weight_scales[i][n] = 127 / absmax;
+        encoder_weight_scales[i][n] = 127 / absmax;
       }
     }  // if (layer->type == "InnerProduct")
-  }    // for (int i = 0; i < conv_layer_count; i++)
+  }    // for (int i = 0; i < encoder_conv_layer_count; i++)
 
   float expected_sampling_rate = 16000;
 
@@ -276,9 +274,9 @@ int QuantNet::quantize_KL() {
       num_processed += offset;
       std::tie(encoder_out, states) = model->RunEncoder(features, states, &ex);
 
-      for (int j = 0; j < conv_bottom_blob_count; j++) {
+      for (int j = 0; j < encoder_conv_bottom_blob_count; j++) {
         ncnn::Mat out;
-        ex.extract(conv_bottom_blobs[j], out);
+        ex.extract(encoder_conv_bottom_blobs[j], out);
 
         {
           // count absmax
@@ -293,17 +291,17 @@ int QuantNet::quantize_KL() {
             }
           }
 
-          QuantBlobStat &stat = quant_blob_stats[j];
+          QuantBlobStat &stat = encoder_quant_blob_stats[j];
           stat.absmax = std::max(stat.absmax, absmax);
         }
-      }  // for (int j = 0; j < conv_bottom_blob_count; j++)
+      }  // for (int j = 0; j < encoder_conv_bottom_blob_count; j++)
     }    // while (feature_extractor.NumFramesReady() - num_processed >=
          // segment)
   }      // for (const auto &filename : wave_filenames)
 
   // initialize histogram
-  for (int i = 0; i < conv_bottom_blob_count; i++) {
-    QuantBlobStat &stat = quant_blob_stats[i];
+  for (int i = 0; i < encoder_conv_bottom_blob_count; i++) {
+    QuantBlobStat &stat = encoder_quant_blob_stats[i];
 
     stat.histogram.resize(num_histogram_bins, 0);
     stat.histogram_normed.resize(num_histogram_bins, 0);
@@ -341,13 +339,13 @@ int QuantNet::quantize_KL() {
       num_processed += offset;
       std::tie(encoder_out, states) = model->RunEncoder(features, states, &ex);
 
-      for (int j = 0; j < conv_bottom_blob_count; j++) {
+      for (int j = 0; j < encoder_conv_bottom_blob_count; j++) {
         ncnn::Mat out;
-        ex.extract(conv_bottom_blobs[j], out);
+        ex.extract(encoder_conv_bottom_blobs[j], out);
 
         // count histogram bin
         {
-          const float absmax = quant_blob_stats[j].absmax;
+          const float absmax = encoder_quant_blob_stats[j].absmax;
 
           std::vector<uint64_t> histogram(num_histogram_bins, 0);
 
@@ -366,20 +364,20 @@ int QuantNet::quantize_KL() {
             }
           }
 
-          QuantBlobStat &stat = quant_blob_stats[j];
+          QuantBlobStat &stat = encoder_quant_blob_stats[j];
 
           for (int k = 0; k < num_histogram_bins; k++) {
             stat.histogram[k] += histogram[k];
           }
         }
-      }  // for (int j = 0; j < conv_bottom_blob_count; j++)
+      }  // for (int j = 0; j < encoder_conv_bottom_blob_count; j++)
     }    // while (feature_extractor.NumFramesReady() - num_processed >=
          // segment)
   }      // for (const auto &filename : wave_filenames)
 
   // using kld to find the best threshold value
-  for (int i = 0; i < conv_bottom_blob_count; i++) {
-    QuantBlobStat &stat = quant_blob_stats[i];
+  for (int i = 0; i < encoder_conv_bottom_blob_count; i++) {
+    QuantBlobStat &stat = encoder_quant_blob_stats[i];
 
     // normalize histogram bin
     {
@@ -553,47 +551,49 @@ int QuantNet::quantize_KL() {
         (target_threshold + 0.5f) * stat.absmax / num_histogram_bins;
     float scale = 127 / stat.threshold;
 
-    bottom_blob_scales[i].create(1);
-    bottom_blob_scales[i][0] = scale;
-  }  // for (int i = 0; i < conv_bottom_blob_count; i++)
+    encoder_bottom_blob_scales[i].create(1);
+    encoder_bottom_blob_scales[i][0] = scale;
+  }  // for (int i = 0; i < encoder_conv_bottom_blob_count; i++)
 }
 
 void QuantNet::print_quant_info() const {
-  for (int i = 0; i < (int)conv_bottom_blobs.size(); i++) {
-    const QuantBlobStat &stat = quant_blob_stats[i];
+  for (int i = 0; i < (int)encoder_conv_bottom_blobs.size(); i++) {
+    const QuantBlobStat &stat = encoder_quant_blob_stats[i];
 
     float scale = 127 / stat.threshold;
 
     fprintf(stderr, "%-40s : max = %-15f  threshold = %-15f  scale = %-15f\n",
-            layers[conv_layers[i]]->name.c_str(), stat.absmax, stat.threshold,
-            scale);
+            encoder_layers[encoder_conv_layers[i]]->name.c_str(), stat.absmax,
+            stat.threshold, scale);
   }
 }
 
-int QuantNet::save_table(const char *tablepath) {
+int QuantNet::save_table_encoder(const char *tablepath) {
   FILE *fp = fopen(tablepath, "wb");
   if (!fp) {
     fprintf(stderr, "fopen %s failed\n", tablepath);
     return -1;
   }
 
-  const int conv_layer_count = (int)conv_layers.size();
-  const int conv_bottom_blob_count = (int)conv_bottom_blobs.size();
+  const int encoder_conv_layer_count = (int)encoder_conv_layers.size();
+  const int encoder_conv_bottom_blob_count =
+      (int)encoder_conv_bottom_blobs.size();
 
-  for (int i = 0; i < conv_layer_count; i++) {
-    const ncnn::Mat &weight_scale = weight_scales[i];
+  for (int i = 0; i < encoder_conv_layer_count; i++) {
+    const ncnn::Mat &weight_scale = encoder_weight_scales[i];
 
-    fprintf(fp, "%s_param_0 ", layers[conv_layers[i]]->name.c_str());
+    fprintf(fp, "%s_param_0 ",
+            encoder_layers[encoder_conv_layers[i]]->name.c_str());
     for (int j = 0; j < weight_scale.w; j++) {
       fprintf(fp, "%f ", weight_scale[j]);
     }
     fprintf(fp, "\n");
   }
 
-  for (int i = 0; i < conv_bottom_blob_count; i++) {
-    const ncnn::Mat &bottom_blob_scale = bottom_blob_scales[i];
+  for (int i = 0; i < encoder_conv_bottom_blob_count; i++) {
+    const ncnn::Mat &bottom_blob_scale = encoder_bottom_blob_scales[i];
 
-    fprintf(fp, "%s ", layers[conv_layers[i]]->name.c_str());
+    fprintf(fp, "%s ", encoder_layers[encoder_conv_layers[i]]->name.c_str());
     for (int j = 0; j < bottom_blob_scale.w; j++) {
       fprintf(fp, "%f ", bottom_blob_scale[j]);
     }
@@ -633,7 +633,7 @@ int main(int argc, char **argv) {
   config.joiner_param = argv[5];
   config.joiner_bin = argv[6];
 
-  const char *scale_table = argv[7];
+  const char *scale_table_encoder = argv[7];
 
   ncnn::Option opt;
   opt.num_threads = 10;
@@ -657,7 +657,7 @@ int main(int argc, char **argv) {
 
   net.print_quant_info();
 
-  net.save_table(scale_table);
+  net.save_table_encoder(scale_table_encoder);
 
   return 0;
 }
