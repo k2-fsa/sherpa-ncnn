@@ -60,10 +60,13 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   std::string wav_filename = argv[8];
 
-  config.num_threads = 4;
+  int32_t num_threads = 4;
   if (argc == 10) {
-    config.num_threads = atoi(argv[9]);
+    num_threads = atoi(argv[9]);
   }
+  config.encoder_opt.num_threads = num_threads;
+  config.decoder_opt.num_threads = num_threads;
+  config.joiner_opt.num_threads = num_threads;
 
   float expected_sampling_rate = 16000;
 

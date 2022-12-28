@@ -995,7 +995,6 @@ int main(int argc, char **argv) {
   config.decoder_bin = argv[4];
   config.joiner_param = argv[5];
   config.joiner_bin = argv[6];
-  config.num_threads = num_threads;
 
   const char *encoder_scale_table = argv[7];
   const char *joiner_scale_table = argv[8];

@@ -24,8 +24,7 @@
 
 namespace sherpa_ncnn {
 
-LstmModel::LstmModel(const ModelConfig &config)
-    : num_threads_(config.num_threads) {
+LstmModel::LstmModel(const ModelConfig &config) {
   encoder_.opt = config.encoder_opt;
   decoder_.opt = config.decoder_opt;
   joiner_.opt = config.joiner_opt;
@@ -56,8 +55,7 @@ LstmModel::LstmModel(const ModelConfig &config)
 }
 
 #if __ANDROID_API__ >= 9
-LstmModel::LstmModel(AAssetManager *mgr, const ModelConfig &config)
-    : num_threads_(config.num_threads) {
+LstmModel::LstmModel(AAssetManager *mgr, const ModelConfig &config) {
   InitEncoder(mgr, config.encoder_param, config.encoder_bin);
   InitDecoder(mgr, config.decoder_param, config.decoder_bin);
   InitJoiner(mgr, config.joiner_param, config.joiner_bin);
@@ -105,13 +103,11 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> LstmModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
   ncnn::Extractor encoder_ex = encoder_.create_extractor();
-  encoder_ex.set_num_threads(num_threads_);
   return RunEncoder(features, states, &encoder_ex);
 }
 
 ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input) {
   ncnn::Extractor decoder_ex = decoder_.create_extractor();
-  decoder_ex.set_num_threads(num_threads_);
   return RunDecoder(decoder_input, &decoder_ex);
 }
 
@@ -127,7 +123,6 @@ ncnn::Mat LstmModel::RunDecoder(ncnn::Mat &decoder_input,
 
 ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out) {
   auto joiner_ex = joiner_.create_extractor();
-  joiner_ex.set_num_threads(num_threads_);
   return RunJoiner(encoder_out, decoder_out, &joiner_ex);
 }
 

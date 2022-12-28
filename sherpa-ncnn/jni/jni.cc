@@ -164,7 +164,11 @@ static ModelConfig GetModelConfig(JNIEnv *env, jobject config) {
   env->ReleaseStringUTFChars(s, p);
 
   fid = env->GetFieldID(cls, "numThreads", "I");
-  model_config.num_threads = env->GetIntField(config, fid);
+
+  int32_t num_threads = env->GetIntField(config, fid);
+  model_config.encoder_opt.num_threads = num_threads;
+  model_config.decoder_opt.num_threads = num_threads;
+  model_config.joiner_opt.num_threads = num_threads;
 
   fid = env->GetFieldID(cls, "useGPU", "Z");
   model_config.use_vulkan_compute = env->GetBooleanField(config, fid);

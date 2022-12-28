@@ -85,8 +85,6 @@ class ConvEmformerModel : public Model {
   ncnn::Net decoder_;
   ncnn::Net joiner_;
 
-  int32_t num_threads_;
-
   int32_t num_layers_ = 12;               // arg1
   int32_t memory_size_ = 32;              // arg2
   int32_t cnn_module_kernel_ = 31;        // arg3

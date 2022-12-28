@@ -120,4 +120,5 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
 make VERBOSE=1 -j4
 make install/strip
 
-cp -v my-glslang/build/install/lib/lib*.so install/lib/
+cp -v my-glslang/build/install/lib/libSPIRV.so install/lib/
+cp -v my-glslang/build/install/lib/libglslang.so install/lib/
