@@ -15,10 +15,11 @@ target_link_libraries(sherpa-ncnn-core kaldi-native-fbank-core ncnn)
 set_target_properties(sherpa-ncnn-core PROPERTIES VERSION ${SHERPA_NCNN_VERSION} SOVERSION ${SHERPA_NCNN_VERSION_MAJOR})
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
+add_executable(sherpa-ncnn sherpa-ncnn.cc)
+target_link_libraries(sherpa-ncnn sherpa-ncnn-core)
+install(TARGETS sherpa-ncnn DESTINATION bin)
+
 if(NOT DEFINED ANDROID_ABI)
-  add_executable(sherpa-ncnn sherpa-ncnn.cc)
-  target_link_libraries(sherpa-ncnn sherpa-ncnn-core)
-  install(TARGETS sherpa-ncnn DESTINATION bin)
 
   if(SHERPA_NCNN_ENABLE_PORTAUDIO)
     add_executable(sherpa-ncnn-microphone
