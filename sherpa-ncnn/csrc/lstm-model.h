@@ -117,8 +117,6 @@ class LstmModel : public Model {
 
   std::vector<int32_t> joiner_input_indexes_;
   std::vector<int32_t> joiner_output_indexes_;
-
-  int32_t num_threads_;
 };
 
 }  // namespace sherpa_ncnn

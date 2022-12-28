@@ -81,10 +81,14 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   config.joiner_param = argv[6];
   config.joiner_bin = argv[7];
 
-  config.num_threads = 4;
+  int32_t num_threads = 4;
   if (argc == 9) {
-    config.num_threads = atoi(argv[8]);
+    num_threads = atoi(argv[8]);
   }
+
+  config.encoder_opt.num_threads = num_threads;
+  config.decoder_opt.num_threads = num_threads;
+  config.joiner_opt.num_threads = num_threads;
 
   sherpa_ncnn::SymbolTable sym(config.tokens);
   fprintf(stderr, "%s\n", config.ToString().c_str());
