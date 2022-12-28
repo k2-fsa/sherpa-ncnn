@@ -36,7 +36,7 @@ struct ModelConfig {
   std::string joiner_param;   // path to joiner.ncnn.param
   std::string joiner_bin;     // path to joiner.ncnn.bin
   std::string tokens;         // path to tokens.txt
-  bool use_vulkan_compute = false;
+  bool use_vulkan_compute = true;
 
   ncnn::Option encoder_opt;
   ncnn::Option decoder_opt;
