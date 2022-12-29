@@ -16,22 +16,15 @@
  * limitations under the License.
  */
 
-#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
+#ifndef SHERPA_NCNN_PYTHON_CSRC_DECODE_H_
+#define SHERPA_NCNN_PYTHON_CSRC_DECODE_H_
 
-#include "sherpa-ncnn/python/csrc/decode.h"
-#include "sherpa-ncnn/python/csrc/features.h"
-#include "sherpa-ncnn/python/csrc/model.h"
+#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
 namespace sherpa_ncnn {
 
-PYBIND11_MODULE(_sherpa_ncnn, m) {
-  m.doc() = "pybind11 binding of sherpa-ncnn";
-
-  PybindModel(&m);
-
-  PybindFeatures(&m);
-
-  PybindDecode(&m);
-}
+void PybindDecode(py::module *m);
 
 }  // namespace sherpa_ncnn
+
+#endif  // SHERPA_NCNN_PYTHON_CSRC_DECODE_H_

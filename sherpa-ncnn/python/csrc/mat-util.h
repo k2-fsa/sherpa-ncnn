@@ -16,22 +16,22 @@
  * limitations under the License.
  */
 
-#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
+#ifndef SHERPA_NCNN_PYTHON_CSRC_MAT_UTIL_H_
+#define SHERPA_NCNN_PYTHON_CSRC_MAT_UTIL_H_
 
-#include "sherpa-ncnn/python/csrc/decode.h"
-#include "sherpa-ncnn/python/csrc/features.h"
-#include "sherpa-ncnn/python/csrc/model.h"
+#include "mat.h"
+#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
 namespace sherpa_ncnn {
 
-PYBIND11_MODULE(_sherpa_ncnn, m) {
-  m.doc() = "pybind11 binding of sherpa-ncnn";
+// Convert a ncnn::Mat to a numpy array. Data is shared.
+//
+// @param m It should be a float unpacked matrix
+py::array_t<float> MatToArray(ncnn::Mat m);
 
-  PybindModel(&m);
-
-  PybindFeatures(&m);
-
-  PybindDecode(&m);
-}
+// convert an array to a ncnn::Mat
+ncnn::Mat ArrayToMat(py::array array);
 
 }  // namespace sherpa_ncnn
+
+#endif  // SHERPA_NCNN_PYTHON_CSRC_MODEL_UTIL_H_
