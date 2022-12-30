@@ -34,6 +34,11 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         uses: microsoft/setup-msbuild@v1.0.2
 
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
