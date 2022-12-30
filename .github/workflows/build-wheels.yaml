@@ -30,7 +30,7 @@ jobs:
           CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
           CIBW_SKIP: "cp27-* cp35-*"
           CIBW_BUILD_VERBOSITY: 3
-          CIBW_ENVIRONMENT: "LD_LIBRARY_PATH=./sherpa_ncnn-1.0.data/platlib/sherpa_ncnn/lib"
+          CIBW_ENVIRONMENT: "LD_LIBRARY_PATH=./sherpa_ncnn-1.0.data/platlib/sherpa_ncnn/lib:$LD_LIBRARY_PATH"
         # remember to change the above path whenever we release a new version
 
       - name: Display wheels
