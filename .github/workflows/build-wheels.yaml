@@ -1,0 +1,30 @@
+name: build-wheels
+
+on:
+  push:
+    branches:
+      - wheel
+      - build-wheels-2022-12-30
+    tags:
+      - '*'
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v1.12.0
+
+      - name: Display wheels
+        shell: bash
+        run: |
+          ls -lh ./wheelhouse/
+
+          ls -lh ./wheelhouse/*.whl
