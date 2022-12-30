@@ -30,34 +30,25 @@ def get_package_version():
     return latest_version
 
 
-def get_binaries_to_install():
-    bin_dir = Path("build") / "bin"
-    bin_dir.mkdir(parents=True, exist_ok=True)
-    suffix = ".exe" if is_windows() else ""
-    # Remember to also change cmake/cmake_extension.py
-    binaries = ["sherpa-ncnn"]
-    binaries += ["sherpa-ncnn-microphone"]
-    exe = []
-    for f in binaries:
-        t = bin_dir / (f + suffix)
-        exe.append(str(t))
-    return exe
-
-
 package_name = "sherpa-ncnn"
 
 with open("sherpa-ncnn/python/sherpa_ncnn/__init__.py", "a") as f:
     f.write(f"__version__ = '{get_package_version()}'\n")
 
+install_requires = [
+    "numpy",
+]
+
 setuptools.setup(
     name=package_name,
+    python_requires=">=3.6",
+    install_requires=install_requires,
     version=get_package_version(),
     author="The sherpa-ncnn development team",
     author_email="dpovey@gmail.com",
     package_dir={
         "sherpa_ncnn": "sherpa-ncnn/python/sherpa_ncnn",
     },
-    data_files=[("bin", get_binaries_to_install())],
     packages=["sherpa_ncnn"],
     url="https://github.com/k2-fsa/sherpa-ncnn",
     long_description=read_long_description(),
