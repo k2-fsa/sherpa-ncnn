@@ -31,7 +31,7 @@ def get_package_version():
 
 
 def get_binaries_to_install():
-    bin_dir = Path("build") / "bin"
+    bin_dir = Path("build") / "sherpa_ncnn" / "bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
     suffix = ".exe" if is_windows() else ""
     # Remember to also change cmake/cmake_extension.py
@@ -50,7 +50,6 @@ with open("sherpa-ncnn/python/sherpa_ncnn/__init__.py", "a") as f:
     f.write(f"__version__ = '{get_package_version()}'\n")
 
 install_requires = [
-    "cmake >= 3.13",
     "numpy",
 ]
 

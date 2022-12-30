@@ -39,7 +39,6 @@ try:
                 # -linux_x86_64.whl
                 self.root_is_pure = False
 
-
 except ImportError:
     bdist_wheel = None
 
@@ -58,8 +57,8 @@ class BuildExtension(build_ext):
         # build/lib.linux-x86_64-3.8
         os.makedirs(self.build_lib, exist_ok=True)
 
-        out_bin_dir = Path(self.build_lib).parent / "bin"
-        install_dir = Path(self.build_lib).resolve()
+        out_bin_dir = Path(self.build_lib).parent / "sherpa_ncnn" / "bin"
+        install_dir = Path(self.build_lib).resolve() / "sherpa_ncnn"
 
         sherpa_ncnn_dir = Path(__file__).parent.parent.resolve()
 
