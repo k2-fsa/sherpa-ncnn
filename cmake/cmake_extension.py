@@ -5,6 +5,7 @@ import os
 import platform
 import shutil
 import sys
+from pathlib import Path
 
 import setuptools
 from setuptools.command.build_ext import build_ext
@@ -43,7 +44,7 @@ except ImportError:
     bdist_wheel = None
 
 
-def cmake_extension(name, *args, **kwargs):
+def cmake_extension(name, *args, **kwargs) -> setuptools.Extension:
     kwargs["language"] = "c++"
     sources = []
     return setuptools.Extension(name, sources, *args, **kwargs)
@@ -57,10 +58,10 @@ class BuildExtension(build_ext):
         # build/lib.linux-x86_64-3.8
         os.makedirs(self.build_lib, exist_ok=True)
 
-        out_bin_dir = os.path.dirname(self.build_lib) + "/bin"
-        install_dir = os.path.realpath(self.build_lib)
+        out_bin_dir = Path(self.build_lib).parent / "bin"
+        install_dir = Path(self.build_lib).resolve()
 
-        sherpa_ncnn_dir = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+        sherpa_ncnn_dir = Path(__file__).parent.parent.resolve()
 
         cmake_args = os.environ.get("SHERPA_NCNN_CMAKE_ARGS", "")
         make_args = os.environ.get("SHERPA_NCNN_MAKE_ARGS", "")
@@ -69,37 +70,31 @@ class BuildExtension(build_ext):
         if cmake_args == "":
             cmake_args = "-DCMAKE_BUILD_TYPE=Release"
 
-        extra_cmake_args = " -DCMAKE_INSTALL_PREFIX=%s " % install_dir
-        extra_cmake_args += " -DBUILD_SHARED_LIBS=ON "
-        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_PYTHON=ON "
-        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_PORTAUDIO=ON "
+        extra_cmake_args = f" -DCMAKE_INSTALL_PREFIX={install_dir} "
+        extra_cmake_args += f" -DBUILD_SHARED_LIBS=ON "
+        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PYTHON=ON "
+        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PORTAUDIO=ON "
 
         if "PYTHON_EXECUTABLE" not in cmake_args:
-            print("Setting PYTHON_EXECUTABLE to %s" % sys.executable)
-            cmake_args += " -DPYTHON_EXECUTABLE=%s " % sys.executable
+            print(f"Setting PYTHON_EXECUTABLE to {sys.executable}")
+            cmake_args += f" -DPYTHON_EXECUTABLE={sys.executable}"
 
         cmake_args += extra_cmake_args
 
         if is_windows():
-            build_cmd = """
-         cmake {0} -B {1} -S {2}
-         cmake --build {1} --target install --config Release -- -m
-            """.format(
-                cmake_args, self.build_temp, sherpa_ncnn_dir
-            )
-            print("build command is:\n{}".format(build_cmd))
+            build_cmd = f"""
+         cmake {cmake_args} -B {self.build_temp} -S {sherpa_ncnn_dir}
+         cmake --build {self.build_temp} --target install --config Release -- -m
+            """
+            print(f"build command is:\n{build_cmd}")
             ret = os.system(
-                "cmake {} -B {} -S {}".format(
-                    cmake_args, self.build_temp, sherpa_ncnn_dir
-                )
+                f"cmake {cmake_args} -B {self.build_temp} -S {sherpa_ncnn_dir}"
             )
             if ret != 0:
                 raise Exception("Failed to configure sherpa")
 
             ret = os.system(
-                "cmake --build {} --target install --config Release -- -m".format(
-                    self.build_temp
-                )
+                f"cmake --build {self.build_temp} --target install --config Release -- -m"  # noqa
             )
             if ret != 0:
                 raise Exception("Failed to build and install sherpa")
@@ -110,16 +105,14 @@ class BuildExtension(build_ext):
                 print('Setting make_args to "-j4"')
                 make_args = "-j4"
 
-            build_cmd = """
-                cd {}
+            build_cmd = f"""
+                cd {self.build_temp}
 
-                cmake {} {}
+                cmake {cmake_args} {sherpa_ncnn_dir}
 
-                make {} install/strip
-            """.format(
-                self.build_temp, cmake_args, sherpa_ncnn_dir, make_args
-            )
-            print("build command is:\n{}".format(build_cmd))
+                make {make_args} install/strip
+            """
+            print(f"build command is:\n{build_cmd}")
 
             ret = os.system(build_cmd)
             if ret != 0:
@@ -135,6 +128,6 @@ class BuildExtension(build_ext):
         binaries += ["sherpa-ncnn-microphone"]
 
         for f in binaries:
-            src_file = install_dir + "/bin/" + (f + suffix)
-            print("Copying {} to {}/".format(src_file, out_bin_dir))
-            shutil.copy(src_file, "{}/".format(out_bin_dir))
+            src_file = install_dir / "bin" / (f + suffix)
+            print(f"Copying {src_file} to {out_bin_dir}/")
+            shutil.copy(f"{src_file}", f"{out_bin_dir}/")

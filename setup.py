@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from pathlib import Path
 
 import setuptools
 
@@ -30,15 +31,15 @@ def get_package_version():
 
 
 def get_binaries_to_install():
-    bin_dir = "build/bin"
-    os.makedirs(bin_dir)
+    bin_dir = Path("build") / "bin"
+    bin_dir.mkdir(parents=True, exist_ok=True)
     suffix = ".exe" if is_windows() else ""
     # Remember to also change cmake/cmake_extension.py
     binaries = ["sherpa-ncnn"]
     binaries += ["sherpa-ncnn-microphone"]
     exe = []
     for f in binaries:
-        t = bin_dir + "/" + (f + suffix)
+        t = bin_dir / (f + suffix)
         exe.append(str(t))
     return exe
 
@@ -46,7 +47,7 @@ def get_binaries_to_install():
 package_name = "sherpa-ncnn"
 
 with open("sherpa-ncnn/python/sherpa_ncnn/__init__.py", "a") as f:
-    f.write("__version__ = '%s'\n" % get_package_version())
+    f.write(f"__version__ = '{get_package_version()}'\n")
 
 setuptools.setup(
     name=package_name,
