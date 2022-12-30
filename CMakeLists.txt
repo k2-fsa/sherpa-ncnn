@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-# Remember to also change ./.github/workflows/build-wheels.yaml
 set(SHERPA_NCNN_VERSION "1.0")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")

@@ -5,12 +5,12 @@ function(download_ncnn)
   # The changed code is in
   # https://github.com/csukuangfj/ncnn/pull/7
 
+  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.8.tar.gz")
+  set(ncnn_HASH "SHA256=f605c48986406800615d00cf14b955e95f73286eadacedb6c3371542540e1df0")
+
   # If you don't have access to the internet, please download it to your
   # local drive and modify the following line according to your needs.
   # set(ncnn_URL  "file:///star-fj/fangjun/download/github/ncnn-sherpa-0.8.tar.gz")
-  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.8.tar.gz")
-
-  set(ncnn_HASH "SHA256=f605c48986406800615d00cf14b955e95f73286eadacedb6c3371542540e1df0")
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}

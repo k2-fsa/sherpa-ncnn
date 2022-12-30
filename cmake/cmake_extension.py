@@ -57,7 +57,6 @@ class BuildExtension(build_ext):
         # build/lib.linux-x86_64-3.8
         os.makedirs(self.build_lib, exist_ok=True)
 
-        out_bin_dir = Path(self.build_lib).parent / "sherpa_ncnn" / "bin"
         install_dir = Path(self.build_lib).resolve() / "sherpa_ncnn"
 
         sherpa_ncnn_dir = Path(__file__).parent.parent.resolve()
@@ -72,7 +71,7 @@ class BuildExtension(build_ext):
         extra_cmake_args = f" -DCMAKE_INSTALL_PREFIX={install_dir} "
         extra_cmake_args += f" -DBUILD_SHARED_LIBS=ON "
         extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PYTHON=ON "
-        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PORTAUDIO=ON "
+        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF "
 
         if "PYTHON_EXECUTABLE" not in cmake_args:
             print(f"Setting PYTHON_EXECUTABLE to {sys.executable}")
@@ -121,12 +120,6 @@ class BuildExtension(build_ext):
                     "\nClick:\n\thttps://github.com/k2-fsa/sherpa-ncnn/issues/new\n"  # noqa
                 )
 
-        suffix = ".exe" if is_windows() else ""
-        # Remember to also change setup.py
-        binaries = ["sherpa-ncnn"]
-        binaries += ["sherpa-ncnn-microphone"]
-
-        for f in binaries:
-            src_file = install_dir / "bin" / (f + suffix)
-            print(f"Copying {src_file} to {out_bin_dir}/")
-            shutil.copy(f"{src_file}", f"{out_bin_dir}/")
+        shutil.rmtree(str(install_dir / "include"))
+        shutil.rmtree(str(install_dir / "lib" / "cmake"))
+        shutil.rmtree(str(install_dir / "lib" / "pkgconfig"))
