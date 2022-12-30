@@ -119,7 +119,16 @@ class BuildExtension(build_ext):
                     "You can ask for help by creating an issue on GitHub.\n"
                     "\nClick:\n\thttps://github.com/k2-fsa/sherpa-ncnn/issues/new\n"  # noqa
                 )
+        dirs = [
+            install_dir / "include",
+            install_dir / "lib" / "cmake",
+            install_dir / "lib" / "pkgconfig",
+            install_dir / "lib64" / "cmake",
+            install_dir / "lib64" / "pkgconfig",
+        ]
 
-        shutil.rmtree(str(install_dir / "include"))
-        shutil.rmtree(str(install_dir / "lib" / "cmake"))
-        shutil.rmtree(str(install_dir / "lib" / "pkgconfig"))
+        for d in dirs:
+            if not d.is_dir():
+                continue
+
+            shutil.rmtree(str(d))
