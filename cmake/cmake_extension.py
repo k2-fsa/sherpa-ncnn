@@ -5,7 +5,6 @@ import os
 import platform
 import shutil
 import sys
-from pathlib import Path
 
 import setuptools
 from setuptools.command.build_ext import build_ext
