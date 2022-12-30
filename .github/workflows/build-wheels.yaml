@@ -30,6 +30,7 @@ jobs:
           CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
           CIBW_SKIP: "cp27-* cp35-*"
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_ARCHS: "auto64"
 
       - name: Display wheels
         shell: bash
