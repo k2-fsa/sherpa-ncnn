@@ -1,6 +1,7 @@
 # Copyright (c)  2021-2022  Xiaomi Corporation (author: Fangjun Kuang)
 # flake8: noqa
 
+import glob
 import os
 import platform
 import shutil
@@ -38,6 +39,7 @@ try:
                 # The generated wheel has a name ending with
                 # -linux_x86_64.whl
                 self.root_is_pure = False
+
 
 except ImportError:
     bdist_wheel = None
@@ -132,3 +134,11 @@ class BuildExtension(build_ext):
                 continue
 
             shutil.rmtree(str(d))
+
+        is_in_github_actions = os.environ.get("SHERPA_NCNN_IS_IN_GITHUB_ACTIONS", None)
+        if is_macos() and is_in_github_actions is not None:
+            libs = glob.glob(f"{self.install_dir}/lib/lib*.dylib", recursive=False)
+
+            for lib in libs:
+                print(f"Copying {lib} to {sherpa_ncnn_dir}/")
+                shutil.copy(lib, sherpa_ncnn_dir)
