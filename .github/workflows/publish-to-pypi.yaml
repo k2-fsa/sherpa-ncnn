@@ -2,9 +2,6 @@ name: Publish to PyPI
 
 on:
   push:
-    branches:
-      - wheel
-      - build-wheels-2022-12-30
     tags:
       - '*'
 
