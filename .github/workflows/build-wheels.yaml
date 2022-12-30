@@ -8,9 +8,9 @@ on:
     tags:
       - '*'
 
-concurrency:
-  group: build-wheels-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: build-wheels-${{ github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   build_wheels:
