@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 concurrency:
   group: linux-macos-windows-${{ github.ref }}
