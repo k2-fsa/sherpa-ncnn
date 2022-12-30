@@ -47,7 +47,7 @@ def get_binaries_to_install():
 package_name = "sherpa-ncnn"
 
 with open("sherpa-ncnn/python/sherpa_ncnn/__init__.py", "a") as f:
-    f.write(f"__version__ = '{get_package_version()}'\n")
+    f.write(f"__version__ = '%s'\n" % get_package_version())
 
 setuptools.setup(
     name=package_name,

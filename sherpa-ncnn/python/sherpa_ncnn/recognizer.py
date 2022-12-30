@@ -5,7 +5,7 @@ from _sherpa_ncnn import FeatureExtractor, Model, ModelConfig, greedy_search
 
 
 def _assert_file_exists(f: str):
-    assert Path(f).is_file(), f"{f} does not exist"
+    assert Path(f).is_file(), "%s does not exist" % f
 
 
 def _read_tokens(tokens):
