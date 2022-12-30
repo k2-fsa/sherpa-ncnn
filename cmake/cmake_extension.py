@@ -61,7 +61,7 @@ class BuildExtension(build_ext):
         out_bin_dir = os.path.dirname(self.build_lib) + "/bin"
         install_dir = os.path.realpath(self.build_lib)
 
-        sherpa_ncnn_dir = Path(__file__).parent.parent.resolve()
+        sherpa_ncnn_dir = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
         cmake_args = os.environ.get("SHERPA_NCNN_CMAKE_ARGS", "")
         make_args = os.environ.get("SHERPA_NCNN_MAKE_ARGS", "")
