@@ -1,2 +1,6 @@
 build
 build-*/
+__pycache__
+sherpa_ncnn.egg-info/
+run*.sh
+dist/

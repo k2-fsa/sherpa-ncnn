@@ -1,0 +1,6 @@
+include LICENSE
+include README.md
+include CMakeLists.txt
+exclude pyproject.toml
+recursive-include sherpa-ncnn *.*
+recursive-include cmake *.*
