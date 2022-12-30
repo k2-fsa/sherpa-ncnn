@@ -1,0 +1,59 @@
+name: test-pip-install
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: linux-macos-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test_pip_install:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # see https://github.com/microsoft/setup-msbuild
+      - name: Add msbuild to PATH
+        if: startsWith(matrix.os, 'windows')
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install sherpa-ncnn
+        shell: bash
+        run: |
+          pip3 install --verbose -U sherpa-ncnn
+
+      - name: Download pretrained model and test-data
+        shell: bash
+        run: |
+          git lfs install
+          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
+
+      - name: Run test
+        shell: bash
+        run: |
+          python3 .github/scripts/test-recognizer.py
