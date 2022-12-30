@@ -1,11 +1,11 @@
-from pathlib import Path
+import os
 
 import numpy as np
 from _sherpa_ncnn import FeatureExtractor, Model, ModelConfig, greedy_search
 
 
 def _assert_file_exists(f: str):
-    assert Path(f).is_file(), "%s does not exist" % f
+    assert os.path.isfile(f), "%s does not exist" % f
 
 
 def _read_tokens(tokens):
