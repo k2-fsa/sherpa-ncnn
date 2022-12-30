@@ -10,7 +10,6 @@ set(srcs
 
 pybind11_add_module(_sherpa_ncnn ${srcs})
 target_link_libraries(_sherpa_ncnn PRIVATE sherpa-ncnn-core)
-target_link_libraries(_sherpa_ncnn PRIVATE ncnn)
 
 if(APPLE)
   execute_process(
@@ -24,8 +23,6 @@ endif()
 
 if(NOT WIN32)
   target_link_libraries(_sherpa_ncnn PRIVATE "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/sherpa_ncnn/lib")
-  target_link_libraries(_sherpa_ncnn PRIVATE "-Wl,-rpath,@rpath/sherpa_ncnn/lib")
-  target_link_libraries(_sherpa_ncnn PRIVATE "-Wl,-rpath,./sherpa_ncnn/lib")
 endif()
 
 
