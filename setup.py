@@ -49,8 +49,15 @@ package_name = "sherpa-ncnn"
 with open("sherpa-ncnn/python/sherpa_ncnn/__init__.py", "a") as f:
     f.write(f"__version__ = '{get_package_version()}'\n")
 
+install_requires = [
+    "cmake >= 3.13",
+    "numpy",
+]
+
 setuptools.setup(
     name=package_name,
+    python_requires=">=3.6",
+    install_requires=install_requires,
     version=get_package_version(),
     author="The sherpa-ncnn development team",
     author_email="dpovey@gmail.com",
