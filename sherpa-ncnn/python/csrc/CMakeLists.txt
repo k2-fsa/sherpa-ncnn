@@ -24,6 +24,7 @@ endif()
 
 if(NOT WIN32)
   target_link_libraries(_sherpa_ncnn PRIVATE "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/sherpa_ncnn/lib")
+  target_link_libraries(_sherpa_ncnn PRIVATE "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/lib")
 endif()
 
 
