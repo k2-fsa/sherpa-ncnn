@@ -12,7 +12,6 @@ set(sherpa_ncnn_core_srcs
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core kaldi-native-fbank-core ncnn)
-set_target_properties(sherpa-ncnn-core PROPERTIES VERSION ${SHERPA_NCNN_VERSION} SOVERSION ${SHERPA_NCNN_VERSION_MAJOR})
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
 add_executable(sherpa-ncnn sherpa-ncnn.cc)
