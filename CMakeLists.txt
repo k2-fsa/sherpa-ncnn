@@ -22,8 +22,8 @@ endif()
 set(CMAKE_INSTALL_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 set(CMAKE_BUILD_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 
-option(BUILD_SHARED_LIBS "Whether to build shared libraries" ON)
-option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" ON)
+option(BUILD_SHARED_LIBS "Whether to build shared libraries" OFF)
+option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" OFF)
 option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
 
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")

@@ -71,6 +71,9 @@ class BuildExtension(build_ext):
             cmake_args = "-DCMAKE_BUILD_TYPE=Release"
 
         extra_cmake_args = f" -DCMAKE_INSTALL_PREFIX={install_dir} "
+        extra_cmake_args += f" -DBUILD_SHARED_LIBS=ON "
+        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PYTHON=ON "
+        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PORTAUDIO=ON "
 
         if "PYTHON_EXECUTABLE" not in cmake_args:
             print(f"Setting PYTHON_EXECUTABLE to {sys.executable}")
