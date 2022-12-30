@@ -43,7 +43,7 @@ except ImportError:
     bdist_wheel = None
 
 
-def cmake_extension(name, *args, **kwargs) -> setuptools.Extension:
+def cmake_extension(name, *args, **kwargs):
     kwargs["language"] = "c++"
     sources = []
     return setuptools.Extension(name, sources, *args, **kwargs)
