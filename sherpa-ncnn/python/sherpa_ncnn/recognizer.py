@@ -10,7 +10,7 @@ def _assert_file_exists(f: str):
 
 def _read_tokens(tokens):
     sym_table = {}
-    with open(tokens) as f:
+    with open(tokens, "r", encoding="utf-8") as f:
         for line in f:
             sym, i = line.split()
             sym = sym.replace("▁", " ")
