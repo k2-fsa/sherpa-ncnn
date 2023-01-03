@@ -37,24 +37,26 @@ namespace sherpa_ncnn {
 
 class SherpaNcnn {
  public:
-  SherpaNcnn(AAssetManager *mgr, const ModelConfig &model_config,
-             const sherpa_ncnn::DecoderConfig &decoder_config)
-    : recognizer_(model_config, decoder_config),
+  SherpaNcnn(AAssetManager *mgr,
+             const sherpa_ncnn::DecoderConfig &decoder_config,
+             const ModelConfig &model_config,
+             const knf::FbankOptions fbank_opts)
+    : recognizer_(decoder_config, model_config, fbank_opts),
     tail_padding_(16000 * 0.32, 0) {}
 
   void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
-    recognizer_->AcceptWaveform(sample_rate, samples, n);
-    recognizer_->Decode();
+    recognizer_.AcceptWaveform(sample_rate, samples, n);
+    recognizer_.Decode();
   }
 
   void InputFinished() {
-    recognizer_->AcceptWaveform(16000,
+    recognizer_.AcceptWaveform(16000,
         tail_padding_.data(), tail_padding_.size());
-    recognizer_->Decode();
+    recognizer_.Decode();
   }
 
-  std::string GetText() const {
-    auto result = recognizer.GetResult();
+  const std::string GetText() {
+    auto result = recognizer_.GetResult();
     return result.text;
   }
 
@@ -237,9 +239,13 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   sherpa_ncnn::ModelConfig model_config =
       sherpa_ncnn::GetModelConfig(env, _model_config);
 
-  sherpa_ncnn::DecoderConfig decoder_config
+  sherpa_ncnn::DecoderConfig decoder_config;
 
-  auto model = new sherpa_ncnn::SherpaNcnn(mgr, model_config, decoder_config);
+  knf::FbankOptions fbank_opts =
+      sherpa_ncnn::GetFbankOptions(env, _fbank_config);
+
+  auto model = new sherpa_ncnn::SherpaNcnn(mgr, decoder_config,
+      model_config, fbank_opts);
 
   return (jlong)model;
 }
@@ -253,7 +259,6 @@ JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_delete(
 SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_reset(
     JNIEnv *env, jobject /*obj*/, jlong ptr) {
-  reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr)->Reset();
 }
 
 SHERPA_EXTERN_C

@@ -44,7 +44,7 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
   endif()
 
   set(hdrs
-    decode.h
+    decoder.h
     features.h
     model.h
     symbol-table.h
