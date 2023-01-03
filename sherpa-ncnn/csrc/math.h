@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <vector>
 
 namespace sherpa_ncnn {
 
@@ -81,6 +82,8 @@ struct LogAdd<float> {
 };
 
 void log_softmax(float *input, size_t input_len);
+
+std::vector<int> topk_index(const std::vector<float>& vec,int topk);
 
 }  // namespace sherpa_ncnn
 #endif  // SHERPA_NCNN_CSRC_MATH_H_
