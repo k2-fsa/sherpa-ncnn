@@ -32,10 +32,12 @@ class ModifiedBeamSearchDecoder : public Decoder {
  public:
   ModifiedBeamSearchDecoder(const DecoderConfig &config,
       std::shared_ptr<Model> model,
+      const knf::FbankOptions &fbank_opts,
       const sherpa_ncnn::SymbolTable &sym,
       std::shared_ptr<Endpoint> endpoint)
      : config_(config),
      model_(model),
+     feature_extractor_(fbank_opts),
      sym_(sym),
      blank_id_(model_->BlankId()),
      context_size_(model_->ContextSize()),
@@ -66,8 +68,8 @@ class ModifiedBeamSearchDecoder : public Decoder {
   void BuildDecoderInput(Hypothesis hyp);
 
   const DecoderConfig &config_;
-  sherpa_ncnn::FeatureExtractor feature_extractor_;
   std::shared_ptr<Model> model_;
+  sherpa_ncnn::FeatureExtractor feature_extractor_;
   const sherpa_ncnn::SymbolTable &sym_;
   const int32_t blank_id_;
   const int32_t context_size_;

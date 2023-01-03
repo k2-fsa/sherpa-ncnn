@@ -53,23 +53,35 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   model_conf.decoder_bin = argv[5];
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
-  model_conf.num_threads = 4;
+  int num_threads = 4;
   if (argc == 10) {
-    model_conf.num_threads = atoi(argv[9]);
+    num_threads = atoi(argv[9]);
   }
   model_conf.encoder_opt.num_threads = num_threads;
   model_conf.decoder_opt.num_threads = num_threads;
   model_conf.joiner_opt.num_threads = num_threads;
 
+  const float expected_sampling_rate = 16000;
   sherpa_ncnn::DecoderConfig decoder_conf;
-  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf);
+  knf::FbankOptions fbank_opts;
+  fbank_opts.frame_opts.dither = 0;
+  fbank_opts.frame_opts.snip_edges = false;
+  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
+  fbank_opts.mel_opts.num_bins = 80;
+
+  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
 
   std::string wav_filename = argv[8];
-  const float expected_sampling_rate = 16000;
 
   std::cout << model_conf.ToString() << "\n";
+  bool is_ok = false;
   std::vector<float> samples =
-      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
+      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate, &is_ok);
+  if (!is_ok) {
+    fprintf(stderr, "Failed to read %s\n", wav_filename.c_str());
+    exit(-1);
+  }
+
   const float duration = samples.size() / expected_sampling_rate;
   std::cout << "wav filename: " << wav_filename << "\n";
   std::cout << "wav duration (s): " << duration << "\n";

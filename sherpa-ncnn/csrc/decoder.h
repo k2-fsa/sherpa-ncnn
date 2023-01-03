@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "sherpa-ncnn/csrc/endpoint.h"
+#include "sherpa-ncnn/csrc/features.h"
 #include "sherpa-ncnn/csrc/hypothesis.h"
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
@@ -53,6 +54,7 @@ class Decoder {
  public:
   Decoder(const DecoderConfig &decoder_conf,
       std::unique_ptr<Model> model,
+      const knf::FbankOptions &fbank_opts,
       const sherpa_ncnn::SymbolTable &sym,
       std::shared_ptr<Endpoint> endpoint);
 
@@ -78,7 +80,8 @@ class Recognizer {
   /** Construct an instance of OnlineRecognizer.
   */
   Recognizer(const DecoderConfig &decoder_conf,
-      const ModelConfig &model_conf);
+      const ModelConfig &model_conf,
+      const knf::FbankOptions &fbank_opts);
 
   ~Recognizer() = default;
 

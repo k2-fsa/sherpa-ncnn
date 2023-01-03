@@ -28,7 +28,8 @@
 namespace sherpa_ncnn {
 
 Recognizer::Recognizer(const DecoderConfig &decoder_conf,
-    const ModelConfig &model_conf)
+    const ModelConfig &model_conf,
+    const knf::FbankOptions &fbank_opts)
   : decoder_conf_(decoder_conf),
   model_(Model::Create(model_conf)),
   sym_(model_conf.tokens_fn),
@@ -36,11 +37,13 @@ Recognizer::Recognizer(const DecoderConfig &decoder_conf,
     if (decoder_conf.method == "modified_beam_search") {
       decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(decoder_conf_,
           model_,
+          fbank_opts,
           sym_,
           endpoint_);
     } else {
       decoder_ = std::make_unique<GreedySearchDecoder>(decoder_conf_,
           model_,
+          fbank_opts,
           sym_,
           endpoint_);
     }
