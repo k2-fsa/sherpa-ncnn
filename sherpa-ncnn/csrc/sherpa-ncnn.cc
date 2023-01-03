@@ -1,5 +1,6 @@
 /**
  * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2022                     (Pingfeng Luo)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -19,12 +20,8 @@
 #include <algorithm>
 #include <iostream>
 
-#include "kaldi-native-fbank/csrc/online-feature.h"
 #include "net.h"  // NOLINT
-#include "sherpa-ncnn/csrc/decode.h"
-#include "sherpa-ncnn/csrc/features.h"
-#include "sherpa-ncnn/csrc/model.h"
-#include "sherpa-ncnn/csrc/symbol-table.h"
+#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 int main(int argc, char *argv[]) {
@@ -48,100 +45,40 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
     return 0;
   }
-  sherpa_ncnn::ModelConfig config;
-
-  config.tokens = argv[1];
-  config.encoder_param = argv[2];
-  config.encoder_bin = argv[3];
-  config.decoder_param = argv[4];
-  config.decoder_bin = argv[5];
-  config.joiner_param = argv[6];
-  config.joiner_bin = argv[7];
+  sherpa_ncnn::ModelConfig model_conf;
+  model_conf.tokens_fn = argv[1];
+  model_conf.encoder_param = argv[2];
+  model_conf.encoder_bin = argv[3];
+  model_conf.decoder_param = argv[4];
+  model_conf.decoder_bin = argv[5];
+  model_conf.joiner_param = argv[6];
+  model_conf.joiner_bin = argv[7];
+  model_conf.num_threads = 4;
+  if (argc == 10) {
+    model_conf.num_threads = atoi(argv[9]);
+  }
+  sherpa_ncnn::DecoderConfig decoder_conf;
+  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf);
 
   std::string wav_filename = argv[8];
-
-  config.num_threads = 4;
-  if (argc == 10) {
-    config.num_threads = atoi(argv[9]);
-  }
-
-  float expected_sampling_rate = 16000;
-
-  sherpa_ncnn::SymbolTable sym(config.tokens);
-
-  std::cout << config.ToString() << "\n";
-
-  auto model = sherpa_ncnn::Model::Create(config);
-  if (!model) {
-    std::cout << "Failed to create a model\n";
-    exit(EXIT_FAILURE);
-  }
-
-  bool is_ok = false;
+  const float expected_sampling_rate = 16000;
   std::vector<float> samples =
-      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate, &is_ok);
-  if (!is_ok) {
-    fprintf(stderr, "Failed to read %s\n", wav_filename.c_str());
-    exit(-1);
-  }
-
-  float duration = samples.size() / expected_sampling_rate;
-
+      sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
+  const float duration = samples.size() / expected_sampling_rate;
   std::cout << "wav filename: " << wav_filename << "\n";
   std::cout << "wav duration (s): " << duration << "\n";
 
-  knf::FbankOptions fbank_opts;
-  fbank_opts.frame_opts.dither = 0;
-  fbank_opts.frame_opts.snip_edges = false;
-  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
-  fbank_opts.mel_opts.num_bins = 80;
-
-  sherpa_ncnn::FeatureExtractor feature_extractor(fbank_opts);
-  feature_extractor.AcceptWaveform(expected_sampling_rate, samples.data(),
+  recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
                                    samples.size());
-
   std::vector<float> tail_paddings(
       static_cast<int>(0.3 * expected_sampling_rate));
-  feature_extractor.AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
+  recognizer.AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
                                    tail_paddings.size());
 
-  feature_extractor.InputFinished();
-
-  int32_t segment = model->Segment();
-  int32_t offset = model->Offset();
-
-  int32_t context_size = model->ContextSize();
-  int32_t blank_id = model->BlankId();
-
-  std::vector<int32_t> hyp(context_size, blank_id);
-
-  ncnn::Mat decoder_input(context_size);
-  for (int32_t i = 0; i != context_size; ++i) {
-    static_cast<int32_t *>(decoder_input)[i] = blank_id;
-  }
-
-  ncnn::Mat decoder_out = model->RunDecoder(decoder_input);
-
-  std::vector<ncnn::Mat> states;
-  ncnn::Mat encoder_out;
-
-  int32_t num_processed = 0;
-  while (feature_extractor.NumFramesReady() - num_processed >= segment) {
-    ncnn::Mat features = feature_extractor.GetFrames(num_processed, segment);
-    num_processed += offset;
-
-    std::tie(encoder_out, states) = model->RunEncoder(features, states);
-
-    GreedySearch(model.get(), encoder_out, &decoder_out, &hyp);
-  }
-
-  std::string text;
-  for (int32_t i = context_size; i != hyp.size(); ++i) {
-    text += sym[hyp[i]];
-  }
-
+  recognizer.Decode();
+  auto result = recognizer.GetResult();
   std::cout << "Recognition result for " << wav_filename << "\n"
-            << text << "\n";
+            << result.text << "\n";
 
   return 0;
 }

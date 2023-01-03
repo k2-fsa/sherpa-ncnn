@@ -2,13 +2,18 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(sherpa_ncnn_core_srcs
   conv-emformer-model.cc
-  decode.cc
+  endpoint.cc
   features.cc
+  hypothesis.cc
   lstm-model.cc
+  math.cc
   meta-data.cc
   model.cc
   symbol-table.cc
   wave-reader.cc
+  greedy-search-decoder.cc
+  modified-beam-search-decoder.cc
+  decoder.cc
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core kaldi-native-fbank-core ncnn)

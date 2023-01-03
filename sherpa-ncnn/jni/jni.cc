@@ -1,5 +1,6 @@
 /**
  * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2022                     (Pingfeng Luo)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -27,10 +28,7 @@
 
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
-#include "sherpa-ncnn/csrc/decode.h"
-#include "sherpa-ncnn/csrc/features.h"
-#include "sherpa-ncnn/csrc/model.h"
-#include "sherpa-ncnn/csrc/symbol-table.h"
+#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 #define SHERPA_EXTERN_C extern "C"
@@ -40,80 +38,29 @@ namespace sherpa_ncnn {
 class SherpaNcnn {
  public:
   SherpaNcnn(AAssetManager *mgr, const ModelConfig &model_config,
-             const knf::FbankOptions &fbank_config)
-      : model_(Model::Create(mgr, model_config)),
-        feature_extractor_(std::make_unique<FeatureExtractor>(fbank_config)),
-        sym_(mgr, model_config.tokens) {
-    Reset();
-  }
+             const sherpa_ncnn::DecoderConfig &decoder_config)
+    : recognizer_(model_config, decoder_config),
+    tail_padding_(16000 * 0.32, 0) {}
 
   void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
-    feature_extractor_->AcceptWaveform(sample_rate, samples, n);
-    Decode();
+    recognizer_->AcceptWaveform(sample_rate, samples, n);
+    recognizer_->Decode();
   }
 
   void InputFinished() {
-    feature_extractor_->InputFinished();
-    Decode();
+    recognizer_->AcceptWaveform(16000,
+        tail_padding_.data(), tail_padding_.size());
+    recognizer_->Decode();
   }
 
   std::string GetText() const {
-    int32_t context_size = model_->ContextSize();
-
-    std::string text;
-    for (int32_t i = context_size; i != static_cast<int32_t>(hyp_.size());
-         ++i) {
-      text += sym_[hyp_[i]];
-    }
-    return text;
-  }
-
-  void Reset() {
-    feature_extractor_->Reset();
-    num_processed_ = 0;
-    states_.clear();
-
-    int32_t context_size = model_->ContextSize();
-    int32_t blank_id = 0;
-
-    ncnn::Mat decoder_input(context_size);
-    for (int32_t i = 0; i != context_size; ++i) {
-      static_cast<int32_t *>(decoder_input)[i] = blank_id;
-    }
-
-    decoder_out_ = model_->RunDecoder(decoder_input);
-
-    hyp_.resize(context_size, 0);
+    auto result = recognizer.GetResult();
+    return result.text;
   }
 
  private:
-  void Decode() {
-    int32_t segment = model_->Segment();
-    int32_t offset = model_->Offset();
-
-    ncnn::Mat encoder_out;
-    while (feature_extractor_->NumFramesReady() - num_processed_ >= segment) {
-      ncnn::Mat features =
-          feature_extractor_->GetFrames(num_processed_, segment);
-      num_processed_ += offset;
-
-      std::tie(encoder_out, states_) = model_->RunEncoder(features, states_);
-
-      GreedySearch(model_.get(), encoder_out, &decoder_out_, &hyp_);
-    }
-  }
-
- private:
-  std::unique_ptr<Model> model_;
-  std::unique_ptr<FeatureExtractor> feature_extractor_;
-  sherpa_ncnn::SymbolTable sym_;
-
-  std::vector<int32_t> hyp_;
-  ncnn::Mat decoder_out_;
-  std::vector<ncnn::Mat> states_;
-
-  // number of processed frames
-  int32_t num_processed_ = 0;
+  sherpa_ncnn::Recognizer recognizer_;
+  std::vector<float> tail_padding_;
 };
 
 static ModelConfig GetModelConfig(JNIEnv *env, jobject config) {
@@ -286,10 +233,9 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   sherpa_ncnn::ModelConfig model_config =
       sherpa_ncnn::GetModelConfig(env, _model_config);
 
-  knf::FbankOptions fbank_opts =
-      sherpa_ncnn::GetFbankOptions(env, _fbank_config);
+  sherpa_ncnn::DecoderConfig decoder_config
 
-  auto model = new sherpa_ncnn::SherpaNcnn(mgr, model_config, fbank_opts);
+  auto model = new sherpa_ncnn::SherpaNcnn(mgr, model_config, decoder_config);
 
   return (jlong)model;
 }
