@@ -15,8 +15,11 @@
 
 namespace sherpa_ncnn {
 
-ConvEmformerModel::ConvEmformerModel(const ModelConfig &config)
-    : num_threads_(config.num_threads) {
+ConvEmformerModel::ConvEmformerModel(const ModelConfig &config) {
+  encoder_.opt = config.encoder_opt;
+  decoder_.opt = config.decoder_opt;
+  joiner_.opt = config.joiner_opt;
+
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -44,8 +47,7 @@ ConvEmformerModel::ConvEmformerModel(const ModelConfig &config)
 
 #if __ANDROID_API__ >= 9
 ConvEmformerModel::ConvEmformerModel(AAssetManager *mgr,
-                                     const ModelConfig &config)
-    : num_threads_(config.num_threads) {
+                                     const ModelConfig &config) {
   InitEncoder(mgr, config.encoder_param, config.encoder_bin);
   InitDecoder(mgr, config.decoder_param, config.decoder_bin);
   InitJoiner(mgr, config.joiner_param, config.joiner_bin);
@@ -58,6 +60,13 @@ ConvEmformerModel::ConvEmformerModel(AAssetManager *mgr,
 
 std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
     ncnn::Mat &features, const std::vector<ncnn::Mat> &states) {
+  ncnn::Extractor encoder_ex = encoder_.create_extractor();
+  return RunEncoder(features, states, &encoder_ex);
+}
+
+std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
+    ncnn::Mat &features, const std::vector<ncnn::Mat> &states,
+    ncnn::Extractor *encoder_ex) {
   std::vector<ncnn::Mat> _states;
 
   const ncnn::Mat *p;
@@ -68,21 +77,18 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
     p = states.data();
   }
 
-  ncnn::Extractor encoder_ex = encoder_.create_extractor();
-  encoder_ex.set_num_threads(num_threads_);
-
   // Note: We ignore error check there
-  encoder_ex.input(encoder_input_indexes_[0], features);
+  encoder_ex->input(encoder_input_indexes_[0], features);
   for (int32_t i = 1; i != encoder_input_indexes_.size(); ++i) {
-    encoder_ex.input(encoder_input_indexes_[i], p[i - 1]);
+    encoder_ex->input(encoder_input_indexes_[i], p[i - 1]);
   }
 
   ncnn::Mat encoder_out;
-  encoder_ex.extract(encoder_output_indexes_[0], encoder_out);
+  encoder_ex->extract(encoder_output_indexes_[0], encoder_out);
 
   std::vector<ncnn::Mat> next_states(num_layers_ * 4);
   for (int32_t i = 1; i != encoder_output_indexes_.size(); ++i) {
-    encoder_ex.extract(encoder_output_indexes_[i], next_states[i - 1]);
+    encoder_ex->extract(encoder_output_indexes_[i], next_states[i - 1]);
   }
 
   return {encoder_out, next_states};
@@ -90,11 +96,14 @@ std::pair<ncnn::Mat, std::vector<ncnn::Mat>> ConvEmformerModel::RunEncoder(
 
 ncnn::Mat ConvEmformerModel::RunDecoder(ncnn::Mat &decoder_input) {
   ncnn::Extractor decoder_ex = decoder_.create_extractor();
-  decoder_ex.set_num_threads(num_threads_);
+  return RunDecoder(decoder_input, &decoder_ex);
+}
 
+ncnn::Mat ConvEmformerModel::RunDecoder(ncnn::Mat &decoder_input,
+                                        ncnn::Extractor *decoder_ex) {
   ncnn::Mat decoder_out;
-  decoder_ex.input(decoder_input_indexes_[0], decoder_input);
-  decoder_ex.extract(decoder_output_indexes_[0], decoder_out);
+  decoder_ex->input(decoder_input_indexes_[0], decoder_input);
+  decoder_ex->extract(decoder_output_indexes_[0], decoder_out);
   decoder_out = decoder_out.reshape(decoder_out.w);
 
   return decoder_out;
@@ -103,12 +112,17 @@ ncnn::Mat ConvEmformerModel::RunDecoder(ncnn::Mat &decoder_input) {
 ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
                                        ncnn::Mat &decoder_out) {
   auto joiner_ex = joiner_.create_extractor();
-  joiner_ex.set_num_threads(num_threads_);
-  joiner_ex.input(joiner_input_indexes_[0], encoder_out);
-  joiner_ex.input(joiner_input_indexes_[1], decoder_out);
+  return RunJoiner(encoder_out, decoder_out, &joiner_ex);
+}
+
+ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
+                                       ncnn::Mat &decoder_out,
+                                       ncnn::Extractor *joiner_ex) {
+  joiner_ex->input(joiner_input_indexes_[0], encoder_out);
+  joiner_ex->input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
-  joiner_ex.extract("out0", joiner_out);
+  joiner_ex->extract("out0", joiner_out);
   return joiner_out;
 }
 

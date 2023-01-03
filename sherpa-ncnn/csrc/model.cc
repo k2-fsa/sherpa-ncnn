@@ -38,7 +38,9 @@ std::string ModelConfig::ToString() const {
 
   os << "tokens: " << tokens << "\n";
 
-  os << "num_threads: " << num_threads << "\n";
+  os << "encoder num_threads: " << encoder_opt.num_threads << "\n";
+  os << "decoder num_threads: " << decoder_opt.num_threads << "\n";
+  os << "joiner num_threads: " << joiner_opt.num_threads << "\n";
 
   return os.str();
 }

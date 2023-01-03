@@ -57,11 +57,17 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   if (argc == 10) {
     model_conf.num_threads = atoi(argv[9]);
   }
+  model_conf.encoder_opt.num_threads = num_threads;
+  model_conf.decoder_opt.num_threads = num_threads;
+  model_conf.joiner_opt.num_threads = num_threads;
+
   sherpa_ncnn::DecoderConfig decoder_conf;
   sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf);
 
   std::string wav_filename = argv[8];
   const float expected_sampling_rate = 16000;
+
+  std::cout << model_conf.ToString() << "\n";
   std::vector<float> samples =
       sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate);
   const float duration = samples.size() / expected_sampling_rate;

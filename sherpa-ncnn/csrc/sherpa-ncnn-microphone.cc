@@ -69,6 +69,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   }
   signal(SIGINT, Handler);
 
+<<<<<<< HEAD
   sherpa_ncnn::ModelConfig model_conf;
   model_conf.tokens_fn = argv[1];
   model_conf.encoder_param = argv[2];
@@ -81,9 +82,13 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   if (argc == 9) {
     model_conf.num_threads = atoi(argv[8]);
   }
+  model_conf.encoder_opt.num_threads = num_threads;
+  model_conf.decoder_opt.num_threads = num_threads;
+  model_conf.joiner_opt.num_threads = num_threads;
+
+  fprintf(stderr, "%s\n", model_conf.ToString().c_str());
+
   sherpa_ncnn::DecoderConfig decoder_conf;
-
-
   sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf);
 
   sherpa_ncnn::Microphone mic;
