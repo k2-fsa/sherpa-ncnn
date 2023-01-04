@@ -852,6 +852,8 @@ int QuantNet::quantize_KL(const std::vector<std::string> &wave_filenames) {
     joiner_bottom_blob_scales[i].create(1);
     joiner_bottom_blob_scales[i][0] = scale;
   }  // for (int i = 0; i < joiner_conv_bottom_blob_count; i++)
+
+  return 0;
 }
 
 void QuantNet::print_quant_info() const {
