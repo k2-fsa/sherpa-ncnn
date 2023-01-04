@@ -83,6 +83,14 @@ class Recognizer {
       const ModelConfig &model_conf,
       const knf::FbankOptions &fbank_opts);
 
+#if __ANDROID_API__ >= 9
+  Recognizer(
+      AAssetManager *mgr,
+      const DecoderConfig &decoder_conf,
+      const ModelConfig &model_conf,
+      const knf::FbankOptions &fbank_opts);
+#endif
+
   ~Recognizer() = default;
 
   void AcceptWaveform(int32_t sample_rate,
@@ -96,7 +104,6 @@ class Recognizer {
   bool IsEndpoint() const;
 
  private:
-  const DecoderConfig &decoder_conf_;
   std::shared_ptr<Model> model_;
   SymbolTable sym_;
   std::shared_ptr<Endpoint> endpoint_;
