@@ -70,7 +70,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   signal(SIGINT, Handler);
 
   sherpa_ncnn::ModelConfig model_conf;
-  model_conf.tokens_fn = argv[1];
+  model_conf.tokens = argv[1];
   model_conf.encoder_param = argv[2];
   model_conf.encoder_bin = argv[3];
   model_conf.decoder_param = argv[4];

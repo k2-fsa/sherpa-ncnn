@@ -29,7 +29,6 @@
 namespace sherpa_ncnn {
 
 struct ModelConfig {
-  std::string tokens_fn;  // path to toknes.txt
   std::string encoder_param;  // path to encoder.ncnn.param
   std::string encoder_bin;    // path to encoder.ncnn.bin
   std::string decoder_param;  // path to decoder.ncnn.param

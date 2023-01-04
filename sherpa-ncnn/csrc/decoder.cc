@@ -30,24 +30,49 @@ namespace sherpa_ncnn {
 Recognizer::Recognizer(const DecoderConfig &decoder_conf,
     const ModelConfig &model_conf,
     const knf::FbankOptions &fbank_opts)
-  : decoder_conf_(decoder_conf),
-  model_(Model::Create(model_conf)),
-  sym_(model_conf.tokens_fn),
+  : model_(Model::Create(model_conf)),
+  sym_(model_conf.tokens),
   endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
     if (decoder_conf.method == "modified_beam_search") {
-      decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(decoder_conf_,
+      decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(decoder_conf,
           model_,
           fbank_opts,
           sym_,
           endpoint_);
     } else {
-      decoder_ = std::make_unique<GreedySearchDecoder>(decoder_conf_,
+      decoder_ = std::make_unique<GreedySearchDecoder>(decoder_conf,
           model_,
           fbank_opts,
           sym_,
           endpoint_);
     }
 }
+
+#if __ANDROID_API__ >= 9
+Recognizer::Recognizer(
+      AAssetManager *mgr,
+      const DecoderConfig &decoder_conf,
+      const ModelConfig &model_conf,
+      const knf::FbankOptions &fbank_opts)
+  : model_(Model::Create(mgr, model_conf)),
+  sym_(mgr, model_conf.tokens),
+  endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
+    if (decoder_conf.method == "modified_beam_search") {
+      decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(decoder_conf,
+          model_,
+          fbank_opts,
+          sym_,
+          endpoint_);
+    } else {
+      decoder_ = std::make_unique<GreedySearchDecoder>(decoder_conf,
+          model_,
+          fbank_opts,
+          sym_,
+          endpoint_);
+    }
+}
+
+#endif
 
 void Recognizer::AcceptWaveform(int32_t sample_rate,
     const float *input_buffer,
