@@ -21,11 +21,11 @@
 #include <iostream>
 
 #include "net.h"  // NOLINT
-#include "sherpa-ncnn/csrc/decoder.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 int main(int argc, char *argv[]) {
-  if (argc < 9 || argc > 10) {
+  if (argc < 9 || argc > 11) {
     const char *usage = R"usage(
 Usage:
   ./bin/sherpa-ncnn \
@@ -36,7 +36,7 @@ Usage:
     /path/to/decoder.ncnn.bin \
     /path/to/joiner.ncnn.param \
     /path/to/joiner.ncnn.bin \
-    /path/to/foo.wav [num_threads]
+    /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search]
 
 You can download pre-trained models from the following repository:
 https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
@@ -63,6 +63,9 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
 
   const float expected_sampling_rate = 16000;
   sherpa_ncnn::DecoderConfig decoder_conf;
+  if (argc == 11) {
+    decoder_conf.method = argv[10];
+  }
   knf::FbankOptions fbank_opts;
   fbank_opts.frame_opts.dither = 0;
   fbank_opts.frame_opts.snip_edges = false;
@@ -87,11 +90,11 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   std::cout << "wav duration (s): " << duration << "\n";
 
   recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
-                                   samples.size());
+                            samples.size());
   std::vector<float> tail_paddings(
       static_cast<int>(0.3 * expected_sampling_rate));
   recognizer.AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
-                                   tail_paddings.size());
+                            tail_paddings.size());
 
   recognizer.Decode();
   auto result = recognizer.GetResult();

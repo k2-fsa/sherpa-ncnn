@@ -32,9 +32,9 @@
 #include "layer/innerproduct.h"
 #include "mat.h"
 #include "net.h"
-#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/features.h"
 #include "sherpa-ncnn/csrc/model.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 static float compute_kl_divergence(const std::vector<float> &a,
@@ -852,6 +852,8 @@ int QuantNet::quantize_KL(const std::vector<std::string> &wave_filenames) {
     joiner_bottom_blob_scales[i].create(1);
     joiner_bottom_blob_scales[i][0] = scale;
   }  // for (int i = 0; i < joiner_conv_bottom_blob_count; i++)
+
+  return 0;
 }
 
 void QuantNet::print_quant_info() const {

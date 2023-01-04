@@ -64,4 +64,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nCatch Ctrl + C. Exiting")
+        print("\nCaught Ctrl + C. Exiting")

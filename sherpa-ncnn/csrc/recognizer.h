@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_CSRC_DECODER_H_
-#define SHERPA_NCNN_CSRC_DECODER_H_
+#ifndef SHERPA_NCNN_CSRC_RECOGNIZER_H_
+#define SHERPA_NCNN_CSRC_RECOGNIZER_H_
 
 #include <memory>
 #include <string>
@@ -46,25 +46,18 @@ struct DecoderConfig {
   std::string method = "greedy_search";
 
   int32_t num_active_paths = 4;  // for modified beam search
-                                 //
+
+  bool use_endpoint = false;
+
   EndpointConfig endpoint_config;
 };
 
 class Decoder {
  public:
-  Decoder(const DecoderConfig &decoder_conf,
-      std::unique_ptr<Model> model,
-      const knf::FbankOptions &fbank_opts,
-      const sherpa_ncnn::SymbolTable &sym,
-      std::shared_ptr<Endpoint> endpoint);
-
-  Decoder() = default;
-
   virtual ~Decoder() = default;
 
-  virtual void AcceptWaveform(int32_t sample_rate,
-      const float *input_buffer,
-      int32_t frames_per_buffer) = 0;
+  virtual void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+                              int32_t frames_per_buffer) = 0;
 
   virtual void Decode() = 0;
 
@@ -72,43 +65,41 @@ class Decoder {
 
   virtual void ResetResult() = 0;
 
+  virtual void InputFinished() = 0;
+
   virtual bool IsEndpoint() const = 0;
 };
 
 class Recognizer {
  public:
   /** Construct an instance of OnlineRecognizer.
-  */
-  Recognizer(const DecoderConfig &decoder_conf,
-      const ModelConfig &model_conf,
-      const knf::FbankOptions &fbank_opts);
-
-#if __ANDROID_API__ >= 9
+   */
   Recognizer(
+#if __ANDROID_API__ >= 9
       AAssetManager *mgr,
-      const DecoderConfig &decoder_conf,
-      const ModelConfig &model_conf,
-      const knf::FbankOptions &fbank_opts);
 #endif
+      const DecoderConfig decoder_conf, const ModelConfig model_conf,
+      const knf::FbankOptions fbank_opts);
 
   ~Recognizer() = default;
 
-  void AcceptWaveform(int32_t sample_rate,
-      const float *input_buffer,
-      int32_t frames_per_buffer);
+  void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+                      int32_t frames_per_buffer);
 
   void Decode();
 
   RecognitionResult GetResult();
 
+  void InputFinished();
+
   bool IsEndpoint() const;
 
  private:
-  std::shared_ptr<Model> model_;
-  SymbolTable sym_;
-  std::shared_ptr<Endpoint> endpoint_;
+  std::unique_ptr<Model> model_;
+  std::unique_ptr<SymbolTable> sym_;
+  std::unique_ptr<Endpoint> endpoint_;
   std::unique_ptr<Decoder> decoder_;
 };
 
 }  // namespace sherpa_ncnn
-#endif  // SHERPA_NCNN_CSRC_DECODER_H_
+#endif  // SHERPA_NCNN_CSRC_RECOGNIZER_H_

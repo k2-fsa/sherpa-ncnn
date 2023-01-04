@@ -173,6 +173,23 @@ for wave in ${waves[@]}; do
     $wave
 done
 
+log "Test beam-search"
+
+for wave in ${waves[@]}; do
+  time $EXE \
+    $repo/tokens.txt \
+    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+    $wave
+    4
+    "modified_beam_search"
+done
+
+
 log "Test int8 models"
 
 for wave in ${waves[@]}; do

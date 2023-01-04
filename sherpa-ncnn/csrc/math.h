@@ -1,5 +1,6 @@
 /**
- * Copyright      2022  Xiaomi Corporation (authors: Daniel Povey)
+ * Copyright (c)  2022  Xiaomi Corporation (authors: Daniel Povey)
+ * Copyright (c)  2022                     (Pingfeng Luo)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -19,8 +20,10 @@
 #ifndef SHERPA_NCNN_CSRC_MATH_H_
 #define SHERPA_NCNN_CSRC_MATH_H_
 
-#include <cmath>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <numeric>
 #include <vector>
 
 namespace sherpa_ncnn {
@@ -81,9 +84,41 @@ struct LogAdd<float> {
   }
 };
 
-void log_softmax(float *input, size_t input_len);
+template <class T>
+void log_softmax(T *input, int32_t input_len) {
+  assert(input);
 
-std::vector<int> topk_index(const std::vector<float>& vec,int topk);
+  T m = *std::max_element(input, input + input_len);
+
+  T sum = 0.0;
+  for (int32_t i = 0; i < input_len; i++) {
+    sum += exp(input[i] - m);
+  }
+
+  T offset = m + log(sum);
+  for (int32_t i = 0; i < input_len; i++) {
+    input[i] -= offset;
+  }
+}
+
+template <class T>
+std::vector<int32_t> topk_index(const T *vec, int32_t size, int32_t topk) {
+  std::vector<int32_t> index;
+
+  std::vector<int32_t> vec_index(size);
+  std::iota(vec_index.begin(), vec_index.end(), 0);
+
+  std::sort(vec_index.begin(), vec_index.end(),
+            [vec](int32_t index_1, int32_t index_2) {
+              return vec[index_1] > vec[index_2];
+            });
+
+  int32_t k_num = std::min<int32_t>(size, topk);
+  for (int32_t i = 0; i < k_num; ++i) {
+    index.emplace_back(vec_index[i]);
+  }
+  return index;
+}
 
 }  // namespace sherpa_ncnn
 #endif  // SHERPA_NCNN_CSRC_MATH_H_

@@ -23,38 +23,35 @@
 #include <memory>
 #include <vector>
 
-#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/features.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 
 namespace sherpa_ncnn {
 
 class GreedySearchDecoder : public Decoder {
  public:
-  GreedySearchDecoder(const DecoderConfig &config,
-      std::shared_ptr<Model> model,
-      const knf::FbankOptions &fbank_opts,
-      const sherpa_ncnn::SymbolTable &sym,
-      std::shared_ptr<Endpoint> endpoint)
-     : config_(config),
-     model_(model),
-     feature_extractor_(fbank_opts),
-     sym_(sym),
-     blank_id_(model_->BlankId()),
-     context_size_(model_->ContextSize()),
-     segment_(model->Segment()),
-     offset_(model_->Offset()),
-     decoder_input_(context_size_),
-     num_processed_(0),
-     endpoint_start_frame_(0),
-     endpoint_(endpoint) {
-       ResetResult();
-       BuildDecoderInput();
-       decoder_out_ = model_->RunDecoder(decoder_input_);
-     }
+  GreedySearchDecoder(const DecoderConfig config, Model *model,
+                      const knf::FbankOptions fbank_opts,
+                      const sherpa_ncnn::SymbolTable *sym, Endpoint *endpoint)
+      : config_(config),
+        model_(model),
+        feature_extractor_(fbank_opts),
+        sym_(sym),
+        blank_id_(model_->BlankId()),
+        context_size_(model_->ContextSize()),
+        segment_(model->Segment()),
+        offset_(model_->Offset()),
+        decoder_input_(context_size_),
+        num_processed_(0),
+        endpoint_start_frame_(0),
+        endpoint_(endpoint) {
+    ResetResult();
+    BuildDecoderInput();
+    decoder_out_ = model_->RunDecoder(decoder_input_);
+  }
 
-  void AcceptWaveform(int32_t sample_rate,
-      const float *input_buffer,
-      int32_t frames_per_buffer = 0) override;
+  void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+                      int32_t frames_per_buffer) override;
 
   void Decode() override;
 
@@ -64,13 +61,15 @@ class GreedySearchDecoder : public Decoder {
 
   bool IsEndpoint() const override;
 
+  void InputFinished() override;
+
  private:
   void BuildDecoderInput();
 
-  const DecoderConfig &config_;
-  std::shared_ptr<Model> model_;
+  const DecoderConfig config_;
+  Model *model_;
   sherpa_ncnn::FeatureExtractor feature_extractor_;
-  const sherpa_ncnn::SymbolTable &sym_;
+  const sherpa_ncnn::SymbolTable *sym_;
   const int32_t blank_id_;
   const int32_t context_size_;
   const int32_t segment_;
@@ -81,7 +80,7 @@ class GreedySearchDecoder : public Decoder {
   ncnn::Mat decoder_out_;
   int32_t num_processed_;
   int32_t endpoint_start_frame_;
-  std::shared_ptr<Endpoint> endpoint_;
+  Endpoint *endpoint_;
   RecognitionResult result_;
 };
 

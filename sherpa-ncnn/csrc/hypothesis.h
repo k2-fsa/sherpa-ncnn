@@ -87,11 +87,10 @@ class Hypotheses {
   // len(hyp.ys) before comparison.
   Hypothesis GetMostProbable(bool length_norm) const;
 
-  // Get the hyp that has the lest log_prob.
+  // Get the hyp that has the least log_prob.
   // If length_norm is true, hyp's log_prob are divided by
   // len(hyp.ys) before comparison.
   Hypothesis GetLeastProbable(bool length_norm) const;
-
 
   // Remove the given hyp from this object.
   // It is *NOT* an error if hyp does not exist in this object.
@@ -123,9 +122,7 @@ class Hypotheses {
   const auto begin() const { return hyps_dict_.begin(); }
   const auto end() const { return hyps_dict_.end(); }
 
-  void clear() {
-    hyps_dict_.clear();
-  }
+  void clear() { hyps_dict_.clear(); }
 
  private:
   using Map = std ::unordered_map<std::string, Hypothesis>;

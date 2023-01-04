@@ -21,8 +21,8 @@
 #include <stdlib.h>
 
 #include "portaudio.h"  // NOLINT
-#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/microphone.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 
 bool stop = false;
 
@@ -31,8 +31,7 @@ static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
                           const PaStreamCallbackTimeInfo * /*time_info*/,
                           PaStreamCallbackFlags /*status_flags*/,
                           void *user_data) {
-  auto recognizer =
-      reinterpret_cast<sherpa_ncnn::Recognizer *>(user_data);
+  auto recognizer = reinterpret_cast<sherpa_ncnn::Recognizer *>(user_data);
 
   recognizer->AcceptWaveform(
       16000, reinterpret_cast<const float *>(input_buffer), frames_per_buffer);

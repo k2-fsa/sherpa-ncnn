@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
+#include "sherpa-ncnn/csrc/hypothesis.h"
+
 #include <algorithm>
 #include <utility>
 
-#include "sherpa-ncnn/csrc/hypothesis.h"
 #include "sherpa-ncnn/csrc/math.h"
 
 namespace sherpa_ncnn {

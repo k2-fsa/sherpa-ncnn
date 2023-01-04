@@ -28,7 +28,7 @@
 
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
-#include "sherpa-ncnn/csrc/decoder.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 #define SHERPA_EXTERN_C extern "C"
@@ -38,11 +38,11 @@ namespace sherpa_ncnn {
 class SherpaNcnn {
  public:
   SherpaNcnn(AAssetManager *mgr,
-             const sherpa_ncnn::DecoderConfig &decoder_config,
-             const ModelConfig &model_config,
+             const sherpa_ncnn::DecoderConfig decoder_config,
+             const ModelConfig model_config,
              const knf::FbankOptions fbank_opts)
-    : recognizer_(mgr, decoder_config, model_config, fbank_opts),
-    tail_padding_(16000 * 0.32, 0) {}
+      : recognizer_(mgr, decoder_config, model_config, fbank_opts),
+        tail_padding_(16000 * 0.32, 0) {}
 
   void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
     recognizer_.AcceptWaveform(sample_rate, samples, n);
@@ -50,8 +50,9 @@ class SherpaNcnn {
   }
 
   void InputFinished() {
-    recognizer_.AcceptWaveform(16000,
-        tail_padding_.data(), tail_padding_.size());
+    recognizer_.AcceptWaveform(16000, tail_padding_.data(),
+                               tail_padding_.size());
+    recognizer_.InputFinished();
     recognizer_.Decode();
   }
 
@@ -244,8 +245,8 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   knf::FbankOptions fbank_opts =
       sherpa_ncnn::GetFbankOptions(env, _fbank_config);
 
-  auto model = new sherpa_ncnn::SherpaNcnn(mgr, decoder_config,
-      model_config, fbank_opts);
+  auto model = new sherpa_ncnn::SherpaNcnn(mgr, decoder_config, model_config,
+                                           fbank_opts);
 
   return (jlong)model;
 }
@@ -258,8 +259,7 @@ JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_delete(
 
 SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_reset(
-    JNIEnv *env, jobject /*obj*/, jlong ptr) {
-}
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {}
 
 SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_decodeSamples(
