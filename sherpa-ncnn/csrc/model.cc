@@ -27,20 +27,17 @@ namespace sherpa_ncnn {
 
 std::string ModelConfig::ToString() const {
   std::ostringstream os;
-  os << "encoder_param: " << encoder_param << "\n";
-  os << "encoder_bin: " << encoder_bin << "\n";
-
-  os << "decoder_param: " << decoder_param << "\n";
-  os << "decoder_bin: " << decoder_bin << "\n";
-
-  os << "joiner_param: " << joiner_param << "\n";
-  os << "joiner_bin: " << joiner_bin << "\n";
-
-  os << "tokens: " << tokens << "\n";
-
-  os << "encoder num_threads: " << encoder_opt.num_threads << "\n";
-  os << "decoder num_threads: " << decoder_opt.num_threads << "\n";
-  os << "joiner num_threads: " << joiner_opt.num_threads << "\n";
+  os << "ModelConfig(";
+  os << "encoder_param=\"" << encoder_param << "\", ";
+  os << "encoder_bin=\"" << encoder_bin << "\", ";
+  os << "decoder_param=\"" << decoder_param << "\", ";
+  os << "decoder_bin=\"" << decoder_bin << "\", ";
+  os << "joiner_param=\"" << joiner_param << "\", ";
+  os << "joiner_bin=\"" << joiner_bin << "\", ";
+  os << "tokens=\"" << tokens << "\", ";
+  os << "encoder num_threads=" << encoder_opt.num_threads << ", ";
+  os << "decoder num_threads=" << decoder_opt.num_threads << ", ";
+  os << "joiner num_threads=" << joiner_opt.num_threads << ")";
 
   return os.str();
 }

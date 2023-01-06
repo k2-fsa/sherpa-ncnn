@@ -45,6 +45,7 @@ void ModifiedBeamSearchDecoder::ResetResult() {
   std::vector<int32_t> blanks(context_size_, blank_id_);
   Hypotheses blank_hyp({{blanks, 0}});
   result_.hyps = std::move(blank_hyp);
+  result_.num_trailing_blanks = 0;
 }
 
 void ModifiedBeamSearchDecoder::Decode() {
@@ -109,8 +110,9 @@ RecognitionResult ModifiedBeamSearchDecoder::GetResult() {
     }
   }
   result_.text = std::move(best_hyp_text);
-  auto ans = result_;
   result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
+  auto ans = result_;
+
   if (config_.use_endpoint && IsEndpoint()) {
     ResetResult();
     endpoint_start_frame_ = num_processed_;
@@ -122,9 +124,18 @@ void ModifiedBeamSearchDecoder::InputFinished() {
   feature_extractor_.InputFinished();
 }
 
-bool ModifiedBeamSearchDecoder::IsEndpoint() const {
+bool ModifiedBeamSearchDecoder::IsEndpoint() {
+  auto best_hyp = result_.hyps.GetMostProbable(true);
+  result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
   return endpoint_->IsEndpoint(num_processed_ - endpoint_start_frame_,
                                result_.num_trailing_blanks * 4, 10 / 1000.0);
+}
+
+void ModifiedBeamSearchDecoder::Reset() {
+  ResetResult();
+  feature_extractor_.Reset();
+  num_processed_ = 0;
+  endpoint_start_frame_ = 0;
 }
 
 }  // namespace sherpa_ncnn

@@ -17,6 +17,7 @@
  */
 #include "sherpa-ncnn/csrc/endpoint.h"
 
+#include <sstream>
 #include <string>
 
 namespace sherpa_ncnn {
@@ -30,6 +31,29 @@ static bool RuleActivated(const EndpointRule &rule,
              trailing_silence >= rule.min_trailing_silence &&
              utterance_length >= rule.min_utterance_length;
   return ans;
+}
+
+std::string EndpointRule::ToString() const {
+  std::ostringstream os;
+
+  os << "EndpointRule(";
+  os << "must_contain_nonsilence="
+     << (must_contain_nonsilence ? "True" : "False") << ", ";
+  os << "min_trailing_silence=" << min_trailing_silence << ", ";
+  os << "min_utterance_length=" << min_utterance_length << ")";
+
+  return os.str();
+}
+
+std::string EndpointConfig::ToString() const {
+  std::ostringstream os;
+
+  os << "EndpointConfig(";
+  os << "rule1=" << rule1.ToString() << ", ";
+  os << "rule2=" << rule2.ToString() << ", ";
+  os << "rule3=" << rule3.ToString() << ")";
+
+  return os.str();
 }
 
 bool Endpoint::IsEndpoint(const int num_frames_decoded,

@@ -58,8 +58,9 @@ Usage:
     /path/to/joiner.ncnn.bin \
     [num_threads]
 
-You can download pre-trained models from the following repository:
-https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
+Please refer to
+https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
+for a list of pre-trained models to download.
 )usage";
     fprintf(stderr, "%s\n", usage);
     fprintf(stderr, "argc, %d\n", argc);
@@ -100,6 +101,8 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   fbank_opts.frame_opts.snip_edges = false;
   fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
   fbank_opts.mel_opts.num_bins = 80;
+
+  fprintf(stderr, "%s\n", decoder_conf.ToString().c_str());
 
   sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
 
