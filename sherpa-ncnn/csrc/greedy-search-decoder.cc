@@ -88,9 +88,18 @@ void GreedySearchDecoder::InputFinished() {
   feature_extractor_.InputFinished();
 }
 
-bool GreedySearchDecoder::IsEndpoint() const {
+bool GreedySearchDecoder::IsEndpoint() {
   return endpoint_->IsEndpoint(num_processed_ - endpoint_start_frame_,
                                result_.num_trailing_blanks * 4, 10 / 1000.0);
+}
+
+void GreedySearchDecoder::Reset() {
+  ResetResult();
+  BuildDecoderInput();
+  decoder_out_ = model_->RunDecoder(decoder_input_);
+  feature_extractor_.Reset();
+  num_processed_ = 0;
+  endpoint_start_frame_ = 0;
 }
 
 }  // namespace sherpa_ncnn

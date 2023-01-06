@@ -2,6 +2,25 @@ package com.k2fsa.sherpa.ncnn
 
 import android.content.res.AssetManager
 
+data class EndpointRule(
+    var mustContainNonSilence: Boolean,
+    var minTrailingSilence: Float,
+    var minUtteranceLength: Float,
+)
+
+data class EndpointConfig(
+    var rule1: EndpointRule = EndpointRule(false, 2.4f, 0.0f),
+    var rule2: EndpointRule = EndpointRule(true, 1.4f, 0.0f),
+    var rule3: EndpointRule = EndpointRule(false, 0.0f, 20.0f)
+)
+
+data class DecoderConfig(
+    var method: String = "modified_beam_search", // valid values: greedy_search, modified_beam_search
+    var numActivePaths: Int = 4, // used only by modified_beam_search
+    var useEndpoint: Boolean = true,
+    var endpointConfig: EndpointConfig = EndpointConfig(),
+)
+
 data class FrameExtractionOptions(
     var sampFreq: Float = 16000.0f,
     var frameShiftMs: Float = 10.0f,
@@ -52,12 +71,13 @@ data class ModelConfig(
 class SherpaNcnn(
     assetManager: AssetManager,
     modelConfig: ModelConfig,
+    decoderConfig: DecoderConfig,
     var fbankConfig: FbankOptions,
 ) {
     private val ptr: Long
 
     init {
-        ptr = new(assetManager, modelConfig, fbankConfig)
+        ptr = new(assetManager, modelConfig, decoderConfig, fbankConfig)
     }
 
     protected fun finalize() {
@@ -69,6 +89,7 @@ class SherpaNcnn(
 
     fun inputFinished() = inputFinished(ptr)
     fun reset() = reset(ptr)
+    fun isEndpoint(): Boolean = isEndpoint(ptr)
 
     val text: String
         get() = getText(ptr)
@@ -76,6 +97,7 @@ class SherpaNcnn(
     private external fun new(
         assetManager: AssetManager,
         modelConfig: ModelConfig,
+        decoderConfig: DecoderConfig,
         fbankConfig: FbankOptions
     ): Long
 
@@ -84,6 +106,7 @@ class SherpaNcnn(
     private external fun inputFinished(ptr: Long)
     private external fun getText(ptr: Long): String
     private external fun reset(ptr: Long)
+    private external fun isEndpoint(ptr: Long): Boolean
 
     companion object {
         init {
@@ -116,12 +139,12 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
         1 -> {
             val modelDir = "sherpa-ncnn-conv-emformer-transducer-2022-12-06"
             return ModelConfig(
-                encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.param",
-                encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.bin",
+                encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.int8.param",
+                encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.int8.bin",
                 decoderParam = "$modelDir/decoder_jit_trace-pnnx.ncnn.param",
                 decoderBin = "$modelDir/decoder_jit_trace-pnnx.ncnn.bin",
-                joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.param",
-                joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.bin",
+                joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.int8.param",
+                joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.int8.bin",
                 tokens = "$modelDir/tokens.txt",
                 numThreads = 4,
                 useGPU = useGPU,
@@ -144,4 +167,18 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
         }
     }
     return null
+}
+
+fun getDecoderConfig(useEndpoint: Boolean): DecoderConfig {
+    return DecoderConfig(
+        method = "modified_beam_search",
+        numActivePaths = 4,
+        useEndpoint = useEndpoint,
+        endpointConfig = EndpointConfig(
+            rule1 = EndpointRule(false, 2.4f, 0.0f),
+            rule2 = EndpointRule(true, 1.4f, 0.0f),
+            rule3 = EndpointRule(false, 0.0f, 20.0f)
+        )
+    )
+
 }

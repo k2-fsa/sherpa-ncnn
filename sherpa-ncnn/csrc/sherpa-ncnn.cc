@@ -38,8 +38,9 @@ Usage:
     /path/to/joiner.ncnn.bin \
     /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search]
 
-You can download pre-trained models from the following repository:
-https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
+Please refer to
+https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
+for a list of pre-trained models to download.
 )usage";
     std::cerr << usage << "\n";
 

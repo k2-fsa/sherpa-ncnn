@@ -50,6 +50,7 @@ struct DecoderConfig {
   bool use_endpoint = true;
 
   EndpointConfig endpoint_config;
+  std::string ToString() const;
 };
 
 class Decoder {
@@ -67,7 +68,9 @@ class Decoder {
 
   virtual void InputFinished() = 0;
 
-  virtual bool IsEndpoint() const = 0;
+  virtual bool IsEndpoint() = 0;
+
+  virtual void Reset() = 0;
 };
 
 class Recognizer {
@@ -92,7 +95,9 @@ class Recognizer {
 
   void InputFinished();
 
-  bool IsEndpoint() const;
+  bool IsEndpoint();
+
+  void Reset();
 
  private:
   std::unique_ptr<Model> model_;

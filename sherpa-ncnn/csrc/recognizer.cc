@@ -26,6 +26,18 @@
 
 namespace sherpa_ncnn {
 
+std::string DecoderConfig::ToString() const {
+  std::ostringstream os;
+
+  os << "DecoderConfig(";
+  os << "method=\"" << method << "\", ";
+  os << "num_active_paths=" << num_active_paths << ", ";
+  os << "use_endpoint=" << (use_endpoint ? "True" : "False") << ", ";
+  os << "endpoint_config=" << endpoint_config.ToString() << ")";
+
+  return os.str();
+}
+
 Recognizer::Recognizer(
 #if __ANDROID_API__ >= 9
     AAssetManager *mgr,
@@ -62,7 +74,9 @@ void Recognizer::Decode() { decoder_->Decode(); }
 
 RecognitionResult Recognizer::GetResult() { return decoder_->GetResult(); }
 
-bool Recognizer::IsEndpoint() const { return decoder_->IsEndpoint(); }
+bool Recognizer::IsEndpoint() { return decoder_->IsEndpoint(); }
+
+void Recognizer::Reset() { return decoder_->Reset(); }
 
 void Recognizer::InputFinished() { return decoder_->InputFinished(); }
 

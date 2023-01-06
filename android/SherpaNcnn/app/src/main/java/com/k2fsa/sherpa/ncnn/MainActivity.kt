@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     @Volatile
     private var isRecording: Boolean = false
 
+    private var results: MutableList<String> = ArrayList()
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -91,6 +93,9 @@ class MainActivity : AppCompatActivity() {
             recordButton.setText(R.string.stop)
             isRecording = true
             model.reset()
+            results = ArrayList()
+            textView.text = ""
+
             recordingThread = thread(true) {
                 processSamples()
             }
@@ -101,7 +106,7 @@ class MainActivity : AppCompatActivity() {
             audioRecord!!.release()
             audioRecord = null
             recordButton.setText(R.string.start)
-            textView.text = model.text
+            textView.text = joinText()
             Log.i(TAG, "Stopped recording")
         }
     }
@@ -118,7 +123,22 @@ class MainActivity : AppCompatActivity() {
             if (ret != null && ret > 0) {
                 val samples = FloatArray(ret) { buffer[it] / 32768.0f }
                 model.decodeSamples(samples)
-                runOnUiThread { textView.text = model.text }
+                runOnUiThread {
+                    val isEndpoint = model.isEndpoint()
+                    val text = model.text
+
+                    if (text.isNotBlank()) {
+                        if (isEndpoint) {
+                            results[results.size - 1] = text
+                            results.add("")
+                        } else {
+                            if (results.isEmpty()) results.add("")
+                            results[results.size - 1] = text
+                        }
+                    }
+
+                    textView.text = joinText()
+                }
             }
         }
     }
@@ -153,7 +173,20 @@ class MainActivity : AppCompatActivity() {
         model = SherpaNcnn(
             assetManager = application.assets,
             modelConfig = getModelConfig(type = 1, useGPU = useGPU)!!,
+            decoderConfig=getDecoderConfig(useEndpoint = true),
             fbankConfig = getFbankConfig(),
         )
+    }
+
+    private fun joinText(): String {
+        var r = ""
+        var sep = ""
+        results.forEachIndexed { i, s ->
+            if (s.isNotBlank()) {
+                r = r.plus("${sep}${i}: ${s}")
+                sep = "\n"
+            }
+        }
+        return r
     }
 }

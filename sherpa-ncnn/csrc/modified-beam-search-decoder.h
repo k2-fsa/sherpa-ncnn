@@ -58,7 +58,9 @@ class ModifiedBeamSearchDecoder : public Decoder {
 
   void ResetResult() override;
 
-  bool IsEndpoint() const override;
+  bool IsEndpoint() override;
+
+  void Reset() override;
 
   void InputFinished() override;
 
