@@ -4,3 +4,5 @@ __pycache__
 sherpa_ncnn.egg-info/
 run*.sh
 dist/
+.DS_Store
+tags

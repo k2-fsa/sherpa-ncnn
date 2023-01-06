@@ -32,9 +32,9 @@
 #include "layer/innerproduct.h"
 #include "mat.h"
 #include "net.h"
-#include "sherpa-ncnn/csrc/decode.h"
 #include "sherpa-ncnn/csrc/features.h"
 #include "sherpa-ncnn/csrc/model.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 static float compute_kl_divergence(const std::vector<float> &a,

@@ -2,11 +2,15 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(sherpa_ncnn_core_srcs
   conv-emformer-model.cc
-  decode.cc
+  endpoint.cc
   features.cc
+  greedy-search-decoder.cc
+  hypothesis.cc
   lstm-model.cc
   meta-data.cc
   model.cc
+  modified-beam-search-decoder.cc
+  recognizer.cc
   symbol-table.cc
   wave-reader.cc
 )
@@ -15,11 +19,11 @@ target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
 if(NOT SHERPA_NCNN_ENABLE_PYTHON)
-  add_executable(sherpa-ncnn sherpa-ncnn.cc)
-  target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
-  install(TARGETS sherpa-ncnn DESTINATION bin)
-
   if(NOT DEFINED ANDROID_ABI)
+    add_executable(sherpa-ncnn sherpa-ncnn.cc)
+    target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
+    install(TARGETS sherpa-ncnn DESTINATION bin)
+
     if(SHERPA_NCNN_ENABLE_PORTAUDIO)
       add_executable(sherpa-ncnn-microphone
         sherpa-ncnn-microphone.cc
@@ -39,9 +43,9 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
   endif()
 
   set(hdrs
-    decode.h
     features.h
     model.h
+    recognizer.h
     symbol-table.h
     wave-reader.h
   )
