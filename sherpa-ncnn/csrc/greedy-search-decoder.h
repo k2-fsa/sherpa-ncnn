@@ -30,9 +30,10 @@ namespace sherpa_ncnn {
 
 class GreedySearchDecoder : public Decoder {
  public:
-  GreedySearchDecoder(const DecoderConfig config, Model *model,
-                      const knf::FbankOptions fbank_opts,
-                      const sherpa_ncnn::SymbolTable *sym, Endpoint *endpoint)
+  GreedySearchDecoder(const DecoderConfig &config, Model *model,
+                      const knf::FbankOptions &fbank_opts,
+                      const sherpa_ncnn::SymbolTable *sym,
+                      const Endpoint *endpoint)
       : config_(config),
         model_(model),
         feature_extractor_(fbank_opts),
@@ -80,7 +81,7 @@ class GreedySearchDecoder : public Decoder {
   ncnn::Mat decoder_out_;
   int32_t num_processed_;
   int32_t endpoint_start_frame_;
-  Endpoint *endpoint_;
+  const Endpoint *endpoint_;
   RecognitionResult result_;
 };
 

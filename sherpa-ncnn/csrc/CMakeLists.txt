@@ -4,15 +4,15 @@ set(sherpa_ncnn_core_srcs
   conv-emformer-model.cc
   endpoint.cc
   features.cc
+  greedy-search-decoder.cc
   hypothesis.cc
   lstm-model.cc
   meta-data.cc
   model.cc
-  symbol-table.cc
-  wave-reader.cc
-  greedy-search-decoder.cc
   modified-beam-search-decoder.cc
   recognizer.cc
+  symbol-table.cc
+  wave-reader.cc
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
@@ -43,9 +43,9 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
   endif()
 
   set(hdrs
-    recognizer.h
     features.h
     model.h
+    recognizer.h
     symbol-table.h
     wave-reader.h
   )

@@ -30,10 +30,10 @@ namespace sherpa_ncnn {
 
 class ModifiedBeamSearchDecoder : public Decoder {
  public:
-  ModifiedBeamSearchDecoder(const DecoderConfig config, Model *model,
-                            const knf::FbankOptions fbank_opts,
+  ModifiedBeamSearchDecoder(const DecoderConfig &config, Model *model,
+                            const knf::FbankOptions &fbank_opts,
                             const sherpa_ncnn::SymbolTable *sym,
-                            Endpoint *endpoint)
+                            const Endpoint *endpoint)
       : config_(config),
         model_(model),
         feature_extractor_(fbank_opts),
@@ -47,8 +47,6 @@ class ModifiedBeamSearchDecoder : public Decoder {
         endpoint_start_frame_(0),
         endpoint_(endpoint) {
     ResetResult();
-    BuildDecoderInput((*result_.hyps.begin()).second);
-    decoder_out_ = model_->RunDecoder(decoder_input_);
   }
 
   void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
@@ -81,7 +79,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
   ncnn::Mat decoder_out_;
   int32_t num_processed_;
   int32_t endpoint_start_frame_;
-  Endpoint *endpoint_;
+  const Endpoint *endpoint_;
   RecognitionResult result_;
 };
 

@@ -103,8 +103,6 @@ void log_softmax(T *input, int32_t input_len) {
 
 template <class T>
 std::vector<int32_t> topk_index(const T *vec, int32_t size, int32_t topk) {
-  std::vector<int32_t> index;
-
   std::vector<int32_t> vec_index(size);
   std::iota(vec_index.begin(), vec_index.end(), 0);
 
@@ -114,9 +112,7 @@ std::vector<int32_t> topk_index(const T *vec, int32_t size, int32_t topk) {
             });
 
   int32_t k_num = std::min<int32_t>(size, topk);
-  for (int32_t i = 0; i < k_num; ++i) {
-    index.emplace_back(vec_index[i]);
-  }
+  std::vector<int32_t> index(vec_index.begin(), vec_index.begin() + k_num);
   return index;
 }
 

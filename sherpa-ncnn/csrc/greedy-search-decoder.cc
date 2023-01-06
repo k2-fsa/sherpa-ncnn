@@ -38,6 +38,7 @@ void GreedySearchDecoder::BuildDecoderInput() {
 void GreedySearchDecoder::ResetResult() {
   result_.tokens.clear();
   result_.text.clear();
+  result_.num_trailing_blanks = 0;
   for (int32_t i = 0; i != context_size_; ++i) {
     result_.tokens.push_back(blank_id_);
   }

@@ -43,11 +43,11 @@ struct RecognitionResult {
 };
 
 struct DecoderConfig {
-  std::string method = "greedy_search";
+  std::string method = "modified_beam_search";
 
   int32_t num_active_paths = 4;  // for modified beam search
 
-  bool use_endpoint = false;
+  bool use_endpoint = true;
 
   EndpointConfig endpoint_config;
 };

@@ -38,9 +38,9 @@ namespace sherpa_ncnn {
 class SherpaNcnn {
  public:
   SherpaNcnn(AAssetManager *mgr,
-             const sherpa_ncnn::DecoderConfig decoder_config,
-             const ModelConfig model_config,
-             const knf::FbankOptions fbank_opts)
+             const sherpa_ncnn::DecoderConfig &decoder_config,
+             const ModelConfig &model_config,
+             const knf::FbankOptions &fbank_opts)
       : recognizer_(mgr, decoder_config, model_config, fbank_opts),
         tail_padding_(16000 * 0.32, 0) {}
 

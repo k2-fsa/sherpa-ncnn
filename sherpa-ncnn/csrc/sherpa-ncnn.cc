@@ -54,7 +54,7 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
   int num_threads = 4;
-  if (argc == 10) {
+  if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
   model_conf.encoder_opt.num_threads = num_threads;
@@ -64,7 +64,11 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-05
   const float expected_sampling_rate = 16000;
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
-    decoder_conf.method = argv[10];
+    std::string method = argv[10];
+    if (method.compare("greed_search") ||
+        method.compare("modified_beam_search")) {
+      decoder_conf.method = method;
+    }
   }
   knf::FbankOptions fbank_opts;
   fbank_opts.frame_opts.dither = 0;

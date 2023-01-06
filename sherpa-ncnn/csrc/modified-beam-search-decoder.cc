@@ -110,6 +110,7 @@ RecognitionResult ModifiedBeamSearchDecoder::GetResult() {
   }
   result_.text = std::move(best_hyp_text);
   auto ans = result_;
+  result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
   if (config_.use_endpoint && IsEndpoint()) {
     ResetResult();
     endpoint_start_frame_ = num_processed_;
