@@ -18,6 +18,7 @@
 #ifndef SHERPA_NCNN_CSRC_ENDPOINT_H_
 #define SHERPA_NCNN_CSRC_ENDPOINT_H_
 
+#include <string>
 #include <vector>
 
 namespace sherpa_ncnn {

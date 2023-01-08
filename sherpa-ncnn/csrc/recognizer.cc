@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#include "sherpa-ncnn/csrc/recognizer.h"
+
 #include <memory>
 #include <string>
 #include <vector>
