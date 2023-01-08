@@ -32,6 +32,7 @@
 
 namespace sherpa_ncnn {
 
+// TODO(fangjun): Add timestamps
 struct RecognitionResult {
   std::vector<int32_t> tokens;
   std::string text;
@@ -47,9 +48,19 @@ struct DecoderConfig {
 
   int32_t num_active_paths = 4;  // for modified beam search
 
-  bool use_endpoint = true;
+  bool enable_endpoint = false;
 
   EndpointConfig endpoint_config;
+
+  DecoderConfig() = default;
+
+  DecoderConfig(const std::string &method, int32_t num_active_paths,
+                bool enable_endpoint, const EndpointConfig &endpoint_config)
+      : method(method),
+        num_active_paths(num_active_paths),
+        enable_endpoint(enable_endpoint),
+        endpoint_config(endpoint_config) {}
+
   std::string ToString() const;
 };
 
@@ -57,7 +68,7 @@ class Decoder {
  public:
   virtual ~Decoder() = default;
 
-  virtual void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+  virtual void AcceptWaveform(float sample_rate, const float *input_buffer,
                               int32_t frames_per_buffer) = 0;
 
   virtual void Decode() = 0;
@@ -81,12 +92,12 @@ class Recognizer {
 #if __ANDROID_API__ >= 9
       AAssetManager *mgr,
 #endif
-      const DecoderConfig decoder_conf, const ModelConfig model_conf,
-      const knf::FbankOptions fbank_opts);
+      const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
+      const knf::FbankOptions &fbank_opts);
 
   ~Recognizer() = default;
 
-  void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+  void AcceptWaveform(float sample_rate, const float *input_buffer,
                       int32_t frames_per_buffer);
 
   void Decode();

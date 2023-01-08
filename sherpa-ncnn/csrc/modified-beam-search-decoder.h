@@ -49,7 +49,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
     ResetResult();
   }
 
-  void AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+  void AcceptWaveform(float sample_rate, const float *input_buffer,
                       int32_t frames_per_buffer) override;
 
   void Decode() override;

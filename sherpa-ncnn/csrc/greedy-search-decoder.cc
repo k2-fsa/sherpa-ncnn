@@ -21,7 +21,7 @@
 
 namespace sherpa_ncnn {
 
-void GreedySearchDecoder::AcceptWaveform(const int32_t sample_rate,
+void GreedySearchDecoder::AcceptWaveform(const float sample_rate,
                                          const float *input_buffer,
                                          int32_t frames_per_buffer) {
   feature_extractor_.AcceptWaveform(sample_rate, input_buffer,
@@ -77,7 +77,7 @@ void GreedySearchDecoder::Decode() {
 
 RecognitionResult GreedySearchDecoder::GetResult() {
   auto ans = result_;
-  if (config_.use_endpoint && IsEndpoint()) {
+  if (config_.enable_endpoint && IsEndpoint()) {
     ResetResult();
     endpoint_start_frame_ = num_processed_;
   }

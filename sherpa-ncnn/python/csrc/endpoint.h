@@ -1,5 +1,5 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,22 +16,15 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_PYTHON_CSRC_MAT_UTIL_H_
-#define SHERPA_NCNN_PYTHON_CSRC_MAT_UTIL_H_
+#ifndef SHERPA_NCNN_PYTHON_CSRC_ENDPOINT_H_
+#define SHERPA_NCNN_PYTHON_CSRC_ENDPOINT_H_
 
-#include "mat.h"
 #include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
 namespace sherpa_ncnn {
 
-// Convert a ncnn::Mat to a numpy array. Data is shared.
-//
-// @param m It should be a float unpacked matrix
-py::array_t<float> MatToArray(ncnn::Mat m);
-
-// convert an array to a ncnn::Mat
-ncnn::Mat ArrayToMat(py::array array);
+void PybindEndpoint(py::module *m);
 
 }  // namespace sherpa_ncnn
 
-#endif  // SHERPA_NCNN_PYTHON_CSRC_MODEL_UTIL_H_
+#endif  // SHERPA_NCNN_PYTHON_CSRC_ENDPOINT_H_

@@ -18,20 +18,18 @@
 
 #include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
-#include "sherpa-ncnn/python/csrc/decode.h"
-#include "sherpa-ncnn/python/csrc/features.h"
+#include "sherpa-ncnn/python/csrc/endpoint.h"
 #include "sherpa-ncnn/python/csrc/model.h"
+#include "sherpa-ncnn/python/csrc/recognizer.h"
 
 namespace sherpa_ncnn {
 
 PYBIND11_MODULE(_sherpa_ncnn, m) {
   m.doc() = "pybind11 binding of sherpa-ncnn";
 
+  PybindEndpoint(&m);
   PybindModel(&m);
-
-  PybindFeatures(&m);
-
-  PybindDecode(&m);
+  PybindRecognizer(&m);
 }
 
 }  // namespace sherpa_ncnn

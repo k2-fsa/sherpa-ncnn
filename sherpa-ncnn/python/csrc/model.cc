@@ -22,7 +22,6 @@
 #include <string>
 
 #include "sherpa-ncnn/csrc/model.h"
-#include "sherpa-ncnn/python/csrc/mat-util.h"
 
 namespace sherpa_ncnn {
 
@@ -48,6 +47,8 @@ Args:
     Path to joiner.ncnn.bin.
   num_threads:
     Number of threads to use for neural network computation.
+  tokens:
+    Path to tokens.txt
 )doc";
 
 static void PybindModelConfig(py::module *m) {
@@ -58,8 +59,8 @@ static void PybindModelConfig(py::module *m) {
                        const std::string &decoder_param,
                        const std::string &decoder_bin,
                        const std::string &joiner_param,
-                       const std::string &joiner_bin,
-                       int32_t num_threads) -> std::unique_ptr<PyClass> {
+                       const std::string &joiner_bin, int32_t num_threads,
+                       const std::string &tokens) -> std::unique_ptr<PyClass> {
              auto ans = std::make_unique<PyClass>();
              ans->encoder_param = encoder_param;
              ans->encoder_bin = encoder_bin;
@@ -67,6 +68,7 @@ static void PybindModelConfig(py::module *m) {
              ans->decoder_bin = decoder_bin;
              ans->joiner_param = joiner_param;
              ans->joiner_bin = joiner_bin;
+             ans->tokens = tokens;
 
              ans->use_vulkan_compute = false;
 
@@ -79,66 +81,9 @@ static void PybindModelConfig(py::module *m) {
            py::arg("encoder_param"), py::arg("encoder_bin"),
            py::arg("decoder_param"), py::arg("decoder_bin"),
            py::arg("joiner_param"), py::arg("joiner_bin"),
-           py::arg("num_threads"), kModelConfigInitDoc);
+           py::arg("num_threads"), py::arg("tokens"), kModelConfigInitDoc);
 }
 
-void PybindModel(py::module *m) {
-  PybindModelConfig(m);
-
-  using PyClass = Model;
-  py::class_<PyClass>(*m, "Model")
-      .def_static("create", &PyClass::Create, py::arg("config"))
-      .def(
-          "run_encoder",
-          [](PyClass &self, py::array _features,
-             const std::vector<py::array> &_states)
-              -> std::pair<py::array, std::vector<py::array>> {
-            ncnn::Mat features = ArrayToMat(_features);
-
-            std::vector<ncnn::Mat> states;
-            states.reserve(_states.size());
-            for (const auto &s : _states) {
-              states.push_back(ArrayToMat(s));
-            }
-
-            ncnn::Mat encoder_out;
-            std::vector<ncnn::Mat> _next_states;
-
-            std::tie(encoder_out, _next_states) =
-                self.RunEncoder(features, states);
-
-            std::vector<py::array> next_states;
-            next_states.reserve(_next_states.size());
-            for (const auto &m : _next_states) {
-              next_states.push_back(MatToArray(m));
-            }
-
-            return std::make_pair(MatToArray(encoder_out), next_states);
-          },
-          py::arg("features"), py::arg("states"))
-      .def(
-          "run_decoder",
-          [](PyClass &self, py::array _decoder_input) -> py::array {
-            ncnn::Mat decoder_input = ArrayToMat(_decoder_input);
-            ncnn::Mat decoder_out = self.RunDecoder(decoder_input);
-            return MatToArray(decoder_out);
-          },
-          py::arg("decoder_input"))
-      .def(
-          "run_joiner",
-          [](PyClass &self, py::array _encoder_out,
-             py::array _decoder_out) -> py::array {
-            ncnn::Mat encoder_out = ArrayToMat(_encoder_out);
-            ncnn::Mat decoder_out = ArrayToMat(_decoder_out);
-            ncnn::Mat joiner_out = self.RunJoiner(encoder_out, decoder_out);
-
-            return MatToArray(joiner_out);
-          },
-          py::arg("encoder_out"), py::arg("decoder_out"))
-      .def_property_readonly("context_size", &PyClass::ContextSize)
-      .def_property_readonly("blank_id", &PyClass::BlankId)
-      .def_property_readonly("segment", &PyClass::Segment)
-      .def_property_readonly("offset", &PyClass::Offset);
-}
+void PybindModel(py::module *m) { PybindModelConfig(m); }
 
 }  // namespace sherpa_ncnn

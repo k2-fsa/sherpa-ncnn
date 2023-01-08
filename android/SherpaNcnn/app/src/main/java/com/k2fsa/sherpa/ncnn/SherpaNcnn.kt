@@ -17,7 +17,7 @@ data class EndpointConfig(
 data class DecoderConfig(
     var method: String = "modified_beam_search", // valid values: greedy_search, modified_beam_search
     var numActivePaths: Int = 4, // used only by modified_beam_search
-    var useEndpoint: Boolean = true,
+    var enableEndpoint: Boolean = true,
     var endpointConfig: EndpointConfig = EndpointConfig(),
 )
 
@@ -169,11 +169,11 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
     return null
 }
 
-fun getDecoderConfig(useEndpoint: Boolean): DecoderConfig {
+fun getDecoderConfig(enableEndpoint: Boolean): DecoderConfig {
     return DecoderConfig(
         method = "modified_beam_search",
         numActivePaths = 4,
-        useEndpoint = useEndpoint,
+        enableEndpoint = enableEndpoint,
         endpointConfig = EndpointConfig(
             rule1 = EndpointRule(false, 2.4f, 0.0f),
             rule2 = EndpointRule(true, 1.4f, 0.0f),
