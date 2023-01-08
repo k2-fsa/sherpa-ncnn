@@ -42,7 +42,7 @@ def main():
     print("Started! Please speak")
     recognizer = create_recognizer()
     sample_rate = recognizer.sample_rate
-    samples_per_read = int(0.02 * sample_rate)  # 20ms
+    samples_per_read = int(0.1 * sample_rate)  # 0.1 second = 100 ms
     last_result = ""
     with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
         while True:

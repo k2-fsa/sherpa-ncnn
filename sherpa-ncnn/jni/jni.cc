@@ -144,8 +144,8 @@ static DecoderConfig GetDecoderConfig(JNIEnv *env, jobject config) {
   fid = env->GetFieldID(cls, "numActivePaths", "I");
   decoder_config.num_active_paths = env->GetIntField(config, fid);
 
-  fid = env->GetFieldID(cls, "useEndpoint", "Z");
-  decoder_config.use_endpoint = env->GetBooleanField(config, fid);
+  fid = env->GetFieldID(cls, "enableEndpoint", "Z");
+  decoder_config.enable_endpoint = env->GetBooleanField(config, fid);
 
   fid = env->GetFieldID(cls, "endpointConfig",
                         "Lcom/k2fsa/sherpa/ncnn/EndpointConfig;");

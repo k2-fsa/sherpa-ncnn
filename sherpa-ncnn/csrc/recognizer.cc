@@ -32,7 +32,7 @@ std::string DecoderConfig::ToString() const {
   os << "DecoderConfig(";
   os << "method=\"" << method << "\", ";
   os << "num_active_paths=" << num_active_paths << ", ";
-  os << "use_endpoint=" << (use_endpoint ? "True" : "False") << ", ";
+  os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ")";
 
   return os.str();
@@ -42,8 +42,8 @@ Recognizer::Recognizer(
 #if __ANDROID_API__ >= 9
     AAssetManager *mgr,
 #endif
-    const DecoderConfig decoder_conf, const ModelConfig model_conf,
-    const knf::FbankOptions fbank_opts)
+    const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
+    const knf::FbankOptions &fbank_opts)
     :
 #if __ANDROID_API__ >= 9
       model_(Model::Create(mgr, model_conf)),
@@ -65,7 +65,7 @@ Recognizer::Recognizer(
   }
 }
 
-void Recognizer::AcceptWaveform(int32_t sample_rate, const float *input_buffer,
+void Recognizer::AcceptWaveform(float sample_rate, const float *input_buffer,
                                 int32_t frames_per_buffer) {
   decoder_->AcceptWaveform(sample_rate, input_buffer, frames_per_buffer);
 }

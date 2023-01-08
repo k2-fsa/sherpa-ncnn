@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity() {
         model = SherpaNcnn(
             assetManager = application.assets,
             modelConfig = getModelConfig(type = 1, useGPU = useGPU)!!,
-            decoderConfig=getDecoderConfig(useEndpoint = true),
+            decoderConfig = getDecoderConfig(enableEndpoint = true),
             fbankConfig = getFbankConfig(),
         )
     }

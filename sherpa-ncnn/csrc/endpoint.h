@@ -54,6 +54,10 @@ struct EndpointConfig {
   EndpointRule rule2;
   EndpointRule rule3;
 
+  EndpointConfig(const EndpointRule &rule1, const EndpointRule &rule2,
+                 const EndpointRule &rule3)
+      : rule1(rule1), rule2(rule2), rule3(rule3) {}
+
   EndpointConfig()
       : rule1(false, 2.4, 0), rule2(true, 1.4, 0), rule3(false, 0, 20) {}
 

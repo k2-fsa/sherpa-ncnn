@@ -1,5 +1,5 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,20 +16,15 @@
  * limitations under the License.
  */
 
-#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
+#ifndef SHERPA_NCNN_PYTHON_CSRC_RECOGNIZER_H_
+#define SHERPA_NCNN_PYTHON_CSRC_RECOGNIZER_H_
 
-#include "sherpa-ncnn/python/csrc/endpoint.h"
-#include "sherpa-ncnn/python/csrc/model.h"
-#include "sherpa-ncnn/python/csrc/recognizer.h"
+#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
 namespace sherpa_ncnn {
 
-PYBIND11_MODULE(_sherpa_ncnn, m) {
-  m.doc() = "pybind11 binding of sherpa-ncnn";
-
-  PybindEndpoint(&m);
-  PybindModel(&m);
-  PybindRecognizer(&m);
-}
+void PybindRecognizer(py::module *m);
 
 }  // namespace sherpa_ncnn
+
+#endif  // SHERPA_NCNN_PYTHON_CSRC_RECOGNIZER_H_

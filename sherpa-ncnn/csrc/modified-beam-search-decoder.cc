@@ -25,7 +25,7 @@
 
 namespace sherpa_ncnn {
 
-void ModifiedBeamSearchDecoder::AcceptWaveform(const int32_t sample_rate,
+void ModifiedBeamSearchDecoder::AcceptWaveform(const float sample_rate,
                                                const float *input_buffer,
                                                int32_t frames_per_buffer) {
   feature_extractor_.AcceptWaveform(sample_rate, input_buffer,
@@ -113,7 +113,7 @@ RecognitionResult ModifiedBeamSearchDecoder::GetResult() {
   result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
   auto ans = result_;
 
-  if (config_.use_endpoint && IsEndpoint()) {
+  if (config_.enable_endpoint && IsEndpoint()) {
     ResetResult();
     endpoint_start_frame_ = num_processed_;
   }

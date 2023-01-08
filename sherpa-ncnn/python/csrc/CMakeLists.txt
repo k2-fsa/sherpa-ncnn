@@ -1,10 +1,9 @@
 
 include_directories(${PROJECT_SOURCE_DIR})
 set(srcs
-  decode.cc
-  features.cc
-  mat-util.cc
+  endpoint.cc
   model.cc
+  recognizer.cc
   sherpa-ncnn.cc
 )
 
