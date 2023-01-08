@@ -15,5 +15,7 @@ You can find video demos about this file at the following addresses:
 
 ## speech-recognition-from-microphone-with-endpoint-detection.py
 
-Like `speech-recognition-from-microphone.py`, but it also enables
+Similar to `speech-recognition-from-microphone.py` but it also enables
 endpoint detection.
+
+You can find a video demo about this file at <https://www.bilibili.com/video/BV1eK411y788>
