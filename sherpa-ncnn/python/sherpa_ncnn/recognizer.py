@@ -209,3 +209,7 @@ class Recognizer(object):
     @property
     def text(self):
         return self.recognizer.result.text
+
+    @property
+    def is_endpoint(self):
+        return self.recognizer.is_endpoint()
