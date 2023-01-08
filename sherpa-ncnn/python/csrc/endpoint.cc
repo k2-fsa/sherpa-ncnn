@@ -18,6 +18,9 @@
 
 #include "sherpa-ncnn/python/csrc/endpoint.h"
 
+#include <memory>
+#include <string>
+
 #include "sherpa-ncnn/csrc/endpoint.h"
 
 namespace sherpa_ncnn {

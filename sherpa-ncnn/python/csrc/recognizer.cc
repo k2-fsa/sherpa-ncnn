@@ -18,6 +18,9 @@
 
 #include "sherpa-ncnn/python/csrc/recognizer.h"
 
+#include <memory>
+#include <string>
+
 #include "sherpa-ncnn/csrc/recognizer.h"
 
 namespace sherpa_ncnn {
@@ -96,7 +99,6 @@ void PybindRecognizer(py::module *m) {
                              [](PyClass &self) { return self.GetResult(); })
       .def("is_endpoint", &PyClass::IsEndpoint)
       .def("reset", &PyClass::Reset);
-  ;
 }
 
 }  // namespace sherpa_ncnn
