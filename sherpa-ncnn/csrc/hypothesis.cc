@@ -55,24 +55,4 @@ Hypothesis Hypotheses::GetMostProbable(bool length_norm) const {
   }
 }
 
-Hypothesis Hypotheses::GetLeastProbable(bool length_norm) const {
-  if (length_norm == false) {
-    return std::max_element(hyps_dict_.begin(), hyps_dict_.end(),
-                            [](const auto &left, auto &right) -> bool {
-                              return left.second.log_prob >
-                                     right.second.log_prob;
-                            })
-        ->second;
-  } else {
-    // for length_norm is true
-    return std::max_element(
-               hyps_dict_.begin(), hyps_dict_.end(),
-               [](const auto &left, const auto &right) -> bool {
-                 return left.second.log_prob / left.second.ys.size() >
-                        right.second.log_prob / right.second.ys.size();
-               })
-        ->second;
-  }
-}
-
 }  // namespace sherpa_ncnn

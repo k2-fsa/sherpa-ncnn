@@ -57,7 +57,13 @@ void ModifiedBeamSearchDecoder::Decode() {
     std::vector<Hypothesis> prev;
     /* encoder_out_.w == encoder_out_dim, encoder_out_.h == num_frames. */
     for (int32_t t = 0; t != encoder_out_.h; ++t) {
-      prev = std::move(cur.Vec());
+      prev.clear();
+      // get top config_.num_active_paths
+      for (int i = 0; i != config_.num_active_paths && cur.Size(); i++) {
+        auto cur_best_hyp = cur.GetMostProbable(true);
+        cur.Remove(cur_best_hyp);
+        prev.push_back(std::move(cur_best_hyp));
+      }
       cur.clear();
 
       for (const auto &h : prev) {
@@ -83,11 +89,6 @@ void ModifiedBeamSearchDecoder::Decode() {
           new_hyp.log_prob += joiner_out_ptr[new_token];
           cur.Add(std::move(new_hyp));
         }
-      }
-      // prune active_paths
-      while (cur.Size() > config_.num_active_paths) {
-        auto least_hyp = cur.GetLeastProbable(true);
-        cur.Remove(least_hyp);
       }
     }
 
