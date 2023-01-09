@@ -18,7 +18,7 @@ def main():
         num_threads=4,
     )
 
-    filename = "./sherpa-ncnn-conv-emformer-transducer-2022-12-06/test_wavs/1.wav"
+    filename = "./sherpa-ncnn-conv-emformer-transducer-2022-12-06/test_wavs/5.wav"
     with wave.open(filename) as f:
         assert f.getframerate() == recognizer.sample_rate, (
             f.getframerate(),

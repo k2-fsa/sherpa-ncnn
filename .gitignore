@@ -6,3 +6,5 @@ run*.sh
 dist/
 .DS_Store
 tags
+*.jar
+sherpa-ncnn-conv-emformer-transducer-2022-12-06

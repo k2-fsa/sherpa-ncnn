@@ -3,13 +3,18 @@ name: test-pip-install
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - nightly
+  schedule:
+    # minute (0-59)
+    # hour (0-23)
+    # day of the month (1-31)
+    # month (1-12)
+    # day of the week (0-6)
+    # nightly test at 22:50 UTC time every day
+    - cron: "50 22 * * *"
 
 concurrency:
-  group: linux-macos-windows-${{ github.ref }}
+  group: test_pip_install-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -42,18 +47,19 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Install sherpa-ncnn
-        shell: bash
-        run: |
-          pip3 install --verbose -U sherpa-ncnn
-
       - name: Download pretrained model and test-data
         shell: bash
         run: |
           git lfs install
           git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
 
+      - name: Install sherpa-ncnn
+        shell: bash
+        run: |
+          pip3 install --verbose -U sherpa-ncnn
+
       - name: Run test
         shell: bash
         run: |
           python3 .github/scripts/test-recognizer.py
+
