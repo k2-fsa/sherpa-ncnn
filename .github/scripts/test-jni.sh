@@ -22,6 +22,9 @@ export LD_LIBRARY_PATH=$PWD/build/lib:$LD_LIBRARY_PATH
 
 cd .github/scripts/
 
+git lfs install
+git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
+
 kotlinc-jvm -include-runtime -d main.jar Main.kt WaveReader.kt SherpaNcnn.kt AssetManager.kt
 
 java -Djava.library.path=../../build/lib -jar main.jar
