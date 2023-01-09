@@ -1,0 +1,46 @@
+name: build-wheels
+
+on:
+  push:
+    branches:
+      - wheel
+      - build-wheels-2023-01-09
+    tags:
+      - '*'
+
+env:
+  SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1
+
+concurrency:
+  group: build-wheels-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v1.12.0
+        env:
+          CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
+          CIBW_SKIP: "cp27-* cp35-* *-win32"
+          CIBW_BUILD_VERBOSITY: 3
+
+      - name: Display wheels
+        shell: bash
+        run: |
+          ls -lh ./wheelhouse/
+
+          ls -lh ./wheelhouse/*.whl
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
