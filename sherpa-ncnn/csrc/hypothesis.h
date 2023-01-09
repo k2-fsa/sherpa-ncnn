@@ -87,24 +87,9 @@ class Hypotheses {
   // len(hyp.ys) before comparison.
   Hypothesis GetMostProbable(bool length_norm) const;
 
-  // Get the hyp that has the least log_prob.
-  // If length_norm is true, hyp's log_prob are divided by
-  // len(hyp.ys) before comparison.
-  Hypothesis GetLeastProbable(bool length_norm) const;
-
   // Remove the given hyp from this object.
   // It is *NOT* an error if hyp does not exist in this object.
   void Remove(const Hypothesis &hyp) { hyps_dict_.erase(hyp.Key()); }
-
-  // Return a list of hyps contained in this object.
-  std::vector<Hypothesis> Vec() const {
-    std::vector<Hypothesis> ans;
-    ans.reserve(hyps_dict_.size());
-    for (const auto &p : hyps_dict_) {
-      ans.push_back(p.second);
-    }
-    return ans;
-  }
 
   int32_t Size() const { return hyps_dict_.size(); }
 
