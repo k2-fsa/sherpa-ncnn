@@ -54,14 +54,7 @@ jobs:
           git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
 
       - name: Run test
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         shell: bash
         run: |
           python3 .github/scripts/test-recognizer.py
 
-      - name: Run test
-        if: startsWith(matrix.os, 'windows')
-        shell: cmd
-        run: |
-          chcp 65001
-          python3 .github/scripts/test-recognizer.py
