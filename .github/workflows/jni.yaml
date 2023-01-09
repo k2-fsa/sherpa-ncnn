@@ -11,6 +11,7 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
+      - '.github/scripts/test-jni.sh'
   pull_request:
     branches:
       - master
@@ -20,6 +21,7 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
+      - '.github/scripts/test-jni.sh'
 
 concurrency:
   group: jni-${{ github.ref }}
@@ -55,4 +57,4 @@ jobs:
       - name:  Run JNI test
         shell: bash
         run: |
-          ./github/scripts/test-jni.sh
+          .github/scripts/test-jni.sh
