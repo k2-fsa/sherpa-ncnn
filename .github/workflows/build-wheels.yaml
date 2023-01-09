@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - wheel
-      - build-wheels-2023-01-09
+      - build-wheel-2023-01-09
     tags:
       - '*'
 
