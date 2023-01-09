@@ -54,12 +54,6 @@ jobs:
           java -version
           echo "JAVA_HOME is: ${JAVA_HOME}"
 
-      - name: Download pretrained model and test-data
-        shell: bash
-        run: |
-          git lfs install
-          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
-
       - name:  Run JNI test
         shell: bash
         run: |
