@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - wheel
-      - build-wheel-2023-01-09
     tags:
       - '*'
 
@@ -27,6 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
+      # for a list of versions
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.4
         env:
