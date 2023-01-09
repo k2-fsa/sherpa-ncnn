@@ -91,16 +91,6 @@ class Hypotheses {
   // It is *NOT* an error if hyp does not exist in this object.
   void Remove(const Hypothesis &hyp) { hyps_dict_.erase(hyp.Key()); }
 
-  // Return a list of hyps contained in this object.
-  std::vector<Hypothesis> Vec() const {
-    std::vector<Hypothesis> ans;
-    ans.reserve(hyps_dict_.size());
-    for (const auto &p : hyps_dict_) {
-      ans.push_back(p.second);
-    }
-    return ans;
-  }
-
   int32_t Size() const { return hyps_dict_.size(); }
 
   std::string ToString() const {

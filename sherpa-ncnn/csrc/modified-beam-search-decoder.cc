@@ -54,11 +54,10 @@ void ModifiedBeamSearchDecoder::Decode() {
         model_->RunEncoder(features, encoder_state_);
 
     Hypotheses cur = std::move(result_.hyps);
-    std::vector<Hypothesis> prev;
     /* encoder_out_.w == encoder_out_dim, encoder_out_.h == num_frames. */
     for (int32_t t = 0; t != encoder_out_.h; ++t) {
-      prev.clear();
-      for (int i = 0; i != config_.num_active_paths && cur.Size(); i++) {
+      std::vector<Hypothesis> prev;
+      for (int32_t i = 0; i != config_.num_active_paths && cur.Size(); ++i) {
         auto cur_best_hyp = cur.GetMostProbable(true);
         cur.Remove(cur_best_hyp);
         prev.push_back(std::move(cur_best_hyp));
