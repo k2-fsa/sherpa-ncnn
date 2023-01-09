@@ -26,8 +26,13 @@
 
 #include <strstream>
 
+#if __ANDROID_API__ >= 9
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
+#else
+#include <fstream>
+#endif
+
 #include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
@@ -37,12 +42,19 @@ namespace sherpa_ncnn {
 
 class SherpaNcnn {
  public:
-  SherpaNcnn(AAssetManager *mgr,
-             const sherpa_ncnn::DecoderConfig &decoder_config,
-             const ModelConfig &model_config,
-             const knf::FbankOptions &fbank_opts)
-      : recognizer_(mgr, decoder_config, model_config, fbank_opts),
-        tail_padding_(16000 * 0.32, 0) {}
+  SherpaNcnn(
+#if __ANDROID_API__ >= 9
+      AAssetManager *mgr,
+#endif
+      const sherpa_ncnn::DecoderConfig &decoder_config,
+      const ModelConfig &model_config, const knf::FbankOptions &fbank_opts)
+      : recognizer_(
+#if __ANDROID_API__ >= 9
+            mgr,
+#endif
+            decoder_config, model_config, fbank_opts),
+        tail_padding_(16000 * 0.32, 0) {
+  }
 
   void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
     recognizer_.AcceptWaveform(sample_rate, samples, n);
@@ -298,10 +310,12 @@ SHERPA_EXTERN_C
 JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
     JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _model_config,
     jobject _decoder_config, jobject _fbank_config) {
+#if __ANDROID_API__ >= 9
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (!mgr) {
     NCNN_LOGE("Failed to get asset manager: %p", mgr);
   }
+#endif
 
   auto model_config = sherpa_ncnn::GetModelConfig(env, _model_config);
   auto decoder_config = sherpa_ncnn::GetDecoderConfig(env, _decoder_config);
@@ -313,8 +327,11 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   knf::FbankOptions fbank_opts =
       sherpa_ncnn::GetFbankOptions(env, _fbank_config);
 
-  auto model = new sherpa_ncnn::SherpaNcnn(mgr, decoder_config, model_config,
-                                           fbank_opts);
+  auto model = new sherpa_ncnn::SherpaNcnn(
+#if __ANDROID_API__ >= 9
+      mgr,
+#endif
+      decoder_config, model_config, fbank_opts);
 
   return (jlong)model;
 }
@@ -373,12 +390,13 @@ JNIEXPORT jfloatArray JNICALL
 Java_com_k2fsa_sherpa_ncnn_WaveReader_00024Companion_readWave(
     JNIEnv *env, jclass /*cls*/, jobject asset_manager, jstring filename,
     jfloat expected_sample_rate) {
+  const char *p_filename = env->GetStringUTFChars(filename, nullptr);
+#if __ANDROID_API__ >= 9
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (!mgr) {
     NCNN_LOGE("Failed to get asset manager: %p", mgr);
     return nullptr;
   }
-  const char *p_filename = env->GetStringUTFChars(filename, nullptr);
 
   AAsset *asset = AAssetManager_open(mgr, p_filename, AASSET_MODE_BUFFER);
   size_t asset_length = AAsset_getLength(asset);
@@ -386,12 +404,17 @@ Java_com_k2fsa_sherpa_ncnn_WaveReader_00024Companion_readWave(
   AAsset_read(asset, buffer.data(), asset_length);
 
   std::istrstream is(buffer.data(), asset_length);
+#else
+  std::ifstream is(p_filename, std::ios::binary);
+#endif
 
   bool is_ok = false;
   std::vector<float> samples =
       sherpa_ncnn::ReadWave(is, expected_sample_rate, &is_ok);
 
+#if __ANDROID_API__ >= 9
   AAsset_close(asset);
+#endif
   env->ReleaseStringUTFChars(filename, p_filename);
 
   if (!is_ok) {

@@ -1,6 +1,6 @@
 add_subdirectory(csrc)
 
-if(DEFINED ANDROID_ABI)
+if(SHERPA_NCNN_ENABLE_JNI)
   add_subdirectory(jni)
 endif()
 

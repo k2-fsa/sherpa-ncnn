@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -45,3 +45,14 @@ jobs:
         shell: bash
         run: |
           kotlinc -version
+
+      - name: Display java version
+        shell: bash
+        run: |
+          java -version
+          echo "JAVA_HOME is: ${JAVA_HOME}"
+
+      - name:  Run JNI test
+        shell: bash
+        run: |
+          ./github/scripts/test-jni.sh

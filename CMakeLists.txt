@@ -24,9 +24,17 @@ set(CMAKE_BUILD_RPATH ${SHERPA_NCNN_RPATH_ORIGIN})
 option(BUILD_SHARED_LIBS "Whether to build shared libraries" OFF)
 option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" OFF)
 option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
+option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
+
+
+if(DEFINED ANDROID_ABI)
+  message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
+  set(SHERPA_NCNN_ENABLE_JNI ON CACHE BOOL "" FORCE)
+endif()
 
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
 message(STATUS "SHERPA_NCNN_ENABLE_PYTHON ${SHERPA_NCNN_ENABLE_PYTHON}")
+message(STATUS "SHERPA_NCNN_ENABLE_JNI ${SHERPA_NCNN_ENABLE_JNI}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
