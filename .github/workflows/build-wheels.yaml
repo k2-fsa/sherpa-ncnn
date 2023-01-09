@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - wheel
-      - build-wheel-2023-01-09
     tags:
       - '*'
 
@@ -55,4 +54,4 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel twine setuptools
 
-          twine upload ./wheels/*.whl
+          twine upload ./wheelhouse/*.whl
