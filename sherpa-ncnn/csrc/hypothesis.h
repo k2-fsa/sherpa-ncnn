@@ -87,11 +87,6 @@ class Hypotheses {
   // len(hyp.ys) before comparison.
   Hypothesis GetMostProbable(bool length_norm) const;
 
-  // Get the hyp that has the least log_prob.
-  // If length_norm is true, hyp's log_prob are divided by
-  // len(hyp.ys) before comparison.
-  Hypothesis GetLeastProbable(bool length_norm) const;
-
   // Remove the given hyp from this object.
   // It is *NOT* an error if hyp does not exist in this object.
   void Remove(const Hypothesis &hyp) { hyps_dict_.erase(hyp.Key()); }
