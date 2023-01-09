@@ -184,8 +184,8 @@ for wave in ${waves[@]}; do
     $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
     $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
     $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $wave
-    4
+    $wave \
+    4 \
     "modified_beam_search"
 done
 
