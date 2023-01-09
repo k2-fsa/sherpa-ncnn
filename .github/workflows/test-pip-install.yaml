@@ -9,7 +9,7 @@ on:
       - master
 
 concurrency:
-  group: linux-macos-windows-${{ github.ref }}
+  group: test_pip_install-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
