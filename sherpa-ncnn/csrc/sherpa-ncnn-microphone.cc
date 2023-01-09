@@ -45,7 +45,7 @@ static void Handler(int sig) {
 };
 
 int main(int32_t argc, char *argv[]) {
-  if (argc != 8 && argc != 9) {
+  if (argc < 8 || argc > 10) {
     const char *usage = R"usage(
 Usage:
   ./bin/sherpa-ncnn-microphone \
@@ -56,7 +56,7 @@ Usage:
     /path/to/decoder.ncnn.bin \
     /path/to/joiner.ncnn.param \
     /path/to/joiner.ncnn.bin \
-    [num_threads]
+    [num_threads] [decode_method, can be greedy_search/modified_beam_search]
 
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
@@ -91,7 +91,7 @@ for a list of pre-trained models to download.
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 10) {
     std::string method = argv[9];
-    if (method.compare("greed_search") ||
+    if (method.compare("greedy_search") ||
         method.compare("modified_beam_search")) {
       decoder_conf.method = method;
     }
