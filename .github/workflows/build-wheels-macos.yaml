@@ -35,7 +35,7 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
           CIBW_ARCHS_MACOS: universal2
-          CIBW_ENVIRONMENT: SHERPA_NCNN_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+          CIBW_ENVIRONMENT: SHERPA_NCNN_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'"
           CIBW_SKIP: "cp27-* cp35-* cp39-* cp310-* cp311-*  *-win32 pp* *-musllinux*"
           CIBW_BUILD_VERBOSITY: 3
 
