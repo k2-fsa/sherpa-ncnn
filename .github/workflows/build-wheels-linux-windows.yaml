@@ -1,4 +1,4 @@
-name: build-wheels
+name: build-wheels-linux-windows
 
 on:
   push:
@@ -11,17 +11,17 @@ env:
   SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1
 
 concurrency:
-  group: build-wheels-${{ github.ref }}
+  group: build-wheels-linux-windows-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build_wheels:
+  build_wheels_linux_windows:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2
