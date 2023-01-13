@@ -27,7 +27,13 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
 
     if(SHERPA_NCNN_HAS_ALSA)
       add_executable(sherpa-ncnn-alsa sherpa-ncnn-alsa.cc alsa.cc)
-      target_link_libraries(sherpa-ncnn-alsa PRIVATE asound)
+      target_link_libraries(sherpa-ncnn-alsa PRIVATE sherpa-ncnn-core)
+
+      if(DEFINED ENV{SHERPA_NCNN_ALSA_LIB_DIR})
+        target_link_libraries(sherpa-ncnn-alsa PRIVATE -L$ENV{SHERPA_NCNN_ALSA_LIB_DIR} -lasound)
+      else()
+        target_link_libraries(sherpa-ncnn-alsa PRIVATE asound)
+      endif()
       install(TARGETS sherpa-ncnn-alsa DESTINATION bin)
     endif()
 

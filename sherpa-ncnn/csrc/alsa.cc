@@ -24,6 +24,14 @@
 
 namespace sherpa_ncnn {
 
+void ToFloat(const std::vector<int16_t> &in, std::vector<float> *out) {
+  out->resize(in.size());
+  int32_t n = in.size();
+  for (int32_t i = 0; i != n; ++i) {
+    (*out)[i] = in[i] / 32768.;
+  }
+}
+
 Alsa::Alsa(const char *device_name) {
   const char *kDeviceHelp = R"(
 Please use the command:
@@ -67,12 +75,10 @@ and if you want to select card 3 and the device 0 on that card, please use:
     exit(-1);
   }
 
-  // 32-bit float rather than SND_PCM_FORMAT_S16_LE
-  // so that we can use float samples directly.
   err = snd_pcm_hw_params_set_format(capture_handle_, hw_params,
-                                     SND_PCM_FORMAT_FLOAT_LE);
+                                     SND_PCM_FORMAT_S16_LE);
   if (err) {
-    fprintf(stderr, "Failed to set sample format: %s\n", snd_strerror(err));
+    fprintf(stderr, "Failed to set format: %s\n", snd_strerror(err));
     exit(-1);
   }
 
@@ -84,15 +90,14 @@ and if you want to select card 3 and the device 0 on that card, please use:
     exit(-1);
   }
 
-  unsigned int32_t actual_sample_rate = expected_sample_rate_;
+  uint32_t actual_sample_rate = expected_sample_rate_;
 
-  unsigned int sample_rate = 16000;
-  int dir = 0;
+  int32_t dir = 0;
   err = snd_pcm_hw_params_set_rate_near(capture_handle_, hw_params,
                                         &actual_sample_rate, &dir);
   if (err) {
-    fprintf(stderr, "Failed to set sample rate to, %u: %s\n", sample_rate,
-            snd_strerror(err));
+    fprintf(stderr, "Failed to set sample rate to, %d: %s\n",
+            expected_sample_rate_, snd_strerror(err));
     exit(-1);
   }
   actual_sample_rate_ = actual_sample_rate;
@@ -110,7 +115,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
     float lowpass_cutoff = 0.99 * 0.5 * min_freq;
 
     int32_t lowpass_filter_width = 6;
-    resampler_ = std::make_unqiue<LinearResample>(
+    resampler_ = std::make_unique<LinearResample>(
         actual_sample_rate_, expected_sample_rate_, lowpass_cutoff,
         lowpass_filter_width);
   } else {
@@ -123,7 +128,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
     exit(-1);
   }
 
-  err = snd_pcm_prepare(capture_handle);
+  err = snd_pcm_prepare(capture_handle_);
   if (err) {
     fprintf(stderr, "Failed to prepare for recording: %s\n", snd_strerror(err));
     exit(-1);
@@ -133,6 +138,24 @@ and if you want to select card 3 and the device 0 on that card, please use:
 }
 
 Alsa::~Alsa() { snd_pcm_close(capture_handle_); }
+
+const std::vector<float> &Alsa::Read(int32_t num_samples) {
+  samples_.resize(num_samples);
+
+  int32_t count =
+      snd_pcm_readi(capture_handle_, samples_.data(), samples_.size());
+
+  samples_.resize(count);
+
+  ToFloat(samples_, &samples1_);
+
+  if (!resampler_) {
+    return samples1_;
+  }
+
+  resampler_->Resample(samples1_.data(), samples_.size(), false, &samples2_);
+  return samples2_;
+}
 
 }  // namespace sherpa_ncnn
 
