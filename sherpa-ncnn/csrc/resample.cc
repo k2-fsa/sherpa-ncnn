@@ -63,14 +63,6 @@ I Gcd(I m, I n) {
   }
 }
 
-float DotProduct(const float *a, const float *b, int32_t n) {
-  float sum = 0;
-  for (int32_t i = 0; i != n; ++i) {
-    sum += a[i] * b[i];
-  }
-  return sum;
-}
-
 /// Returns the least common multiple of two integers.  Will
 /// crash unless the inputs are positive.
 template <class I>
@@ -79,6 +71,14 @@ I Lcm(I m, I n) {
   assert(m > 0 && n > 0);
   I gcd = Gcd(m, n);
   return gcd * (m / gcd) * (n / gcd);
+}
+
+static float DotProduct(const float *a, const float *b, int32_t n) {
+  float sum = 0;
+  for (int32_t i = 0; i != n; ++i) {
+    sum += a[i] * b[i];
+  }
+  return sum;
 }
 
 LinearResample::LinearResample(int32_t samp_rate_in_hz,
