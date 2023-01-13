@@ -26,6 +26,7 @@ option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" OFF)
 option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
 option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
 option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
+option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
@@ -34,7 +35,10 @@ endif()
 
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
 message(STATUS "SHERPA_NCNN_ENABLE_PYTHON ${SHERPA_NCNN_ENABLE_PYTHON}")
+message(STATUS "SHERPA_NCNN_ENABLE_PORTAUDIO ${SHERPA_NCNN_ENABLE_PORTAUDIO}")
 message(STATUS "SHERPA_NCNN_ENABLE_JNI ${SHERPA_NCNN_ENABLE_JNI}")
+message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
+message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -57,6 +61,5 @@ endif()
 if(SHERPA_NCNN_ENABLE_PYTHON)
   include(pybind11)
 endif()
-
 
 add_subdirectory(sherpa-ncnn)
