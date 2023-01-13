@@ -16,6 +16,7 @@ function(download_kaldi_native_fbank)
 
   set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(KALDI_NATIVE_FBANK_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
+  set(KALDI_NATIVE_FBANK_ENABLE_CHECK OFF CACHE BOOL "" FORCE)
 
   FetchContent_Declare(kaldi_native_fbank
     URL               ${kaldi_native_fbank_URL}
