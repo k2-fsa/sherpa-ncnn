@@ -25,7 +25,7 @@ option(BUILD_SHARED_LIBS "Whether to build shared libraries" OFF)
 option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" OFF)
 option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
 option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
-
+option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")

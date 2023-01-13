@@ -19,7 +19,7 @@ target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
 if(NOT SHERPA_NCNN_ENABLE_PYTHON)
-  if(NOT DEFINED ANDROID_ABI)
+  if(SHERPA_NCNN_ENABLE_BINARY)
     add_executable(sherpa-ncnn sherpa-ncnn.cc)
     target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
     install(TARGETS sherpa-ncnn DESTINATION bin)
