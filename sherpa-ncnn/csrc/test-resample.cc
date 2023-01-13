@@ -32,9 +32,9 @@ Usage:
 
 where
 
- - in.raw, containing input raw PCM samples, mono
+ - in.raw, containing input raw PCM samples, mono, 16-bit
  - in_sample_rate, sample rate for in.raw
- - out.raw, containing output raw PCM samples, mono
+ - out.raw, containing output raw PCM samples, mono, 16-bit
  - out_sample_rate, sample rate for out.raw
 
 For instance, if in_sample_rate is 48000 and out_sample_rate is 16000,
