@@ -88,12 +88,14 @@ class Recognizer {
  public:
   /** Construct an instance of OnlineRecognizer.
    */
-  Recognizer(
+  Recognizer(const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
+             const knf::FbankOptions &fbank_opts);
+
 #if __ANDROID_API__ >= 9
-      AAssetManager *mgr,
+  Recognizer(AAssetManager *mgr, const DecoderConfig &decoder_conf,
+             const ModelConfig &model_conf,
+             const knf::FbankOptions &fbank_opts);
 #endif
-      const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
-      const knf::FbankOptions &fbank_opts);
 
   ~Recognizer() = default;
 

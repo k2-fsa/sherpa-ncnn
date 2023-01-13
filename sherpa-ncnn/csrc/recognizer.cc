@@ -40,20 +40,11 @@ std::string DecoderConfig::ToString() const {
   return os.str();
 }
 
-Recognizer::Recognizer(
-#if __ANDROID_API__ >= 9
-    AAssetManager *mgr,
-#endif
-    const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
-    const knf::FbankOptions &fbank_opts)
-    :
-#if __ANDROID_API__ >= 9
-      model_(Model::Create(mgr, model_conf)),
-      sym_(std::make_unique<SymbolTable>(mgr, model_conf.tokens)),
-#else
-      model_(Model::Create(model_conf)),
+Recognizer::Recognizer(const DecoderConfig &decoder_conf,
+                       const ModelConfig &model_conf,
+                       const knf::FbankOptions &fbank_opts)
+    : model_(Model::Create(model_conf)),
       sym_(std::make_unique<SymbolTable>(model_conf.tokens)),
-#endif
       endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
   if (decoder_conf.method == "modified_beam_search") {
     decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
@@ -66,6 +57,26 @@ Recognizer::Recognizer(
     exit(-1);
   }
 }
+
+#if __ANDROID_API__ >= 9
+Recognizer::Recognizer(AAssetManager *mgr, const DecoderConfig &decoder_conf,
+                       const ModelConfig &model_conf,
+                       const knf::FbankOptions &fbank_opts)
+    : model_(Model::Create(mgr, model_conf)),
+      sym_(std::make_unique<SymbolTable>(mgr, model_conf.tokens)),
+      endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
+  if (decoder_conf.method == "modified_beam_search") {
+    decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
+        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
+  } else if (decoder_conf.method == "greedy_search") {
+    decoder_ = std::make_unique<GreedySearchDecoder>(
+        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
+  } else {
+    NCNN_LOGE("Unsupported decoding method: %s\n", decoder_conf.method.c_str());
+    exit(-1);
+  }
+}
+#endif
 
 void Recognizer::AcceptWaveform(float sample_rate, const float *input_buffer,
                                 int32_t frames_per_buffer) {
