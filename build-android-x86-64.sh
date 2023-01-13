@@ -49,6 +49,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=ON \
     -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+    -DSHERPA_NCNN_ENABLE_BINARY=OFF \
     -DCMAKE_INSTALL_PREFIX=./install \
     -DANDROID_ABI="x86_64" \
     -DANDROID_PLATFORM=android-21 ..

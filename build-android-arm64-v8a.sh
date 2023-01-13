@@ -56,7 +56,7 @@ make VERBOSE=1 -j4
 make install/strip
 
 # Note: If you set SHERPA_NCNN_ENABLE_BINARY=ON, it will
-# generate a binary in $dir/install/bin, which can be run on Android
+# generate a binary sherpa-ncnn in $dir/install/bin, which can be run on Android
 # with the following commands:
 #
 # 1. Copy sherpa-ncnn and its dependencies to Android
