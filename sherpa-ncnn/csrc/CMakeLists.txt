@@ -25,6 +25,12 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
     target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
     install(TARGETS sherpa-ncnn DESTINATION bin)
 
+    if(SHERPA_NCNN_HAS_ALSA)
+      add_executable(sherpa-ncnn-alsa sherpa-ncnn-alsa.cc alsa.cc)
+      target_link_libraries(sherpa-ncnn-alsa PRIVATE asound)
+      install(TARGETS sherpa-ncnn-alsa DESTINATION bin)
+    endif()
+
     if(SHERPA_NCNN_ENABLE_PORTAUDIO)
       add_executable(sherpa-ncnn-microphone
         sherpa-ncnn-microphone.cc
@@ -63,3 +69,4 @@ if(SHERPA_NCNN_ENABLE_TEST)
   add_executable(test-resample test-resample.cc)
   target_link_libraries(test-resample sherpa-ncnn-core)
 endif()
+
