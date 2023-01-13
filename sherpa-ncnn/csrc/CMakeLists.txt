@@ -11,6 +11,7 @@ set(sherpa_ncnn_core_srcs
   model.cc
   modified-beam-search-decoder.cc
   recognizer.cc
+  resample.cc
   symbol-table.cc
   wave-reader.cc
 )
@@ -56,4 +57,9 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
 
   add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
   target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
+endif()
+
+if(SHERPA_NCNN_ENABLE_TEST)
+  add_executable(test-resample test-resample.cc)
+  target_link_libraries(test-resample sherpa-ncnn-core)
 endif()
