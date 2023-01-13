@@ -13,11 +13,28 @@ set -x
 dir=build-aarch64-linux-gnu
 mkdir -p $dir
 cd $dir
+
+if [ ! -f alsa-lib/src/.libs/libasound.so ]; then
+  echo "Start to cross-compile alsa-lib"
+  if [ ! -d alsa-lib ]; then
+    git clone --depth 1 https://github.com/alsa-project/alsa-lib
+  fi
+  pushd alsa-lib
+  CC=aarch64-linux-gnu-gcc ./gitcompile --host=aarch64-linux-gnu
+  popd
+  echo "Finish cross-compiling alsa-lib"
+fi
+
+export CPLUS_INCLUDE_PATH=$PWD/alsa-lib/include:$CPLUS_INCLUDE_PATH
+export SHERPA_NCNN_ALSA_LIB_DIR=$PWD/alsa-lib/src/.libs
+
 cmake \
   -DCMAKE_INSTALL_PREFIX=./install \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-linux-gnu.toolchain.cmake \
   ..
+cp -v $SHERPA_NCNN_ALSA_LIB_DIR/libasound.so* ./install/lib/
 
-make VERBOSE=1 -j4
+make VERBOSE=1 -j10
 make install/strip
+

@@ -26,11 +26,12 @@
 
 bool stop = false;
 
-static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
-                          unsigned long frames_per_buffer,  // NOLINT
-                          const PaStreamCallbackTimeInfo * /*time_info*/,
-                          PaStreamCallbackFlags /*status_flags*/,
-                          void *user_data) {
+static int32_t RecordCallback(const void *input_buffer,
+                              void * /*output_buffer*/,
+                              unsigned long frames_per_buffer,  // NOLINT
+                              const PaStreamCallbackTimeInfo * /*time_info*/,
+                              PaStreamCallbackFlags /*status_flags*/,
+                              void *user_data) {
   auto recognizer = reinterpret_cast<sherpa_ncnn::Recognizer *>(user_data);
 
   recognizer->AcceptWaveform(
@@ -39,12 +40,12 @@ static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
   return stop ? paComplete : paContinue;
 }
 
-static void Handler(int sig) {
+static void Handler(int32_t sig) {
   stop = true;
-  fprintf(stderr, "\nexiting...\n");
+  fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
 };
 
-int main(int32_t argc, char *argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
   if (argc < 8 || argc > 10) {
     const char *usage = R"usage(
 Usage:
@@ -77,7 +78,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_bin = argv[5];
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
-  int num_threads = 4;
+  int32_t num_threads = 4;
   if (argc >= 9 && atoi(argv[8]) > 0) {
     num_threads = atoi(argv[8]);
   }
@@ -152,11 +153,12 @@ for a list of pre-trained models to download.
     exit(EXIT_FAILURE);
   }
 
-  int num_tokens = 0;
+  int32_t num_tokens = 0;
   while (!stop) {
     recognizer.Decode();
     auto result = recognizer.GetResult();
     if (result.text.size() != num_tokens) {
+      num_tokens = result.text.size();
       fprintf(stderr, "%s\n", result.text.c_str());
     }
 

@@ -24,7 +24,7 @@
 #include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
-int main(int argc, char *argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
   if (argc < 9 || argc > 11) {
     const char *usage = R"usage(
 Usage:
@@ -54,7 +54,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_bin = argv[5];
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
-  int num_threads = 4;
+  int32_t num_threads = 4;
   if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
