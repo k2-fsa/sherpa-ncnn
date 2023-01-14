@@ -35,6 +35,6 @@ cmake \
   ..
 cp -v $SHERPA_NCNN_ALSA_LIB_DIR/libasound.so* ./install/lib/
 
-make VERBOSE=1 -j10
+make VERBOSE=1 -j4
 make install/strip
 
