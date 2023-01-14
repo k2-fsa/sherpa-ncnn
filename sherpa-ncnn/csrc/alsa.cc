@@ -24,11 +24,13 @@
 
 namespace sherpa_ncnn {
 
-void ToFloat(const std::vector<int16_t> &in, std::vector<float> *out) {
-  out->resize(in.size());
+void ToFloat(const std::vector<int16_t> &in, int32_t num_channels,
+             std::vector<float> *out) {
+  out->resize(in.size() / num_channels);
+
   int32_t n = in.size();
-  for (int32_t i = 0; i != n; ++i) {
-    (*out)[i] = in[i] / 32768.;
+  for (int32_t i = 0, k = 0; i < n; i += num_channels, ++k) {
+    (*out)[k] = in[i] / 32768.;
   }
 }
 
@@ -87,7 +89,17 @@ and if you want to select card 3 and the device 0 on that card, please use:
   if (err) {
     fprintf(stderr, "Failed to set number of channels to 1. %s\n",
             snd_strerror(err));
-    exit(-1);
+
+    err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, 2);
+    if (err) {
+      fprintf(stderr, "Failed to set number of channels to 2. %s\n",
+              snd_strerror(err));
+
+      exit(-1);
+    }
+    actual_channel_count_ = 2;
+    fprintf(stderr,
+            "Channel count is set to 2. Will use only 1 channel of it.\n");
   }
 
   uint32_t actual_sample_rate = expected_sample_rate_;
@@ -140,14 +152,14 @@ and if you want to select card 3 and the device 0 on that card, please use:
 Alsa::~Alsa() { snd_pcm_close(capture_handle_); }
 
 const std::vector<float> &Alsa::Read(int32_t num_samples) {
-  samples_.resize(num_samples);
+  samples_.resize(num_samples * actual_channel_count_);
 
-  int32_t count =
-      snd_pcm_readi(capture_handle_, samples_.data(), samples_.size());
+  // count is in frames. Each frame contains actual_channel_count_ samples
+  int32_t count = snd_pcm_readi(capture_handle_, samples_.data(), num_samples);
 
-  samples_.resize(count);
+  samples_.resize(count * actual_channel_count_);
 
-  ToFloat(samples_, &samples1_);
+  ToFloat(samples_, actual_channel_count_, &samples1_);
 
   if (!resampler_) {
     return samples1_;
