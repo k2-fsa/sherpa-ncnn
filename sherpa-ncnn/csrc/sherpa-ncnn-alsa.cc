@@ -129,6 +129,7 @@ as the device_name.
 
   sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
   sherpa_ncnn::Alsa alsa(device_name);
+  fprintf(stderr, "Use recording device: %s\n", device_name);
 
   if (alsa.GetExpectedSampleRate() != expected_sampling_rate) {
     fprintf(stderr, "sample rate: %d != %d\n", alsa.GetExpectedSampleRate(),
@@ -153,7 +154,7 @@ as the device_name.
       last_text = text;
 
       // If you want to display in lower case, please uncomment
-      // the followint two lines
+      // the following two lines
       // std::transform(text.begin(), text.end(), text.begin(),
       //                [](auto c) { return std::tolower(c); });
 

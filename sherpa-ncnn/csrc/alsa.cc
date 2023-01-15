@@ -116,7 +116,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
 
   if (actual_sample_rate_ != expected_sample_rate_) {
     fprintf(stderr, "Failed to set sample rate to %d\n", expected_sample_rate_);
-    fprintf(stderr, "Current sample rate to %d\n", actual_sample_rate_);
+    fprintf(stderr, "Current sample rate is %d\n", actual_sample_rate_);
     fprintf(stderr,
             "Creating a resampler:\n"
             "   in_sample_rate: %d\n"
