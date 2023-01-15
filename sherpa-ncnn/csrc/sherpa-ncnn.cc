@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 
 #include "net.h"  // NOLINT
@@ -94,6 +97,9 @@ for a list of pre-trained models to download.
   std::cout << "wav filename: " << wav_filename << "\n";
   std::cout << "wav duration (s): " << duration << "\n";
 
+  auto begin = std::chrono::steady_clock::now();
+  std::cout << "Started!\n";
+
   recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
                             samples.size());
   std::vector<float> tail_paddings(
@@ -103,8 +109,21 @@ for a list of pre-trained models to download.
 
   recognizer.Decode();
   auto result = recognizer.GetResult();
+  std::cout << "Done!\n";
+
   std::cout << "Recognition result for " << wav_filename << "\n"
             << result.text << "\n";
+
+  auto end = std::chrono::steady_clock::now();
+  float elapsed_seconds =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - begin)
+          .count() /
+      1000.;
+
+  printf("Elapsed seconds: %.3f s\n", elapsed_seconds);
+  float rtf = elapsed_seconds / duration;
+  printf("Real time factor (RTF): %.3f / %.3f = %.3f\n", duration,
+         elapsed_seconds, rtf);
 
   return 0;
 }
