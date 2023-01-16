@@ -26,7 +26,7 @@ class Display {
  public:
   void Print(int32_t segmend_id, const std::string &s) {
 #ifdef _MSC_VER
-    fprintf(stderr, "%d: %s\n", segment_id, s.c_str());
+    fprintf(stderr, "%d:%s\n", segment_id, s.c_str());
     return;
 #endif
     if (last_segment_ == segmend_id) {
@@ -36,9 +36,10 @@ class Display {
         fprintf(stderr, "\n\r");
       }
       last_segment_ = segmend_id;
+      num_previous_lines_ = 0;
     }
 
-    fprintf(stderr, "\r%d: ", segmend_id);
+    fprintf(stderr, "\r%d:", segmend_id);
 
     int32_t i = 0;
     for (size_t n = 0; n < s.size();) {
@@ -53,8 +54,8 @@ class Display {
       }
 
       ++i;
-      if (i >= max_word_per_line_ && n + 1 < s.size()) {
-        fprintf(stderr, "\n\r");
+      if (i >= max_word_per_line_ && n + 1 < s.size() && s[n] == ' ') {
+        fprintf(stderr, "\n\r ");
         ++num_previous_lines_;
         i = 0;
       }
@@ -79,7 +80,7 @@ class Display {
   void GoUpOneLine() const { fprintf(stderr, "\033[1A\r"); }
 
  private:
-  int32_t max_word_per_line_ = 5;
+  int32_t max_word_per_line_ = 80;
   int32_t num_previous_lines_ = 0;
   int32_t last_segment_ = -1;
 };
