@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 #include <algorithm>
-#include <chrono>
+#include <chrono>  // NOLINT
 #include <iostream>
 
 #include "net.h"  // NOLINT

@@ -19,6 +19,9 @@
 #ifndef SHERPA_NCNN_CSRC_DISPLAY_H_
 #define SHERPA_NCNN_CSRC_DISPLAY_H_
 #include <stdio.h>
+
+#include <string>
+
 namespace sherpa_ncnn {
 
 // works only for Linux and macOS
