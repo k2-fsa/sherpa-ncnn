@@ -26,22 +26,22 @@ namespace sherpa_ncnn {
 
 class Display {
  public:
-  void Print(int32_t segmend_id, const std::string &s) {
+  void Print(int32_t segment_id, const std::string &s) {
 #ifdef _MSC_VER
     fprintf(stderr, "%d:%s\n", segment_id, s.c_str());
     return;
 #endif
-    if (last_segment_ == segmend_id) {
+    if (last_segment_ == segment_id) {
       Clear();
     } else {
       if (last_segment_ != -1) {
         fprintf(stderr, "\n\r");
       }
-      last_segment_ = segmend_id;
+      last_segment_ = segment_id;
       num_previous_lines_ = 0;
     }
 
-    fprintf(stderr, "\r%d:", segmend_id);
+    fprintf(stderr, "\r%d:", segment_id);
 
     int32_t i = 0;
     for (size_t n = 0; n < s.size();) {
