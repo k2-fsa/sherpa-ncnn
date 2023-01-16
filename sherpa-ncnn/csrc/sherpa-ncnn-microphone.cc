@@ -103,7 +103,7 @@ for a list of pre-trained models to download.
 
   sherpa_ncnn::EndpointConfig endpoint_config;
   endpoint_config.rule1.min_trailing_silence = 2.4;
-  endpoint_config.rule2.min_trailing_silence = 0.8;  // <--tune this value !
+  endpoint_config.rule2.min_trailing_silence = 1.2;  // <--tune this value !
   endpoint_config.rule3.min_utterance_length = 300;
 
   decoder_conf.endpoint_config = endpoint_config;

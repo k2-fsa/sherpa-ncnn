@@ -56,7 +56,8 @@ class Display {
       }
 
       ++i;
-      if (i >= max_word_per_line_ && n + 1 < s.size() && s[n] == ' ') {
+      if (i >= max_word_per_line_ && n + 1 < s.size() &&
+          (s[n] == ' ' || s[n] < 0)) {
         fprintf(stderr, "\n\r ");
         ++num_previous_lines_;
         i = 0;
@@ -82,7 +83,7 @@ class Display {
   void GoUpOneLine() const { fprintf(stderr, "\033[1A\r"); }
 
  private:
-  int32_t max_word_per_line_ = 80;
+  int32_t max_word_per_line_ = 60;
   int32_t num_previous_lines_ = 0;
   int32_t last_segment_ = -1;
 };
