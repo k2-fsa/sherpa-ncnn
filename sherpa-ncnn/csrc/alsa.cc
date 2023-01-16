@@ -20,6 +20,8 @@
 
 #include "sherpa-ncnn/csrc/alsa.h"
 
+#include <algorithm>
+
 #include "alsa/asoundlib.h"
 
 namespace sherpa_ncnn {

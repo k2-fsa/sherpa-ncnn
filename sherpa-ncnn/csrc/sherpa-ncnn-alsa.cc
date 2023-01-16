@@ -23,6 +23,7 @@
 #include <cstdint>
 
 #include "sherpa-ncnn/csrc/alsa.h"
+#include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
 bool stop = false;
@@ -113,7 +114,7 @@ as the device_name.
 
   sherpa_ncnn::EndpointConfig endpoint_config;
   endpoint_config.rule1.min_trailing_silence = 2.4;
-  endpoint_config.rule2.min_trailing_silence = 1.2;
+  endpoint_config.rule2.min_trailing_silence = 0.8;  // <--tune this value !
   endpoint_config.rule3.min_utterance_length = 300;
 
   decoder_conf.endpoint_config = endpoint_config;
@@ -141,6 +142,7 @@ as the device_name.
 
   std::string last_text;
   int32_t segment_index = 0;
+  sherpa_ncnn::Display display;
   while (!stop) {
     const std::vector<float> samples = alsa.Read(chunk);
 
@@ -153,12 +155,10 @@ as the device_name.
     if (!text.empty() && last_text != text) {
       last_text = text;
 
-      // If you want to display in lower case, please uncomment
-      // the following two lines
-      // std::transform(text.begin(), text.end(), text.begin(),
-      //                [](auto c) { return std::tolower(c); });
+      std::transform(text.begin(), text.end(), text.begin(),
+                     [](auto c) { return std::tolower(c); });
 
-      fprintf(stderr, "%d: %s\n", segment_index, text.c_str());
+      display.Print(segment_index, text);
     }
 
     if (!text.empty() && is_endpoint) {

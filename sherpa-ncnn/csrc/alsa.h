@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_CSRC_MICROPHONE_H_
-#define SHERPA_NCNN_CSRC_MICROPHONE_H_
+#ifndef SHERPA_NCNN_CSRC_ALSA_H_
+#define SHERPA_NCNN_CSRC_ALSA_H_
 
 #include <memory>
 #include <vector>
@@ -57,4 +57,4 @@ class Alsa {
 
 }  // namespace sherpa_ncnn
 
-#endif  // SHERPA_NCNN_CSRC_MICROPHONE_H_
+#endif  // SHERPA_NCNN_CSRC_ALSA_H_
