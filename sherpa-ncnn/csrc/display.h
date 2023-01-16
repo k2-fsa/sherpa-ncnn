@@ -24,7 +24,6 @@
 
 namespace sherpa_ncnn {
 
-// works only for Linux and macOS
 class Display {
  public:
   void Print(int32_t segmend_id, const std::string &s) {
