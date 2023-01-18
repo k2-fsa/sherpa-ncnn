@@ -8,7 +8,7 @@ if ! command -v aarch64-linux-gnu-gcc  &> /dev/null; then
   exit 1
 fi
 
-set -x
+set -ex
 
 dir=build-aarch64-linux-gnu
 mkdir -p $dir
@@ -19,6 +19,11 @@ if [ ! -f alsa-lib/src/.libs/libasound.so ]; then
   if [ ! -d alsa-lib ]; then
     git clone --depth 1 https://github.com/alsa-project/alsa-lib
   fi
+  # If it shows:
+  #  ./gitcompile: line 79: libtoolize: command not found
+  # Please use:
+  #  sudo apt-get install libtool m4 automake
+  #
   pushd alsa-lib
   CC=aarch64-linux-gnu-gcc ./gitcompile --host=aarch64-linux-gnu
   popd

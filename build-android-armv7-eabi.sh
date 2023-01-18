@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -ex
 
 dir=build-android-armv7-eabi
 
