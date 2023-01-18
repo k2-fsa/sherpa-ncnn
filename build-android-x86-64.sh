@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -ex
 
 # see https://github.com/Tencent/ncnn/wiki/how-to-build#build-for-android
 

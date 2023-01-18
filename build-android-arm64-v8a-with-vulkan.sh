@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # First, we assume you have installed vulkan by following
 # windows: https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html
