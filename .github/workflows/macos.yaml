@@ -61,7 +61,7 @@ jobs:
           ls -lh bin/sherpa-ncnn-microphone
           file bin/sherpa-ncnn-microphone
 
-      - name: Upload binary sherpa-ncnn and sherpa-ncnn-micrphone
+      - name: Upload binary sherpa-ncnn and sherpa-ncnn-microphone
         uses: actions/upload-artifact@v2
         with:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
