@@ -47,7 +47,7 @@ jobs:
           cd build
           cmake -D CMAKE_BUILD_TYPE=Release ..
 
-      - name: Build sherpa for ubuntu/macos
+      - name: Build sherpa for ubuntu
         run: |
           cd build
           make -j2
@@ -67,7 +67,7 @@ jobs:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
           path: ./build/bin
 
-      - name: Run tests for ubuntu/macos
+      - name: Run tests for ubuntu
         run: |
           export PATH=$PWD/build/bin:$PATH
           export EXE=sherpa-ncnn
