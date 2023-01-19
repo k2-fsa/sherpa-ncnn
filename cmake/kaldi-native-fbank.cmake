@@ -1,17 +1,17 @@
 function(download_kaldi_native_fbank)
   include(FetchContent)
 
-  set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.8.tar.gz")
-  set(kaldi_native_fbank_HASH "SHA256=1aefda7e76456e2c5005e05fa10cdc7f91c3ffc0a7fad000a90b50e7ed18087b")
+  set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.11.tar.gz")
+  set(kaldi_native_fbank_HASH "SHA256=e69ae25ef6f30566ef31ca949dd1b0b8ec3a827caeba93a61d82bb848dac5d69")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/kaldi-native-fbank-1.8.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///star-fj/fangjun/download/github/kaldi-native-fbank-1.8.tar.gz")
-  elseif(EXISTS "/Users/fangjun/Downloads/kaldi-native-fbank-1.8.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///Users/fangjun/Downloads/kaldi-native-fbank-1.8.tar.gz")
-  elseif(EXISTS "/tmp/kaldi-native-fbank-1.8.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///tmp/kaldi-native-fbank-1.8.tar.gz")
+  if(EXISTS "/star-fj/fangjun/download/github/kaldi-native-fbank-1.11.tar.gz")
+    set(kaldi_native_fbank_URL  "file:///star-fj/fangjun/download/github/kaldi-native-fbank-1.11.tar.gz")
+  elseif(EXISTS "/Users/fangjun/Downloads/kaldi-native-fbank-1.11.tar.gz")
+    set(kaldi_native_fbank_URL  "file:///Users/fangjun/Downloads/kaldi-native-fbank-1.11.tar.gz")
+  elseif(EXISTS "/tmp/kaldi-native-fbank-1.11.tar.gz")
+    set(kaldi_native_fbank_URL  "file:///tmp/kaldi-native-fbank-1.11.tar.gz")
   endif()
 
   set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
