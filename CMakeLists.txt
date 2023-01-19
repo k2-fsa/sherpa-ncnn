@@ -3,6 +3,14 @@ project(sherpa-ncnn)
 
 set(SHERPA_NCNN_VERSION "1.3.2")
 
+# Disable warning about
+#
+# "The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+#  not set.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
