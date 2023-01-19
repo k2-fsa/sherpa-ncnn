@@ -62,6 +62,23 @@ if(WIN32)
   add_definitions(-DNOMINMAX) # Otherwise, std::max() and std::min() won't work
 endif()
 
+if(WIN32)
+  # disable various warnings for MSVC
+  # 4244: 'return': conversion from 'unsigned __int64' to 'int', possible loss of data
+  # 4305: 'argument': truncation from 'double' to 'const float'
+  # 4800: 'int': forcing value to bool 'true' or 'false'
+  set(disabled_warnings
+      /wd4244
+      /wd4305
+      /wd4800
+  )
+  message(STATUS "Disabled warnings: ${disabled_warnings}")
+  foreach(w IN LISTS disabled_warnings)
+    string(APPEND CMAKE_CXX_FLAGS " ${w} ")
+  endforeach()
+endif()
+
+
 include(kaldi-native-fbank)
 include(ncnn)
 
