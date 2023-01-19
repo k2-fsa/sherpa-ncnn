@@ -65,12 +65,18 @@ endif()
 if(WIN32)
   # disable various warnings for MSVC
   # 4244: 'return': conversion from 'unsigned __int64' to 'int', possible loss of data
+  # 4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   # 4305: 'argument': truncation from 'double' to 'const float'
+  # 4334: '<<': result of 32-bit shift implicitly converted to 64 bits
   # 4800: 'int': forcing value to bool 'true' or 'false'
+  # 4996: 'fopen': This function or variable may be unsafe
   set(disabled_warnings
       /wd4244
+      /wd4267
       /wd4305
+      /wd4334
       /wd4800
+      /wd4996
   )
   message(STATUS "Disabled warnings: ${disabled_warnings}")
   foreach(w IN LISTS disabled_warnings)
