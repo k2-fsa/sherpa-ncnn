@@ -72,9 +72,6 @@ jobs:
           ls -lh ./bin/Release/sherpa-ncnn.exe
           ls -lh ./bin/Release/sherpa-ncnn-microphone.exe
 
-          dumpbin ./bin/Release/sherpa-ncnn.exe
-          dumpbin ./bin/Release/sherpa-ncnn-microphone.exe
-
       - name: Run tests for windows
         shell: bash
         run: |
