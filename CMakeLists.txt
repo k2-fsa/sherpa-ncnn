@@ -3,6 +3,14 @@ project(sherpa-ncnn)
 
 set(SHERPA_NCNN_VERSION "1.3.2")
 
+# Disable warning about
+#
+# "The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+#  not set.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -57,6 +65,33 @@ if(SHERPA_NCNN_HAS_ALSA)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+if(WIN32)
+  add_definitions(-DNOMINMAX) # Otherwise, std::max() and std::min() won't work
+endif()
+
+if(WIN32)
+  # disable various warnings for MSVC
+  # 4244: 'return': conversion from 'unsigned __int64' to 'int', possible loss of data
+  # 4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  # 4305: 'argument': truncation from 'double' to 'const float'
+  # 4334: '<<': result of 32-bit shift implicitly converted to 64 bits
+  # 4800: 'int': forcing value to bool 'true' or 'false'
+  # 4996: 'fopen': This function or variable may be unsafe
+  set(disabled_warnings
+      /wd4244
+      /wd4267
+      /wd4305
+      /wd4334
+      /wd4800
+      /wd4996
+  )
+  message(STATUS "Disabled warnings: ${disabled_warnings}")
+  foreach(w IN LISTS disabled_warnings)
+    string(APPEND CMAKE_CXX_FLAGS " ${w} ")
+  endforeach()
+endif()
+
 
 include(kaldi-native-fbank)
 include(ncnn)

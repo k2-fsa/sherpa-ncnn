@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include <algorithm>
+#include <cctype>  // std::tolower
 #include <cstdint>
 
 #include "sherpa-ncnn/csrc/alsa.h"

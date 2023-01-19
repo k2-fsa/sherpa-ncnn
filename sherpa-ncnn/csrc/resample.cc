@@ -182,12 +182,12 @@ void LinearResample::Resample(const float *input, int32_t input_dim, bool flush,
         static_cast<int32_t>(first_samp_in - input_sample_offset_);
     float this_output;
     if (first_input_index >= 0 &&
-        first_input_index + weights.size() <= input_dim) {
+        first_input_index + static_cast<int32_t>(weights.size()) <= input_dim) {
       this_output =
           DotProduct(input + first_input_index, weights.data(), weights.size());
     } else {  // Handle edge cases.
       this_output = 0.0;
-      for (int32_t i = 0; i < weights.size(); i++) {
+      for (int32_t i = 0; i < static_cast<int32_t>(weights.size()); i++) {
         float weight = weights[i];
         int32_t input_index = first_input_index + i;
         if (input_index < 0 &&

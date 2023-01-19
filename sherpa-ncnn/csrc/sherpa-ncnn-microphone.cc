@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <cctype>  // std::tolower
+
 #include "portaudio.h"  // NOLINT
 #include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/microphone.h"

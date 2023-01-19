@@ -44,8 +44,8 @@ cmake \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
   -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-linux-gnu.toolchain.cmake \
   ..
-cp -v $SHERPA_NCNN_ALSA_LIB_DIR/libasound.so* ./install/lib/
 
 make VERBOSE=1 -j4
 make install/strip
 
+cp -v $SHERPA_NCNN_ALSA_LIB_DIR/libasound.so* ./install/lib/
