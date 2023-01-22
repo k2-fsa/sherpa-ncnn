@@ -105,3 +105,4 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
 endif()
 
 add_subdirectory(sherpa-ncnn)
+add_subdirectory(c-api-examples)

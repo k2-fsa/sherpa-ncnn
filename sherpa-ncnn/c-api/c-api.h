@@ -19,6 +19,12 @@
 #ifndef SHERPA_NCNN_C_API_C_API_H_
 #define SHERPA_NCNN_C_API_C_API_H_
 
+// C API for sherpa-ncnn
+//
+// Please refer to
+// https://github.com/k2-fsa/sherpa-ncnn/blob/master/c-api-examples/decode-file-c-api.c
+// for usages.
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -29,7 +35,7 @@ extern "C" {
 /// https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
 /// to download pre-trained models. That is, you can find .ncnn.param,
 /// .ncnn.bin, and tokens.txt for this struct from there.
-struct SherpaNcnnModelConfig {
+typedef struct SherpaNcnnModelConfig {
   /// Path to encoder.ncnn.param
   const char *encoder_param;
 
@@ -58,9 +64,9 @@ struct SherpaNcnnModelConfig {
 
   /// Number of threads for neural network computation.
   int32_t num_threads;
-};
+} SherpaNcnnModelConfig;
 
-struct SherpaNcnnDecoderConfig {
+typedef struct SherpaNcnnDecoderConfig {
   /// Decoding method. Supported values are:
   /// greedy_search, modified_beam_search
   const char *decoding_method;
@@ -87,12 +93,12 @@ struct SherpaNcnnDecoderConfig {
   /// this value.
   /// Used only when enable_endpoint is not 0.
   float rule3_min_utterance_length;
-};
+} SherpaNcnnDecoderConfig;
 
-struct SherpaNcnnResult {
+typedef struct SherpaNcnnResult {
   const char *text;
   // TODO: Add more fields
-};
+} SherpaNcnnResult;
 
 typedef struct SherpaNcnnRecognizer SherpaNcnnRecognizer;
 

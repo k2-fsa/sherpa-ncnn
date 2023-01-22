@@ -65,7 +65,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_opt.num_threads = num_threads;
   model_conf.joiner_opt.num_threads = num_threads;
 
-  const float expected_sampling_rate = 16000;
+  float expected_sampling_rate = 16000;
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
     std::string method = argv[10];

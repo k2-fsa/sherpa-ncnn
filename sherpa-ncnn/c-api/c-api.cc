@@ -18,6 +18,10 @@
 
 #include "sherpa-ncnn/c-api/c-api.h"
 
+#include <algorithm>
+#include <memory>
+#include <string>
+
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
