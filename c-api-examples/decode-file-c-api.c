@@ -62,6 +62,10 @@ int32_t main(int32_t argc, char *argv[]) {
 
   SherpaNcnnDecoderConfig decoder_config;
   decoder_config.decoding_method = "greedy_search";
+
+  if (argc == 11) {
+    decoder_config.decoding_method = argv[10];
+  }
   decoder_config.num_active_paths = 4;
   decoder_config.enable_endpoint = 0;
   decoder_config.rule1_min_trailing_silence = 2.4;
