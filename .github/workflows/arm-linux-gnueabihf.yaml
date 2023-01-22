@@ -115,7 +115,7 @@ jobs:
 
           file build-arm-linux-gnueabihf/bin/sherpa-ncnn
 
-      - name: Run tests
+      - name: Test sherpa-ncnn
         shell: bash
         run: |
           export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
@@ -123,6 +123,19 @@ jobs:
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
 
           export EXE="qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn"
+
+          ls -lh ./build-arm-linux-gnueabihf/bin
+
+          .github/scripts/run-test.sh
+
+      - name: Test C API
+        shell: bash
+        run: |
+          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
+          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
+          export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
+
+          export EXE="qemu-arm ./build-arm-linux-gnueabihf/bin/decode-file-c-api"
 
           ls -lh ./build-arm-linux-gnueabihf/bin
 

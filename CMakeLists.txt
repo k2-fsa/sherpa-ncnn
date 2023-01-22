@@ -35,6 +35,7 @@ option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
 option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
 option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
+option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
@@ -47,7 +48,7 @@ message(STATUS "SHERPA_NCNN_ENABLE_PORTAUDIO ${SHERPA_NCNN_ENABLE_PORTAUDIO}")
 message(STATUS "SHERPA_NCNN_ENABLE_JNI ${SHERPA_NCNN_ENABLE_JNI}")
 message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
 message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
-
+message(STATUS "SHERPA_NCNN_ENABLE_C_API ${SHERPA_NCNN_ENABLE_C_API}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -105,4 +106,7 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
 endif()
 
 add_subdirectory(sherpa-ncnn)
-add_subdirectory(c-api-examples)
+
+if(SHERPA_NCNN_ENABLE_C_API)
+  add_subdirectory(c-api-examples)
+endif()

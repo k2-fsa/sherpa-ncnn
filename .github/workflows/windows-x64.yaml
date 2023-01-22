@@ -72,10 +72,18 @@ jobs:
           ls -lh ./bin/Release/sherpa-ncnn.exe
           ls -lh ./bin/Release/sherpa-ncnn-microphone.exe
 
-      - name: Run tests for windows
+      - name: Test sherpa-ncnn
         shell: bash
         run: |
           export PATH=$PWD/build/bin/Release:$PATH
           export EXE=sherpa-ncnn.exe
+
+          .github/scripts/run-test.sh
+
+      - name: Test C API
+        shell: bash
+        run: |
+          export PATH=$PWD/build/bin/Release:$PATH
+          export EXE=decode-file-c-api.exe
 
           .github/scripts/run-test.sh

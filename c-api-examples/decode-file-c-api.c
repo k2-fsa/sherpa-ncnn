@@ -75,6 +75,7 @@ int32_t main(int32_t argc, char *argv[]) {
   FILE *fp = fopen(wav_filename, "rb");
   if (!fp) {
     fprintf(stderr, "Failed to open %s\n", wav_filename);
+    return -1;
   }
 
   // Assume the wave header occupies 44 bytes.

@@ -1,5 +1,8 @@
 add_subdirectory(csrc)
-add_subdirectory(c-api)
+
+if(SHERPA_NCNN_ENABLE_C_API)
+  add_subdirectory(c-api)
+endif()
 
 if(SHERPA_NCNN_ENABLE_JNI)
   add_subdirectory(jni)
