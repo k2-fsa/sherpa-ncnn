@@ -121,7 +121,7 @@ void DestroyRecognizer(SherpaNcnnRecognizer *p);
 /// The user has to invoke Decode() to run the neural network and decoding.
 ///
 /// @param p  A pointer returned by CreateRecognizer().
-/// @param sample_rate  Sampler ate of the input samples. It has to be 16 kHz
+/// @param sample_rate  Sampler rate of the input samples. It has to be 16 kHz
 ///                     for models from icefall.
 /// @param samples A pointer to a 1-D array containing audio samples.
 ///                The range of samples has to be normalized to [-1, 1].

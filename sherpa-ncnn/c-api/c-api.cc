@@ -60,6 +60,7 @@ SherpaNcnnRecognizer *CreateRecognizer(
   // decoder_config
   sherpa_ncnn::DecoderConfig decoder_config;
   decoder_config.method = in_decoder_config->decoding_method;
+  decoder_config.num_active_paths = in_decoder_config->num_active_paths;
 
   decoder_config.enable_endpoint = in_decoder_config->enable_endpoint;
 
