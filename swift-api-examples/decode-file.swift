@@ -52,6 +52,7 @@ func run() {
   let audioFormat = audioFile.processingFormat
   assert(audioFormat.sampleRate == 16000)
   assert(audioFormat.channelCount == 1)
+  assert(audioFormat.commonFormat == AVAudioCommonFormat.pcmFormatFloat32)
 
   let audioFrameCount = UInt32(audioFile.length)
   let audioFileBuffer = AVAudioPCMBuffer(pcmFormat: audioFormat, frameCapacity: audioFrameCount)

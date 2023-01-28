@@ -7,7 +7,7 @@ if [ ! -d ../build-swift-macos ]; then
   exit 1
 fi
 
-if [ ! -d ../sherpa-ncnn-conv-emformer-transducer-2022-12-06 ]; then
+if [ ! -d ./sherpa-ncnn-conv-emformer-transducer-2022-12-06 ]; then
   echo "Please download the pre-trained model for testing."
   echo "You can refer to"
   echo ""
@@ -27,6 +27,8 @@ if [ ! -e ./decode-file ]; then
     -framework sherpa-ncnn \
     -framework openmp \
     -o decode-file
+else
+  echo "./decode-file exists - skip building"
 fi
 
 ./decode-file
