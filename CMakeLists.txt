@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
 # Please also change the following files:
+#
 #   ./build-ios.sh
+#   ./build-swift-macos.sh
 #
 set(SHERPA_NCNN_VERSION "1.3.2")
 

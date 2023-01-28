@@ -89,7 +89,8 @@ void GreedySearchDecoder::InputFinished() {
 }
 
 bool GreedySearchDecoder::IsEndpoint() {
-  return endpoint_->IsEndpoint(num_processed_ - endpoint_start_frame_,
+  return config_.enable_endpoint &&
+         endpoint_->IsEndpoint(num_processed_ - endpoint_start_frame_,
                                result_.num_trailing_blanks * 4, 10 / 1000.0);
 }
 
