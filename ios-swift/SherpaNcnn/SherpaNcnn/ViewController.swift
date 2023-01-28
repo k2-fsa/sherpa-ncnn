@@ -48,27 +48,32 @@ class ViewController: UIViewController {
         if lastSentence.isEmpty {
             return sentences.enumerated().map {(index, s) in "\(index): \(s.lowercased())"}[start...].joined(separator: "\n")
         } else {
-            return sentences.enumerated().map {(index, s) in "\(index): \(s.lowercased())"}[start...].joined(separator: "\n") + "\(sentences.count): \(lastSentence.lowercased())"
+            return sentences.enumerated().map {(index, s) in "\(index): \(s.lowercased())"}[start...].joined(separator: "\n") + "\n\(sentences.count): \(lastSentence.lowercased())"
         }
     }
 
     func updateLabel() {
-        resultLabel.text = results
+        DispatchQueue.main.async {
+            self.resultLabel.text = self.results
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
 
-        resultLabel.text = ""
+        resultLabel.text = "ASR with Next-gen Kaldi\n\nPress the Start button to run!"
         recordBtn.setTitle("Start", for: .normal)
         initRecognizer()
+        initRecorder()
     }
 
     @IBAction func onRecordBtnClick(_ sender: UIButton) {
         if recordBtn.currentTitle == "Start" {
+            startRecorder()
             recordBtn.setTitle("Stop", for: .normal)
         } else {
+            stopRecorder()
             recordBtn.setTitle("Start", for: .normal)
         }
     }
@@ -142,6 +147,8 @@ class ViewController: UIViewController {
 
                 if !text.isEmpty && self.lastSentence != text {
                     self.lastSentence = text
+                    self.updateLabel()
+                    print(text)
                 }
 
                 if isEndpoint && !text.isEmpty {
@@ -152,13 +159,23 @@ class ViewController: UIViewController {
             }
         }
 
-        //Start record
+    }
+
+    func startRecorder() {
+        lastSentence = ""
+        sentences = []
+
         do {
             try self.audioEngine?.start()
         } catch let error as NSError {
             print("Got an error starting audioEngine: \(error.domain), \(error)")
         }
+        print("started")
+    }
 
+    func stopRecorder() {
+        audioEngine?.stop()
+        print("stopped")
     }
 }
 
