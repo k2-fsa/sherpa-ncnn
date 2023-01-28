@@ -81,7 +81,7 @@ class ViewController: UIViewController {
     func initRecognizer() {
         var modelConfig = getMultiLingualModelConfig2022_12_06()
 
-        var decoderConfig = sherpaNcnnDecoderConfig(decodingMethod: "greedy_search",
+        var decoderConfig = sherpaNcnnDecoderConfig(decodingMethod: "modified_beam_search",
                                                     numActivePaths: 4,
                                                     enableEndpoint: true,
                                                     rule1MinTrailingSilence: 1.2,
