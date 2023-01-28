@@ -53,22 +53,22 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
 
       install(TARGETS sherpa-ncnn-microphone DESTINATION bin)
     endif()
+
+    set(hdrs
+      features.h
+      model.h
+      recognizer.h
+      symbol-table.h
+      wave-reader.h
+    )
+
+    install(FILES ${hdrs}
+      DESTINATION include/sherpa-ncnn/csrc
+    )
+
+    add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
+    target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
   endif()
-
-  set(hdrs
-    features.h
-    model.h
-    recognizer.h
-    symbol-table.h
-    wave-reader.h
-  )
-
-  install(FILES ${hdrs}
-    DESTINATION include/sherpa-ncnn/csrc
-  )
-
-  add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
-  target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
 endif()
 
 if(SHERPA_NCNN_ENABLE_TEST)

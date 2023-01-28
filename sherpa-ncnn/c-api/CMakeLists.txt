@@ -5,5 +5,5 @@ target_link_libraries(sherpa-ncnn-c-api sherpa-ncnn-core)
 install(TARGETS sherpa-ncnn-c-api DESTINATION lib)
 
 install(FILES c-api.h
-  DESTINATION include/sherpa-ncnn/
+  DESTINATION include/sherpa-ncnn/c-api
 )
