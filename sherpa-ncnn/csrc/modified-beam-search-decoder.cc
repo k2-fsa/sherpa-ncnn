@@ -120,6 +120,8 @@ void ModifiedBeamSearchDecoder::InputFinished() {
 }
 
 bool ModifiedBeamSearchDecoder::IsEndpoint() {
+  if (!config_.enable_endpoint) return false;
+
   auto best_hyp = result_.hyps.GetMostProbable(true);
   result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
   return endpoint_->IsEndpoint(num_processed_ - endpoint_start_frame_,

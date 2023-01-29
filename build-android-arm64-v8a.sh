@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 dir=build-android-arm64-v8a
 
@@ -48,8 +48,40 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=ON \
     -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+    -DSHERPA_NCNN_ENABLE_BINARY=OFF \
     -DCMAKE_INSTALL_PREFIX=./install \
     -DANDROID_ABI="arm64-v8a" \
     -DANDROID_PLATFORM=android-21 ..
 make VERBOSE=1 -j4
 make install/strip
+
+# Note: If you set SHERPA_NCNN_ENABLE_BINARY=ON, it will
+# generate a binary sherpa-ncnn in $dir/install/bin, which can be run on Android
+# with the following commands:
+#
+# 1. Copy sherpa-ncnn and its dependencies to Android
+#
+#   cd build-android-arm64-v8a/install/lib
+#   adb push ./lib*.so /data/local/tmp
+#   cd ../bin
+#   adb push ./sherpa-ncnn /data/local/tmp
+#
+# 2. Login into Android
+#
+#   adb shell
+#   cd /data/local/tmp
+#   ./sherpa-ncnn
+#
+# which shows the following error log:
+#
+#  CANNOT LINK EXECUTABLE "./sherpa-ncnn": library "libsherpa-ncnn-core.so" not found: needed by main executable
+#
+# Please run:
+#
+#  export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
+#
+# and then you can run:
+#
+#  ./sherpa-ncnn
+#
+# It should show the help message of sherpa-ncnn.

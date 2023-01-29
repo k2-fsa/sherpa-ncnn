@@ -1,11 +1,11 @@
-name: linux-macos-windows
+name: linux
 
 on:
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/linux-macos-windows.yaml'
+      - '.github/workflows/linux.yaml'
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
@@ -14,36 +14,31 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/linux-macos-windows.yaml'
+      - '.github/workflows/linux.yaml'
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
 
 concurrency:
-  group: linux-macos-windows-${{ github.ref }}
+  group: linux-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  linux_macos_windows:
+  linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      # see https://github.com/microsoft/setup-msbuild
-      - name: Add msbuild to PATH
-        if: startsWith(matrix.os, 'windows')
-        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Configure CMake
         shell: bash
@@ -52,8 +47,7 @@ jobs:
           cd build
           cmake -D CMAKE_BUILD_TYPE=Release ..
 
-      - name: Build sherpa for ubuntu/macos
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      - name: Build sherpa for ubuntu
         run: |
           cd build
           make -j2
@@ -67,35 +61,25 @@ jobs:
           ls -lh bin/sherpa-ncnn-microphone
           file bin/sherpa-ncnn-microphone
 
-      - name: Upload binary sherpa-ncnn and sherpa-ncnn-micrphone
+          ls -lh bin/decode-file-c-api
+          file bin/decode-file-c-api
+
+      - name: Upload binary sherpa-ncnn and sherpa-ncnn-microphone
         uses: actions/upload-artifact@v2
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         with:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
           path: ./build/bin
 
-      - name: Run tests for ubuntu/macos
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      - name: Test sherpa-ncnn
         run: |
           export PATH=$PWD/build/bin:$PATH
           export EXE=sherpa-ncnn
 
           .github/scripts/run-test.sh
 
-      - name: Build sherpa for windows
-        if: startsWith(matrix.os, 'windows')
-        shell: bash
+      - name: Test C API
         run: |
-          cd build
-          cmake --build . --config Release -- -m:2
-
-          ls -lh ./bin/Release/sherpa-ncnn.exe
-
-      - name: Run tests for windows
-        if: startsWith(matrix.os, 'windows')
-        shell: bash
-        run: |
-          export PATH=$PWD/build/bin/Release:$PATH
-          export EXE=sherpa-ncnn.exe
+          export PATH=$PWD/build/bin:$PATH
+          export EXE=decode-file-c-api
 
           .github/scripts/run-test.sh

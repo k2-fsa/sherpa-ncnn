@@ -20,17 +20,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <cctype>  // std::tolower
+
 #include "portaudio.h"  // NOLINT
+#include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/microphone.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
 bool stop = false;
 
-static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
-                          unsigned long frames_per_buffer,  // NOLINT
-                          const PaStreamCallbackTimeInfo * /*time_info*/,
-                          PaStreamCallbackFlags /*status_flags*/,
-                          void *user_data) {
+static int32_t RecordCallback(const void *input_buffer,
+                              void * /*output_buffer*/,
+                              unsigned long frames_per_buffer,  // NOLINT
+                              const PaStreamCallbackTimeInfo * /*time_info*/,
+                              PaStreamCallbackFlags /*status_flags*/,
+                              void *user_data) {
   auto recognizer = reinterpret_cast<sherpa_ncnn::Recognizer *>(user_data);
 
   recognizer->AcceptWaveform(
@@ -39,12 +43,12 @@ static int RecordCallback(const void *input_buffer, void * /*output_buffer*/,
   return stop ? paComplete : paContinue;
 }
 
-static void Handler(int sig) {
+static void Handler(int32_t sig) {
   stop = true;
-  fprintf(stderr, "\nexiting...\n");
+  fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
 };
 
-int main(int32_t argc, char *argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
   if (argc < 8 || argc > 10) {
     const char *usage = R"usage(
 Usage:
@@ -77,7 +81,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_bin = argv[5];
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
-  int num_threads = 4;
+  int32_t num_threads = 4;
   if (argc >= 9 && atoi(argv[8]) > 0) {
     num_threads = atoi(argv[8]);
   }
@@ -96,6 +100,18 @@ for a list of pre-trained models to download.
       decoder_conf.method = method;
     }
   }
+
+  decoder_conf.enable_endpoint = true;
+
+  sherpa_ncnn::EndpointConfig endpoint_config;
+  endpoint_config.rule1.min_trailing_silence = 2.4;
+  endpoint_config.rule2.min_trailing_silence = 1.2;  // <--tune this value !
+  endpoint_config.rule3.min_utterance_length = 300;
+
+  decoder_conf.endpoint_config = endpoint_config;
+
+  fprintf(stderr, "%s\n", decoder_conf.ToString().c_str());
+
   knf::FbankOptions fbank_opts;
   fbank_opts.frame_opts.dither = 0;
   fbank_opts.frame_opts.snip_edges = false;
@@ -152,12 +168,26 @@ for a list of pre-trained models to download.
     exit(EXIT_FAILURE);
   }
 
-  int num_tokens = 0;
+  std::string last_text;
+  int32_t segment_index = 0;
+  sherpa_ncnn::Display display;
   while (!stop) {
     recognizer.Decode();
-    auto result = recognizer.GetResult();
-    if (result.text.size() != num_tokens) {
-      fprintf(stderr, "%s\n", result.text.c_str());
+
+    bool is_endpoint = recognizer.IsEndpoint();
+    auto text = recognizer.GetResult().text;
+
+    if (!text.empty() && last_text != text) {
+      last_text = text;
+
+      std::transform(text.begin(), text.end(), text.begin(),
+                     [](auto c) { return std::tolower(c); });
+
+      display.Print(segment_index, text);
+    }
+
+    if (!text.empty() && is_endpoint) {
+      ++segment_index;
     }
 
     Pa_Sleep(20);  // sleep for 20ms

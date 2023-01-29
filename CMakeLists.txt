@@ -1,7 +1,20 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
+# Please also change the following files:
+#
+#   ./build-ios.sh
+#   ./build-swift-macos.sh
+#
 set(SHERPA_NCNN_VERSION "1.3.2")
+
+# Disable warning about
+#
+# "The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+#  not set.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -25,7 +38,9 @@ option(BUILD_SHARED_LIBS "Whether to build shared libraries" OFF)
 option(SHERPA_NCNN_ENABLE_PYTHON "Whether to build Python" OFF)
 option(SHERPA_NCNN_ENABLE_PORTAUDIO "Whether to build with portaudio" ON)
 option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
-
+option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
+option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
+option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
@@ -34,7 +49,11 @@ endif()
 
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
 message(STATUS "SHERPA_NCNN_ENABLE_PYTHON ${SHERPA_NCNN_ENABLE_PYTHON}")
+message(STATUS "SHERPA_NCNN_ENABLE_PORTAUDIO ${SHERPA_NCNN_ENABLE_PORTAUDIO}")
 message(STATUS "SHERPA_NCNN_ENABLE_JNI ${SHERPA_NCNN_ENABLE_JNI}")
+message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
+message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
+message(STATUS "SHERPA_NCNN_ENABLE_C_API ${SHERPA_NCNN_ENABLE_C_API}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -45,7 +64,40 @@ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "The C++ version to be used.")
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(CheckIncludeFileCXX)
+check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
+if(SHERPA_NCNN_HAS_ALSA)
+  add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+if(WIN32)
+  add_definitions(-DNOMINMAX) # Otherwise, std::max() and std::min() won't work
+endif()
+
+if(WIN32)
+  # disable various warnings for MSVC
+  # 4244: 'return': conversion from 'unsigned __int64' to 'int', possible loss of data
+  # 4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  # 4305: 'argument': truncation from 'double' to 'const float'
+  # 4334: '<<': result of 32-bit shift implicitly converted to 64 bits
+  # 4800: 'int': forcing value to bool 'true' or 'false'
+  # 4996: 'fopen': This function or variable may be unsafe
+  set(disabled_warnings
+      /wd4244
+      /wd4267
+      /wd4305
+      /wd4334
+      /wd4800
+      /wd4996
+  )
+  message(STATUS "Disabled warnings: ${disabled_warnings}")
+  foreach(w IN LISTS disabled_warnings)
+    string(APPEND CMAKE_CXX_FLAGS " ${w} ")
+  endforeach()
+endif()
+
 
 include(kaldi-native-fbank)
 include(ncnn)
@@ -58,5 +110,8 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
   include(pybind11)
 endif()
 
-
 add_subdirectory(sherpa-ncnn)
+
+if(SHERPA_NCNN_ENABLE_C_API)
+  add_subdirectory(c-api-examples)
+endif()

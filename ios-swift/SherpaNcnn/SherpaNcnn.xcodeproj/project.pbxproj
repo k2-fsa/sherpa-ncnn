@@ -1,0 +1,640 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C9D7D126298520A000F25DB7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D125298520A000F25DB7 /* AppDelegate.swift */; };
+		C9D7D128298520A000F25DB7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D127298520A000F25DB7 /* SceneDelegate.swift */; };
+		C9D7D12A298520A000F25DB7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D129298520A000F25DB7 /* ViewController.swift */; };
+		C9D7D12D298520A000F25DB7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C9D7D12B298520A000F25DB7 /* Main.storyboard */; };
+		C9D7D12F298520A100F25DB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C9D7D12E298520A100F25DB7 /* Assets.xcassets */; };
+		C9D7D132298520A100F25DB7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C9D7D130298520A100F25DB7 /* LaunchScreen.storyboard */; };
+		C9D7D13D298520A100F25DB7 /* SherpaNcnnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D13C298520A100F25DB7 /* SherpaNcnnTests.swift */; };
+		C9D7D147298520A100F25DB7 /* SherpaNcnnUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D146298520A100F25DB7 /* SherpaNcnnUITests.swift */; };
+		C9D7D149298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */; };
+		C9D7D15729853D8C00F25DB7 /* SherpaNcnn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */; };
+		C9D7D15A29853E9A00F25DB7 /* sherpa-ncnn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */; };
+		C9D7D15C29853EB400F25DB7 /* openmp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9D7D15B29853EB300F25DB7 /* openmp.framework */; };
+		C9D7D15E298540D500F25DB7 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D15D298540D500F25DB7 /* Model.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C9D7D139298520A100F25DB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C9D7D11A2985209F00F25DB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9D7D121298520A000F25DB7;
+			remoteInfo = SherpaNcnn;
+		};
+		C9D7D143298520A100F25DB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C9D7D11A2985209F00F25DB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9D7D121298520A000F25DB7;
+			remoteInfo = SherpaNcnn;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C9D7D122298520A000F25DB7 /* SherpaNcnn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SherpaNcnn.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9D7D125298520A000F25DB7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C9D7D127298520A000F25DB7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		C9D7D129298520A000F25DB7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		C9D7D12C298520A000F25DB7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C9D7D12E298520A100F25DB7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C9D7D131298520A100F25DB7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C9D7D133298520A100F25DB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C9D7D138298520A100F25DB7 /* SherpaNcnnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SherpaNcnnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9D7D13C298520A100F25DB7 /* SherpaNcnnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnTests.swift; sourceTree = "<group>"; };
+		C9D7D142298520A100F25DB7 /* SherpaNcnnUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SherpaNcnnUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9D7D146298520A100F25DB7 /* SherpaNcnnUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnUITests.swift; sourceTree = "<group>"; };
+		C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SherpaNcnn.swift; path = "../../../swift-api-examples/SherpaNcnn.swift"; sourceTree = "<group>"; };
+		C9D7D15629853D8C00F25DB7 /* SherpaNcnn-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SherpaNcnn-Bridging-Header.h"; path = "../../../swift-api-examples/SherpaNcnn-Bridging-Header.h"; sourceTree = "<group>"; };
+		C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sherpa-ncnn.framework"; path = "../../build-ios/sherpa-ncnn.framework"; sourceTree = "<group>"; };
+		C9D7D15B29853EB300F25DB7 /* openmp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = openmp.framework; path = "../../build-ios/openmp.framework"; sourceTree = "<group>"; };
+		C9D7D15D298540D500F25DB7 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C9D7D11F298520A000F25DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D7D15C29853EB400F25DB7 /* openmp.framework in Frameworks */,
+				C9D7D15A29853E9A00F25DB7 /* sherpa-ncnn.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D135298520A100F25DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D13F298520A100F25DB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C9D7D1192985209F00F25DB7 = {
+			isa = PBXGroup;
+			children = (
+				C9D7D124298520A000F25DB7 /* SherpaNcnn */,
+				C9D7D13B298520A100F25DB7 /* SherpaNcnnTests */,
+				C9D7D145298520A100F25DB7 /* SherpaNcnnUITests */,
+				C9D7D123298520A000F25DB7 /* Products */,
+				C9D7D15829853E9A00F25DB7 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C9D7D123298520A000F25DB7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C9D7D122298520A000F25DB7 /* SherpaNcnn.app */,
+				C9D7D138298520A100F25DB7 /* SherpaNcnnTests.xctest */,
+				C9D7D142298520A100F25DB7 /* SherpaNcnnUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C9D7D124298520A000F25DB7 /* SherpaNcnn */ = {
+			isa = PBXGroup;
+			children = (
+				C9D7D15629853D8C00F25DB7 /* SherpaNcnn-Bridging-Header.h */,
+				C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */,
+				C9D7D125298520A000F25DB7 /* AppDelegate.swift */,
+				C9D7D127298520A000F25DB7 /* SceneDelegate.swift */,
+				C9D7D129298520A000F25DB7 /* ViewController.swift */,
+				C9D7D12B298520A000F25DB7 /* Main.storyboard */,
+				C9D7D12E298520A100F25DB7 /* Assets.xcassets */,
+				C9D7D130298520A100F25DB7 /* LaunchScreen.storyboard */,
+				C9D7D133298520A100F25DB7 /* Info.plist */,
+				C9D7D15D298540D500F25DB7 /* Model.swift */,
+			);
+			path = SherpaNcnn;
+			sourceTree = "<group>";
+		};
+		C9D7D13B298520A100F25DB7 /* SherpaNcnnTests */ = {
+			isa = PBXGroup;
+			children = (
+				C9D7D13C298520A100F25DB7 /* SherpaNcnnTests.swift */,
+			);
+			path = SherpaNcnnTests;
+			sourceTree = "<group>";
+		};
+		C9D7D145298520A100F25DB7 /* SherpaNcnnUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C9D7D146298520A100F25DB7 /* SherpaNcnnUITests.swift */,
+				C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */,
+			);
+			path = SherpaNcnnUITests;
+			sourceTree = "<group>";
+		};
+		C9D7D15829853E9A00F25DB7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C9D7D15B29853EB300F25DB7 /* openmp.framework */,
+				C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C9D7D121298520A000F25DB7 /* SherpaNcnn */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9D7D14C298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnn" */;
+			buildPhases = (
+				C9D7D11E298520A000F25DB7 /* Sources */,
+				C9D7D11F298520A000F25DB7 /* Frameworks */,
+				C9D7D120298520A000F25DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SherpaNcnn;
+			productName = SherpaNcnn;
+			productReference = C9D7D122298520A000F25DB7 /* SherpaNcnn.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C9D7D137298520A100F25DB7 /* SherpaNcnnTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9D7D14F298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnnTests" */;
+			buildPhases = (
+				C9D7D134298520A100F25DB7 /* Sources */,
+				C9D7D135298520A100F25DB7 /* Frameworks */,
+				C9D7D136298520A100F25DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C9D7D13A298520A100F25DB7 /* PBXTargetDependency */,
+			);
+			name = SherpaNcnnTests;
+			productName = SherpaNcnnTests;
+			productReference = C9D7D138298520A100F25DB7 /* SherpaNcnnTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C9D7D141298520A100F25DB7 /* SherpaNcnnUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9D7D152298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnnUITests" */;
+			buildPhases = (
+				C9D7D13E298520A100F25DB7 /* Sources */,
+				C9D7D13F298520A100F25DB7 /* Frameworks */,
+				C9D7D140298520A100F25DB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C9D7D144298520A100F25DB7 /* PBXTargetDependency */,
+			);
+			name = SherpaNcnnUITests;
+			productName = SherpaNcnnUITests;
+			productReference = C9D7D142298520A100F25DB7 /* SherpaNcnnUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C9D7D11A2985209F00F25DB7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					C9D7D121298520A000F25DB7 = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					C9D7D137298520A100F25DB7 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = C9D7D121298520A000F25DB7;
+					};
+					C9D7D141298520A100F25DB7 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = C9D7D121298520A000F25DB7;
+					};
+				};
+			};
+			buildConfigurationList = C9D7D11D2985209F00F25DB7 /* Build configuration list for PBXProject "SherpaNcnn" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C9D7D1192985209F00F25DB7;
+			productRefGroup = C9D7D123298520A000F25DB7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C9D7D121298520A000F25DB7 /* SherpaNcnn */,
+				C9D7D137298520A100F25DB7 /* SherpaNcnnTests */,
+				C9D7D141298520A100F25DB7 /* SherpaNcnnUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C9D7D120298520A000F25DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D7D132298520A100F25DB7 /* LaunchScreen.storyboard in Resources */,
+				C9D7D12F298520A100F25DB7 /* Assets.xcassets in Resources */,
+				C9D7D12D298520A000F25DB7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D136298520A100F25DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D140298520A100F25DB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C9D7D11E298520A000F25DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D7D15E298540D500F25DB7 /* Model.swift in Sources */,
+				C9D7D12A298520A000F25DB7 /* ViewController.swift in Sources */,
+				C9D7D126298520A000F25DB7 /* AppDelegate.swift in Sources */,
+				C9D7D128298520A000F25DB7 /* SceneDelegate.swift in Sources */,
+				C9D7D15729853D8C00F25DB7 /* SherpaNcnn.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D134298520A100F25DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D7D13D298520A100F25DB7 /* SherpaNcnnTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D7D13E298520A100F25DB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9D7D149298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift in Sources */,
+				C9D7D147298520A100F25DB7 /* SherpaNcnnUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C9D7D13A298520A100F25DB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9D7D121298520A000F25DB7 /* SherpaNcnn */;
+			targetProxy = C9D7D139298520A100F25DB7 /* PBXContainerItemProxy */;
+		};
+		C9D7D144298520A100F25DB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9D7D121298520A000F25DB7 /* SherpaNcnn */;
+			targetProxy = C9D7D143298520A100F25DB7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C9D7D12B298520A000F25DB7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C9D7D12C298520A000F25DB7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C9D7D130298520A100F25DB7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C9D7D131298520A100F25DB7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C9D7D14A298520A100F25DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C9D7D14B298520A100F25DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C9D7D14D298520A100F25DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5ZH3Z63A6;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.framework/Headers/";
+				INFOPLIST_FILE = SherpaNcnn/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C9D7D14E298520A100F25DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5ZH3Z63A6;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.framework/Headers/";
+				INFOPLIST_FILE = SherpaNcnn/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C9D7D150298520A100F25DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnnTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SherpaNcnn.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SherpaNcnn";
+			};
+			name = Debug;
+		};
+		C9D7D151298520A100F25DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnnTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SherpaNcnn.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SherpaNcnn";
+			};
+			name = Release;
+		};
+		C9D7D153298520A100F25DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnnUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SherpaNcnn;
+			};
+			name = Debug;
+		};
+		C9D7D154298520A100F25DB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnnUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SherpaNcnn;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C9D7D11D2985209F00F25DB7 /* Build configuration list for PBXProject "SherpaNcnn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9D7D14A298520A100F25DB7 /* Debug */,
+				C9D7D14B298520A100F25DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C9D7D14C298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9D7D14D298520A100F25DB7 /* Debug */,
+				C9D7D14E298520A100F25DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C9D7D14F298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnnTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9D7D150298520A100F25DB7 /* Debug */,
+				C9D7D151298520A100F25DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C9D7D152298520A100F25DB7 /* Build configuration list for PBXNativeTarget "SherpaNcnnUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9D7D153298520A100F25DB7 /* Debug */,
+				C9D7D154298520A100F25DB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C9D7D11A2985209F00F25DB7 /* Project object */;
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -ex
 
 dir=build-android-armv7-eabi
 
@@ -47,6 +47,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=ON \
     -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+    -DSHERPA_NCNN_ENABLE_BINARY=OFF \
     -DCMAKE_INSTALL_PREFIX=./install \
     -DANDROID_ABI="armeabi-v7a" -DANDROID_ARM_NEON=ON \
     -DANDROID_PLATFORM=android-21 ..

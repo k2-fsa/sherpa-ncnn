@@ -1,5 +1,9 @@
 # Introduction
 
+Please refer to
+<https://k2-fsa.github.io/sherpa/ncnn/python/index.html>
+for how to build a Python package.
+
 ## decode-file.py
 
 This file shows how to recognize a file.

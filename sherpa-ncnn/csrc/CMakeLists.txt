@@ -11,6 +11,7 @@ set(sherpa_ncnn_core_srcs
   model.cc
   modified-beam-search-decoder.cc
   recognizer.cc
+  resample.cc
   symbol-table.cc
   wave-reader.cc
 )
@@ -19,10 +20,22 @@ target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
 install(TARGETS sherpa-ncnn-core DESTINATION lib)
 
 if(NOT SHERPA_NCNN_ENABLE_PYTHON)
-  if(NOT DEFINED ANDROID_ABI)
+  if(SHERPA_NCNN_ENABLE_BINARY)
     add_executable(sherpa-ncnn sherpa-ncnn.cc)
     target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
     install(TARGETS sherpa-ncnn DESTINATION bin)
+
+    if(SHERPA_NCNN_HAS_ALSA)
+      add_executable(sherpa-ncnn-alsa sherpa-ncnn-alsa.cc alsa.cc)
+      target_link_libraries(sherpa-ncnn-alsa PRIVATE sherpa-ncnn-core)
+
+      if(DEFINED ENV{SHERPA_NCNN_ALSA_LIB_DIR})
+        target_link_libraries(sherpa-ncnn-alsa PRIVATE -L$ENV{SHERPA_NCNN_ALSA_LIB_DIR} -lasound)
+      else()
+        target_link_libraries(sherpa-ncnn-alsa PRIVATE asound)
+      endif()
+      install(TARGETS sherpa-ncnn-alsa DESTINATION bin)
+    endif()
 
     if(SHERPA_NCNN_ENABLE_PORTAUDIO)
       add_executable(sherpa-ncnn-microphone
@@ -40,20 +53,26 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
 
       install(TARGETS sherpa-ncnn-microphone DESTINATION bin)
     endif()
+
+    set(hdrs
+      features.h
+      model.h
+      recognizer.h
+      symbol-table.h
+      wave-reader.h
+    )
+
+    install(FILES ${hdrs}
+      DESTINATION include/sherpa-ncnn/csrc
+    )
+
+    add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
+    target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
   endif()
-
-  set(hdrs
-    features.h
-    model.h
-    recognizer.h
-    symbol-table.h
-    wave-reader.h
-  )
-
-  install(FILES ${hdrs}
-    DESTINATION include/sherpa-ncnn/csrc
-  )
-
-  add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
-  target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
 endif()
+
+if(SHERPA_NCNN_ENABLE_TEST)
+  add_executable(test-resample test-resample.cc)
+  target_link_libraries(test-resample sherpa-ncnn-core)
+endif()
+

@@ -17,14 +17,17 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+
 #include <algorithm>
+#include <chrono>  // NOLINT
 #include <iostream>
 
 #include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
-int main(int argc, char *argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
   if (argc < 9 || argc > 11) {
     const char *usage = R"usage(
 Usage:
@@ -54,7 +57,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_bin = argv[5];
   model_conf.joiner_param = argv[6];
   model_conf.joiner_bin = argv[7];
-  int num_threads = 4;
+  int32_t num_threads = 4;
   if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
@@ -62,7 +65,7 @@ for a list of pre-trained models to download.
   model_conf.decoder_opt.num_threads = num_threads;
   model_conf.joiner_opt.num_threads = num_threads;
 
-  const float expected_sampling_rate = 16000;
+  float expected_sampling_rate = 16000;
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
     std::string method = argv[10];
@@ -94,6 +97,9 @@ for a list of pre-trained models to download.
   std::cout << "wav filename: " << wav_filename << "\n";
   std::cout << "wav duration (s): " << duration << "\n";
 
+  auto begin = std::chrono::steady_clock::now();
+  std::cout << "Started!\n";
+
   recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
                             samples.size());
   std::vector<float> tail_paddings(
@@ -103,8 +109,21 @@ for a list of pre-trained models to download.
 
   recognizer.Decode();
   auto result = recognizer.GetResult();
+  std::cout << "Done!\n";
+
   std::cout << "Recognition result for " << wav_filename << "\n"
             << result.text << "\n";
+
+  auto end = std::chrono::steady_clock::now();
+  float elapsed_seconds =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - begin)
+          .count() /
+      1000.;
+
+  printf("Elapsed seconds: %.3f s\n", elapsed_seconds);
+  float rtf = elapsed_seconds / duration;
+  printf("Real time factor (RTF): %.3f / %.3f = %.3f\n", duration,
+         elapsed_seconds, rtf);
 
   return 0;
 }

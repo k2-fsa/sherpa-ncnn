@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # First, we assume you have installed vulkan by following
 # windows: https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html
@@ -112,6 +112,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
     -DBUILD_SHARED_LIBS=ON \
     -DNCNN_SYSTEM_GLSLANG=ON \
     -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+    -DSHERPA_NCNN_ENABLE_BINARY=OFF \
     -DCMAKE_INSTALL_PREFIX=./install \
     -DANDROID_ABI="arm64-v8a" \
     -DNCNN_VULKAN=ON \
