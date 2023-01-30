@@ -39,7 +39,6 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
   cmake -S . \
     -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=install \
     -DPLATFORM=SIMULATORARM64 \
     -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 \
     -DPERL_EXECUTABLE=$(which perl) \
@@ -51,7 +50,6 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
   cmake -S . \
     -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=install \
     -DPLATFORM=SIMULATOR64 \
     -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 \
     -DPERL_EXECUTABLE=$(which perl) \
@@ -131,7 +129,6 @@ cmake -S .. \
   -DOpenMP_C_LIB_NAMES="libomp" \
   -DOpenMP_CXX_LIB_NAMES="libomp" \
   -DOpenMP_libomp_LIBRARY="$PWD/openmp.xcframework/ios-arm64_x86_64-simulator/libomp.a" \
-  -DCMAKE_INSTALL_PREFIX=./install \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DSHERPA_NCNN_ENABLE_PYTHON=OFF \
@@ -153,7 +150,6 @@ cmake -S .. \
   -DOpenMP_C_LIB_NAMES="libomp" \
   -DOpenMP_CXX_LIB_NAMES="libomp" \
   -DOpenMP_libomp_LIBRARY="$PWD/openmp.xcframework/ios-arm64_x86_64-simulator/libomp.a" \
-  -DCMAKE_INSTALL_PREFIX=./install \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DSHERPA_NCNN_ENABLE_PYTHON=OFF \
