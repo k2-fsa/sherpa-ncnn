@@ -18,25 +18,46 @@ if [ ! -d openmp-11.0.0.src ]; then
   popd
 fi
 
-if [ ! -f openmp-11.0.0.src/build-simulator/install/include/omp.h ]; then
+if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
   pushd openmp-11.0.0.src
 
-  mkdir -p build-simulator
-  cd build-simulator
+  mkdir -p build
 
-  cmake \
-    -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/ios.toolchain.cmake \
+  # iOS & simulator running on arm64 & x86_64
+  cmake -S . \
+    -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=install \
-    -DIOS_PLATFORM=SIMULATOR -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 -DIOS_ARCH="i386;x86_64" \
+    -DPLATFORM=OS64 \
+    -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 \
     -DPERL_EXECUTABLE=$(which perl) \
     -DLIBOMP_ENABLE_SHARED=OFF \
     -DLIBOMP_OMPT_SUPPORT=OFF \
     -DLIBOMP_USE_HWLOC=OFF \
-    ..
+    -B build/os64
 
-  cmake --build . -j 3
-  cmake --build . --target install
+  cmake -S . \
+    -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DPLATFORM=SIMULATORARM64 \
+    -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 \
+    -DPERL_EXECUTABLE=$(which perl) \
+    -DLIBOMP_ENABLE_SHARED=OFF \
+    -DLIBOMP_OMPT_SUPPORT=OFF \
+    -DLIBOMP_USE_HWLOC=OFF \
+    -B build/simulator_arm64
+
+  cmake -S . \
+    -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DPLATFORM=SIMULATOR64 \
+    -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 \
+    -DPERL_EXECUTABLE=$(which perl) \
+    -DLIBOMP_ENABLE_SHARED=OFF \
+    -DLIBOMP_OMPT_SUPPORT=OFF \
+    -DLIBOMP_USE_HWLOC=OFF \
+    -B build/simulator_x86_64
+
   # It generates the following files in the directory install
   # .
   # ├── include
@@ -47,40 +68,37 @@ if [ ! -f openmp-11.0.0.src/build-simulator/install/include/omp.h ]; then
   #     └── libomp.a
   #
   # 2 directories, 4 files
+  cmake --build ./build/os64 -j 4
+  # Generate header for sharper-ncnn.xcframework
+  cmake --build ./build/os64 --target install
+  cmake --build ./build/simulator_arm64 -j 4
+  cmake --build ./build/simulator_x86_64 -j 4
+
+  mkdir -p "./build/simulator/openmp"
+  lipo -create build/simulator_x86_64/runtime/src/libomp.a \
+               build/simulator_arm64/runtime/src/libomp.a \
+       -output build/simulator/openmp/libomp.a
+
+  # Return to parent directory to create xcframework
   popd
+
+  rm -rf  openmp.xcframework 
+  xcodebuild -create-xcframework \
+        -library "openmp-11.0.0.src/build/os64/runtime/src/libomp.a" \
+        -library "openmp-11.0.0.src/build/simulator/openmp/libomp.a" \
+        -output openmp.xcframework
+  # Copy Headers
+  mkdir -p openmp.xcframework/Headers
+  cp -v openmp-11.0.0.src/install/include/omp.h openmp.xcframework/Headers
 fi
 
-if [ ! -f openmp-11.0.0.src/build-arm64/install/include/omp.h ]; then
-  pushd openmp-11.0.0.src
 
-  mkdir -p build-arm64
-  cd build-arm64
+export CPLUS_INCLUDE_PATH=$PWD/openmp.xcframework/Headers/:$CPLUS_INCLUDE_PATH
+mkdir -p build
 
-  cmake \
-    -DCMAKE_TOOLCHAIN_FILE=../../../toolchains/ios.toolchain.cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=install \
-    -DIOS_PLATFORM=OS -DENABLE_BITCODE=0 -DENABLE_ARC=0 -DENABLE_VISIBILITY=0 -DIOS_ARCH="arm64;arm64e" \
-    -DPERL_EXECUTABLE=$(which perl) \
-    -DLIBOMP_ENABLE_SHARED=OFF \
-    -DLIBOMP_OMPT_SUPPORT=OFF \
-    -DLIBOMP_USE_HWLOC=OFF \
-    ..
-
-  cmake --build . -j 3
-  cmake --build . --target install
-
-  popd
-fi
-
-export CPLUS_INCLUDE_PATH=$PWD/openmp-11.0.0.src/build-arm64/install/include:$CPLUS_INCLUDE_PATH
-mkdir -p build-arm64
-pushd build-arm64
-
-cmake \
-  -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
-  -DIOS_PLATFORM=OS \
-  -DIOS_ARCH="arm64;arm64e" \
+cmake -S .. \
+  -DCMAKE_TOOLCHAIN_FILE=./toolchains/ios.toolchain.cmake \
+  -DPLATFORM=OS64 \
   -DENABLE_BITCODE=0 \
   -DENABLE_ARC=0 \
   -DENABLE_VISIBILITY=0 \
@@ -88,8 +106,7 @@ cmake \
   -DOpenMP_CXX_FLAGS="-Xclang -fopenmp" \
   -DOpenMP_C_LIB_NAMES="libomp" \
   -DOpenMP_CXX_LIB_NAMES="libomp" \
-  -DOpenMP_libomp_LIBRARY="$PWD/../openmp-11.0.0.src/build-arm64/install/lib/libomp.a" \
-  \
+  -DOpenMP_libomp_LIBRARY="$PWD/openmp.xcframework/ios-arm64/libomp.a" \
   -DCMAKE_INSTALL_PREFIX=./install \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
@@ -99,27 +116,11 @@ cmake \
   -DSHERPA_NCNN_ENABLE_BINARY=OFF \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
   -DSHERPA_NCNN_ENABLE_C_API=ON \
-  ../..
+  -B build/os64 
 
-make VERBOSE=1 -j4
-make install
-rm -rf install/lib/cmake
-rm -rf install/lib/pkgconfig
-rm -rf install/include/ncnn
-rm -rf install/include/kaldi-native-fbank
-
-popd
-
-echo "pwd: $PWD"
-
-export CPLUS_INCLUDE_PATH=$PWD/openmp-11.0.0.src/build-simulator/install/include:$CPLUS_INCLUDE_PATH
-mkdir -p build-simulator
-pushd build-simulator
-
-cmake \
-  -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
-  -DIOS_PLATFORM=SIMULATOR \
-  -DIOS_ARCH="i386;x86_64" \
+cmake -S .. \
+  -DCMAKE_TOOLCHAIN_FILE=./toolchains/ios.toolchain.cmake \
+  -DPLATFORM=SIMULATORARM64 \
   -DENABLE_BITCODE=0 \
   -DENABLE_ARC=0 \
   -DENABLE_VISIBILITY=0 \
@@ -127,9 +128,7 @@ cmake \
   -DOpenMP_CXX_FLAGS="-Xclang -fopenmp" \
   -DOpenMP_C_LIB_NAMES="libomp" \
   -DOpenMP_CXX_LIB_NAMES="libomp" \
-  -DOpenMP_libomp_LIBRARY="$PWD/../openmp-11.0.0.src/build-simulator/install/lib/libomp.a" \
-  \
-  -DCMAKE_INSTALL_PREFIX=./install \
+  -DOpenMP_libomp_LIBRARY="$PWD/openmp.xcframework/ios-arm64_x86_64-simulator/libomp.a" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DSHERPA_NCNN_ENABLE_PYTHON=OFF \
@@ -138,58 +137,71 @@ cmake \
   -DSHERPA_NCNN_ENABLE_BINARY=OFF \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
   -DSHERPA_NCNN_ENABLE_C_API=ON \
-  ../..
+  -B build/simulator_arm64
 
-make VERBOSE=1 -j4
-make install
+cmake -S .. \
+  -DCMAKE_TOOLCHAIN_FILE=./toolchains/ios.toolchain.cmake \
+  -DPLATFORM=SIMULATOR64 \
+  -DENABLE_BITCODE=0 \
+  -DENABLE_ARC=0 \
+  -DENABLE_VISIBILITY=0 \
+  -DOpenMP_C_FLAGS="-Xclang -fopenmp" \
+  -DOpenMP_CXX_FLAGS="-Xclang -fopenmp" \
+  -DOpenMP_C_LIB_NAMES="libomp" \
+  -DOpenMP_CXX_LIB_NAMES="libomp" \
+  -DOpenMP_libomp_LIBRARY="$PWD/openmp.xcframework/ios-arm64_x86_64-simulator/libomp.a" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DSHERPA_NCNN_ENABLE_PYTHON=OFF \
+  -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+  -DSHERPA_NCNN_ENABLE_JNI=OFF \
+  -DSHERPA_NCNN_ENABLE_BINARY=OFF \
+  -DSHERPA_NCNN_ENABLE_TEST=OFF \
+  -DSHERPA_NCNN_ENABLE_C_API=ON \
+  -B build/simulator_x86_64
+
+cmake --build build/os64 -j 4
+# Generate headers for sherpa-ncnn.xcframework
+cmake --build build/os64 --target install
+# Clean files
 rm -rf install/lib/cmake
 rm -rf install/lib/pkgconfig
 rm -rf install/include/ncnn
 rm -rf install/include/kaldi-native-fbank
+cmake --build build/simulator_arm64 -j 8
+cmake --build build/simulator_x86_64 -j 8
 
-popd
+# For sherpa-ncnn.xcframework
+rm -rf sherpa-ncnn.xcframework
 
-# For openmp.framework
-rm -rf openmp.framework
-mkdir -p openmp.framework/Versions/A/Headers
-mkdir -p openmp.framework/Versions/A/Resources
-ln -s A openmp.framework/Versions/Current
-ln -s Versions/Current/Headers openmp.framework/Headers
-ln -s Versions/Current/Resources openmp.framework/Resources
-ln -s Versions/Current/openmp openmp.framework/openmp
+libtool -static -o build/os64/sherpa-ncnn.a \
+  build/os64/lib/libncnn.a \
+  build/os64/lib/libsherpa-ncnn-c-api.a \
+  build/os64/lib/libsherpa-ncnn-core.a \
+  build/os64/lib/libkaldi-native-fbank-core.a
 
-lipo -create \
-  openmp-11.0.0.src/build-arm64/install/lib/libomp.a \
-  openmp-11.0.0.src/build-simulator/install/lib/libomp.a \
-  -o openmp.framework/Versions/A/openmp
-
-cp -a openmp-11.0.0.src/build-simulator/install/include/* openmp.framework/Versions/A/Headers/
-sed -e 's/__NAME__/openmp/g' -e 's/__IDENTIFIER__/org.llvm.openmp/g' -e 's/__VERSION__/11.0/g' ../Info.plist > openmp.framework/Versions/A/Resources/Info.plist
-
-# For sherpa-ncnn.framework
-rm -rf sherpa-ncnn.framework
-mkdir -p sherpa-ncnn.framework/Versions/A/Headers
-mkdir -p sherpa-ncnn.framework/Versions/A/Headers
-mkdir -p sherpa-ncnn.framework/Versions/A/Resources
-ln -s A sherpa-ncnn.framework/Versions/Current
-ln -s Versions/Current/Headers sherpa-ncnn.framework/Headers
-ln -s Versions/Current/Resources sherpa-ncnn.framework/Resources
-ln -s Versions/Current/sherpa-ncnn sherpa-ncnn.framework/sherpa-ncnn
+mkdir -p "build/simulator/lib"
 
 for f in libncnn.a libsherpa-ncnn-c-api.a libsherpa-ncnn-core.a libkaldi-native-fbank-core.a; do
-  lipo -create \
-    build-arm64/install/lib/$f \
-    build-simulator/install/lib/$f \
-    -o sherpa-ncnn.framework/Versions/A/$f
+  lipo -create build/simulator_arm64/lib/${f} \
+               build/simulator_x86_64/lib/${f} \
+       -output build/simulator/lib/${f}
 done
 
-libtool -static -o sherpa-ncnn.framework/Versions/A/sherpa-ncnn \
-  sherpa-ncnn.framework/Versions/A/libncnn.a \
-  sherpa-ncnn.framework/Versions/A/libsherpa-ncnn-c-api.a \
-  sherpa-ncnn.framework/Versions/A/libsherpa-ncnn-core.a \
-  sherpa-ncnn.framework/Versions/A/libkaldi-native-fbank-core.a
+# Merge archive first, because the following xcodebuild create xcframework 
+# cann't accept multi archive with the same architecture.
+libtool -static -o build/simulator/sherpa-ncnn.a \
+  build/simulator/lib/libncnn.a \
+  build/simulator/lib/libsherpa-ncnn-c-api.a \
+  build/simulator/lib/libsherpa-ncnn-core.a \
+  build/simulator/lib/libkaldi-native-fbank-core.a
 
-rm -v sherpa-ncnn.framework/Versions/A/lib*.a
 
-cp -a build-simulator/install/include/* sherpa-ncnn.framework/Versions/A/Headers/
-sed -e 's/__NAME__/sherpa-ncnn/g' -e 's/__IDENTIFIER__/com.k2-fsa.org/g' -e 's/__VERSION__/1.3.2/g' ../Info.plist > sherpa-ncnn.framework/Versions/A/Resources/Info.plist
+xcodebuild -create-xcframework \
+      -library "build/os64/sherpa-ncnn.a" \
+      -library "build/simulator/sherpa-ncnn.a" \
+      -output sherpa-ncnn.xcframework
+
+# Copy Headers
+mkdir -p sherpa-ncnn.xcframework/Headers
+cp -av install/include/* sherpa-ncnn.xcframework/Headers

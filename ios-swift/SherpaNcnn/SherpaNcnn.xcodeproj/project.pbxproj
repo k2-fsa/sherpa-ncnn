@@ -17,9 +17,11 @@
 		C9D7D147298520A100F25DB7 /* SherpaNcnnUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D146298520A100F25DB7 /* SherpaNcnnUITests.swift */; };
 		C9D7D149298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */; };
 		C9D7D15729853D8C00F25DB7 /* SherpaNcnn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */; };
-		C9D7D15A29853E9A00F25DB7 /* sherpa-ncnn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */; };
-		C9D7D15C29853EB400F25DB7 /* openmp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9D7D15B29853EB300F25DB7 /* openmp.framework */; };
 		C9D7D15E298540D500F25DB7 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D7D15D298540D500F25DB7 /* Model.swift */; };
+		DE11931E298770A700BFE75B /* sherpa-ncnn.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE11931C298770A700BFE75B /* sherpa-ncnn.xcframework */; };
+		DE11931F298770A700BFE75B /* sherpa-ncnn.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE11931C298770A700BFE75B /* sherpa-ncnn.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE119320298770A700BFE75B /* openmp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE11931D298770A700BFE75B /* openmp.xcframework */; };
+		DE119321298770A700BFE75B /* openmp.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE11931D298770A700BFE75B /* openmp.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +41,21 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		DE119322298770A700BFE75B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DE119321298770A700BFE75B /* openmp.xcframework in Embed Frameworks */,
+				DE11931F298770A700BFE75B /* sherpa-ncnn.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		C9D7D122298520A000F25DB7 /* SherpaNcnn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SherpaNcnn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9D7D125298520A000F25DB7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -55,9 +72,9 @@
 		C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SherpaNcnn.swift; path = "../../../swift-api-examples/SherpaNcnn.swift"; sourceTree = "<group>"; };
 		C9D7D15629853D8C00F25DB7 /* SherpaNcnn-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SherpaNcnn-Bridging-Header.h"; path = "../../../swift-api-examples/SherpaNcnn-Bridging-Header.h"; sourceTree = "<group>"; };
-		C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sherpa-ncnn.framework"; path = "../../build-ios/sherpa-ncnn.framework"; sourceTree = "<group>"; };
-		C9D7D15B29853EB300F25DB7 /* openmp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = openmp.framework; path = "../../build-ios/openmp.framework"; sourceTree = "<group>"; };
 		C9D7D15D298540D500F25DB7 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		DE11931C298770A700BFE75B /* sherpa-ncnn.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "sherpa-ncnn.xcframework"; path = "../../build-ios/sherpa-ncnn.xcframework"; sourceTree = "<group>"; };
+		DE11931D298770A700BFE75B /* openmp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = openmp.xcframework; path = "../../build-ios/openmp.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,8 +82,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9D7D15C29853EB400F25DB7 /* openmp.framework in Frameworks */,
-				C9D7D15A29853E9A00F25DB7 /* sherpa-ncnn.framework in Frameworks */,
+				DE119320298770A700BFE75B /* openmp.xcframework in Frameworks */,
+				DE11931E298770A700BFE75B /* sherpa-ncnn.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +162,8 @@
 		C9D7D15829853E9A00F25DB7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE11931D298770A700BFE75B /* openmp.xcframework */,
+				DE11931C298770A700BFE75B /* sherpa-ncnn.xcframework */,
 				C9D7D15B29853EB300F25DB7 /* openmp.framework */,
 				C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */,
 			);
@@ -161,6 +180,7 @@
 				C9D7D11E298520A000F25DB7 /* Sources */,
 				C9D7D11F298520A000F25DB7 /* Frameworks */,
 				C9D7D120298520A000F25DB7 /* Resources */,
+				DE119322298770A700BFE75B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -461,12 +481,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = N5ZH3Z63A6;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.framework/Headers/";
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.xcframework/Headers/";
 				INFOPLIST_FILE = SherpaNcnn/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -482,6 +503,7 @@
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -494,12 +516,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = N5ZH3Z63A6;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.framework/Headers/";
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.xcframework/Headers/";
 				INFOPLIST_FILE = SherpaNcnn/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -516,6 +539,7 @@
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
