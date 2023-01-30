@@ -72,8 +72,6 @@
 		C9D7D148298520A100F25DB7 /* SherpaNcnnUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C9D7D15529853D8C00F25DB7 /* SherpaNcnn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SherpaNcnn.swift; path = "../../../swift-api-examples/SherpaNcnn.swift"; sourceTree = "<group>"; };
 		C9D7D15629853D8C00F25DB7 /* SherpaNcnn-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SherpaNcnn-Bridging-Header.h"; path = "../../../swift-api-examples/SherpaNcnn-Bridging-Header.h"; sourceTree = "<group>"; };
-		C9D7D15929853E9A00F25DB7 /* sherpa-ncnn.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "sherpa-ncnn.framework"; path = "../../build-ios/sherpa-ncnn.framework"; sourceTree = "<group>"; };
-		C9D7D15B29853EB300F25DB7 /* openmp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = openmp.framework; path = "../../build-ios/openmp.framework"; sourceTree = "<group>"; };
 		C9D7D15D298540D500F25DB7 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		DE11931C298770A700BFE75B /* sherpa-ncnn.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "sherpa-ncnn.xcframework"; path = "../../build-ios/sherpa-ncnn.xcframework"; sourceTree = "<group>"; };
 		DE11931D298770A700BFE75B /* openmp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = openmp.xcframework; path = "../../build-ios/openmp.xcframework"; sourceTree = "<group>"; };
