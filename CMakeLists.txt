@@ -112,6 +112,6 @@ endif()
 
 add_subdirectory(sherpa-ncnn)
 
-if(SHERPA_NCNN_ENABLE_C_API)
+if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)
 endif()
