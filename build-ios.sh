@@ -82,7 +82,7 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
   # Return to parent directory to create xcframework
   popd
 
-  rm -rf  openmp.xcframework 
+  rm -rf  openmp.xcframework
   xcodebuild -create-xcframework \
         -library "openmp-11.0.0.src/build/os64/runtime/src/libomp.a" \
         -library "openmp-11.0.0.src/build/simulator/openmp/libomp.a" \
@@ -116,7 +116,7 @@ cmake -S .. \
   -DSHERPA_NCNN_ENABLE_BINARY=OFF \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
   -DSHERPA_NCNN_ENABLE_C_API=ON \
-  -B build/os64 
+  -B build/os64
 
 cmake -S .. \
   -DCMAKE_TOOLCHAIN_FILE=./toolchains/ios.toolchain.cmake \
@@ -188,8 +188,8 @@ for f in libncnn.a libsherpa-ncnn-c-api.a libsherpa-ncnn-core.a libkaldi-native-
        -output build/simulator/lib/${f}
 done
 
-# Merge archive first, because the following xcodebuild create xcframework 
-# cann't accept multi archive with the same architecture.
+# Merge archive first, because the following xcodebuild create xcframework
+# cannot accept multi archive with the same architecture.
 libtool -static -o build/simulator/sherpa-ncnn.a \
   build/simulator/lib/libncnn.a \
   build/simulator/lib/libsherpa-ncnn-c-api.a \
