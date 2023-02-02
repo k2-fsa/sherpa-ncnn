@@ -66,8 +66,10 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
       DESTINATION include/sherpa-ncnn/csrc
     )
 
-    add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
-    target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
+    if(SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE)
+      add_executable(generate-int8-scale-table generate-int8-scale-table.cc)
+      target_link_libraries(generate-int8-scale-table sherpa-ncnn-core)
+    endif()
   endif()
 endif()
 

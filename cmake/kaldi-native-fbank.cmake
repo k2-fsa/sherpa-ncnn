@@ -1,6 +1,7 @@
 function(download_kaldi_native_fbank)
   include(FetchContent)
 
+  # Please also change ../pack-for-embedded-systems.sh
   set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.11.tar.gz")
   set(kaldi_native_fbank_HASH "SHA256=e69ae25ef6f30566ef31ca949dd1b0b8ec3a827caeba93a61d82bb848dac5d69")
 
@@ -12,6 +13,8 @@ function(download_kaldi_native_fbank)
     set(kaldi_native_fbank_URL  "file:///Users/fangjun/Downloads/kaldi-native-fbank-1.11.tar.gz")
   elseif(EXISTS "/tmp/kaldi-native-fbank-1.11.tar.gz")
     set(kaldi_native_fbank_URL  "file:///tmp/kaldi-native-fbank-1.11.tar.gz")
+  elseif(EXISTS "$ENV{HOME}/asr/kaldi-native-fbank-1.11.tar.gz")
+    set(kaldi_native_fbank_URL  "file://$ENV{HOME}/asr/kaldi-native-fbank-1.11.tar.gz")
   endif()
 
   set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)

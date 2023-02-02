@@ -12,6 +12,8 @@ function(download_portaudio)
     set(portaudio_URL  "file:///Users/fangjun/Downloads/pa_stable_v190700_20210406.tgz")
   elseif(EXISTS "/tmp/pa_stable_v190700_20210406.tgz")
     set(portaudio_URL  "file:///tmp/pa_stable_v190700_20210406.tgz")
+  elseif(EXISTS "$ENV{HOME}/asr/pa_stable_v190700_20210406.tgz")
+    set(portaudio_URL  "file://$ENV{HOME}/asr/pa_stable_v190700_20210406.tgz")
   endif()
 
   if(BUILD_SHARED_LIBS)
