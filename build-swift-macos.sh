@@ -38,6 +38,15 @@ if [ ! -f openmp-11.0.0.src/build-x86_64/install/include/omp.h ]; then
   popd
 fi
 
+rm -rf  openmp.xcframework
+
+xcodebuild -create-xcframework \
+      -library "openmp-11.0.0.src/build-x86_64/install/lib/libomp.a" \
+      -output openmp.xcframework
+
+mkdir -p openmp.xcframework/Headers
+cp -v openmp-11.0.0.src/build-x86_64/install/include/omp.h openmp.xcframework/Headers
+
 export CPLUS_INCLUDE_PATH=$PWD/openmp-11.0.0.src/build-x86_64/install/include:$CPLUS_INCLUDE_PATH
 mkdir -p build-x86_64
 pushd build-x86_64
@@ -70,35 +79,18 @@ rm -rf install/include/kaldi-native-fbank
 
 popd
 
-# For openmp.framework
-rm -rf openmp.framework
-mkdir -p openmp.framework/Versions/A/Headers
-mkdir -p openmp.framework/Versions/A/Resources
-ln -s A openmp.framework/Versions/Current
-ln -s Versions/Current/Headers openmp.framework/Headers
-ln -s Versions/Current/Resources openmp.framework/Resources
-ln -s Versions/Current/openmp openmp.framework/openmp
+rm -rf sherpa-ncnn.xcframework
 
-cp openmp-11.0.0.src/build-x86_64/install/lib/libomp.a openmp.framework/Versions/A/openmp
-
-cp -a openmp-11.0.0.src/build-x86_64/install/include/* openmp.framework/Versions/A/Headers/
-sed -e 's/__NAME__/openmp/g' -e 's/__IDENTIFIER__/org.llvm.openmp/g' -e 's/__VERSION__/11.0/g' ../Info.plist > openmp.framework/Versions/A/Resources/Info.plist
-
-# For sherpa-ncnn.framework
-rm -rf sherpa-ncnn.framework
-mkdir -p sherpa-ncnn.framework/Versions/A/Headers
-mkdir -p sherpa-ncnn.framework/Versions/A/Headers
-mkdir -p sherpa-ncnn.framework/Versions/A/Resources
-ln -s A sherpa-ncnn.framework/Versions/Current
-ln -s Versions/Current/Headers sherpa-ncnn.framework/Headers
-ln -s Versions/Current/Resources sherpa-ncnn.framework/Resources
-ln -s Versions/Current/sherpa-ncnn sherpa-ncnn.framework/sherpa-ncnn
-
-libtool -static -o sherpa-ncnn.framework/Versions/A/sherpa-ncnn \
+libtool -static -o ./build-x86_64/install/lib/sherpa-ncnn.a \
   build-x86_64/install/lib/libncnn.a \
   build-x86_64/install/lib/libsherpa-ncnn-c-api.a \
   build-x86_64/install/lib/libsherpa-ncnn-core.a \
   build-x86_64/install/lib/libkaldi-native-fbank-core.a
 
-cp -a build-x86_64/install/include/* sherpa-ncnn.framework/Versions/A/Headers/
-sed -e 's/__NAME__/sherpa-ncnn/g' -e 's/__IDENTIFIER__/com.k2-fsa.org/g' -e 's/__VERSION__/1.3.2/g' ../Info.plist > sherpa-ncnn.framework/Versions/A/Resources/Info.plist
+xcodebuild -create-xcframework \
+      -library "build-x86_64/install/lib/sherpa-ncnn.a" \
+      -output sherpa-ncnn.xcframework
+
+mkdir -p sherpa-ncnn.xcframework/Headers
+cp -av build-x86_64/install/include/* sherpa-ncnn.xcframework/Headers
+ls -ld ./*xcframework
