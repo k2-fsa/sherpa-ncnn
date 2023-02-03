@@ -85,7 +85,7 @@ struct LogAdd<float> {
 };
 
 template <class T>
-void log_softmax(T *input, int32_t input_len) {
+void LogSoftmax(T *input, int32_t input_len) {
   assert(input);
 
   T m = *std::max_element(input, input + input_len);
@@ -102,7 +102,7 @@ void log_softmax(T *input, int32_t input_len) {
 }
 
 template <class T>
-std::vector<int32_t> topk_index(const T *vec, int32_t size, int32_t topk) {
+std::vector<int32_t> TopkIndex(const T *vec, int32_t size, int32_t topk) {
   std::vector<int32_t> vec_index(size);
   std::iota(vec_index.begin(), vec_index.end(), 0);
 

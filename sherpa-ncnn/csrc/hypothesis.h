@@ -87,9 +87,10 @@ class Hypotheses {
   // len(hyp.ys) before comparison.
   Hypothesis GetMostProbable(bool length_norm) const;
 
-  // Remove the given hyp from this object.
-  // It is *NOT* an error if hyp does not exist in this object.
-  void Remove(const Hypothesis &hyp) { hyps_dict_.erase(hyp.Key()); }
+  // Get the k hyps that have the largest log_prob.
+  // If length_norm is true, hyp's log_prob are divided by
+  // len(hyp.ys) before comparison.
+  std::vector<Hypothesis> GetTopK(int32_t k, bool length_norm) const;
 
   int32_t Size() const { return hyps_dict_.size(); }
 
@@ -101,13 +102,21 @@ class Hypotheses {
     return os.str();
   }
 
-  auto begin() { return hyps_dict_.begin(); }
-  auto end() { return hyps_dict_.end(); }
-
   const auto begin() const { return hyps_dict_.begin(); }
   const auto end() const { return hyps_dict_.end(); }
 
-  void clear() { hyps_dict_.clear(); }
+  void Clear() { hyps_dict_.clear(); }
+
+ private:
+  // Return a list of hyps contained in this object.
+  std::vector<Hypothesis> Vec() const {
+    std::vector<Hypothesis> ans;
+    ans.reserve(hyps_dict_.size());
+    for (const auto &p : hyps_dict_) {
+      ans.push_back(p.second);
+    }
+    return ans;
+  }
 
  private:
   using Map = std ::unordered_map<std::string, Hypothesis>;
