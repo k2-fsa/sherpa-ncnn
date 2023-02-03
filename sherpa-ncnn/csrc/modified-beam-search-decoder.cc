@@ -29,8 +29,14 @@ namespace sherpa_ncnn {
 // @param in 1-D tensor of shape (encoder_dim,)
 // @param n Number of times to repeat
 // @return Return a 2-d tensor of shape (n, encoder_dim)
+//
+// TODO(fangjun): Remove this function
+// once
+// https://github.com/nihui/ncnn/tree/pnnx-ncnn-binary-broadcast
+// gets merged
 static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
   int32_t w = in.w;
+  ncnn::Mat out(w, n, sizeof(float));
   ncnn::Mat out(w, n, sizeof(float));
 
   const float *in_ptr = in;
