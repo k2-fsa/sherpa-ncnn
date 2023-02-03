@@ -27,6 +27,8 @@
 namespace sherpa_ncnn {
 
 // @param in 1-D tensor of shape (encoder_dim,)
+// @param n Number of times to repeat
+// @return Return a 2-d tensor of shape (n, encoder_dim)
 static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
   int32_t w = in.w;
   ncnn::Mat out(w, n, sizeof(float));
@@ -44,7 +46,9 @@ static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
 
 // Compute log_softmax in-place.
 //
-// @param in_out A 2-d tensor
+// The log_softmax of each row is computed.
+//
+// @param in_out A 2-D tensor
 static void LogSoftmax(ncnn::Mat *in_out) {
   int32_t h = in_out->h;
   int32_t w = in_out->w;
@@ -57,6 +61,10 @@ static void LogSoftmax(ncnn::Mat *in_out) {
 // The decoder model contains an embedding layer, which only supports
 // 1-D output.
 // This is a wrapper to suuport 2-D decoder output.
+//
+// @param model_ The NN model.
+// @param decoder_input A 2-D tensor of shape (num_active_paths, context_size)
+// @return Return a 2-D tensor of shape (num_active_paths, decoder_dim)
 static ncnn::Mat RunDecoder2D(Model *model_, ncnn::Mat decoder_input) {
   ncnn::Mat decoder_out;
   int32_t h = decoder_input.h;
