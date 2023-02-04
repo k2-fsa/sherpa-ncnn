@@ -34,9 +34,9 @@ namespace sherpa_ncnn {
 // once
 // https://github.com/nihui/ncnn/tree/pnnx-ncnn-binary-broadcast
 // gets merged
+// TODO(fangjun): Change Embed in ncnn to output 2-d tensors
 static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
   int32_t w = in.w;
-  ncnn::Mat out(w, n, sizeof(float));
   ncnn::Mat out(w, n, sizeof(float));
 
   const float *in_ptr = in;
