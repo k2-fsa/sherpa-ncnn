@@ -42,7 +42,6 @@ class ModifiedBeamSearchDecoder : public Decoder {
         context_size_(model_->ContextSize()),
         segment_(model->Segment()),
         offset_(model_->Offset()),
-        decoder_input_(context_size_),
         num_processed_(0),
         endpoint_start_frame_(0),
         endpoint_(endpoint) {
@@ -65,7 +64,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
   void InputFinished() override;
 
  private:
-  void BuildDecoderInput(Hypothesis hyp);
+  ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps) const;
 
   const DecoderConfig config_;
   Model *model_;
@@ -75,10 +74,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
   const int32_t context_size_;
   const int32_t segment_;
   const int32_t offset_;
-  ncnn::Mat encoder_out_;
   std::vector<ncnn::Mat> encoder_state_;
-  ncnn::Mat decoder_input_;
-  ncnn::Mat decoder_out_;
   int32_t num_processed_;
   int32_t endpoint_start_frame_;
   const Endpoint *endpoint_;
