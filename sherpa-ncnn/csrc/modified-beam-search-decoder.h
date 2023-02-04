@@ -64,7 +64,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
   void InputFinished() override;
 
  private:
-  ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps);
+  ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps) const;
 
   const DecoderConfig config_;
   Model *model_;

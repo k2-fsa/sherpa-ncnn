@@ -83,12 +83,12 @@ class Hypotheses {
   void Add(Hypothesis hyp);
 
   // Get the hyp that has the largest log_prob.
-  // If length_norm is true, hyp's log_prob are divided by
+  // If length_norm is true, hyp's log_prob is divided by
   // len(hyp.ys) before comparison.
   Hypothesis GetMostProbable(bool length_norm) const;
 
   // Get the k hyps that have the largest log_prob.
-  // If length_norm is true, hyp's log_prob are divided by
+  // If length_norm is true, hyp's log_prob is divided by
   // len(hyp.ys) before comparison.
   std::vector<Hypothesis> GetTopK(int32_t k, bool length_norm) const;
 

@@ -34,7 +34,6 @@ namespace sherpa_ncnn {
 // once
 // https://github.com/nihui/ncnn/tree/pnnx-ncnn-binary-broadcast
 // gets merged
-// TODO(fangjun): Change Embed in ncnn to output 2-d tensors
 static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
   int32_t w = in.w;
   ncnn::Mat out(w, n, sizeof(float));
@@ -66,11 +65,13 @@ static void LogSoftmax(ncnn::Mat *in_out) {
 
 // The decoder model contains an embedding layer, which only supports
 // 1-D output.
-// This is a wrapper to suuport 2-D decoder output.
+// This is a wrapper to support 2-D decoder output.
 //
 // @param model_ The NN model.
 // @param decoder_input A 2-D tensor of shape (num_active_paths, context_size)
 // @return Return a 2-D tensor of shape (num_active_paths, decoder_dim)
+//
+// TODO(fangjun): Change Embed in ncnn to output 2-d tensors
 static ncnn::Mat RunDecoder2D(Model *model_, ncnn::Mat decoder_input) {
   ncnn::Mat decoder_out;
   int32_t h = decoder_input.h;
@@ -86,8 +87,8 @@ static ncnn::Mat RunDecoder2D(Model *model_, ncnn::Mat decoder_input) {
     }
 
     const float *ptr = tmp;
-    float *outptr = decoder_out.row(y);
-    std::copy(ptr, ptr + tmp.w, outptr);
+    float *out_ptr = decoder_out.row(y);
+    std::copy(ptr, ptr + tmp.w, out_ptr);
   }
 
   return decoder_out;
@@ -101,7 +102,7 @@ void ModifiedBeamSearchDecoder::AcceptWaveform(const float sample_rate,
 }
 
 ncnn::Mat ModifiedBeamSearchDecoder::BuildDecoderInput(
-    const std::vector<Hypothesis> &hyps) {
+    const std::vector<Hypothesis> &hyps) const {
   int32_t num_hyps = static_cast<int32_t>(hyps.size());
 
   ncnn::Mat decoder_input(context_size_, num_hyps);
