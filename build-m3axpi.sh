@@ -36,6 +36,8 @@ cmake \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
   -DSHERPA_NCNN_ENABLE_C_API=OFF \
   -DSHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE=OFF \
+  -DCMAKE_C_FLAGS="-march=armv7-a -mfloat-abi=hard -mfpu=neon" \
+  -DCMAKE_CXX_FLAGS="-march=armv7-a -mfloat-abi=hard -mfpu=neon" \
   ..
 
 make -j 4
