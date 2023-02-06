@@ -11,7 +11,7 @@ echo "SHERPA_NCNN_VERSION: ${SHERPA_NCNN_VERSION}"
 
 dir=sherpa-ncnn-all-in-one-for-embedded-systems-${SHERPA_NCNN_VERSION}
 
-# rm -rf $dir
+rm -rf $dir
 mkdir -p $dir
 
 pushd $dir
