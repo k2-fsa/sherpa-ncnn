@@ -18,12 +18,81 @@
  */
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
 
+#include <algorithm>
 #include <string>
 #include <utility>
 
 #include "sherpa-ncnn/csrc/math.h"
 
 namespace sherpa_ncnn {
+
+// @param in 1-D tensor of shape (encoder_dim,)
+// @param n Number of times to repeat
+// @return Return a 2-d tensor of shape (n, encoder_dim)
+//
+// TODO(fangjun): Remove this function
+// once
+// https://github.com/nihui/ncnn/tree/pnnx-ncnn-binary-broadcast
+// gets merged
+static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
+  int32_t w = in.w;
+  ncnn::Mat out(w, n, sizeof(float));
+
+  const float *in_ptr = in;
+  float *out_ptr = out;
+
+  for (int32_t i = 0; i != n; ++i) {
+    std::copy(in_ptr, in_ptr + w, out_ptr);
+    out_ptr += w;
+  }
+
+  return out;
+}
+
+// Compute log_softmax in-place.
+//
+// The log_softmax of each row is computed.
+//
+// @param in_out A 2-D tensor
+static void LogSoftmax(ncnn::Mat *in_out) {
+  int32_t h = in_out->h;
+  int32_t w = in_out->w;
+  for (int32_t y = 0; y != h; ++y) {
+    float *p = in_out->row(y);
+    LogSoftmax(p, w);
+  }
+}
+
+// The decoder model contains an embedding layer, which only supports
+// 1-D output.
+// This is a wrapper to support 2-D decoder output.
+//
+// @param model_ The NN model.
+// @param decoder_input A 2-D tensor of shape (num_active_paths, context_size)
+// @return Return a 2-D tensor of shape (num_active_paths, decoder_dim)
+//
+// TODO(fangjun): Change Embed in ncnn to output 2-d tensors
+static ncnn::Mat RunDecoder2D(Model *model_, ncnn::Mat decoder_input) {
+  ncnn::Mat decoder_out;
+  int32_t h = decoder_input.h;
+
+  for (int32_t y = 0; y != h; ++y) {
+    ncnn::Mat decoder_input_t =
+        ncnn::Mat(decoder_input.w, decoder_input.row(y));
+
+    ncnn::Mat tmp = model_->RunDecoder(decoder_input_t);
+
+    if (y == 0) {
+      decoder_out = ncnn::Mat(tmp.w, h);
+    }
+
+    const float *ptr = tmp;
+    float *out_ptr = decoder_out.row(y);
+    std::copy(ptr, ptr + tmp.w, out_ptr);
+  }
+
+  return decoder_out;
+}
 
 void ModifiedBeamSearchDecoder::AcceptWaveform(const float sample_rate,
                                                const float *input_buffer,
@@ -32,11 +101,20 @@ void ModifiedBeamSearchDecoder::AcceptWaveform(const float sample_rate,
                                     frames_per_buffer);
 }
 
-void ModifiedBeamSearchDecoder::BuildDecoderInput(Hypothesis hyp) {
-  for (int32_t i = 0; i != context_size_; ++i) {
-    static_cast<int32_t *>(decoder_input_)[i] =
-        *(hyp.ys.end() - context_size_ + i);
+ncnn::Mat ModifiedBeamSearchDecoder::BuildDecoderInput(
+    const std::vector<Hypothesis> &hyps) const {
+  int32_t num_hyps = static_cast<int32_t>(hyps.size());
+
+  ncnn::Mat decoder_input(context_size_, num_hyps);
+  auto p = static_cast<int32_t *>(decoder_input);
+
+  for (const auto &hyp : hyps) {
+    const auto &ys = hyp.ys;
+    std::copy(ys.end() - context_size_, ys.end(), p);
+    p += context_size_;
   }
+
+  return decoder_input;
 }
 
 void ModifiedBeamSearchDecoder::ResetResult() {
@@ -50,45 +128,52 @@ void ModifiedBeamSearchDecoder::ResetResult() {
 void ModifiedBeamSearchDecoder::Decode() {
   while (feature_extractor_.NumFramesReady() - num_processed_ >= segment_) {
     ncnn::Mat features = feature_extractor_.GetFrames(num_processed_, segment_);
-    std::tie(encoder_out_, encoder_state_) =
+    ncnn::Mat encoder_out;
+    std::tie(encoder_out, encoder_state_) =
         model_->RunEncoder(features, encoder_state_);
 
     Hypotheses cur = std::move(result_.hyps);
-    /* encoder_out_.w == encoder_out_dim, encoder_out_.h == num_frames. */
-    for (int32_t t = 0; t != encoder_out_.h; ++t) {
-      std::vector<Hypothesis> prev;
-      for (int32_t i = 0; i != config_.num_active_paths && cur.Size(); ++i) {
-        auto cur_best_hyp = cur.GetMostProbable(true);
-        cur.Remove(cur_best_hyp);
-        prev.push_back(std::move(cur_best_hyp));
-      }
-      cur.clear();
+    /* encoder_out.w == encoder_out_dim, encoder_out.h == num_frames. */
+    for (int32_t t = 0; t != encoder_out.h; ++t) {
+      std::vector<Hypothesis> prev =
+          cur.GetTopK(config_.num_active_paths, true);
 
-      for (const auto &h : prev) {
-        ncnn::Mat encoder_out_t(encoder_out_.w, encoder_out_.row(t));
-        BuildDecoderInput(h);
-        decoder_out_ = model_->RunDecoder(decoder_input_);
-        ncnn::Mat joiner_out = model_->RunJoiner(encoder_out_t, decoder_out_);
-        auto joiner_out_ptr = joiner_out.row(0);
-        log_softmax(joiner_out_ptr, joiner_out.w);
+      cur.Clear();
 
-        // update active_paths
-        auto topk =
-            topk_index(joiner_out_ptr, joiner_out.w, config_.num_active_paths);
-        for (int i = 0; i != topk.size(); ++i) {
-          Hypothesis new_hyp = h;
-          int32_t new_token = topk[i];
-          if (new_token != blank_id_) {
-            new_hyp.ys.push_back(new_token);
-            new_hyp.num_trailing_blanks = 0;
-          } else {
-            ++new_hyp.num_trailing_blanks;
-          }
-          new_hyp.log_prob += joiner_out_ptr[new_token];
-          cur.Add(std::move(new_hyp));
+      ncnn::Mat decoder_input = BuildDecoderInput(prev);
+      ncnn::Mat decoder_out = RunDecoder2D(model_, decoder_input);
+      // decoder_out.w == decoder_dim
+      // decoder_out.h == num_active_paths
+
+      ncnn::Mat encoder_out_t(encoder_out.w, encoder_out.row(t));
+      encoder_out_t = RepeatEncoderOut(encoder_out_t, decoder_out.h);
+
+      ncnn::Mat joiner_out = model_->RunJoiner(encoder_out_t, decoder_out);
+      // joiner_out.w == vocab_size
+      // joiner_out.h == num_active_paths
+      LogSoftmax(&joiner_out);
+      auto topk =
+          TopkIndex(static_cast<float *>(joiner_out),
+                    joiner_out.w * joiner_out.h, config_.num_active_paths);
+
+      for (auto i : topk) {
+        int32_t hyp_index = i / joiner_out.w;
+        int32_t new_token = i % joiner_out.w;
+
+        const float *p = joiner_out.row(hyp_index);
+
+        Hypothesis new_hyp = prev[hyp_index];
+
+        if (new_token != blank_id_) {
+          new_hyp.ys.push_back(new_token);
+          new_hyp.num_trailing_blanks = 0;
+        } else {
+          ++new_hyp.num_trailing_blanks;
         }
+        new_hyp.log_prob += p[new_token];
+        cur.Add(std::move(new_hyp));
       }
-    }
+    }  // for (int32_t t = 0; t != encoder_out.h; ++t) {
 
     num_processed_ += offset_;
     result_.hyps = std::move(cur);

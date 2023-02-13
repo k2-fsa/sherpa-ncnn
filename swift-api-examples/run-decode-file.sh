@@ -20,7 +20,7 @@ if [ ! -e ./decode-file ]; then
   # Note: We use -lc++ to link against libc++ instead of libstdc++
   swiftc \
     -lc++ \
-    -I ../build-swift-macos/sherpa-ncnn.framework/Headers/ \
+    -I ../build-swift-macos/sherpa-ncnn.xcframework/Headers/ \
     -import-objc-header ./SherpaNcnn-Bridging-Header.h \
     ./decode-file.swift  ./SherpaNcnn.swift \
     -F ../build-swift-macos/ \

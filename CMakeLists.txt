@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-# Please also change the following files:
-#
-#   ./build-ios.sh
-#   ./build-swift-macos.sh
-#
-set(SHERPA_NCNN_VERSION "1.3.2")
+set(SHERPA_NCNN_VERSION "1.4.3")
 
 # Disable warning about
 #
@@ -41,6 +36,7 @@ option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
 option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
 option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
+option(SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE "Whether to generate-int8-scale-table" ON)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
@@ -54,6 +50,7 @@ message(STATUS "SHERPA_NCNN_ENABLE_JNI ${SHERPA_NCNN_ENABLE_JNI}")
 message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
 message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
 message(STATUS "SHERPA_NCNN_ENABLE_C_API ${SHERPA_NCNN_ENABLE_C_API}")
+message(STATUS "SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE ${SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -112,6 +109,6 @@ endif()
 
 add_subdirectory(sherpa-ncnn)
 
-if(SHERPA_NCNN_ENABLE_C_API)
+if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)
 endif()

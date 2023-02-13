@@ -55,4 +55,26 @@ Hypothesis Hypotheses::GetMostProbable(bool length_norm) const {
   }
 }
 
+std::vector<Hypothesis> Hypotheses::GetTopK(int32_t k, bool length_norm) const {
+  k = std::max(k, 1);
+  k = std::min(k, Size());
+
+  std::vector<Hypothesis> all_hyps = Vec();
+
+  if (length_norm == false) {
+    std::partial_sort(
+        all_hyps.begin(), all_hyps.begin() + k, all_hyps.end(),
+        [](const auto &a, const auto &b) { return a.log_prob > b.log_prob; });
+  } else {
+    // for length_norm is true
+    std::partial_sort(all_hyps.begin(), all_hyps.begin() + k, all_hyps.end(),
+                      [](const auto &a, const auto &b) {
+                        return a.log_prob / a.ys.size() >
+                               b.log_prob / b.ys.size();
+                      });
+  }
+
+  return {all_hyps.begin(), all_hyps.begin() + k};
+}
+
 }  // namespace sherpa_ncnn

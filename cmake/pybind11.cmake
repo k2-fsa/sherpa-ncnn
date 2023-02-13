@@ -12,6 +12,8 @@ function(download_pybind11)
     set(pybind11_URL  "file:///Users/fangjun/Downloads/pybind11-2.10.2.tar.gz")
   elseif(EXISTS "/tmp/pybind11-2.10.2.tar.gz")
     set(pybind11_URL  "file:///tmp/pybind11-2.10.2.tar.gz")
+  elseif(EXISTS "$ENV{HOME}/asr/pybind11-2.10.2.tar.gz")
+    set(pybind11_URL  "file://$ENV{HOME}/asr/pybind11-2.10.2.tar.gz")
   endif()
 
   FetchContent_Declare(pybind11
