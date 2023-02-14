@@ -14,6 +14,7 @@ set(sherpa_ncnn_core_srcs
   resample.cc
   symbol-table.cc
   wave-reader.cc
+  zipformer-model.cc
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
@@ -77,4 +78,3 @@ if(SHERPA_NCNN_ENABLE_TEST)
   add_executable(test-resample test-resample.cc)
   target_link_libraries(test-resample sherpa-ncnn-core)
 endif()
-

@@ -22,6 +22,7 @@
 #include "sherpa-ncnn/csrc/conv-emformer-model.h"
 #include "sherpa-ncnn/csrc/lstm-model.h"
 #include "sherpa-ncnn/csrc/meta-data.h"
+#include "sherpa-ncnn/csrc/zipformer-model.h"
 
 namespace sherpa_ncnn {
 
@@ -67,6 +68,27 @@ static bool IsConvEmformerModel(const ncnn::Net &net) {
       const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
       if (meta_data->arg0 == 1) return true;
+    }
+  }
+
+  return false;
+}
+
+static bool IsZipformerModel(const ncnn::Net &net) {
+  // Note: We may need to add more constraints if number of models gets larger.
+  //
+  // If the net has a layer of type SherpaMetaData and with name
+  // sherpa_meta_data1 and if attribute 0 is 2, we assume the model is
+  // a Zipformer model.
+
+  for (const auto *layer : net.layers()) {
+    if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
+
+      if (meta_data->arg0 == 2) return true;
     }
   }
 
@@ -125,11 +147,15 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
     return std::make_unique<ConvEmformerModel>(config);
   }
 
+  if (IsZipformerModel(net)) {
+    return std::make_unique<ZipformerModel>(config);
+  }
+
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer model, please make sure you have "
-      "added SherapMetaData to encoder_xxx.ncnn.param "
+      "  1. If you are using a ConvEmformer/Zipformer model, please make sure "
+      "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
       "You need to add it manually after converting the model with pnnx.\n"
       "  2. (Android) Whether the app requires an int8 model or not\n");

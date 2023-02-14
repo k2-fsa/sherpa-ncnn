@@ -6,19 +6,19 @@ function(download_ncnn)
   # https://github.com/csukuangfj/ncnn/pull/7
 
   # Please also change ../pack-for-embedded-systems.sh
-  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.8.tar.gz")
-  set(ncnn_HASH "SHA256=f605c48986406800615d00cf14b955e95f73286eadacedb6c3371542540e1df0")
+  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.9.tar.gz")
+  set(ncnn_HASH "SHA256=a5fe1f69c75c06d6de858c7c660c43395b6ed3df9ee59d6e2fe621211e6928cd")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/ncnn-sherpa-0.8.tar.gz")
-    set(ncnn_URL  "file:///star-fj/fangjun/download/github/ncnn-sherpa-0.8.tar.gz")
-  elseif(EXISTS "/Users/fangjun/Downloads/ncnn-sherpa-0.8.tar.gz")
-    set(ncnn_URL  "file:///Users/fangjun/Downloads/ncnn-sherpa-0.8.tar.gz")
-  elseif(EXISTS "/tmp/ncnn-sherpa-0.8.tar.gz")
-    set(ncnn_URL  "file:///tmp/ncnn-sherpa-0.8.tar.gz")
-  elseif(EXISTS "$ENV{HOME}/asr/ncnn-sherpa-0.8.tar.gz")
-    set(ncnn_URL  "file://$ENV{HOME}/asr/ncnn-sherpa-0.8.tar.gz")
+  if(EXISTS "/star-fj/fangjun/download/github/ncnn-sherpa-0.9.tar.gz")
+    set(ncnn_URL  "file:///star-fj/fangjun/download/github/ncnn-sherpa-0.9.tar.gz")
+  elseif(EXISTS "/Users/fangjun/Downloads/ncnn-sherpa-0.9.tar.gz")
+    set(ncnn_URL  "file:///Users/fangjun/Downloads/ncnn-sherpa-0.9.tar.gz")
+  elseif(EXISTS "/tmp/ncnn-sherpa-0.9.tar.gz")
+    set(ncnn_URL  "file:///tmp/ncnn-sherpa-0.9.tar.gz")
+  elseif(EXISTS "$ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz")
+    set(ncnn_URL  "file://$ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz")
   endif()
 
   FetchContent_Declare(ncnn
@@ -64,7 +64,7 @@ function(download_ncnn)
     # Input
     Log
     LRN
-    MemoryData
+    # MemoryData
     MVN
     Pooling
     Power
@@ -146,6 +146,7 @@ function(download_ncnn)
     Fold
     Unfold
     GridSample
+    CumulativeSum
   )
 
   foreach(layer IN LISTS disabled_layers)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "1.4.3")
+set(SHERPA_NCNN_VERSION "1.5.0")
 
 # Disable warning about
 #
