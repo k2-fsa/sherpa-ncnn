@@ -257,3 +257,79 @@ for wave in ${waves[@]}; do
 done
 
 rm -rf $repo
+
+log "------------------------------------------------------------"
+log "Run Zipformer transducer (English + Chinese, bilingual)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+popd
+
+waves=(
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+$repo/test_wavs/3.wav
+$repo/test_wavs/4.wav
+)
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+rm -rf $repo
+
+log "------------------------------------------------------------"
+log "Run Zipformer transducer (English)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-en-2023-02-13
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+popd
+
+waves=(
+$repo/test_wavs/1089-134686-0001.wav
+$repo/test_wavs/1221-135766-0001.wav
+$repo/test_wavs/1221-135766-0002.wav
+)
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+rm -rf $repo
