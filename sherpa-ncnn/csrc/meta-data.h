@@ -28,9 +28,13 @@ class MetaData : public ncnn::Layer {
  public:
   int load_param(const ncnn::ParamDict &pd) override;
 
+  // arg0 is the model type:
+  //  0 - ConvEmformer
+  //  1 - Zipformer
   int32_t arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7;
   int32_t arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15;
-  int32_t arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23;
+
+  ncnn::Mat arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23;
 
   float arg24, arg25, arg26, arg27, arg28, arg29, arg30, arg31;
 };
