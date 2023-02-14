@@ -183,11 +183,15 @@ std::unique_ptr<Model> Model::Create(AAssetManager *mgr,
     return std::make_unique<ConvEmformerModel>(mgr, config);
   }
 
+  if (IsZipformerModel(net)) {
+    return std::make_unique<ZipformerModel>(mgr, config);
+  }
+
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer model, please make sure you have "
-      "added SherapMetaData to encoder_xxx.ncnn.param "
+      "  1. If you are using a ConvEmformer/Zipformer model, please make sure "
+      "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
       "You need to add it manually after converting the model with pnnx.\n"
       "  2. (Android) Whether the app requires an int8 model or not\n");

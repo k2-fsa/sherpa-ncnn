@@ -20,6 +20,16 @@ ZipformerModel::ZipformerModel(const ModelConfig &config) {
   decoder_.opt = config.decoder_opt;
   joiner_.opt = config.joiner_opt;
 
+  encoder_.opt.use_fp16_arithmetic = false;
+  encoder_.opt.use_fp16_storage = false;
+
+  decoder_.opt.use_fp16_arithmetic = false;
+  decoder_.opt.use_fp16_storage = false;
+
+  joiner_.opt.use_fp16_arithmetic = false;
+  joiner_.opt.use_fp16_storage = false;
+  NCNN_LOGE("Disable fp16 for zipformer");
+
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -47,6 +57,36 @@ ZipformerModel::ZipformerModel(const ModelConfig &config) {
 
 #if __ANDROID_API__ >= 9
 ZipformerModel::ZipformerModel(AAssetManager *mgr, const ModelConfig &config) {
+  encoder_.opt = config.encoder_opt;
+  decoder_.opt = config.decoder_opt;
+  joiner_.opt = config.joiner_opt;
+
+  encoder_.opt.use_fp16_arithmetic = false;
+  encoder_.opt.use_fp16_storage = false;
+
+  decoder_.opt.use_fp16_arithmetic = false;
+  decoder_.opt.use_fp16_storage = false;
+
+  joiner_.opt.use_fp16_arithmetic = false;
+  joiner_.opt.use_fp16_storage = false;
+  NCNN_LOGE("Disable fp16 for Zipformer on Android");
+
+  bool has_gpu = false;
+#if NCNN_VULKAN
+  has_gpu = ncnn::get_gpu_count() > 0;
+#endif
+
+  if (has_gpu && config.use_vulkan_compute) {
+    encoder_.opt.use_vulkan_compute = true;
+    decoder_.opt.use_vulkan_compute = true;
+    joiner_.opt.use_vulkan_compute = true;
+    NCNN_LOGE("Use GPU");
+  } else {
+    NCNN_LOGE("Don't Use GPU. has_gpu: %d, config.use_vulkan_compute: %d",
+              static_cast<int32_t>(has_gpu),
+              static_cast<int32_t>(config.use_vulkan_compute));
+  }
+
   InitEncoder(mgr, config.encoder_param, config.encoder_bin);
   InitDecoder(mgr, config.decoder_param, config.decoder_bin);
   InitJoiner(mgr, config.joiner_param, config.joiner_bin);
