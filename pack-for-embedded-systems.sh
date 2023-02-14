@@ -29,8 +29,8 @@ wget \
   https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.11.tar.gz
 
 wget \
-  -O ncnn-sherpa-0.8.tar.gz \
-  https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.8.tar.gz
+  -O ncnn-sherpa-0.9.tar.gz \
+  https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.9.tar.gz
 
 cat >README.md <<EOF
 Please put files from this folder to the directory \$HOME/asr/
