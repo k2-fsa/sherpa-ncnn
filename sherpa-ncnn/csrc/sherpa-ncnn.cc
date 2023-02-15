@@ -85,6 +85,7 @@ for a list of pre-trained models to download.
   std::string wav_filename = argv[8];
 
   std::cout << model_conf.ToString() << "\n";
+  std::cout << decoder_conf.ToString() << "\n";
   bool is_ok = false;
   std::vector<float> samples =
       sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate, &is_ok);

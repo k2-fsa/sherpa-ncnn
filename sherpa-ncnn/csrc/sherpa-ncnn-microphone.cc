@@ -118,8 +118,6 @@ for a list of pre-trained models to download.
   fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
   fbank_opts.mel_opts.num_bins = 80;
 
-  fprintf(stderr, "%s\n", decoder_conf.ToString().c_str());
-
   sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
 
   sherpa_ncnn::Microphone mic;

@@ -141,7 +141,9 @@ void ModifiedBeamSearchDecoder::Decode() {
       cur.Clear();
 
       ncnn::Mat decoder_input = BuildDecoderInput(prev);
+
       ncnn::Mat decoder_out = RunDecoder2D(model_, decoder_input);
+
       // decoder_out.w == decoder_dim
       // decoder_out.h == num_active_paths
 
