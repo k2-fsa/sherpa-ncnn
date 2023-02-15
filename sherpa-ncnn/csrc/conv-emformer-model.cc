@@ -142,7 +142,7 @@ ncnn::Mat ConvEmformerModel::RunJoiner(ncnn::Mat &encoder_out,
   joiner_ex->input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
-  joiner_ex->extract("out0", joiner_out);
+  joiner_ex->extract(joiner_output_indexes_[0], joiner_out);
   return joiner_out;
 }
 
