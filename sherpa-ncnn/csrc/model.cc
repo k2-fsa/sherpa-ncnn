@@ -44,9 +44,14 @@ std::string ModelConfig::ToString() const {
 }
 
 static bool IsLstmModel(const ncnn::Net &net) {
-  for (const auto &layer : net.layers()) {
-    if (layer->type == "LSTM") {
-      return true;
+  for (const auto *layer : net.layers()) {
+    if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
+
+      if (meta_data->arg0 == 3) return true;
     }
   }
 
@@ -154,7 +159,8 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer/Zipformer model, please make sure "
+      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please make "
+      "sure "
       "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
       "You need to add it manually after converting the model with pnnx.\n"
@@ -190,7 +196,8 @@ std::unique_ptr<Model> Model::Create(AAssetManager *mgr,
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer/Zipformer model, please make sure "
+      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please make "
+      "sure "
       "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
       "You need to add it manually after converting the model with pnnx.\n"

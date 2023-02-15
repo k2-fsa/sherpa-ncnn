@@ -29,8 +29,9 @@ class MetaData : public ncnn::Layer {
   int load_param(const ncnn::ParamDict &pd) override;
 
   // arg0 is the model type:
-  //  0 - ConvEmformer
-  //  1 - Zipformer
+  //  1 - ConvEmformer
+  //  2 - Zipformer
+  //  3 - LSTM
   int32_t arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7;
   int32_t arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15;
 

@@ -90,6 +90,8 @@ class LstmModel : public Model {
   void InitJoiner(const std::string &joiner_param,
                   const std::string &joiner_bin);
 
+  void InitEncoderPostProcessing();
+
 #if __ANDROID_API__ >= 9
   void InitEncoder(AAssetManager *mgr, const std::string &encoder_param,
                    const std::string &encoder_bin);
@@ -106,9 +108,15 @@ class LstmModel : public Model {
   void InitJoinerInputOutputIndexes();
 
  private:
+  // arg0: 3
+  int32_t num_encoder_layers_ = 12;  // arg1
+  int32_t encoder_dim_ = 512;        // arg2, i.e., d_model
+  int32_t rnn_hidden_size_ = 1024;   // arg3
+
   ncnn::Net encoder_;
   ncnn::Net decoder_;
   ncnn::Net joiner_;
+
   std::vector<int32_t> encoder_input_indexes_;
   std::vector<int32_t> encoder_output_indexes_;
 

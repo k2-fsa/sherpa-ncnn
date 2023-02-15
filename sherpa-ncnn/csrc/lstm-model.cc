@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "platform.h"  // NOLINT
+#include "sherpa-ncnn/csrc/meta-data.h"
 
 namespace sherpa_ncnn {
 
@@ -160,7 +161,11 @@ void LstmModel::InitEncoder(const std::string &encoder_param,
                             const std::string &encoder_bin) {
   encoder_.opt.use_packing_layout = false;
   encoder_.opt.use_fp16_storage = false;
+
+  RegisterMetaDataLayer(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
+
+  InitEncoderPostProcessing();
 }
 
 void LstmModel::InitDecoder(const std::string &decoder_param,
@@ -179,7 +184,11 @@ void LstmModel::InitEncoder(AAssetManager *mgr,
                             const std::string &encoder_bin) {
   encoder_.opt.use_packing_layout = false;
   encoder_.opt.use_fp16_storage = false;
+
+  RegisterMetaDataLayer(encoder_);
   InitNet(mgr, encoder_, encoder_param, encoder_bin);
+
+  InitEncoderPostProcessing();
 }
 
 void LstmModel::InitDecoder(AAssetManager *mgr,
@@ -194,13 +203,27 @@ void LstmModel::InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
 }
 #endif
 
-std::vector<ncnn::Mat> LstmModel::GetEncoderInitStates() const {
-  int32_t num_encoder_layers = 12;
-  int32_t d_model = 512;
-  int32_t rnn_hidden_size = 1024;
+void LstmModel::InitEncoderPostProcessing() {
+  // Now load parameters for member variables
+  for (const auto *layer : encoder_.layers()) {
+    if (layer->type == "SherpaMetaData" && layer->name == "sherpa_meta_data1") {
+      // Note: We don't use dynamic_cast<> here since it will throw
+      // the following error
+      //  error: ‘dynamic_cast’ not permitted with -fno-rtti
+      const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
-  auto hx = ncnn::Mat(d_model, num_encoder_layers);
-  auto cx = ncnn::Mat(rnn_hidden_size, num_encoder_layers);
+      num_encoder_layers_ = meta_data->arg1;
+      encoder_dim_ = meta_data->arg2;
+      rnn_hidden_size_ = meta_data->arg3;
+
+      break;
+    }
+  }
+}
+
+std::vector<ncnn::Mat> LstmModel::GetEncoderInitStates() const {
+  auto hx = ncnn::Mat(encoder_dim_, num_encoder_layers_);
+  auto cx = ncnn::Mat(rnn_hidden_size_, num_encoder_layers_);
 
   hx.fill(0);
   cx.fill(0);
