@@ -39,29 +39,41 @@ $repo/test_wavs/2.wav
 )
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/v2/tokens.txt \
-    $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-    $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-    $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-    $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-    $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-    $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/v2/tokens.txt \
+      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
+      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
+      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
+      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
+      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
+      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 log "Test int8 models"
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/v2/tokens.txt \
-    $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
-    $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
-    $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-    $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-    $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
-    $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/v2/tokens.txt \
+      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
+      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
+      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
+      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
+      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
+      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 rm -rf $repo
@@ -88,15 +100,21 @@ $repo/test_wavs/2.wav
 )
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
-    $repo/encoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
-    $repo/decoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
-    $repo/joiner_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-v2-epoch-11-avg-2-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 rm -rf $repo
@@ -124,15 +142,21 @@ $repo/test_wavs/1221-135766-0002.wav
 )
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/bar/encoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
-    $repo/bar/encoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
-    $repo/bar/decoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
-    $repo/bar/decoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
-    $repo/bar/joiner_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
-    $repo/bar/joiner_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/bar/encoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
+      $repo/bar/encoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
+      $repo/bar/decoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
+      $repo/bar/decoder_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
+      $repo/bar/joiner_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.param \
+      $repo/bar/joiner_jit_trace-v2-iter-468000-avg-16-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 rm -rf $repo
@@ -162,46 +186,43 @@ $repo/test_wavs/1221-135766-0002.wav
 )
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
-log "Test beam-search"
-
-for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $wave \
-    4 \
-    "modified_beam_search"
-done
 
 
 log "Test int8 models"
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
-    $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
-    $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
+      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
+      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
+      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 rm -rf $repo
@@ -232,28 +253,40 @@ $repo/test_wavs/4.wav
 )
 
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-pnnx.ncnn.param \
-    $repo/encoder_jit_trace-pnnx.ncnn.bin \
-    $repo/decoder_jit_trace-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-pnnx.ncnn.param \
-    $repo/joiner_jit_trace-pnnx.ncnn.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 log "test int8 models"
 for wave in ${waves[@]}; do
-  time $EXE \
-    $repo/tokens.txt \
-    $repo/encoder_jit_trace-pnnx.ncnn.int8.param \
-    $repo/encoder_jit_trace-pnnx.ncnn.int8.bin \
-    $repo/decoder_jit_trace-pnnx.ncnn.param \
-    $repo/decoder_jit_trace-pnnx.ncnn.bin \
-    $repo/joiner_jit_trace-pnnx.ncnn.int8.param \
-    $repo/joiner_jit_trace-pnnx.ncnn.int8.bin \
-    $wave
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.bin \
+      $wave \
+      4 \
+      $m
+  done
 done
 
 rm -rf $repo
@@ -281,6 +314,8 @@ $repo/test_wavs/4.wav
 
 for wave in ${waves[@]}; do
   for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
     time $EXE \
       $repo/tokens.txt \
       $repo/encoder_jit_trace-pnnx.ncnn.param \
@@ -318,6 +353,8 @@ $repo/test_wavs/1221-135766-0002.wav
 
 for wave in ${waves[@]}; do
   for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
     time $EXE \
       $repo/tokens.txt \
       $repo/encoder_jit_trace-pnnx.ncnn.param \

@@ -23,12 +23,7 @@ ZipformerModel::ZipformerModel(const ModelConfig &config) {
   encoder_.opt.use_fp16_arithmetic = false;
   encoder_.opt.use_fp16_storage = false;
 
-  decoder_.opt.use_fp16_arithmetic = false;
-  decoder_.opt.use_fp16_storage = false;
-
-  joiner_.opt.use_fp16_arithmetic = false;
-  joiner_.opt.use_fp16_storage = false;
-  NCNN_LOGE("Disable fp16 for zipformer");
+  NCNN_LOGE("Disable fp16 for Zipformer encoder");
 
   bool has_gpu = false;
 #if NCNN_VULKAN
@@ -64,12 +59,7 @@ ZipformerModel::ZipformerModel(AAssetManager *mgr, const ModelConfig &config) {
   encoder_.opt.use_fp16_arithmetic = false;
   encoder_.opt.use_fp16_storage = false;
 
-  decoder_.opt.use_fp16_arithmetic = false;
-  decoder_.opt.use_fp16_storage = false;
-
-  joiner_.opt.use_fp16_arithmetic = false;
-  joiner_.opt.use_fp16_storage = false;
-  NCNN_LOGE("Disable fp16 for Zipformer on Android");
+  NCNN_LOGE("Disable fp16 for Zipformer encoder on Android");
 
   bool has_gpu = false;
 #if NCNN_VULKAN
@@ -172,7 +162,7 @@ ncnn::Mat ZipformerModel::RunJoiner(ncnn::Mat &encoder_out,
   joiner_ex->input(joiner_input_indexes_[1], decoder_out);
 
   ncnn::Mat joiner_out;
-  joiner_ex->extract("out0", joiner_out);
+  joiner_ex->extract(joiner_output_indexes_[0], joiner_out);
   return joiner_out;
 }
 
