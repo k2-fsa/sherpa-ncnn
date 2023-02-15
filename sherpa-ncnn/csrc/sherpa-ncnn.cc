@@ -121,10 +121,10 @@ for a list of pre-trained models to download.
           .count() /
       1000.;
 
-  printf("Elapsed seconds: %.3f s\n", elapsed_seconds);
+  fprintf(stderr, "Elapsed seconds: %.3f s\n", elapsed_seconds);
   float rtf = elapsed_seconds / duration;
-  printf("Real time factor (RTF): %.3f / %.3f = %.3f\n", duration,
-         elapsed_seconds, rtf);
+  fprintf(stderr, "Real time factor (RTF): %.3f / %.3f = %.3f\n",
+          elapsed_seconds, duration, rtf);
 
   return 0;
 }
