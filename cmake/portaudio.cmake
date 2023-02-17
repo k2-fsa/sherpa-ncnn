@@ -6,15 +6,20 @@ function(download_portaudio)
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/pa_stable_v190700_20210406.tgz")
-    set(portaudio_URL  "file:///star-fj/fangjun/download/github/pa_stable_v190700_20210406.tgz")
-  elseif(EXISTS "/Users/fangjun/Downloads/pa_stable_v190700_20210406.tgz")
-    set(portaudio_URL  "file:///Users/fangjun/Downloads/pa_stable_v190700_20210406.tgz")
-  elseif(EXISTS "/tmp/pa_stable_v190700_20210406.tgz")
-    set(portaudio_URL  "file:///tmp/pa_stable_v190700_20210406.tgz")
-  elseif(EXISTS "$ENV{HOME}/asr/pa_stable_v190700_20210406.tgz")
-    set(portaudio_URL  "file://$ENV{HOME}/asr/pa_stable_v190700_20210406.tgz")
-  endif()
+  set(possible_file_locations
+    $ENV{HOME}/Downloads/pa_stable_v190700_20210406.tgz
+    $ENV{HOME}/asr/pa_stable_v190700_20210406.tgz
+    ${PROJECT_SOURCE_DIR}/pa_stable_v190700_20210406.tgz
+    ${PROJECT_BINARY_DIR}/pa_stable_v190700_20210406.tgz
+    /tmp/pa_stable_v190700_20210406.tgz
+  )
+
+  foreach(f IN LISTS possible_file_locations)
+    if(EXISTS ${f})
+      set(portaudio_URL  "file://${f}")
+      break()
+    endif()
+  endforeach()
 
   if(BUILD_SHARED_LIBS)
     set(PA_BUILD_SHARED ON CACHE BOOL "" FORCE)
