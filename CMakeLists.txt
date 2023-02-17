@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "1.5.1")
+set(SHERPA_NCNN_VERSION "1.5.2")
 
 # Disable warning about
 #
@@ -73,7 +73,7 @@ if(WIN32)
   add_definitions(-DNOMINMAX) # Otherwise, std::max() and std::min() won't work
 endif()
 
-if(WIN32)
+if(WIN32 AND MSVC)
   # disable various warnings for MSVC
   # 4244: 'return': conversion from 'unsigned __int64' to 'int', possible loss of data
   # 4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data

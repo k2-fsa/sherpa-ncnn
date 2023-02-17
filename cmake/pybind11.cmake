@@ -6,15 +6,20 @@ function(download_pybind11)
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/pybind11-2.10.2.tar.gz")
-    set(pybind11_URL  "file:///star-fj/fangjun/download/github/pybind11-2.10.2.tar.gz")
-  elseif(EXISTS "/Users/fangjun/Downloads/pybind11-2.10.2.tar.gz")
-    set(pybind11_URL  "file:///Users/fangjun/Downloads/pybind11-2.10.2.tar.gz")
-  elseif(EXISTS "/tmp/pybind11-2.10.2.tar.gz")
-    set(pybind11_URL  "file:///tmp/pybind11-2.10.2.tar.gz")
-  elseif(EXISTS "$ENV{HOME}/asr/pybind11-2.10.2.tar.gz")
-    set(pybind11_URL  "file://$ENV{HOME}/asr/pybind11-2.10.2.tar.gz")
-  endif()
+  set(possible_file_locations
+    $ENV{HOME}/Downloads/pybind11-2.10.2.tar.gz
+    $ENV{HOME}/asr/pybind11-2.10.2.tar.gz
+    ${PROJECT_SOURCE_DIR}/pybind11-2.10.2.tar.gz
+    ${PROJECT_BINARY_DIR}/pybind11-2.10.2.tar.gz
+    /tmp/pybind11-2.10.2.tar.gz
+  )
+
+  foreach(f IN LISTS possible_file_locations)
+    if(EXISTS ${f})
+      set(pybind11_URL  "file://${f}")
+      break()
+    endif()
+  endforeach()
 
   FetchContent_Declare(pybind11
     URL               ${pybind11_URL}
