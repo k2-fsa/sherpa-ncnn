@@ -14,6 +14,47 @@ echo "PATH: $PATH"
 which $EXE
 
 log "------------------------------------------------------------"
+log "Run Zipformer transducer (English, small model 20M)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/marcoyang/sherpa-ncnn-streaming-zipformer-20M-2023-02-17
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+
+waves=(
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+)
+
+popd
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+rm -rf $repo
+
+
+log "------------------------------------------------------------"
 log "Run LSTM transducer (Chinese+English, small model)"
 log "------------------------------------------------------------"
 repo_url=https://huggingface.co/marcoyang/sherpa-ncnn-lstm-transducer-small-2023-02-13
