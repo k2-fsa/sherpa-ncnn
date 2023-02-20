@@ -48,7 +48,7 @@
 
 /**
  * @file audio decoding and filtering usage example
- * @example decode_filter_audio.c
+ * @example sherpa-ncnn-ffmpeg.c
  *
  * Demux, decode and filter audio input file, generate a raw audio
  * file to be played with ffplay.
@@ -266,7 +266,7 @@ int main(int argc, char **argv)
     const char *kUsage =
         "\n"
         "Usage:\n"
-        "  ./bin/decode-file-c-api \\\n"
+        "  ./sherpa-ncnn-ffmpeg \\\n"
         "    /path/to/tokens.txt \\\n"
         "    /path/to/encoder.ncnn.param \\\n"
         "    /path/to/encoder.ncnn.bin \\\n"
@@ -300,16 +300,16 @@ int main(int argc, char **argv)
     model_config.decoder_bin = argv[5];
     model_config.joiner_param = argv[6];
     model_config.joiner_bin = argv[7];
-  
+
     if (argc >= 10 && atoi(argv[9]) > 0) {
         num_threads = atoi(argv[9]);
     }
     model_config.num_threads = num_threads;
     model_config.use_vulkan_compute = 0;
-  
+
     SherpaNcnnDecoderConfig decoder_config;
     decoder_config.decoding_method = "greedy_search";
-  
+
     if (argc == 11) {
         decoder_config.decoding_method = argv[10];
     }
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
     decoder_config.rule1_min_trailing_silence = 2.4;
     decoder_config.rule2_min_trailing_silence = 1.2;
     decoder_config.rule3_min_utterance_length = 300;
-  
+
     SherpaNcnnRecognizer *recognizer =
         CreateRecognizer(&model_config, &decoder_config);
 
