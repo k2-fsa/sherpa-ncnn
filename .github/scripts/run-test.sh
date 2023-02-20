@@ -51,6 +51,22 @@ for wave in ${waves[@]}; do
   done
 done
 
+# Decode a URL
+if [ $EXE == "sherpa-ncnn-ffmpeg" ]; then
+  time $EXE \
+    $repo/tokens.txt \
+    $repo/encoder_jit_trace-pnnx.ncnn.param \
+    $repo/encoder_jit_trace-pnnx.ncnn.bin \
+    $repo/decoder_jit_trace-pnnx.ncnn.param \
+    $repo/decoder_jit_trace-pnnx.ncnn.bin \
+    $repo/joiner_jit_trace-pnnx.ncnn.param \
+    $repo/joiner_jit_trace-pnnx.ncnn.bin \
+    https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-04/resolve/main/test_wavs/1089-134686-0001.wav \
+    4 \
+    $m
+fi
+
+
 rm -rf $repo
 
 log "------------------------------------------------------------"
