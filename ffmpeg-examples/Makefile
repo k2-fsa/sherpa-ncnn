@@ -25,7 +25,7 @@ LIBAVUTIL_MICRO := $(shell echo "$(LIBAVUTIL_VERSION)" | awk -F. '{print $$3}')
 #Check if libavutil version is 57.28.100 or above
 FFMPEG_51_AND_ABOVE = $(shell echo "$(LIBAVUTIL_MAJOR) $(LIBAVUTIL_MINOR) $(LIBAVUTIL_MICRO)" | awk '{if ($$1 > 57 || ($$1 == 57 && $$2 > 28) || ($$1 == 57 && $$2 == 28 && $$3 >= 100)) print "TRUE"; else print "FALSE"}')
 ifeq ($(FFMPEG_51_AND_ABOVE), FALSE)
-	$(error FFmpeg version should be n5.1 or above!)
+$(error FFmpeg version should be n5.1 or above!)
 endif
 
 EXAMPLES=sherpa-ncnn-ffmpeg
@@ -46,7 +46,7 @@ $(EXAMPLES): $(OBJS)
 
 clean:
 	$(RM) $(EXAMPLES) $(OBJS)
-    
+
 build_info:
 	@echo "libavutil version: $(LIBAVUTIL_VERSION)"
 	@echo "Supported examples: $(EXAMPLES)"
