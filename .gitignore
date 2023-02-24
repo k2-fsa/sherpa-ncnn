@@ -99,3 +99,4 @@ fastlane/test_output
 
 iOSInjectionProject/
 .DS_Store
+sherpa-ncnn-ffmpeg
