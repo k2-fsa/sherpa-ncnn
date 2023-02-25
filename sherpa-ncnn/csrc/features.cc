@@ -27,6 +27,9 @@ namespace sherpa_ncnn {
 
 FeatureExtractor::FeatureExtractor(const knf::FbankOptions &opts)
     : opts_(opts) {
+  // cache 100 seconds of feature frames, which is more than enough
+  // for real needs
+  opts_.frame_opts.max_feature_vectors = 100 * 100;
   fbank_ = std::make_unique<knf::OnlineFbank>(opts_);
 }
 
