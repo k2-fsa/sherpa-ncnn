@@ -113,7 +113,7 @@ for a list of pre-trained models to download.
   std::cout << "Done!\n";
 
   std::cout << "Recognition result for " << wav_filename << "\n"
-            << result.text << "\n";
+            << result.ToString();
 
   auto end = std::chrono::steady_clock::now();
   float elapsed_seconds =

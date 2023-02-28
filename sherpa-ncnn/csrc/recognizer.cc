@@ -44,6 +44,7 @@ Recognizer::Recognizer(const DecoderConfig &decoder_conf,
                        const ModelConfig &model_conf,
                        const knf::FbankOptions &fbank_opts)
     : model_(Model::Create(model_conf)),
+      fbank_opts_(std::make_unique<knf::FbankOptions>(fbank_opts)),
       sym_(std::make_unique<SymbolTable>(model_conf.tokens)),
       endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
   if (decoder_conf.method == "modified_beam_search") {
@@ -85,7 +86,16 @@ void Recognizer::AcceptWaveform(float sample_rate, const float *input_buffer,
 
 void Recognizer::Decode() { decoder_->Decode(); }
 
-RecognitionResult Recognizer::GetResult() { return decoder_->GetResult(); }
+RecognitionResult Recognizer::GetResult() {
+  auto r = decoder_->GetResult();
+
+  float frame_shift_s = fbank_opts_->frame_opts.frame_shift_ms / 1000.;
+  for (auto &t : r.timestamps) {
+    t *= frame_shift_s;
+  }
+
+  return std::move(r);
+}
 
 bool Recognizer::IsEndpoint() { return decoder_->IsEndpoint(); }
 
