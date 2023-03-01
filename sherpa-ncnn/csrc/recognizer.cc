@@ -94,7 +94,7 @@ RecognitionResult Recognizer::GetResult() {
     t *= frame_shift_s;
   }
 
-  return std::move(r);
+  return r;
 }
 
 bool Recognizer::IsEndpoint() { return decoder_->IsEndpoint(); }
