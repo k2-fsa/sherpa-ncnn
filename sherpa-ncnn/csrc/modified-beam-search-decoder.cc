@@ -168,6 +168,7 @@ void ModifiedBeamSearchDecoder::Decode() {
 
         if (new_token != blank_id_) {
           new_hyp.ys.push_back(new_token);
+          new_hyp.timestamps.push_back(static_cast<float>(t + num_processed_));
           new_hyp.num_trailing_blanks = 0;
         } else {
           ++new_hyp.num_trailing_blanks;
@@ -192,6 +193,7 @@ RecognitionResult ModifiedBeamSearchDecoder::GetResult() {
     }
   }
   result_.text = std::move(best_hyp_text);
+  result_.timestamps = best_hyp.timestamps;
   result_.num_trailing_blanks = best_hyp.num_trailing_blanks;
   auto ans = result_;
 

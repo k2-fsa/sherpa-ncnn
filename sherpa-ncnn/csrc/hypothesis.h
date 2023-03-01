@@ -33,7 +33,7 @@ struct Hypothesis {
 
   // timestamps[i] contains the frame number after subsampling
   // on which ys[i] is decoded.
-  std::vector<int32_t> timestamps;
+  std::vector<float> timestamps;
 
   // The total score of ys in log space.
   double log_prob = 0;

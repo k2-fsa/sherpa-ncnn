@@ -38,6 +38,7 @@ void GreedySearchDecoder::BuildDecoderInput() {
 void GreedySearchDecoder::ResetResult() {
   result_.tokens.clear();
   result_.text.clear();
+  result_.timestamps.clear();
   result_.num_trailing_blanks = 0;
   for (int32_t i = 0; i != context_size_; ++i) {
     result_.tokens.push_back(blank_id_);
@@ -63,6 +64,7 @@ void GreedySearchDecoder::Decode() {
       if (new_token != blank_id_) {
         result_.tokens.push_back(new_token);
         result_.text += (*sym_)[new_token];
+        result_.timestamps.push_back(static_cast<float>(t + num_processed_));
         BuildDecoderInput();
         decoder_out_ = model_->RunDecoder(decoder_input_);
         result_.num_trailing_blanks = 0;

@@ -32,15 +32,28 @@
 
 namespace sherpa_ncnn {
 
-// TODO(fangjun): Add timestamps
 struct RecognitionResult {
   std::vector<int32_t> tokens;
   std::string text;
+  std::vector<float> timestamps;
 
   int32_t num_trailing_blanks = 0;
 
   // used only for modified_beam_search
   Hypotheses hyps;
+
+  std::string ToString() const {
+    std::ostringstream os;
+
+    os << "text: " << text << "\n";
+    os << "timestamps: ";
+    for (const auto & t : timestamps) {
+      os << t << " ";
+    }
+    os << "\n";
+
+    return os.str();
+  }
 };
 
 struct DecoderConfig {
@@ -114,6 +127,7 @@ class Recognizer {
 
  private:
   std::unique_ptr<Model> model_;
+  std::unique_ptr<knf::FbankOptions> fbank_opts_;
   std::unique_ptr<SymbolTable> sym_;
   std::unique_ptr<Endpoint> endpoint_;
   std::unique_ptr<Decoder> decoder_;
