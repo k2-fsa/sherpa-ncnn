@@ -36,7 +36,7 @@ class GreedySearchDecoder : public Decoder {
   void Decode(ncnn::Mat encoder_out, DecoderResult *result) override;
 
  private:
-  ncnn::Mat BuildDecoderInput(const DecoderResult &result);
+  ncnn::Mat BuildDecoderInput(const DecoderResult &result) const;
 
  private:
   Model *model_;  // not owned

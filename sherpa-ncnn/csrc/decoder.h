@@ -47,6 +47,9 @@ struct DecoderResult {
 
   std::vector<int32_t> timestamps;
 
+  // Cache the decoder_out just before endpointing
+  ncnn::Mat decoder_out;
+
   // used only for modified_beam_search
   Hypotheses hyps;
 };

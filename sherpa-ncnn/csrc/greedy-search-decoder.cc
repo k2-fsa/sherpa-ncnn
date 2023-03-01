@@ -19,7 +19,8 @@
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 namespace sherpa_ncnn {
 
-ncnn::Mat GreedySearchDecoder::BuildDecoderInput(const DecoderResult &result) {
+ncnn::Mat GreedySearchDecoder::BuildDecoderInput(
+    const DecoderResult &result) const {
   int32_t context_size = model_->ContextSize();
   ncnn::Mat decoder_input(context_size);
   for (int32_t i = 0; i != context_size; ++i) {
@@ -48,10 +49,12 @@ void GreedySearchDecoder::StripLeadingBlanks(DecoderResult *r) const {
 }
 
 void GreedySearchDecoder::Decode(ncnn::Mat encoder_out, DecoderResult *result) {
-  ncnn::Mat decoder_input = BuildDecoderInput(*result);
-
   // TODO(fangjun): Cache the result of decoder_out
-  ncnn::Mat decoder_out = model_->RunDecoder(decoder_input);
+  ncnn::Mat decoder_out = result->decoder_out;
+  if (decoder_out.empty()) {
+    ncnn::Mat decoder_input = BuildDecoderInput(*result);
+    decoder_out = model_->RunDecoder(decoder_input);
+  }
 
   for (int32_t t = 0; t != encoder_out.h; ++t) {
     ncnn::Mat encoder_out_t(encoder_out.w, encoder_out.row(t));
@@ -66,13 +69,15 @@ void GreedySearchDecoder::Decode(ncnn::Mat encoder_out, DecoderResult *result) {
     // the blank ID is fixed to 0
     if (new_token != 0) {
       result->tokens.push_back(new_token);
-      decoder_input = BuildDecoderInput(*result);
+      ncnn::Mat decoder_input = BuildDecoderInput(*result);
       decoder_out = model_->RunDecoder(decoder_input);
       result->num_trailing_blanks = 0;
     } else {
       ++result->num_trailing_blanks;
     }
   }
+
+  result->decoder_out = decoder_out;
 }
 
 }  // namespace sherpa_ncnn

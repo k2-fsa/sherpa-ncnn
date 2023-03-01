@@ -44,36 +44,38 @@ int32_t main(int32_t argc, char *argv[]) {
     fprintf(stderr, "%s\n", kUsage);
     return -1;
   }
-  SherpaNcnnModelConfig model_config;
-  model_config.tokens = argv[1];
-  model_config.encoder_param = argv[2];
-  model_config.encoder_bin = argv[3];
-  model_config.decoder_param = argv[4];
-  model_config.decoder_bin = argv[5];
-  model_config.joiner_param = argv[6];
-  model_config.joiner_bin = argv[7];
+  SherpaNcnnRecognizerConfig config;
+  config.model_config.tokens = argv[1];
+  config.model_config.encoder_param = argv[2];
+  config.model_config.encoder_bin = argv[3];
+  config.model_config.decoder_param = argv[4];
+  config.model_config.decoder_bin = argv[5];
+  config.model_config.joiner_param = argv[6];
+  config.model_config.joiner_bin = argv[7];
 
   int32_t num_threads = 4;
   if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
-  model_config.num_threads = num_threads;
-  model_config.use_vulkan_compute = 0;
+  config.model_config.num_threads = num_threads;
+  config.model_config.use_vulkan_compute = 0;
 
-  SherpaNcnnDecoderConfig decoder_config;
-  decoder_config.decoding_method = "greedy_search";
+  config.decoder_config.decoding_method = "greedy_search";
 
   if (argc == 11) {
-    decoder_config.decoding_method = argv[10];
+    config.decoder_config.decoding_method = argv[10];
   }
-  decoder_config.num_active_paths = 4;
-  decoder_config.enable_endpoint = 0;
-  decoder_config.rule1_min_trailing_silence = 2.4;
-  decoder_config.rule2_min_trailing_silence = 1.2;
-  decoder_config.rule3_min_utterance_length = 300;
+  config.decoder_config.num_active_paths = 4;
+  config.enable_endpoint = 0;
+  config.rule1_min_trailing_silence = 2.4;
+  config.rule2_min_trailing_silence = 1.2;
+  config.rule3_min_utterance_length = 300;
 
-  SherpaNcnnRecognizer *recognizer =
-      CreateRecognizer(&model_config, &decoder_config);
+  config.feat_config.sampling_rate = 16000;
+  config.feat_config.feature_dim = 80;
+  config.feat_config.max_feature_vectors = 2 * 100;  // 2 seconds cache
+
+  SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
 
   const char *wav_filename = argv[8];
   FILE *fp = fopen(wav_filename, "rb");
@@ -92,15 +94,20 @@ int32_t main(int32_t argc, char *argv[]) {
   int16_t buffer[N];
   float samples[N];
 
+  SherpaNcnnStream *s = CreateStream(recognizer);
+
   while (!feof(fp)) {
     size_t n = fread((void *)buffer, sizeof(int16_t), N, fp);
     if (n > 0) {
       for (size_t i = 0; i != n; ++i) {
         samples[i] = buffer[i] / 32768.;
       }
-      AcceptWaveform(recognizer, 16000, samples, n);
-      Decode(recognizer);
-      SherpaNcnnResult *r = GetResult(recognizer);
+      AcceptWaveform(s, 16000, samples, n);
+      while (IsReady(recognizer, s)) {
+        Decode(recognizer, s);
+      }
+
+      SherpaNcnnResult *r = GetResult(recognizer, s);
       if (strlen(r->text)) {
         fprintf(stderr, "%s\n", r->text);
       }
@@ -111,15 +118,18 @@ int32_t main(int32_t argc, char *argv[]) {
 
   // add some tail padding
   float tail_paddings[4800] = {0};  // 0.3 seconds at 16 kHz sample rate
-  AcceptWaveform(recognizer, 16000, tail_paddings, 4800);
+  AcceptWaveform(s, 16000, tail_paddings, 4800);
 
-  InputFinished(recognizer);
+  InputFinished(s);
 
-  Decode(recognizer);
-  SherpaNcnnResult *r = GetResult(recognizer);
+  while (IsReady(recognizer, s)) {
+    Decode(recognizer, s);
+  }
+  SherpaNcnnResult *r = GetResult(recognizer, s);
   fprintf(stderr, "%s\n", r->text);
   DestroyResult(r);
 
+  DestroyStream(s);
   DestroyRecognizer(recognizer);
 
   return 0;

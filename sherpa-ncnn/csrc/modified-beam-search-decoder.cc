@@ -136,6 +136,7 @@ ncnn::Mat ModifiedBeamSearchDecoder::BuildDecoderInput(
 
 void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
                                        DecoderResult *result) {
+  int32_t context_size = model_->ContextSize();
   Hypotheses cur = std::move(result->hyps);
   /* encoder_out.w == encoder_out_dim, encoder_out.h == num_frames. */
   for (int32_t t = 0; t != encoder_out.h; ++t) {
@@ -143,7 +144,14 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
     cur.Clear();
 
     ncnn::Mat decoder_input = BuildDecoderInput(prev);
-    ncnn::Mat decoder_out = RunDecoder2D(model_, decoder_input);
+    ncnn::Mat decoder_out;
+    if (t == 0 && prev.size() == 1 && prev[0].ys.size() == context_size &&
+        !result->decoder_out.empty()) {
+      // When an endpoint is detected, we keep the decoder_out
+      decoder_out = result->decoder_out;
+    } else {
+      decoder_out = RunDecoder2D(model_, decoder_input);
+    }
 
     // decoder_out.w == decoder_dim
     // decoder_out.h == num_active_paths
@@ -179,6 +187,10 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
 
   result->hyps = std::move(cur);
   auto hyp = result->hyps.GetMostProbable(true);
+
+  // set decoder_out in case of endpointing
+  ncnn::Mat decoder_input = BuildDecoderInput({hyp});
+  result->decoder_out = model_->RunDecoder(decoder_input);
 
   result->tokens = std::move(hyp.ys);
   result->num_trailing_blanks = hyp.num_trailing_blanks;

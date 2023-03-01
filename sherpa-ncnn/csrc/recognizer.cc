@@ -83,7 +83,6 @@ class Recognizer::Impl {
       NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
       exit(-1);
     }
-    NCNN_LOGE("here");
   }
 
 #if __ANDROID_API__ >= 9
@@ -145,16 +144,17 @@ class Recognizer::Impl {
   }
 
   void Reset(Stream *s) const {
-    // reset result, neural network model state, and
-    // the feature extractor state
-
-    // reset result
+    // Caution: We need to keep the decoder output state
+    ncnn::Mat decoder_out = s->GetResult().decoder_out;
     s->SetResult(decoder_->GetEmptyResult());
+    s->GetResult().decoder_out = decoder_out;
 
-    // reset neural network model state
-    s->SetStates(model_->GetEncoderInitStates());
+    // don't reset encoder state
+    // s->SetStates(model_->GetEncoderInitStates());
 
     // reset feature extractor
+    // Note: We only reset the counter. The underlying audio samples are
+    // still kept in memory
     s->Reset();
   }
 

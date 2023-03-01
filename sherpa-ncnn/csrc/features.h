@@ -73,9 +73,6 @@ class FeatureExtractor {
    */
   ncnn::Mat GetFrames(int32_t frame_index, int32_t n) const;
 
-  // Re-initialize this object, discarding all samples received so far
-  void Reset();
-
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;
