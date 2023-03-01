@@ -49,43 +49,41 @@ for a list of pre-trained models to download.
 
     return 0;
   }
-  sherpa_ncnn::ModelConfig model_conf;
-  model_conf.tokens = argv[1];
-  model_conf.encoder_param = argv[2];
-  model_conf.encoder_bin = argv[3];
-  model_conf.decoder_param = argv[4];
-  model_conf.decoder_bin = argv[5];
-  model_conf.joiner_param = argv[6];
-  model_conf.joiner_bin = argv[7];
+  sherpa_ncnn::RecognizerConfig config;
+  config.model_config.tokens = argv[1];
+  config.model_config.encoder_param = argv[2];
+  config.model_config.encoder_bin = argv[3];
+  config.model_config.decoder_param = argv[4];
+  config.model_config.decoder_bin = argv[5];
+  config.model_config.joiner_param = argv[6];
+  config.model_config.joiner_bin = argv[7];
   int32_t num_threads = 4;
   if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
-  model_conf.encoder_opt.num_threads = num_threads;
-  model_conf.decoder_opt.num_threads = num_threads;
-  model_conf.joiner_opt.num_threads = num_threads;
+  config.model_config.encoder_opt.num_threads = num_threads;
+  config.model_config.decoder_opt.num_threads = num_threads;
+  config.model_config.joiner_opt.num_threads = num_threads;
 
   float expected_sampling_rate = 16000;
-  sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
     std::string method = argv[10];
     if (method.compare("greedy_search") ||
         method.compare("modified_beam_search")) {
-      decoder_conf.method = method;
+      config.decoder_config.method = method;
     }
   }
-  knf::FbankOptions fbank_opts;
-  fbank_opts.frame_opts.dither = 0;
-  fbank_opts.frame_opts.snip_edges = false;
-  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
-  fbank_opts.mel_opts.num_bins = 80;
 
-  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
+  config.feat_config.sampling_rate = expected_sampling_rate;
+  config.feat_config.feature_dim = 80;
+  config.feat_config.max_feature_vectors = -1;  // for non-streaming
+
+  sherpa_ncnn::Recognizer recognizer(config);
 
   std::string wav_filename = argv[8];
 
-  std::cout << model_conf.ToString() << "\n";
-  std::cout << decoder_conf.ToString() << "\n";
+  std::cout << config.ToString() << "\n";
+
   bool is_ok = false;
   std::vector<float> samples =
       sherpa_ncnn::ReadWave(wav_filename, expected_sampling_rate, &is_ok);
@@ -101,15 +99,18 @@ for a list of pre-trained models to download.
   auto begin = std::chrono::steady_clock::now();
   std::cout << "Started!\n";
 
-  recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
-                            samples.size());
+  auto stream = recognizer.CreateStream();
+  stream->AcceptWaveform(expected_sampling_rate, samples.data(),
+                         samples.size());
   std::vector<float> tail_paddings(
       static_cast<int>(0.3 * expected_sampling_rate));
-  recognizer.AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
-                            tail_paddings.size());
+  stream->AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
+                         tail_paddings.size());
 
-  recognizer.Decode();
-  auto result = recognizer.GetResult();
+  while (recognizer.IsReady(stream.get())) {
+    recognizer.DecodeStream(stream.get());
+  }
+  auto result = recognizer.GetResult(stream.get());
   std::cout << "Done!\n";
 
   std::cout << "Recognition result for " << wav_filename << "\n"

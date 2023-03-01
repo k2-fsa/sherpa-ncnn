@@ -25,6 +25,8 @@ class ConvEmformerModel : public Model {
   ncnn::Net &GetDecoder() override { return decoder_; }
   ncnn::Net &GetJoiner() override { return joiner_; }
 
+  std::vector<ncnn::Mat> GetEncoderInitStates() const override;
+
   std::pair<ncnn::Mat, std::vector<ncnn::Mat>> RunEncoder(
       ncnn::Mat &features, const std::vector<ncnn::Mat> &states) override;
 
@@ -73,8 +75,6 @@ class ConvEmformerModel : public Model {
   void InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
                   const std::string &joiner_bin);
 #endif
-
-  std::vector<ncnn::Mat> GetEncoderInitStates() const;
 
   void InitEncoderInputOutputIndexes();
   void InitDecoderInputOutputIndexes();

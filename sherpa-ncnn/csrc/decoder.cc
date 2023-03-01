@@ -17,33 +17,18 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
-#define SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
-
 #include "sherpa-ncnn/csrc/decoder.h"
-#include "sherpa-ncnn/csrc/model.h"
 
 namespace sherpa_ncnn {
 
-class ModifiedBeamSearchDecoder : public Decoder {
- public:
-  ModifiedBeamSearchDecoder(Model *model, int32_t num_active_paths)
-      : model_(model), num_active_paths_(num_active_paths) {}
+std::string DecoderConfig::ToString() const {
+  std::ostringstream os;
 
-  DecoderResult GetEmptyResult() const override;
+  os << "DecoderConfig(";
+  os << "method=\"" << method << "\", ";
+  os << "num_active_paths=" << num_active_paths << ")";
 
-  void StripLeadingBlanks(DecoderResult *r) const override;
-
-  void Decode(ncnn::Mat encoder_out, DecoderResult *result) override;
-
- private:
-  ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps) const;
-
- private:
-  Model *model_;  // not owned
-  int32_t num_active_paths_;
-};
+  return os.str();
+}
 
 }  // namespace sherpa_ncnn
-
-#endif  // SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_

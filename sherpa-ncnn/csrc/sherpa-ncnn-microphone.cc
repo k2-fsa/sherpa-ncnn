@@ -35,10 +35,10 @@ static int32_t RecordCallback(const void *input_buffer,
                               const PaStreamCallbackTimeInfo * /*time_info*/,
                               PaStreamCallbackFlags /*status_flags*/,
                               void *user_data) {
-  auto recognizer = reinterpret_cast<sherpa_ncnn::Recognizer *>(user_data);
+  auto s = reinterpret_cast<sherpa_ncnn::Stream *>(user_data);
 
-  recognizer->AcceptWaveform(
-      16000, reinterpret_cast<const float *>(input_buffer), frames_per_buffer);
+  s->AcceptWaveform(16000, reinterpret_cast<const float *>(input_buffer),
+                    frames_per_buffer);
 
   return stop ? paComplete : paContinue;
 }
@@ -73,52 +73,47 @@ for a list of pre-trained models to download.
   }
   signal(SIGINT, Handler);
 
-  sherpa_ncnn::ModelConfig model_conf;
-  model_conf.tokens = argv[1];
-  model_conf.encoder_param = argv[2];
-  model_conf.encoder_bin = argv[3];
-  model_conf.decoder_param = argv[4];
-  model_conf.decoder_bin = argv[5];
-  model_conf.joiner_param = argv[6];
-  model_conf.joiner_bin = argv[7];
+  sherpa_ncnn::RecognizerConfig config;
+  config.model_config.tokens = argv[1];
+  config.model_config.encoder_param = argv[2];
+  config.model_config.encoder_bin = argv[3];
+  config.model_config.decoder_param = argv[4];
+  config.model_config.decoder_bin = argv[5];
+  config.model_config.joiner_param = argv[6];
+  config.model_config.joiner_bin = argv[7];
   int32_t num_threads = 4;
   if (argc >= 9 && atoi(argv[8]) > 0) {
     num_threads = atoi(argv[8]);
   }
-  model_conf.encoder_opt.num_threads = num_threads;
-  model_conf.decoder_opt.num_threads = num_threads;
-  model_conf.joiner_opt.num_threads = num_threads;
-
-  fprintf(stderr, "%s\n", model_conf.ToString().c_str());
+  config.model_config.encoder_opt.num_threads = num_threads;
+  config.model_config.decoder_opt.num_threads = num_threads;
+  config.model_config.joiner_opt.num_threads = num_threads;
 
   const float expected_sampling_rate = 16000;
-  sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 10) {
     std::string method = argv[9];
     if (method.compare("greedy_search") ||
         method.compare("modified_beam_search")) {
-      decoder_conf.method = method;
+      config.decoder_config.method = method;
     }
   }
 
-  decoder_conf.enable_endpoint = true;
+  config.enable_endpoint = true;
 
-  sherpa_ncnn::EndpointConfig endpoint_config;
-  endpoint_config.rule1.min_trailing_silence = 2.4;
-  endpoint_config.rule2.min_trailing_silence = 1.2;  // <--tune this value !
-  endpoint_config.rule3.min_utterance_length = 300;
+  config.endpoint_config.rule1.min_trailing_silence = 2.4;
+  config.endpoint_config.rule2.min_trailing_silence = 1.2;
+  config.endpoint_config.rule3.min_utterance_length = 300;
 
-  decoder_conf.endpoint_config = endpoint_config;
+  config.feat_config.sampling_rate = expected_sampling_rate;
+  config.feat_config.feature_dim = 80;
 
-  fprintf(stderr, "%s\n", decoder_conf.ToString().c_str());
+  // cache 2 seconds of features
+  config.feat_config.max_feature_vectors = 2 * 100;
+  //
+  fprintf(stderr, "%s\n", config.ToString().c_str());
 
-  knf::FbankOptions fbank_opts;
-  fbank_opts.frame_opts.dither = 0;
-  fbank_opts.frame_opts.snip_edges = false;
-  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
-  fbank_opts.mel_opts.num_bins = 80;
-
-  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
+  sherpa_ncnn::Recognizer recognizer(config);
+  auto s = recognizer.CreateStream();
 
   sherpa_ncnn::Microphone mic;
 
@@ -152,7 +147,7 @@ for a list of pre-trained models to download.
                     0,          // frames per buffer
                     paClipOff,  // we won't output out of range samples
                                 // so don't bother clipping them
-                    RecordCallback, &recognizer);
+                    RecordCallback, s.get());
   if (err != paNoError) {
     fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
     exit(EXIT_FAILURE);
@@ -170,10 +165,12 @@ for a list of pre-trained models to download.
   int32_t segment_index = 0;
   sherpa_ncnn::Display display;
   while (!stop) {
-    recognizer.Decode();
+    while (recognizer.IsReady(s.get())) {
+      recognizer.DecodeStream(s.get());
+    }
 
-    bool is_endpoint = recognizer.IsEndpoint();
-    auto text = recognizer.GetResult().text;
+    bool is_endpoint = recognizer.IsEndpoint(s.get());
+    auto text = recognizer.GetResult(s.get()).text;
 
     if (!text.empty() && last_text != text) {
       last_text = text;
@@ -184,8 +181,12 @@ for a list of pre-trained models to download.
       display.Print(segment_index, text);
     }
 
-    if (!text.empty() && is_endpoint) {
-      ++segment_index;
+    if (is_endpoint) {
+      if (!text.empty()) {
+        ++segment_index;
+      }
+
+      recognizer.Reset(s.get());
     }
 
     Pa_Sleep(20);  // sleep for 20ms
