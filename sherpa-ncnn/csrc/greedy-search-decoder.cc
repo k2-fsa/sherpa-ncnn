@@ -17,6 +17,9 @@
  * limitations under the License.
  */
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
+
+#include <vector>
+
 namespace sherpa_ncnn {
 
 ncnn::Mat GreedySearchDecoder::BuildDecoderInput(

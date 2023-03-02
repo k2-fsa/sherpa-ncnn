@@ -19,6 +19,9 @@
 #ifndef SHERPA_NCNN_CSRC_STREAM_H_
 #define SHERPA_NCNN_CSRC_STREAM_H_
 
+#include <memory>
+#include <vector>
+
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/features.h"
 

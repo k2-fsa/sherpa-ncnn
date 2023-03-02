@@ -25,19 +25,20 @@
 
 namespace sherpa_ncnn {
 
-static constexpr const char *kDecoderConfigInitDoc = R"doc(
-Constructor for DecoderConfig.
+static constexpr const char *kRecognizerConfigInitDoc = R"doc(
+Constructor for RecognizerConfig.
 
 Args:
-  method:
-    Decoding method. Supported values are: greedy_search, modified_beam_search.
-  num_active_paths:
-    Used only when method is modified_beam_search. It specifies the number of
-    actives paths during beam search.
+  feat_config:
+    Feature extraction options.
+  model_config:
+    Config for NN models.
+  decoder_config:
+    Config for decoding.
+  endpoint_config:
+    Config for endpointing
   enable_endpoint:
     True to enable endpoint detection. False to disable endpoint detection.
-  endpoint_config:
-    Used only when ``enable_endpoint`` is True.
 )doc";
 
 static void PybindRecognitionResult(py::module *m) {
@@ -47,58 +48,35 @@ static void PybindRecognitionResult(py::module *m) {
           "text", [](PyClass &self) -> std::string { return self.text; });
 }
 
-static void PybindDecoderConfig(py::module *m) {
-  using PyClass = DecoderConfig;
-  py::class_<PyClass>(*m, "DecoderConfig")
-      .def(py::init<const std::string &, int32_t, bool,
-                    const EndpointConfig &>(),
-           py::arg("method"), py::arg("num_active_paths"),
-           py::arg("enable_endpoint"), py::arg("endpoint_config"),
-           kDecoderConfigInitDoc)
+static void PybindRecognizerConfig(py::module *m) {
+  using PyClass = RecognizerConfig;
+  py::class_<PyClass>(*m, "RecognizerConfig")
+      .def(py::init<const FeatureExtractorConfig &, const ModelConfig &,
+                    const DecoderConfig &, const EndpointConfig &, bool>(),
+           py::arg("feat_config"), py::arg("model_config"),
+           py::arg("decoder_config"), py::arg("endpoint_config"),
+           py::arg("enable_endpoint"), kRecognizerConfigInitDoc)
       .def("__str__", &PyClass::ToString)
-      .def_property_readonly("method",
-                             [](const PyClass &self) { return self.method; })
-      .def_property_readonly(
-          "num_active_paths",
-          [](const PyClass &self) { return self.num_active_paths; })
-      .def_property_readonly(
-          "enable_endpoint",
-          [](const PyClass &self) { return self.enable_endpoint; })
-      .def_property_readonly("endpoint_config", [](const PyClass &self) {
-        return self.endpoint_config;
-      });
+      .def_readwrite("feat_config", &PyClass::feat_config)
+      .def_readwrite("model_config", &PyClass::model_config)
+      .def_readwrite("decoder_config", &PyClass::decoder_config)
+      .def_readwrite("endpoint_config", &PyClass::endpoint_config)
+      .def_readwrite("enable_endpoint", &PyClass::enable_endpoint);
 }
 
 void PybindRecognizer(py::module *m) {
   PybindRecognitionResult(m);
-  PybindDecoderConfig(m);
+  PybindRecognizerConfig(m);
 
   using PyClass = Recognizer;
   py::class_<PyClass>(*m, "Recognizer")
-      .def(py::init([](const DecoderConfig &decoder_config,
-                       const ModelConfig &model_config,
-                       float sample_rate = 16000) -> std::unique_ptr<PyClass> {
-             knf::FbankOptions fbank_opts;
-             fbank_opts.frame_opts.dither = 0;
-             fbank_opts.frame_opts.snip_edges = false;
-             fbank_opts.frame_opts.samp_freq = sample_rate;
-             fbank_opts.mel_opts.num_bins = 80;
-
-             return std::make_unique<PyClass>(decoder_config, model_config,
-                                              fbank_opts);
-           }),
-           py::arg("decoder_config"), py::arg("model_config"),
-           py::arg("sample_rate") = 16000)
-      .def("accept_waveform",
-           [](PyClass &self, float sample_rate, py::array_t<float> waveform) {
-             self.AcceptWaveform(sample_rate, waveform.data(), waveform.size());
-           })
-      .def("input_finished", &PyClass::InputFinished)
-      .def("decode", &PyClass::Decode)
-      .def_property_readonly("result",
-                             [](PyClass &self) { return self.GetResult(); })
-      .def("is_endpoint", &PyClass::IsEndpoint)
-      .def("reset", &PyClass::Reset);
+      .def(py::init<const RecognizerConfig &>(), py::arg("config"))
+      .def("create_stream", &PyClass::CreateStream)
+      .def("decode_stream", &PyClass::DecodeStream, py::arg("s"))
+      .def("is_ready", &PyClass::IsReady, py::arg("s"))
+      .def("reset", &PyClass::Reset, py::arg("s"))
+      .def("is_endpoint", &PyClass::IsEndpoint, py::arg("s"))
+      .def("get_result", &PyClass::GetResult, py::arg("s"));
 }
 
 }  // namespace sherpa_ncnn

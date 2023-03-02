@@ -22,7 +22,8 @@ namespace sherpa_ncnn {
 
 class Stream::Impl {
  public:
-  Impl(const FeatureExtractorConfig &config) : feat_extractor_(config) {}
+  explicit Impl(const FeatureExtractorConfig &config)
+      : feat_extractor_(config) {}
 
   void AcceptWaveform(float sampling_rate, const float *waveform, int32_t n) {
     feat_extractor_.AcceptWaveform(sampling_rate, waveform, n);

@@ -74,7 +74,6 @@ typedef struct SherpaNcnnDecoderConfig {
   /// Number of active paths for modified_beam_search.
   /// It is ignored when decoding_method is greedy_search.
   int32_t num_active_paths;
-
 } SherpaNcnnDecoderConfig;
 
 typedef struct SherpaNcnnFeatureExtractorConfig {

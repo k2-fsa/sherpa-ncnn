@@ -19,7 +19,10 @@
 
 #ifndef SHERPA_NCNN_CSRC_DECODER_H_
 #define SHERPA_NCNN_CSRC_DECODER_H_
-#include "mat.h"
+#include <string>
+#include <vector>
+
+#include "mat.h"  // NOLINT
 #include "sherpa-ncnn/csrc/hypothesis.h"
 
 namespace sherpa_ncnn {

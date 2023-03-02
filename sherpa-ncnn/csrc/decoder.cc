@@ -19,6 +19,9 @@
 
 #include "sherpa-ncnn/csrc/decoder.h"
 
+#include <sstream>
+#include <string>
+
 namespace sherpa_ncnn {
 
 std::string DecoderConfig::ToString() const {

@@ -19,6 +19,10 @@
 
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
 
+#include <algorithm>
+#include <utility>
+#include <vector>
+
 #include "sherpa-ncnn/csrc/math.h"
 
 namespace sherpa_ncnn {

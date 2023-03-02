@@ -1,10 +1,14 @@
 
 include_directories(${PROJECT_SOURCE_DIR})
 set(srcs
+  decoder.cc
+  display.cc
   endpoint.cc
+  features.cc
   model.cc
   recognizer.cc
   sherpa-ncnn.cc
+  stream.cc
 )
 
 pybind11_add_module(_sherpa_ncnn ${srcs})

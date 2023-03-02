@@ -1,5 +1,5 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,29 +16,20 @@
  * limitations under the License.
  */
 
-#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
-
-#include "sherpa-ncnn/python/csrc/decoder.h"
-#include "sherpa-ncnn/python/csrc/display.h"
-#include "sherpa-ncnn/python/csrc/endpoint.h"
-#include "sherpa-ncnn/python/csrc/features.h"
-#include "sherpa-ncnn/python/csrc/model.h"
-#include "sherpa-ncnn/python/csrc/recognizer.h"
 #include "sherpa-ncnn/python/csrc/stream.h"
+
+#include "sherpa-ncnn/csrc/stream.h"
 
 namespace sherpa_ncnn {
 
-PYBIND11_MODULE(_sherpa_ncnn, m) {
-  m.doc() = "pybind11 binding of sherpa-ncnn";
-
-  PybindEndpoint(&m);
-  PybindFeatures(&m);
-  PybindModel(&m);
-  PybindDecoder(&m);
-  PybindStream(&m);
-  PybindRecognizer(&m);
-
-  PybindDisplay(&m);
+void PybindStream(py::module *m) {
+  using PyClass = Stream;
+  py::class_<PyClass>(*m, "Stream")
+      .def("accept_waveform",
+           [](PyClass &self, float sample_rate, py::array_t<float> waveform) {
+             self.AcceptWaveform(sample_rate, waveform.data(), waveform.size());
+           })
+      .def("input_finished", &PyClass::InputFinished);
 }
 
 }  // namespace sherpa_ncnn

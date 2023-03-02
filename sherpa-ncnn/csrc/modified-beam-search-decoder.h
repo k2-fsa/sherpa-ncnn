@@ -20,6 +20,9 @@
 #ifndef SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
 #define SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
 
+#include <vector>
+
+#include "mat.h"  // NOLINT
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/model.h"
 
