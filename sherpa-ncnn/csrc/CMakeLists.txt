@@ -9,9 +9,11 @@ set(sherpa_ncnn_core_srcs
   lstm-model.cc
   meta-data.cc
   model.cc
+  decoder.cc
   modified-beam-search-decoder.cc
   recognizer.cc
   resample.cc
+  stream.cc
   symbol-table.cc
   wave-reader.cc
   zipformer-model.cc

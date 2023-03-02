@@ -13,6 +13,144 @@ echo "PATH: $PATH"
 
 which $EXE
 
+
+log "------------------------------------------------------------"
+log "Run Zipformer transducer (Chinese, small model 14M)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/marcoyang/sherpa-ncnn-streaming-zipformer-zh-14M-2023-02-23
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+
+waves=(
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+)
+
+popd
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+rm -rf $repo
+
+log "------------------------------------------------------------"
+log "Run Zipformer transducer (English, small model 20M)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/marcoyang/sherpa-ncnn-streaming-zipformer-20M-2023-02-17
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+
+waves=(
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+)
+
+popd
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+rm -rf $repo
+
+
+log "------------------------------------------------------------"
+log "Run LSTM transducer (Chinese+English, small model)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/marcoyang/sherpa-ncnn-lstm-transducer-small-2023-02-13
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "*.bin"
+
+waves=(
+$repo/test_wavs/0.wav
+$repo/test_wavs/1.wav
+$repo/test_wavs/2.wav
+)
+
+popd
+
+for wave in ${waves[@]}; do
+  for m in greedy_search modified_beam_search; do
+    log "----test $m ---"
+
+    time $EXE \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
+      $wave \
+      4 \
+      $m
+  done
+done
+
+# Decode a URL
+if [ $EXE == "sherpa-ncnn-ffmpeg" ]; then
+  time $EXE \
+    $repo/tokens.txt \
+    $repo/encoder_jit_trace-pnnx.ncnn.param \
+    $repo/encoder_jit_trace-pnnx.ncnn.bin \
+    $repo/decoder_jit_trace-pnnx.ncnn.param \
+    $repo/decoder_jit_trace-pnnx.ncnn.bin \
+    $repo/joiner_jit_trace-pnnx.ncnn.param \
+    $repo/joiner_jit_trace-pnnx.ncnn.bin \
+    https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-04/resolve/main/test_wavs/1089-134686-0001.wav \
+    4 \
+    $m
+fi
+
+
+rm -rf $repo
+
 log "------------------------------------------------------------"
 log "Run ConvEmformer transducer (Chinese, small model)"
 log "------------------------------------------------------------"
@@ -385,92 +523,6 @@ waves=(
 $repo/test_wavs/1089-134686-0001.wav
 $repo/test_wavs/1221-135766-0001.wav
 $repo/test_wavs/1221-135766-0002.wav
-)
-
-for wave in ${waves[@]}; do
-  for m in greedy_search modified_beam_search; do
-    log "----test $m ---"
-
-    time $EXE \
-      $repo/tokens.txt \
-      $repo/encoder_jit_trace-pnnx.ncnn.param \
-      $repo/encoder_jit_trace-pnnx.ncnn.bin \
-      $repo/decoder_jit_trace-pnnx.ncnn.param \
-      $repo/decoder_jit_trace-pnnx.ncnn.bin \
-      $repo/joiner_jit_trace-pnnx.ncnn.param \
-      $repo/joiner_jit_trace-pnnx.ncnn.bin \
-      $wave \
-      4 \
-      $m
-  done
-done
-
-rm -rf $repo
-
-log "------------------------------------------------------------"
-log "Run Zipformer transducer (Japanese, fluent)"
-log "------------------------------------------------------------"
-repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-ja-fluent-2023-02-14
-
-log "Start testing ${repo_url}"
-repo=$(basename $repo_url)
-log "Download pretrained model and test-data from $repo_url"
-
-GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
-pushd $repo
-git lfs pull --include "*.bin"
-git lfs pull --include "test_wavs/*.wav"
-popd
-
-waves=(
-$repo/test_wavs/aps-smp.wav
-$repo/test_wavs/interview_aps-smp.wav
-$repo/test_wavs/reproduction-smp.wav
-$repo/test_wavs/sps-smp.wav
-$repo/test_wavs/task-smp.wav
-)
-
-for wave in ${waves[@]}; do
-  for m in greedy_search modified_beam_search; do
-    log "----test $m ---"
-
-    time $EXE \
-      $repo/tokens.txt \
-      $repo/encoder_jit_trace-pnnx.ncnn.param \
-      $repo/encoder_jit_trace-pnnx.ncnn.bin \
-      $repo/decoder_jit_trace-pnnx.ncnn.param \
-      $repo/decoder_jit_trace-pnnx.ncnn.bin \
-      $repo/joiner_jit_trace-pnnx.ncnn.param \
-      $repo/joiner_jit_trace-pnnx.ncnn.bin \
-      $wave \
-      4 \
-      $m
-  done
-done
-
-rm -rf $repo
-
-log "------------------------------------------------------------"
-log "Run Zipformer transducer (Japanese, disfluent)"
-log "------------------------------------------------------------"
-repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-ja-disfluent-2023-02-14
-
-log "Start testing ${repo_url}"
-repo=$(basename $repo_url)
-log "Download pretrained model and test-data from $repo_url"
-
-GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
-pushd $repo
-git lfs pull --include "*.bin"
-git lfs pull --include "test_wavs/*.wav"
-popd
-
-waves=(
-$repo/test_wavs/aps-smp.wav
-$repo/test_wavs/interview_aps-smp.wav
-$repo/test_wavs/reproduction-smp.wav
-$repo/test_wavs/sps-smp.wav
-$repo/test_wavs/task-smp.wav
 )
 
 for wave in ${waves[@]}; do

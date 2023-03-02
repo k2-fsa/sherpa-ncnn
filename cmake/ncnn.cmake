@@ -11,15 +11,20 @@ function(download_ncnn)
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/ncnn-sherpa-0.9.tar.gz")
-    set(ncnn_URL  "file:///star-fj/fangjun/download/github/ncnn-sherpa-0.9.tar.gz")
-  elseif(EXISTS "/Users/fangjun/Downloads/ncnn-sherpa-0.9.tar.gz")
-    set(ncnn_URL  "file:///Users/fangjun/Downloads/ncnn-sherpa-0.9.tar.gz")
-  elseif(EXISTS "/tmp/ncnn-sherpa-0.9.tar.gz")
-    set(ncnn_URL  "file:///tmp/ncnn-sherpa-0.9.tar.gz")
-  elseif(EXISTS "$ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz")
-    set(ncnn_URL  "file://$ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz")
-  endif()
+  set(possible_file_locations
+    $ENV{HOME}/Downloads/ncnn-sherpa-0.9.tar.gz
+    $ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz
+    ${PROJECT_SOURCE_DIR}/ncnn-sherpa-0.9.tar.gz
+    ${PROJECT_BINARY_DIR}/ncnn-sherpa-0.9.tar.gz
+    /tmp/ncnn-sherpa-0.9.tar.gz
+  )
+
+  foreach(f IN LISTS possible_file_locations)
+    if(EXISTS ${f})
+      set(ncnn_URL  "file://${f}")
+      break()
+    endif()
+  endforeach()
 
   FetchContent_Declare(ncnn
     URL               ${ncnn_URL}
@@ -156,7 +161,7 @@ function(download_ncnn)
 
   FetchContent_GetProperties(ncnn)
   if(NOT ncnn_POPULATED)
-    message(STATUS "Downloading ncnn ${ncnn_URL}")
+    message(STATUS "Downloading ncnn from ${ncnn_URL}")
     FetchContent_Populate(ncnn)
   endif()
   message(STATUS "ncnn is downloaded to ${ncnn_SOURCE_DIR}")

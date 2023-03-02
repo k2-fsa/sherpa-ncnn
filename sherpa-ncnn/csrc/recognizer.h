@@ -28,96 +28,79 @@
 #include "sherpa-ncnn/csrc/features.h"
 #include "sherpa-ncnn/csrc/hypothesis.h"
 #include "sherpa-ncnn/csrc/model.h"
+#include "sherpa-ncnn/csrc/stream.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
 
 namespace sherpa_ncnn {
 
-// TODO(fangjun): Add timestamps
 struct RecognitionResult {
   std::vector<int32_t> tokens;
   std::string text;
-
-  int32_t num_trailing_blanks = 0;
-
-  // used only for modified_beam_search
-  Hypotheses hyps;
-};
-
-struct DecoderConfig {
-  std::string method = "modified_beam_search";
-
-  int32_t num_active_paths = 4;  // for modified beam search
-
-  bool enable_endpoint = false;
-
-  EndpointConfig endpoint_config;
-
-  DecoderConfig() = default;
-
-  DecoderConfig(const std::string &method, int32_t num_active_paths,
-                bool enable_endpoint, const EndpointConfig &endpoint_config)
-      : method(method),
-        num_active_paths(num_active_paths),
-        enable_endpoint(enable_endpoint),
-        endpoint_config(endpoint_config) {}
+  std::vector<float> timestamps;
 
   std::string ToString() const;
 };
 
-class Decoder {
- public:
-  virtual ~Decoder() = default;
+struct RecognizerConfig {
+  FeatureExtractorConfig feat_config;
+  ModelConfig model_config;
+  DecoderConfig decoder_config;
 
-  virtual void AcceptWaveform(float sample_rate, const float *input_buffer,
-                              int32_t frames_per_buffer) = 0;
+  EndpointConfig endpoint_config;
+  bool enable_endpoint = false;
 
-  virtual void Decode() = 0;
+  RecognizerConfig() = default;
 
-  virtual RecognitionResult GetResult() = 0;
+  RecognizerConfig(const FeatureExtractorConfig &feat_config,
+                   const ModelConfig &model_config,
+                   const DecoderConfig decoder_config,
+                   const EndpointConfig &endpoint_config, bool enable_endpoint)
+      : feat_config(feat_config),
+        model_config(model_config),
+        decoder_config(decoder_config),
+        endpoint_config(endpoint_config),
+        enable_endpoint(enable_endpoint) {}
 
-  virtual void ResetResult() = 0;
-
-  virtual void InputFinished() = 0;
-
-  virtual bool IsEndpoint() = 0;
-
-  virtual void Reset() = 0;
+  std::string ToString() const;
 };
 
 class Recognizer {
  public:
-  /** Construct an instance of OnlineRecognizer.
-   */
-  Recognizer(const DecoderConfig &decoder_conf, const ModelConfig &model_conf,
-             const knf::FbankOptions &fbank_opts);
+  explicit Recognizer(const RecognizerConfig &config);
 
 #if __ANDROID_API__ >= 9
-  Recognizer(AAssetManager *mgr, const DecoderConfig &decoder_conf,
-             const ModelConfig &model_conf,
-             const knf::FbankOptions &fbank_opts);
+  Recognizer(AAssetManager *mgr, const RecognizerConfig &config);
 #endif
 
-  ~Recognizer() = default;
+  ~Recognizer();
 
-  void AcceptWaveform(float sample_rate, const float *input_buffer,
-                      int32_t frames_per_buffer);
+  /// Create a stream for decoding.
+  std::unique_ptr<Stream> CreateStream() const;
 
-  void Decode();
+  /**
+   * Return true if the given stream has enough frames for decoding.
+   * Return false otherwise
+   */
+  bool IsReady(Stream *s) const;
 
-  RecognitionResult GetResult();
+  void DecodeStream(Stream *s) const;
 
-  void InputFinished();
+  // Return true if we detect an endpoint for this stream.
+  // Note: If this function returns true, you usually want to
+  // invoke Reset(s).
+  bool IsEndpoint(Stream *s) const;
 
-  bool IsEndpoint();
+  // Clear the state of this stream. If IsEndpoint(s) returns true,
+  // after calling this function, IsEndpoint(s) will return false
+  void Reset(Stream *s) const;
 
-  void Reset();
+  RecognitionResult GetResult(Stream *s) const;
 
  private:
-  std::unique_ptr<Model> model_;
-  std::unique_ptr<SymbolTable> sym_;
-  std::unique_ptr<Endpoint> endpoint_;
-  std::unique_ptr<Decoder> decoder_;
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
 }  // namespace sherpa_ncnn
+
 #endif  // SHERPA_NCNN_CSRC_RECOGNIZER_H_

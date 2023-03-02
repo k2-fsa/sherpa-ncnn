@@ -80,14 +80,14 @@ as the device_name.
 
   signal(SIGINT, Handler);
 
-  sherpa_ncnn::ModelConfig model_conf;
-  model_conf.tokens = argv[1];
-  model_conf.encoder_param = argv[2];
-  model_conf.encoder_bin = argv[3];
-  model_conf.decoder_param = argv[4];
-  model_conf.decoder_bin = argv[5];
-  model_conf.joiner_param = argv[6];
-  model_conf.joiner_bin = argv[7];
+  sherpa_ncnn::RecognizerConfig config;
+  config.model_config.tokens = argv[1];
+  config.model_config.encoder_param = argv[2];
+  config.model_config.encoder_bin = argv[3];
+  config.model_config.decoder_param = argv[4];
+  config.model_config.decoder_bin = argv[5];
+  config.model_config.joiner_param = argv[6];
+  config.model_config.joiner_bin = argv[7];
 
   const char *device_name = argv[8];
 
@@ -96,11 +96,9 @@ as the device_name.
     num_threads = atoi(argv[9]);
   }
 
-  model_conf.encoder_opt.num_threads = num_threads;
-  model_conf.decoder_opt.num_threads = num_threads;
-  model_conf.joiner_opt.num_threads = num_threads;
-
-  fprintf(stderr, "%s\n", model_conf.ToString().c_str());
+  config.model_config.encoder_opt.num_threads = num_threads;
+  config.model_config.decoder_opt.num_threads = num_threads;
+  config.model_config.joiner_opt.num_threads = num_threads;
 
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
@@ -111,25 +109,24 @@ as the device_name.
     }
   }
 
-  decoder_conf.enable_endpoint = true;
+  int32_t expected_sampling_rate = 16000;
 
-  sherpa_ncnn::EndpointConfig endpoint_config;
-  endpoint_config.rule1.min_trailing_silence = 2.4;
-  endpoint_config.rule2.min_trailing_silence = 1.2;  // <--tune this value !
-  endpoint_config.rule3.min_utterance_length = 300;
+  config.enable_endpoint = true;
 
-  decoder_conf.endpoint_config = endpoint_config;
+  config.endpoint_config.rule1.min_trailing_silence = 2.4;
+  config.endpoint_config.rule2.min_trailing_silence = 1.2;
+  config.endpoint_config.rule3.min_utterance_length = 300;
+
+  config.feat_config.sampling_rate = expected_sampling_rate;
+  config.feat_config.feature_dim = 80;
+
+  // cache 2 seconds of features
+  config.feat_config.max_feature_vectors = 2 * 100;
 
   fprintf(stderr, "%s\n", decoder_conf.ToString().c_str());
 
-  int32_t expected_sampling_rate = 16000;
-  knf::FbankOptions fbank_opts;
-  fbank_opts.frame_opts.dither = 0;
-  fbank_opts.frame_opts.snip_edges = false;
-  fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
-  fbank_opts.mel_opts.num_bins = 80;
+  sherpa_ncnn::Recognizer recognizer(config);
 
-  sherpa_ncnn::Recognizer recognizer(decoder_conf, model_conf, fbank_opts);
   sherpa_ncnn::Alsa alsa(device_name);
   fprintf(stderr, "Use recording device: %s\n", device_name);
 
@@ -139,6 +136,8 @@ as the device_name.
     exit(-1);
   }
 
+  auto s = recognizer.CreateStream();
+
   int32_t chunk = 0.1 * alsa.GetActualSampleRate();
 
   std::string last_text;
@@ -147,11 +146,13 @@ as the device_name.
   while (!stop) {
     const std::vector<float> samples = alsa.Read(chunk);
 
-    recognizer.AcceptWaveform(expected_sampling_rate, samples.data(),
-                              samples.size());
-    recognizer.Decode();
-    bool is_endpoint = recognizer.IsEndpoint();
-    auto text = recognizer.GetResult().text;
+    s->AcceptWaveform(expected_sampling_rate, samples.data(), samples.size());
+    while (recognizer.IsReady(s.get())) {
+      recognizer.DecodeStream(s.get());
+    }
+
+    bool is_endpoint = recognizer.IsEndpoint(s.get());
+    auto text = recognizer.GetResult(s.get()).text;
 
     if (!text.empty() && last_text != text) {
       last_text = text;
@@ -162,8 +163,12 @@ as the device_name.
       display.Print(segment_index, text);
     }
 
-    if (!text.empty() && is_endpoint) {
-      ++segment_index;
+    if (is_endpoint) {
+      if (!text.empty()) {
+        ++segment_index;
+      }
+
+      recognizer.Reset(s.get());
     }
   }
 

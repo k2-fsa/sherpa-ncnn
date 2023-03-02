@@ -23,9 +23,10 @@ if [ ! -e ./decode-file ]; then
     -I ../build-swift-macos/sherpa-ncnn.xcframework/Headers/ \
     -import-objc-header ./SherpaNcnn-Bridging-Header.h \
     ./decode-file.swift  ./SherpaNcnn.swift \
-    -F ../build-swift-macos/ \
-    -framework sherpa-ncnn \
-    -framework openmp \
+    -L ../build-swift-macos/openmp.xcframework/macos-x86_64 \
+    -L ../build-swift-macos/sherpa-ncnn.xcframework/macos-x86_64 \
+    -l sherpa-ncnn \
+    -l omp \
     -o decode-file
 else
   echo "./decode-file exists - skip building"

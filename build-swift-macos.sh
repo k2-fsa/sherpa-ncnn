@@ -93,4 +93,9 @@ xcodebuild -create-xcframework \
 
 mkdir -p sherpa-ncnn.xcframework/Headers
 cp -av build-x86_64/install/include/* sherpa-ncnn.xcframework/Headers
+
+pushd sherpa-ncnn.xcframework/macos-x86_64/
+ln -s sherpa-ncnn.a libsherpa-ncnn.a
+popd
+
 ls -ld ./*xcframework

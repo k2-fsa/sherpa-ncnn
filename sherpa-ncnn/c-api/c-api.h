@@ -74,6 +74,27 @@ typedef struct SherpaNcnnDecoderConfig {
   /// Number of active paths for modified_beam_search.
   /// It is ignored when decoding_method is greedy_search.
   int32_t num_active_paths;
+} SherpaNcnnDecoderConfig;
+
+typedef struct SherpaNcnnFeatureExtractorConfig {
+  // Sampling rate of the input audio samples. MUST match the one
+  // expected by the model. For instance, it should be 16000 for models
+  // from icefall.
+  float sampling_rate;
+
+  // feature dimension. Must match the one expected by the model.
+  // For instance, it should be 80 for models from icefall.
+  int32_t feature_dim;
+
+  // It specifies how many feature frames to cache.
+  // Use -1 to cache all past feature frames.
+  int32_t max_feature_vectors;
+} SherpaNcnnFeatureExtractorConfig;
+
+typedef struct SherpaNcnnRecognizerConfig {
+  SherpaNcnnFeatureExtractorConfig feat_config;
+  SherpaNcnnModelConfig model_config;
+  SherpaNcnnDecoderConfig decoder_config;
 
   /// 0 to disable endpoint detection.
   /// A non-zero value to enable endpoint detection.
@@ -93,7 +114,7 @@ typedef struct SherpaNcnnDecoderConfig {
   /// this value.
   /// Used only when enable_endpoint is not 0.
   float rule3_min_utterance_length;
-} SherpaNcnnDecoderConfig;
+} SherpaNcnnRecognizerConfig;
 
 typedef struct SherpaNcnnResult {
   const char *text;
@@ -101,69 +122,109 @@ typedef struct SherpaNcnnResult {
 } SherpaNcnnResult;
 
 typedef struct SherpaNcnnRecognizer SherpaNcnnRecognizer;
+typedef struct SherpaNcnnStream SherpaNcnnStream;
 
 /// Create a recognizer.
 ///
-/// @param model_config  Config for the model.
-/// @param decoder_config Config for decoding.
+/// @param config  Config for the recognizer.
 /// @return Return a pointer to the recognizer. The user has to invoke
 //          DestroyRecognizer() to free it to avoid memory leak.
 SherpaNcnnRecognizer *CreateRecognizer(
-    const SherpaNcnnModelConfig *model_config,
-    const SherpaNcnnDecoderConfig *decoder_config);
+    const SherpaNcnnRecognizerConfig *config);
 
 /// Free a pointer returned by CreateRecognizer()
 ///
 /// @param p A pointer returned by CreateRecognizer()
 void DestroyRecognizer(SherpaNcnnRecognizer *p);
 
-/// Accept input audio samples and compute the features.
-/// The user has to invoke Decode() to run the neural network and decoding.
+/// Create a stream for accepting audio samples
 ///
-/// @param p  A pointer returned by CreateRecognizer().
-/// @param sample_rate  Sampler rate of the input samples. It has to be 16 kHz
-///                     for models from icefall.
+/// @param p A pointer returned by CreateRecognizer
+/// @return Return a pointer to a stream. The caller MUST invoke
+///         DestroyStream at the end to avoid memory leak.
+SherpaNcnnStream *CreateStream(SherpaNcnnRecognizer *p);
+
+void DestroyStream(SherpaNcnnStream *s);
+
+/// Accept input audio samples and compute the features.
+///
+/// @param s  A pointer returned by CreateStream().
+/// @param sample_rate  Sample rate of the input samples. If it is different
+///                     from feat_config.sampling_rate, we will do resample.
+///                     Caution: You MUST not use a different sampling_rate
+///                     across different calls to AcceptWaveform()
 /// @param samples A pointer to a 1-D array containing audio samples.
 ///                The range of samples has to be normalized to [-1, 1].
 /// @param n  Number of elements in the samples array.
-void AcceptWaveform(SherpaNcnnRecognizer *p, float sample_rate,
+void AcceptWaveform(SherpaNcnnStream *s, float sample_rate,
                     const float *samples, int32_t n);
 
-/// If there are enough number of feature frames, it invokes the neural network
-/// computation and decoding. Otherwise, it is a no-op.
-void Decode(SherpaNcnnRecognizer *p);
+/// Test if the stream has enough frames for decoding.
+///
+/// The common usage is:
+///   while (IsReady(p, s)) {
+///      Decode(p, s);
+///   }
+/// @param p A pointer returned by CreateRecognizer()
+/// @param s A pointer returned by CreateStream()
+/// @return Return 1 if the given stream is ready for decoding.
+///         Return 0 otherwise.
+int32_t IsReady(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
+
+/// Pre-condition for this function:
+///   You must ensure that IsReady(p, s) return 1 before calling this function.
+///
+/// @param p A pointer returned by CreateRecognizer()
+/// @param s A pointer returned by CreateStream()
+void Decode(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
 
 /// Get the decoding results so far.
 ///
 /// @param p A pointer returned by CreateRecognizer().
+/// @param s A pointer returned by CreateStream()
 /// @return A pointer containing the result. The user has to invoke
 ///         DestroyResult() to free the returned pointer to avoid memory leak.
-SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p);
+SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
 
 /// Destroy the pointer returned by GetResult().
 ///
 /// @param r A pointer returned by GetResult()
 void DestroyResult(const SherpaNcnnResult *r);
 
-/// Reset the recognizer, which clears the neural network model state
-/// and the state for decoding.
+/// Reset a stream
 ///
 /// @param p A pointer returned by CreateRecognizer().
-void Reset(SherpaNcnnRecognizer *p);
+/// @param s A pointer returned by CreateStream().
+void Reset(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
 
 /// Signal that no more audio samples would be available.
 /// After this call, you cannot call AcceptWaveform() any more.
 ///
-/// @param p A pointer returned by CreateRecognizer()
-void InputFinished(SherpaNcnnRecognizer *p);
+/// @param s A pointer returned by CreateStream()
+void InputFinished(SherpaNcnnStream *s);
 
 /// Return 1 is an endpoint has been detected.
 ///
-/// Caution: You have to call this function before GetResult().
+/// Common usage:
+///   if (IsEndpoint(p, s)) {
+///     Reset(p, s);
+///   }
 ///
 /// @param p A pointer returned by CreateRecognizer()
 /// @return Return 1 if an endpoint is detected. Return 0 otherwise.
-int32_t IsEndpoint(SherpaNcnnRecognizer *p);
+int32_t IsEndpoint(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
+
+// for displaying results on Linux/macOS.
+typedef struct SherpaNcnnDisplay SherpaNcnnDisplay;
+
+/// Create a display object. Must be freed using DestroyDisplay to avoid
+/// memory leak.
+SherpaNcnnDisplay *CreateDisplay(int32_t max_word_per_line);
+
+void DestroyDisplay(SherpaNcnnDisplay *display);
+
+/// Print the result.
+void SherpaNcnnPrint(SherpaNcnnDisplay *display, int32_t idx, const char *s);
 
 #ifdef __cplusplus
 } /* extern "C" */

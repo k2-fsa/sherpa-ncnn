@@ -2,20 +2,25 @@ function(download_kaldi_native_fbank)
   include(FetchContent)
 
   # Please also change ../pack-for-embedded-systems.sh
-  set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.11.tar.gz")
-  set(kaldi_native_fbank_HASH "SHA256=e69ae25ef6f30566ef31ca949dd1b0b8ec3a827caeba93a61d82bb848dac5d69")
+  set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.12.tar.gz")
+  set(kaldi_native_fbank_HASH "SHA256=8f4dfc3f6ddb1adcd9ac0ae87743ebc6cbcae147aacf9d46e76fa54134e12b44")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
-  if(EXISTS "/star-fj/fangjun/download/github/kaldi-native-fbank-1.11.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///star-fj/fangjun/download/github/kaldi-native-fbank-1.11.tar.gz")
-  elseif(EXISTS "/Users/fangjun/Downloads/kaldi-native-fbank-1.11.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///Users/fangjun/Downloads/kaldi-native-fbank-1.11.tar.gz")
-  elseif(EXISTS "/tmp/kaldi-native-fbank-1.11.tar.gz")
-    set(kaldi_native_fbank_URL  "file:///tmp/kaldi-native-fbank-1.11.tar.gz")
-  elseif(EXISTS "$ENV{HOME}/asr/kaldi-native-fbank-1.11.tar.gz")
-    set(kaldi_native_fbank_URL  "file://$ENV{HOME}/asr/kaldi-native-fbank-1.11.tar.gz")
-  endif()
+  set(possible_file_locations
+    $ENV{HOME}/Downloads/kaldi-native-fbank-1.12.tar.gz
+    $ENV{HOME}/asr/kaldi-native-fbank-1.12.tar.gz
+    ${PROJECT_SOURCE_DIR}/kaldi-native-fbank-1.12.tar.gz
+    ${PROJECT_BINARY_DIR}/kaldi-native-fbank-1.12.tar.gz
+    /tmp/kaldi-native-fbank-1.12.tar.gz
+  )
+
+  foreach(f IN LISTS possible_file_locations)
+    if(EXISTS ${f})
+      set(kaldi_native_fbank_URL  "file://${f}")
+      break()
+    endif()
+  endforeach()
 
   set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(KALDI_NATIVE_FBANK_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
@@ -28,7 +33,7 @@ function(download_kaldi_native_fbank)
 
   FetchContent_GetProperties(kaldi_native_fbank)
   if(NOT kaldi_native_fbank_POPULATED)
-    message(STATUS "Downloading kaldi-native-fbank ${kaldi_native_fbank_URL}")
+    message(STATUS "Downloading kaldi-native-fbank from ${kaldi_native_fbank_URL}")
     FetchContent_Populate(kaldi_native_fbank)
   endif()
   message(STATUS "kaldi-native-fbank is downloaded to ${kaldi_native_fbank_SOURCE_DIR}")

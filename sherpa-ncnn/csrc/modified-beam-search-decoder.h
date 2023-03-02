@@ -20,65 +20,31 @@
 #ifndef SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
 #define SHERPA_NCNN_CSRC_MODIFIED_BEAM_SEARCH_DECODER_H_
 
-#include <memory>
 #include <vector>
 
-#include "sherpa-ncnn/csrc/features.h"
-#include "sherpa-ncnn/csrc/recognizer.h"
+#include "mat.h"  // NOLINT
+#include "sherpa-ncnn/csrc/decoder.h"
+#include "sherpa-ncnn/csrc/model.h"
 
 namespace sherpa_ncnn {
 
 class ModifiedBeamSearchDecoder : public Decoder {
  public:
-  ModifiedBeamSearchDecoder(const DecoderConfig &config, Model *model,
-                            const knf::FbankOptions &fbank_opts,
-                            const sherpa_ncnn::SymbolTable *sym,
-                            const Endpoint *endpoint)
-      : config_(config),
-        model_(model),
-        feature_extractor_(fbank_opts),
-        sym_(sym),
-        blank_id_(model_->BlankId()),
-        context_size_(model_->ContextSize()),
-        segment_(model->Segment()),
-        offset_(model_->Offset()),
-        num_processed_(0),
-        endpoint_start_frame_(0),
-        endpoint_(endpoint) {
-    ResetResult();
-  }
+  ModifiedBeamSearchDecoder(Model *model, int32_t num_active_paths)
+      : model_(model), num_active_paths_(num_active_paths) {}
 
-  void AcceptWaveform(float sample_rate, const float *input_buffer,
-                      int32_t frames_per_buffer) override;
+  DecoderResult GetEmptyResult() const override;
 
-  void Decode() override;
+  void StripLeadingBlanks(DecoderResult *r) const override;
 
-  RecognitionResult GetResult() override;
-
-  void ResetResult() override;
-
-  bool IsEndpoint() override;
-
-  void Reset() override;
-
-  void InputFinished() override;
+  void Decode(ncnn::Mat encoder_out, DecoderResult *result) override;
 
  private:
   ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps) const;
 
-  const DecoderConfig config_;
-  Model *model_;
-  sherpa_ncnn::FeatureExtractor feature_extractor_;
-  const sherpa_ncnn::SymbolTable *sym_;
-  const int32_t blank_id_;
-  const int32_t context_size_;
-  const int32_t segment_;
-  const int32_t offset_;
-  std::vector<ncnn::Mat> encoder_state_;
-  int32_t num_processed_;
-  int32_t endpoint_start_frame_;
-  const Endpoint *endpoint_;
-  RecognitionResult result_;
+ private:
+  Model *model_;  // not owned
+  int32_t num_active_paths_;
 };
 
 }  // namespace sherpa_ncnn
