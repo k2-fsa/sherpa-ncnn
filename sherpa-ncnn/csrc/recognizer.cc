@@ -89,7 +89,7 @@ class Recognizer::Impl {
   Impl(AAssetManager *mgr, const RecognizerConfig &config)
       : config_(config),
         model_(Model::Create(mgr, config.model_config)),
-        endpoit_(config.endpoint_config),
+        endpoint_(config.endpoint_config),
         sym_(mgr, config.model_config.tokens) {
     if (config.decoder_config.method == "greedy_search") {
       decoder_ = std::make_unique<GreedySearchDecoder>(model_.get());
@@ -175,6 +175,11 @@ class Recognizer::Impl {
 
 Recognizer::Recognizer(const RecognizerConfig &config)
     : impl_(std::make_unique<Impl>(config)) {}
+
+#if __ANDROID_API__ >= 9
+Recognizer::Recognizer(AAssetManager *mgr, const RecognizerConfig &config)
+    : impl_(std::make_unique<Impl>(mgr, config)) {}
+#endif
 
 Recognizer::~Recognizer() = default;
 

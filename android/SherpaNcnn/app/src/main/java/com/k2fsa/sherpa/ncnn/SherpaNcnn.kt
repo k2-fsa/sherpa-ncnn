@@ -2,59 +2,12 @@ package com.k2fsa.sherpa.ncnn
 
 import android.content.res.AssetManager
 
-data class EndpointRule(
-    var mustContainNonSilence: Boolean,
-    var minTrailingSilence: Float,
-    var minUtteranceLength: Float,
+data class FeatureExtractorConfig(
+    var sampleRate: Float,
+    var featureDim: Int,
+    var maxFeatureVectors: Int,
 )
 
-data class EndpointConfig(
-    var rule1: EndpointRule = EndpointRule(false, 2.4f, 0.0f),
-    var rule2: EndpointRule = EndpointRule(true, 1.4f, 0.0f),
-    var rule3: EndpointRule = EndpointRule(false, 0.0f, 20.0f)
-)
-
-data class DecoderConfig(
-    var method: String = "modified_beam_search", // valid values: greedy_search, modified_beam_search
-    var numActivePaths: Int = 4, // used only by modified_beam_search
-    var enableEndpoint: Boolean = true,
-    var endpointConfig: EndpointConfig = EndpointConfig(),
-)
-
-data class FrameExtractionOptions(
-    var sampFreq: Float = 16000.0f,
-    var frameShiftMs: Float = 10.0f,
-    var frameLengthMs: Float = 25.0f,
-    var dither: Float = 0.0f,
-    var preemphCoeff: Float = 0.97f,
-    var removeDcOffset: Boolean = true,
-    var windowType: String = "povey",
-    var roundToPowerOfTwo: Boolean = true,
-    var blackmanCoeff: Float = 0.42f,
-    var snipEdges: Boolean = true,
-    var maxFeatureVectors: Int = -1
-)
-
-data class MelBanksOptions(
-    var numBins: Int = 25,
-    var lowFreq: Float = 20.0f,
-    var highFreq: Float = 0.0f,
-    var vtlnLow: Float = 100.0f,
-    var vtlnHigh: Float = -500.0f,
-    var debugMel: Boolean = false,
-    var htkMode: Boolean = false,
-)
-
-data class FbankOptions(
-    var frameOpts: FrameExtractionOptions = FrameExtractionOptions(),
-    var melOpts: MelBanksOptions = MelBanksOptions(),
-    var useEnergy: Boolean = false,
-    var energyFloor: Float = 0.0f,
-    var rawEnergy: Boolean = true,
-    var htkCompat: Boolean = false,
-    var useLogFbank: Boolean = true,
-    var usePower: Boolean = true,
-)
 
 data class ModelConfig(
     var encoderParam: String,
@@ -68,45 +21,62 @@ data class ModelConfig(
     var useGPU: Boolean = true, // If there is a GPU and useGPU true, we will use GPU
 )
 
+data class DecoderConfig(
+    var method: String = "modified_beam_search", // valid values: greedy_search, modified_beam_search
+    var numActivePaths: Int = 4, // used only by modified_beam_search
+)
+
+data class RecognizerConfig(
+    var featConfig: FeatureExtractorConfig,
+    var modelConfig: ModelConfig,
+    var decoderConfig: DecoderConfig,
+    var enableEndpoint: Boolean = true,
+    var rule1MinTrailingSilence: Float = 2.4f,
+    var rule2MinTrailingSilence: Float = 1.0f,
+    var rule3MinUtteranceLength: Float = 30.0f,
+)
+
 class SherpaNcnn(
     assetManager: AssetManager,
-    modelConfig: ModelConfig,
-    decoderConfig: DecoderConfig,
-    var fbankConfig: FbankOptions,
+    var config: RecognizerConfig,
 ) {
     private val ptr: Long
 
     init {
-        ptr = new(assetManager, modelConfig, decoderConfig, fbankConfig)
+        ptr = new(assetManager, config)
     }
 
     protected fun finalize() {
         delete(ptr)
     }
 
-    fun decodeSamples(samples: FloatArray) =
-        decodeSamples(ptr, samples, sampleRate = fbankConfig.frameOpts.sampFreq)
+    fun acceptSamples(samples: FloatArray) =
+        acceptWaveform(ptr, samples = samples, sampleRate = config.featConfig.sampleRate)
+
+    fun isReady() = isReady(ptr)
+
+    fun decode() = decode(ptr)
 
     fun inputFinished() = inputFinished(ptr)
-    fun reset() = reset(ptr)
     fun isEndpoint(): Boolean = isEndpoint(ptr)
+    fun reset() = reset(ptr)
 
     val text: String
         get() = getText(ptr)
 
     private external fun new(
         assetManager: AssetManager,
-        modelConfig: ModelConfig,
-        decoderConfig: DecoderConfig,
-        fbankConfig: FbankOptions
+        config: RecognizerConfig,
     ): Long
 
     private external fun delete(ptr: Long)
-    private external fun decodeSamples(ptr: Long, samples: FloatArray, sampleRate: Float)
+    private external fun acceptWaveform(ptr: Long, samples: FloatArray, sampleRate: Float)
     private external fun inputFinished(ptr: Long)
-    private external fun getText(ptr: Long): String
-    private external fun reset(ptr: Long)
+    private external fun isReady(ptr: Long): Boolean
+    private external fun decode(ptr: Long): Boolean
     private external fun isEndpoint(ptr: Long): Boolean
+    private external fun reset(ptr: Long): Boolean
+    private external fun getText(ptr: Long): String
 
     companion object {
         init {
@@ -115,13 +85,22 @@ class SherpaNcnn(
     }
 }
 
-fun getFbankConfig(): FbankOptions {
-    val fbankConfig = FbankOptions()
-    fbankConfig.frameOpts.dither = 0.0f
-    fbankConfig.melOpts.numBins = 80
-
-    return fbankConfig
+fun getFeatureExtractorConfig(
+    sampleRate: Float,
+    featureDim: Int,
+    maxFeatureVectors: Int
+): FeatureExtractorConfig {
+    return FeatureExtractorConfig(
+        sampleRate = sampleRate,
+        featureDim = featureDim,
+        maxFeatureVectors = maxFeatureVectors,
+    )
 }
+
+fun getDecoderConfig(method: String, numActivePaths: Int): DecoderConfig {
+    return DecoderConfig(method = method, numActivePaths = numActivePaths)
+}
+
 
 /*
 @param type
@@ -133,6 +112,10 @@ fun getFbankConfig(): FbankOptions {
 
 2 - https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-08
     This is a small model with about 18 M parameters. It supports only Chinese
+
+Please follow
+https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
+to add more pre-trained models
  */
 fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
     when (type) {
@@ -167,18 +150,4 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
         }
     }
     return null
-}
-
-fun getDecoderConfig(enableEndpoint: Boolean): DecoderConfig {
-    return DecoderConfig(
-        method = "modified_beam_search",
-        numActivePaths = 4,
-        enableEndpoint = enableEndpoint,
-        endpointConfig = EndpointConfig(
-            rule1 = EndpointRule(false, 2.4f, 0.0f),
-            rule2 = EndpointRule(true, 1.4f, 0.0f),
-            rule3 = EndpointRule(false, 0.0f, 20.0f)
-        )
-    )
-
 }

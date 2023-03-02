@@ -46,116 +46,153 @@ class SherpaNcnn {
 #if __ANDROID_API__ >= 9
       AAssetManager *mgr,
 #endif
-      const sherpa_ncnn::DecoderConfig &decoder_config,
-      const ModelConfig &model_config, const knf::FbankOptions &fbank_opts)
+      const sherpa_ncnn::RecognizerConfig &config)
       : recognizer_(
 #if __ANDROID_API__ >= 9
             mgr,
 #endif
-            decoder_config, model_config, fbank_opts),
+            config),
+        stream_(recognizer_.CreateStream()),
         tail_padding_(16000 * 0.32, 0) {
   }
 
-  void DecodeSamples(float sample_rate, const float *samples, int32_t n) {
-    recognizer_.AcceptWaveform(sample_rate, samples, n);
-    recognizer_.Decode();
+  void AcceptWaveform(float sample_rate, const float *samples, int32_t n) {
+    stream_->AcceptWaveform(sample_rate, samples, n);
   }
 
   void InputFinished() {
-    recognizer_.AcceptWaveform(16000, tail_padding_.data(),
-                               tail_padding_.size());
-    recognizer_.InputFinished();
-    recognizer_.Decode();
+    stream_->AcceptWaveform(16000, tail_padding_.data(), tail_padding_.size());
+    stream_->InputFinished();
   }
 
-  const std::string GetText() {
-    auto result = recognizer_.GetResult();
+  bool IsReady() const { return recognizer_.IsReady(stream_.get()); }
+
+  void DecodeStream() const { return recognizer_.DecodeStream(stream_.get()); }
+
+  const std::string GetText() const {
+    auto result = recognizer_.GetResult(stream_.get());
     return result.text;
   }
 
-  bool IsEndpoint() { return recognizer_.IsEndpoint(); }
+  bool IsEndpoint() const { return recognizer_.IsEndpoint(stream_.get()); }
 
-  void Reset() { return recognizer_.Reset(); }
+  void Reset() { return recognizer_.Reset(stream_.get()); }
 
  private:
-  sherpa_ncnn::Recognizer recognizer_;
+  Recognizer recognizer_;
+  std::unique_ptr<Stream> stream_;
   std::vector<float> tail_padding_;
 };
 
-static ModelConfig GetModelConfig(JNIEnv *env, jobject config) {
-  ModelConfig model_config;
+static FeatureExtractorConfig GetFeatureExtractorConfig(JNIEnv *env,
+                                                        jobject config) {
+  FeatureExtractorConfig ans;
 
   jclass cls = env->GetObjectClass(config);
 
-  jfieldID fid = env->GetFieldID(cls, "encoderParam", "Ljava/lang/String;");
-  jstring s = (jstring)env->GetObjectField(config, fid);
+  jfieldID fid = env->GetFieldID(
+      cls, "featConfig", "Lcom/k2fsa/sherpa/ncnn/FeatureExtractorConfig;");
+  jobject feat_config = env->GetObjectField(config, fid);
+  jclass feat_config_cls = env->GetObjectClass(feat_config);
+
+  fid = env->GetFieldID(feat_config_cls, "sampleRate", "F");
+  ans.sampling_rate = env->GetFloatField(feat_config, fid);
+
+  fid = env->GetFieldID(feat_config_cls, "featureDim", "I");
+  ans.feature_dim = env->GetIntField(feat_config, fid);
+
+  fid = env->GetFieldID(feat_config_cls, "maxFeatureVectors", "I");
+  ans.max_feature_vectors = env->GetIntField(feat_config, fid);
+
+  return ans;
+}
+
+static ModelConfig GetModelConfig(JNIEnv *env, jobject config) {
+  ModelConfig ans;
+
+  jclass cls = env->GetObjectClass(config);
+
+  jfieldID fid = env->GetFieldID(cls, "modelConfig",
+                                 "Lcom/k2fsa/sherpa/ncnn/ModelConfig;");
+  jobject model_config = env->GetObjectField(config, fid);
+  jclass model_config_cls = env->GetObjectClass(model_config);
+
+  fid = env->GetFieldID(model_config_cls, "encoderParam", "Ljava/lang/String;");
+  jstring s = (jstring)env->GetObjectField(model_config, fid);
   const char *p = env->GetStringUTFChars(s, nullptr);
-  model_config.encoder_param = p;
+  ans.encoder_param = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "encoderBin", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "encoderBin", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.encoder_bin = p;
+  ans.encoder_bin = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "decoderParam", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "decoderParam", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.decoder_param = p;
+  ans.decoder_param = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "decoderBin", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "decoderBin", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.decoder_bin = p;
+  ans.decoder_bin = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "joinerParam", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "joinerParam", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.joiner_param = p;
+  ans.joiner_param = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "joinerBin", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "joinerBin", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.joiner_bin = p;
+  ans.joiner_bin = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "tokens", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "tokens", "Ljava/lang/String;");
+  s = (jstring)env->GetObjectField(model_config, fid);
   p = env->GetStringUTFChars(s, nullptr);
-  model_config.tokens = p;
+  ans.tokens = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "numThreads", "I");
+  fid = env->GetFieldID(model_config_cls, "numThreads", "I");
 
-  int32_t num_threads = env->GetIntField(config, fid);
-  model_config.encoder_opt.num_threads = num_threads;
-  model_config.decoder_opt.num_threads = num_threads;
-  model_config.joiner_opt.num_threads = num_threads;
+  int32_t num_threads = env->GetIntField(model_config, fid);
+  ans.encoder_opt.num_threads = num_threads;
+  ans.decoder_opt.num_threads = num_threads;
+  ans.joiner_opt.num_threads = num_threads;
 
-  fid = env->GetFieldID(cls, "useGPU", "Z");
-  model_config.use_vulkan_compute = env->GetBooleanField(config, fid);
+  fid = env->GetFieldID(model_config_cls, "useGPU", "Z");
+  ans.use_vulkan_compute = env->GetBooleanField(model_config, fid);
 
-  return model_config;
+  return ans;
 }
 
 static DecoderConfig GetDecoderConfig(JNIEnv *env, jobject config) {
-  DecoderConfig decoder_config;
+  DecoderConfig ans;
 
   jclass cls = env->GetObjectClass(config);
 
-  jfieldID fid = env->GetFieldID(cls, "method", "Ljava/lang/String;");
-  jstring s = (jstring)env->GetObjectField(config, fid);
+  jfieldID fid = env->GetFieldID(cls, "decoderConfig",
+                                 "Lcom/k2fsa/sherpa/ncnn/DecoderConfig;");
+  jobject decoder_config = env->GetObjectField(config, fid);
+  jclass decoder_config_cls = env->GetObjectClass(decoder_config);
+
+  fid = env->GetFieldID(decoder_config_cls, "method", "Ljava/lang/String;");
+  jstring s = (jstring)env->GetObjectField(decoder_config, fid);
   const char *p = env->GetStringUTFChars(s, nullptr);
-  decoder_config.method = p;
+  ans.method = p;
   env->ReleaseStringUTFChars(s, p);
 
-  fid = env->GetFieldID(cls, "numActivePaths", "I");
-  decoder_config.num_active_paths = env->GetIntField(config, fid);
+  fid = env->GetFieldID(decoder_config_cls, "numActivePaths", "I");
+  ans.num_active_paths = env->GetIntField(decoder_config, fid);
 
+  return ans;
+#if 0
   fid = env->GetFieldID(cls, "enableEndpoint", "Z");
   decoder_config.enable_endpoint = env->GetBooleanField(config, fid);
 
@@ -200,116 +237,14 @@ static DecoderConfig GetDecoderConfig(JNIEnv *env, jobject config) {
       env->GetFloatField(rule2, fid);
   decoder_config.endpoint_config.rule3.min_utterance_length =
       env->GetFloatField(rule3, fid);
-
-  return decoder_config;
-}
-
-static knf::FbankOptions GetFbankOptions(JNIEnv *env, jobject opts) {
-  jclass cls = env->GetObjectClass(opts);
-  jfieldID fid;
-
-  // https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html
-  // https://courses.cs.washington.edu/courses/cse341/99wi/java/tutorial/native1.1/implementing/field.html
-
-  knf::FbankOptions fbank_opts;
-
-  fid = env->GetFieldID(cls, "useEnergy", "Z");
-  fbank_opts.use_energy = env->GetBooleanField(opts, fid);
-
-  fid = env->GetFieldID(cls, "energyFloor", "F");
-  fbank_opts.energy_floor = env->GetFloatField(opts, fid);
-
-  fid = env->GetFieldID(cls, "rawEnergy", "Z");
-  fbank_opts.raw_energy = env->GetBooleanField(opts, fid);
-
-  fid = env->GetFieldID(cls, "htkCompat", "Z");
-  fbank_opts.htk_compat = env->GetBooleanField(opts, fid);
-
-  fid = env->GetFieldID(cls, "useLogFbank", "Z");
-  fbank_opts.use_log_fbank = env->GetBooleanField(opts, fid);
-
-  fid = env->GetFieldID(cls, "usePower", "Z");
-  fbank_opts.use_power = env->GetBooleanField(opts, fid);
-
-  fid = env->GetFieldID(cls, "frameOpts",
-                        "Lcom/k2fsa/sherpa/ncnn/FrameExtractionOptions;");
-
-  jobject frame_opts = env->GetObjectField(opts, fid);
-  jclass frame_opts_cls = env->GetObjectClass(frame_opts);
-
-  fid = env->GetFieldID(frame_opts_cls, "sampFreq", "F");
-  fbank_opts.frame_opts.samp_freq = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "frameShiftMs", "F");
-  fbank_opts.frame_opts.frame_shift_ms = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "frameLengthMs", "F");
-  fbank_opts.frame_opts.frame_length_ms = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "dither", "F");
-  fbank_opts.frame_opts.dither = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "preemphCoeff", "F");
-  fbank_opts.frame_opts.preemph_coeff = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "removeDcOffset", "Z");
-  fbank_opts.frame_opts.remove_dc_offset =
-      env->GetBooleanField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "windowType", "Ljava/lang/String;");
-  jstring window_type = (jstring)env->GetObjectField(frame_opts, fid);
-  const char *p_window_type = env->GetStringUTFChars(window_type, nullptr);
-  fbank_opts.frame_opts.window_type = p_window_type;
-  env->ReleaseStringUTFChars(window_type, p_window_type);
-
-  fid = env->GetFieldID(frame_opts_cls, "roundToPowerOfTwo", "Z");
-  fbank_opts.frame_opts.round_to_power_of_two =
-      env->GetBooleanField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "blackmanCoeff", "F");
-  fbank_opts.frame_opts.blackman_coeff = env->GetFloatField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "snipEdges", "Z");
-  fbank_opts.frame_opts.snip_edges = env->GetBooleanField(frame_opts, fid);
-
-  fid = env->GetFieldID(frame_opts_cls, "maxFeatureVectors", "I");
-  fbank_opts.frame_opts.max_feature_vectors = env->GetIntField(frame_opts, fid);
-
-  fid = env->GetFieldID(cls, "melOpts",
-                        "Lcom/k2fsa/sherpa/ncnn/MelBanksOptions;");
-  jobject mel_opts = env->GetObjectField(opts, fid);
-  jclass mel_opts_cls = env->GetObjectClass(mel_opts);
-
-  fid = env->GetFieldID(mel_opts_cls, "numBins", "I");
-  fbank_opts.mel_opts.num_bins = env->GetIntField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "lowFreq", "F");
-  fbank_opts.mel_opts.low_freq = env->GetFloatField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "highFreq", "F");
-  fbank_opts.mel_opts.high_freq = env->GetFloatField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "vtlnLow", "F");
-  fbank_opts.mel_opts.vtln_low = env->GetFloatField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "vtlnHigh", "F");
-  fbank_opts.mel_opts.vtln_high = env->GetFloatField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "debugMel", "Z");
-  fbank_opts.mel_opts.debug_mel = env->GetBooleanField(mel_opts, fid);
-
-  fid = env->GetFieldID(mel_opts_cls, "htkMode", "Z");
-  fbank_opts.mel_opts.htk_mode = env->GetBooleanField(mel_opts, fid);
-
-  return fbank_opts;
+#endif
 }
 
 }  // namespace sherpa_ncnn
 
 SHERPA_EXTERN_C
 JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
-    JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _model_config,
-    jobject _decoder_config, jobject _fbank_config) {
+    JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _config) {
 #if __ANDROID_API__ >= 9
   AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
   if (!mgr) {
@@ -317,21 +252,36 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
   }
 #endif
 
-  auto model_config = sherpa_ncnn::GetModelConfig(env, _model_config);
-  auto decoder_config = sherpa_ncnn::GetDecoderConfig(env, _decoder_config);
+  sherpa_ncnn::RecognizerConfig config;
+  config.feat_config = sherpa_ncnn::GetFeatureExtractorConfig(env, _config);
+  config.model_config = sherpa_ncnn::GetModelConfig(env, _config);
+  config.decoder_config = sherpa_ncnn::GetDecoderConfig(env, _config);
 
-  NCNN_LOGE("------model_config------\n%s\n", model_config.ToString().c_str());
-  NCNN_LOGE("------decoder_config------\n%s\n",
-            decoder_config.ToString().c_str());
+  // for endpointing
 
-  knf::FbankOptions fbank_opts =
-      sherpa_ncnn::GetFbankOptions(env, _fbank_config);
+  jclass cls = env->GetObjectClass(_config);
+  jfieldID fid = env->GetFieldID(cls, "enableEndpoint", "Z");
+  config.enable_endpoint = env->GetBooleanField(_config, fid);
+
+  fid = env->GetFieldID(cls, "rule1MinTrailingSilence", "F");
+  config.endpoint_config.rule1.min_trailing_silence =
+      env->GetFloatField(_config, fid);
+
+  fid = env->GetFieldID(cls, "rule2MinTrailingSilence", "F");
+  config.endpoint_config.rule2.min_trailing_silence =
+      env->GetFloatField(_config, fid);
+
+  fid = env->GetFieldID(cls, "rule3MinUtteranceLength", "F");
+  config.endpoint_config.rule3.min_utterance_length =
+      env->GetFloatField(_config, fid);
+
+  NCNN_LOGE("------config------\n%s\n", config.ToString().c_str());
 
   auto model = new sherpa_ncnn::SherpaNcnn(
 #if __ANDROID_API__ >= 9
       mgr,
 #endif
-      decoder_config, model_config, fbank_opts);
+      config);
 
   return (jlong)model;
 }
@@ -340,6 +290,13 @@ SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_delete(
     JNIEnv *env, jobject /*obj*/, jlong ptr) {
   delete reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
+}
+
+SHERPA_EXTERN_C
+JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_decode(
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+  auto model = reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
+  model->DecodeStream();
 }
 
 SHERPA_EXTERN_C
@@ -357,7 +314,14 @@ JNIEXPORT bool JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_isEndpoint(
 }
 
 SHERPA_EXTERN_C
-JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_decodeSamples(
+JNIEXPORT bool JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_isReady(
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+  auto model = reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
+  return model->IsReady();
+}
+
+SHERPA_EXTERN_C
+JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_acceptWaveform(
     JNIEnv *env, jobject /*obj*/, jlong ptr, jfloatArray samples,
     jfloat sample_rate) {
   auto model = reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
@@ -365,7 +329,7 @@ JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_decodeSamples(
   jfloat *p = env->GetFloatArrayElements(samples, nullptr);
   jsize n = env->GetArrayLength(samples);
 
-  model->DecodeSamples(sample_rate, p, n);
+  model->AcceptWaveform(sample_rate, p, n);
 
   env->ReleaseFloatArrayElements(samples, p, JNI_ABORT);
 }
