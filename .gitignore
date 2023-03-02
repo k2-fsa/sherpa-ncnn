@@ -100,3 +100,13 @@ fastlane/test_output
 iOSInjectionProject/
 .DS_Store
 sherpa-ncnn-ffmpeg
+sherpa-ncnn-lstm-transducer-small-*
+sherpa-ncnn-streaming-zipformer-*
+sherpa-ncnn-all-in-one-for-embedded-systems-1*
+*.tar.bz2
+sherpa-ncnn-2022-*
+bilingual-small
+encoder-scale-table.txt
+joiner-scale-table.txt
+*.tar.gz
+generate-int8-*.sh

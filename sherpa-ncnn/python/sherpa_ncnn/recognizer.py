@@ -4,10 +4,11 @@ import numpy as np
 from _sherpa_ncnn import (
     DecoderConfig,
     EndpointConfig,
-    EndpointRule,
+    FeatureExtractorConfig,
     ModelConfig,
 )
 from _sherpa_ncnn import Recognizer as _Recognizer
+from _sherpa_ncnn import RecognizerConfig
 
 
 def _assert_file_exists(f: str):
@@ -89,6 +90,7 @@ class Recognizer(object):
         rule1_min_trailing_silence: int = 2.4,
         rule2_min_trailing_silence: int = 1.2,
         rule3_min_utterance_length: int = 20,
+        max_feature_vectors: int = -1,
     ):
         """
         Please refer to
@@ -139,6 +141,9 @@ class Recognizer(object):
             Used only when enable_endpoint_detection is True. If the utterance
             length in seconds is larger than this value, we assume an endpoint
             is detected.
+          max_feature_vectors:
+            It specifies the number of feature frames to cache. Use -1
+            to cache all processed frames
         """
         _assert_file_exists(tokens)
         _assert_file_exists(encoder_param)
@@ -153,6 +158,11 @@ class Recognizer(object):
             "greedy_search",
             "modified_beam_search",
         ), decoding_method
+        feat_config = FeatureExtractorConfig(
+            sampling_rate=16000,
+            feature_dim=80,
+            max_feature_vectors=-1,
+        )
 
         model_config = ModelConfig(
             encoder_param=encoder_param,
@@ -174,18 +184,20 @@ class Recognizer(object):
         decoder_config = DecoderConfig(
             method=decoding_method,
             num_active_paths=num_active_paths,
-            enable_endpoint=enable_endpoint_detection,
-            endpoint_config=endpoint_config,
         )
 
-        # all of our current models are using 16 kHz audio samples
-        self.sample_rate = 16000
-
-        self.recognizer = _Recognizer(
-            decoder_config=decoder_config,
+        self.config = RecognizerConfig(
+            feat_config=feat_config,
             model_config=model_config,
-            sample_rate=self.sample_rate,
+            decoder_config=decoder_config,
+            endpoint_config=endpoint_config,
+            enable_endpoint=enable_endpoint_detection,
         )
+
+        self.sample_rate = self.config.feat_config.sampling_rate
+
+        self.recognizer = _Recognizer(self.config)
+        self.stream = self.recognizer.create_stream()
 
     def accept_waveform(self, sample_rate: float, waveform: np.array):
         """Decode audio samples.
@@ -198,18 +210,25 @@ class Recognizer(object):
             range ``[-1, 1]``.
         """
         assert sample_rate == self.sample_rate, (sample_rate, self.sample_rate)
-        self.recognizer.accept_waveform(sample_rate, waveform)
-        self.recognizer.decode()
+        self.stream.accept_waveform(sample_rate, waveform)
+        self._decode()
 
     def input_finished(self):
         """Signal that no more audio samples are available."""
-        self.recognizer.input_finished()
-        self.recognizer.decode()
+        self.stream.input_finished()
+        self._decode()
+
+    def _decode(self):
+        while self.recognizer.is_ready(self.stream):
+            self.recognizer.decode_stream(self.stream)
 
     @property
     def text(self):
-        return self.recognizer.result.text
+        return self.recognizer.get_result(self.stream).text
 
     @property
     def is_endpoint(self):
-        return self.recognizer.is_endpoint()
+        return self.recognizer.is_endpoint(self.stream)
+
+    def reset(self):
+        self.recognizer.reset(self.stream)

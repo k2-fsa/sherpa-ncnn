@@ -1,5 +1,5 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,29 +16,22 @@
  * limitations under the License.
  */
 
-#include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
-
 #include "sherpa-ncnn/python/csrc/decoder.h"
-#include "sherpa-ncnn/python/csrc/display.h"
-#include "sherpa-ncnn/python/csrc/endpoint.h"
-#include "sherpa-ncnn/python/csrc/features.h"
-#include "sherpa-ncnn/python/csrc/model.h"
-#include "sherpa-ncnn/python/csrc/recognizer.h"
-#include "sherpa-ncnn/python/csrc/stream.h"
+
+#include <string>
+
+#include "sherpa-ncnn//csrc/decoder.h"
 
 namespace sherpa_ncnn {
 
-PYBIND11_MODULE(_sherpa_ncnn, m) {
-  m.doc() = "pybind11 binding of sherpa-ncnn";
-
-  PybindEndpoint(&m);
-  PybindFeatures(&m);
-  PybindModel(&m);
-  PybindDecoder(&m);
-  PybindStream(&m);
-  PybindRecognizer(&m);
-
-  PybindDisplay(&m);
+void PybindDecoder(py::module *m) {
+  using PyClass = DecoderConfig;
+  py::class_<PyClass>(*m, "DecoderConfig")
+      .def(py::init<const std::string &, int32_t>(), py::arg("method"),
+           py::arg("num_active_paths"))
+      .def_readwrite("method", &PyClass::method)
+      .def_readwrite("num_active_paths", &PyClass::num_active_paths)
+      .def("__str__", &PyClass::ToString);
 }
 
 }  // namespace sherpa_ncnn

@@ -38,11 +38,11 @@ class MainActivity : AppCompatActivity() {
     // since the AudioRecord.read(float[]) needs API level >= 23
     // but we are targeting API level >= 21
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+    private var idx: Int = 0
+    private var lastText: String = ""
 
     @Volatile
     private var isRecording: Boolean = false
-
-    private var results: MutableList<String> = ArrayList()
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -93,8 +93,9 @@ class MainActivity : AppCompatActivity() {
             recordButton.setText(R.string.stop)
             isRecording = true
             model.reset()
-            results = ArrayList()
             textView.text = ""
+            lastText = ""
+            idx = 0
 
             recordingThread = thread(true) {
                 processSamples()
@@ -106,7 +107,6 @@ class MainActivity : AppCompatActivity() {
             audioRecord!!.release()
             audioRecord = null
             recordButton.setText(R.string.start)
-            textView.text = joinText()
             Log.i(TAG, "Stopped recording")
         }
     }
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
     private fun processSamples() {
         Log.i(TAG, "processing samples")
 
-        val interval = 0.02 // i.e., 20 ms
+        val interval = 0.1 // i.e., 100 ms
         val bufferSize = (interval * sampleRateInHz).toInt() // in samples
         val buffer = ShortArray(bufferSize)
 
@@ -122,22 +122,29 @@ class MainActivity : AppCompatActivity() {
             val ret = audioRecord?.read(buffer, 0, buffer.size)
             if (ret != null && ret > 0) {
                 val samples = FloatArray(ret) { buffer[it] / 32768.0f }
-                model.decodeSamples(samples)
+                model.acceptSamples(samples)
+                while (model.isReady()) {
+                    model.decode()
+                }
+
                 runOnUiThread {
                     val isEndpoint = model.isEndpoint()
                     val text = model.text
-
                     if (text.isNotBlank()) {
-                        if (isEndpoint) {
-                            results[results.size - 1] = text
-                            results.add("")
+                        if (lastText.isBlank()) {
+                            textView.text = "${idx}: ${text}"
                         } else {
-                            if (results.isEmpty()) results.add("")
-                            results[results.size - 1] = text
+                            textView.text = "${lastText}\n${idx}: ${text}"
                         }
                     }
 
-                    textView.text = joinText()
+                    if (isEndpoint) {
+                        model.reset()
+                        if (text.isNotBlank()) {
+                            lastText = "${lastText}\n${idx}: ${text}"
+                            idx += 1
+                        }
+                    }
                 }
             }
         }
@@ -170,23 +177,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initModel() {
+        val featConfig = getFeatureExtractorConfig(
+            sampleRate = 16000.0f,
+            featureDim = 80,
+            maxFeatureVectors = 1 * 100 // cache 1 second of feature frames
+        )
+        //Please change the argument "type" if you use a different model
+        val modelConfig = getModelConfig(type = 1, useGPU = false)!!
+        val decoderConfig = getDecoderConfig(method = "greedy_search", numActivePaths = 4)
+
+        val config = RecognizerConfig(
+            featConfig = featConfig,
+            modelConfig = modelConfig,
+            decoderConfig = decoderConfig,
+            enableEndpoint = true,
+            rule1MinTrailingSilence = 2.0f,
+            rule2MinTrailingSilence = 0.8f,
+            rule3MinUtteranceLength = 20.0f,
+        )
+
         model = SherpaNcnn(
             assetManager = application.assets,
-            modelConfig = getModelConfig(type = 1, useGPU = useGPU)!!,
-            decoderConfig = getDecoderConfig(enableEndpoint = true),
-            fbankConfig = getFbankConfig(),
+            config = config,
         )
-    }
-
-    private fun joinText(): String {
-        var r = ""
-        var sep = ""
-        results.forEachIndexed { i, s ->
-            if (s.isNotBlank()) {
-                r = r.plus("${sep}${i}: ${s}")
-                sep = "\n"
-            }
-        }
-        return r
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,33 +16,20 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_CSRC_FEATURES_H_
-#define SHERPA_NCNN_CSRC_FEATURES_H_
+#ifndef SHERPA_NCNN_CSRC_STREAM_H_
+#define SHERPA_NCNN_CSRC_STREAM_H_
 
 #include <memory>
-#include <string>
+#include <vector>
 
-namespace ncnn {
-class Mat;
-}
+#include "sherpa-ncnn/csrc/decoder.h"
+#include "sherpa-ncnn/csrc/features.h"
 
 namespace sherpa_ncnn {
-
-struct FeatureExtractorConfig {
-  float sampling_rate = 16000;
-  int32_t feature_dim = 80;
-
-  // 100 hundred frames per second
-  // It specifies how many past frames to cache
-  int32_t max_feature_vectors = 10 * 100;
-
-  std::string ToString() const;
-};
-
-class FeatureExtractor {
+class Stream {
  public:
-  explicit FeatureExtractor(const FeatureExtractorConfig &config);
-  ~FeatureExtractor();
+  explicit Stream(const FeatureExtractorConfig &config);
+  ~Stream();
 
   /**
      @param sampling_rate The sampling_rate of the input waveform. Should match
@@ -52,16 +39,19 @@ class FeatureExtractor {
    */
   void AcceptWaveform(float sampling_rate, const float *waveform, int32_t n);
 
-  // InputFinished() tells the class you won't be providing any
-  // more waveform.  This will help flush out the last frame or two
-  // of features, in the case where snip-edges == false; it also
-  // affects the return value of IsLastFrame().
+  /**
+   * InputFinished() tells the class you won't be providing any
+   * more waveform.  This will help flush out the last frame or two
+   * of features, in the case where snip-edges == false; it also
+   * affects the return value of IsLastFrame().
+   */
   void InputFinished();
 
   int32_t NumFramesReady() const;
 
-  // Note: IsLastFrame() will only ever return true if you have called
-  // InputFinished() (and this frame is the last frame).
+  /** Note: IsLastFrame() will only ever return true if you have called
+   * InputFinished() (and this frame is the last frame).
+   */
   bool IsLastFrame(int32_t frame) const;
 
   /** Get n frames starting from the given frame index.
@@ -69,9 +59,24 @@ class FeatureExtractor {
    * @param frame_index  The starting frame index
    * @param n  Number of frames to get.
    * @return Return a 2-D tensor of shape (n, feature_dim).
-   *         ans.w == feature_dim; ans.h == n
+   *         which is flattened into a 1-D vector (flattened in in row major)
    */
   ncnn::Mat GetFrames(int32_t frame_index, int32_t n) const;
+
+  void Reset();
+
+  // Return a reference to the number of processed frames so far
+  // before subsampling..
+  // Initially, it is 0. It is always less than NumFramesReady().
+  //
+  // The returned reference is valid as long as this object is alive.
+  int32_t &GetNumProcessedFrames();
+
+  void SetResult(const DecoderResult &r);
+  DecoderResult &GetResult();
+
+  void SetStates(const std::vector<ncnn::Mat> &states);
+  std::vector<ncnn::Mat> &GetStates();
 
  private:
   class Impl;
@@ -80,4 +85,4 @@ class FeatureExtractor {
 
 }  // namespace sherpa_ncnn
 
-#endif  // SHERPA_NCNN_CSRC_FEATURES_H_
+#endif  // SHERPA_NCNN_CSRC_STREAM_H_

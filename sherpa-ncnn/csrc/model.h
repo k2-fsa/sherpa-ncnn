@@ -66,6 +66,8 @@ class Model {
   // Return the joiner network.
   virtual ncnn::Net &GetJoiner() = 0;
 
+  virtual std::vector<ncnn::Mat> GetEncoderInitStates() const = 0;
+
   /** Run the encoder network.
    *
    * @param features  A 2-d mat of shape (num_frames, feature_dim).

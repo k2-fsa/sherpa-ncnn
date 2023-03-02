@@ -17,31 +17,21 @@
  * limitations under the License.
  */
 
-#ifndef SHERPA_NCNN_CSRC_GREEDY_SEARCH_DECODER_H_
-#define SHERPA_NCNN_CSRC_GREEDY_SEARCH_DECODER_H_
-
 #include "sherpa-ncnn/csrc/decoder.h"
-#include "sherpa-ncnn/csrc/model.h"
+
+#include <sstream>
+#include <string>
 
 namespace sherpa_ncnn {
 
-class GreedySearchDecoder : public Decoder {
- public:
-  explicit GreedySearchDecoder(Model *model) : model_(model) {}
+std::string DecoderConfig::ToString() const {
+  std::ostringstream os;
 
-  DecoderResult GetEmptyResult() const override;
+  os << "DecoderConfig(";
+  os << "method=\"" << method << "\", ";
+  os << "num_active_paths=" << num_active_paths << ")";
 
-  void StripLeadingBlanks(DecoderResult * /*r*/) const override;
-
-  void Decode(ncnn::Mat encoder_out, DecoderResult *result) override;
-
- private:
-  ncnn::Mat BuildDecoderInput(const DecoderResult &result) const;
-
- private:
-  Model *model_;  // not owned
-};
+  return os.str();
+}
 
 }  // namespace sherpa_ncnn
-
-#endif  // SHERPA_NCNN_CSRC_GREEDY_SEARCH_DECODER_H_

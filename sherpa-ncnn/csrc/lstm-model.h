@@ -39,6 +39,8 @@ class LstmModel : public Model {
   ncnn::Net &GetDecoder() override { return decoder_; }
   ncnn::Net &GetJoiner() override { return joiner_; }
 
+  std::vector<ncnn::Mat> GetEncoderInitStates() const override;
+
   /** Run the encoder network.
    *
    * @param features  A 2-d mat of shape (num_frames, feature_dim).
@@ -100,8 +102,6 @@ class LstmModel : public Model {
   void InitJoiner(AAssetManager *mgr, const std::string &joiner_param,
                   const std::string &joiner_bin);
 #endif
-
-  std::vector<ncnn::Mat> GetEncoderInitStates() const;
 
   void InitEncoderInputOutputIndexes();
   void InitDecoderInputOutputIndexes();

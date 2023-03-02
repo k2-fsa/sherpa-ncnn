@@ -21,86 +21,183 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
 
 namespace sherpa_ncnn {
 
-std::string DecoderConfig::ToString() const {
+static RecognitionResult Convert(const DecoderResult &src,
+                                 const SymbolTable &sym_table) {
+  std::string text;
+  for (auto t : src.tokens) {
+    text += sym_table[t];
+  }
+
+  RecognitionResult ans;
+  ans.text = std::move(text);
+  return ans;
+}
+
+std::string RecognitionResult::ToString() const {
   std::ostringstream os;
 
-  os << "DecoderConfig(";
-  os << "method=\"" << method << "\", ";
-  os << "num_active_paths=" << num_active_paths << ", ";
-  os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
-  os << "endpoint_config=" << endpoint_config.ToString() << ")";
+  os << "text: " << text << "\n";
+  os << "timestamps: ";
+  for (const auto &t : timestamps) {
+    os << t << " ";
+  }
+  os << "\n";
 
   return os.str();
 }
 
-Recognizer::Recognizer(const DecoderConfig &decoder_conf,
-                       const ModelConfig &model_conf,
-                       const knf::FbankOptions &fbank_opts)
-    : model_(Model::Create(model_conf)),
-      fbank_opts_(std::make_unique<knf::FbankOptions>(fbank_opts)),
-      sym_(std::make_unique<SymbolTable>(model_conf.tokens)),
-      endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
-  if (decoder_conf.method == "modified_beam_search") {
-    decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
-        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
-  } else if (decoder_conf.method == "greedy_search") {
-    decoder_ = std::make_unique<GreedySearchDecoder>(
-        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
-  } else {
-    NCNN_LOGE("Unsupported decoding method: %s\n", decoder_conf.method.c_str());
-    exit(-1);
-  }
+std::string RecognizerConfig::ToString() const {
+  std::ostringstream os;
+
+  os << "RecognizerConfig(";
+  os << "feat_config=" << feat_config.ToString() << ", ";
+  os << "model_config=" << model_config.ToString() << ", ";
+  os << "decoder_config=" << decoder_config.ToString() << ", ";
+  os << "endpoint_config=" << endpoint_config.ToString() << ", ";
+  os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ")";
+
+  return os.str();
 }
+
+class Recognizer::Impl {
+ public:
+  explicit Impl(const RecognizerConfig &config)
+      : config_(config),
+        model_(Model::Create(config.model_config)),
+        endpoint_(config.endpoint_config),
+        sym_(config.model_config.tokens) {
+    if (config.decoder_config.method == "greedy_search") {
+      decoder_ = std::make_unique<GreedySearchDecoder>(model_.get());
+    } else if (config.decoder_config.method == "modified_beam_search") {
+      decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
+          model_.get(), config.decoder_config.num_active_paths);
+    } else {
+      NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
+      exit(-1);
+    }
+  }
 
 #if __ANDROID_API__ >= 9
-Recognizer::Recognizer(AAssetManager *mgr, const DecoderConfig &decoder_conf,
-                       const ModelConfig &model_conf,
-                       const knf::FbankOptions &fbank_opts)
-    : model_(Model::Create(mgr, model_conf)),
-      sym_(std::make_unique<SymbolTable>(mgr, model_conf.tokens)),
-      endpoint_(std::make_unique<Endpoint>(decoder_conf.endpoint_config)) {
-  if (decoder_conf.method == "modified_beam_search") {
-    decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
-        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
-  } else if (decoder_conf.method == "greedy_search") {
-    decoder_ = std::make_unique<GreedySearchDecoder>(
-        decoder_conf, model_.get(), fbank_opts, sym_.get(), endpoint_.get());
-  } else {
-    NCNN_LOGE("Unsupported decoding method: %s\n", decoder_conf.method.c_str());
-    exit(-1);
+  Impl(AAssetManager *mgr, const RecognizerConfig &config)
+      : config_(config),
+        model_(Model::Create(mgr, config.model_config)),
+        endpoint_(config.endpoint_config),
+        sym_(mgr, config.model_config.tokens) {
+    if (config.decoder_config.method == "greedy_search") {
+      decoder_ = std::make_unique<GreedySearchDecoder>(model_.get());
+    } else if (config.decoder_config.method == "modified_beam_search") {
+      decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
+          model_.get(), config.decoder_config.num_active_paths);
+    } else {
+      NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
+      exit(-1);
+    }
   }
-}
 #endif
 
-void Recognizer::AcceptWaveform(float sample_rate, const float *input_buffer,
-                                int32_t frames_per_buffer) {
-  decoder_->AcceptWaveform(sample_rate, input_buffer, frames_per_buffer);
-}
-
-void Recognizer::Decode() { decoder_->Decode(); }
-
-RecognitionResult Recognizer::GetResult() {
-  auto r = decoder_->GetResult();
-
-  float frame_shift_s = fbank_opts_->frame_opts.frame_shift_ms / 1000.;
-  for (auto &t : r.timestamps) {
-    t *= frame_shift_s;
+  std::unique_ptr<Stream> CreateStream() const {
+    auto stream = std::make_unique<Stream>(config_.feat_config);
+    stream->SetResult(decoder_->GetEmptyResult());
+    stream->SetStates(model_->GetEncoderInitStates());
+    return stream;
   }
 
-  return r;
+  bool IsReady(Stream *s) const {
+    return s->GetNumProcessedFrames() + model_->Segment() < s->NumFramesReady();
+  }
+
+  void DecodeStream(Stream *s) const {
+    int32_t segment = model_->Segment();
+    int32_t offset = model_->Offset();
+
+    ncnn::Mat features = s->GetFrames(s->GetNumProcessedFrames(), segment);
+    s->GetNumProcessedFrames() += offset;
+    std::vector<ncnn::Mat> states = s->GetStates();
+
+    ncnn::Mat encoder_out;
+    std::tie(encoder_out, states) = model_->RunEncoder(features, states);
+    s->SetStates(states);
+
+    decoder_->Decode(encoder_out, &s->GetResult());
+  }
+
+  bool IsEndpoint(Stream *s) const {
+    if (!config_.enable_endpoint) return false;
+    int32_t num_processed_frames = s->GetNumProcessedFrames();
+
+    // frame shift is 10 milliseconds
+    float frame_shift_in_seconds = 0.01;
+
+    // subsampling factor is 4
+    int32_t trailing_silence_frames = s->GetResult().num_trailing_blanks * 4;
+
+    return endpoint_.IsEndpoint(num_processed_frames, trailing_silence_frames,
+                                frame_shift_in_seconds);
+  }
+
+  void Reset(Stream *s) const {
+    // Caution: We need to keep the decoder output state
+    ncnn::Mat decoder_out = s->GetResult().decoder_out;
+    s->SetResult(decoder_->GetEmptyResult());
+    s->GetResult().decoder_out = decoder_out;
+
+    // don't reset encoder state
+    // s->SetStates(model_->GetEncoderInitStates());
+
+    // reset feature extractor
+    // Note: We only reset the counter. The underlying audio samples are
+    // still kept in memory
+    s->Reset();
+  }
+
+  RecognitionResult GetResult(Stream *s) const {
+    DecoderResult decoder_result = s->GetResult();
+    decoder_->StripLeadingBlanks(&decoder_result);
+
+    return Convert(decoder_result, sym_);
+  }
+
+ private:
+  RecognizerConfig config_;
+  std::unique_ptr<Model> model_;
+  std::unique_ptr<Decoder> decoder_;
+  Endpoint endpoint_;
+  SymbolTable sym_;
+};
+
+Recognizer::Recognizer(const RecognizerConfig &config)
+    : impl_(std::make_unique<Impl>(config)) {}
+
+#if __ANDROID_API__ >= 9
+Recognizer::Recognizer(AAssetManager *mgr, const RecognizerConfig &config)
+    : impl_(std::make_unique<Impl>(mgr, config)) {}
+#endif
+
+Recognizer::~Recognizer() = default;
+
+std::unique_ptr<Stream> Recognizer::CreateStream() const {
+  return impl_->CreateStream();
 }
 
-bool Recognizer::IsEndpoint() { return decoder_->IsEndpoint(); }
+bool Recognizer::IsReady(Stream *s) const { return impl_->IsReady(s); }
 
-void Recognizer::Reset() { return decoder_->Reset(); }
+void Recognizer::DecodeStream(Stream *s) const { impl_->DecodeStream(s); }
 
-void Recognizer::InputFinished() { return decoder_->InputFinished(); }
+bool Recognizer::IsEndpoint(Stream *s) const { return impl_->IsEndpoint(s); }
+
+void Recognizer::Reset(Stream *s) const { impl_->Reset(s); }
+
+RecognitionResult Recognizer::GetResult(Stream *s) const {
+  return impl_->GetResult(s);
+}
 
 }  // namespace sherpa_ncnn
