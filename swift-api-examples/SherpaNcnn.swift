@@ -188,9 +188,11 @@ class SherpaNcnnRecognizer {
     ///
     /// - Parameters:
     ///   - samples: Audio samples normalzed to the range [-1, 1]
-    ///   - sampleRate: Sample rate of the input audio samples. Must match
-    ///                 the one expected by the model. It must be 16000 for
-    ///                 models from icefall.
+    ///   - sampleRate: Sample rate of the input audio samples. If it is
+    ///                 different from featConfig.sampleRate, we will do
+    ///                 resample. Caution: You cannot use a different
+    ///                 sampleRate across different calls to
+    ///                 AcceptWaveform().
     func acceptWaveform(samples: [Float], sampleRate: Float = 16000) {
         AcceptWaveform(stream, sampleRate, samples, Int32(samples.count))
     }

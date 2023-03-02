@@ -25,7 +25,7 @@ class Stream::Impl {
   explicit Impl(const FeatureExtractorConfig &config)
       : feat_extractor_(config) {}
 
-  void AcceptWaveform(float sampling_rate, const float *waveform, int32_t n) {
+  void AcceptWaveform(int32_t sampling_rate, const float *waveform, int32_t n) {
     feat_extractor_.AcceptWaveform(sampling_rate, waveform, n);
   }
 
@@ -71,7 +71,7 @@ Stream::Stream(const FeatureExtractorConfig &config)
 
 Stream::~Stream() = default;
 
-void Stream::AcceptWaveform(float sampling_rate, const float *waveform,
+void Stream::AcceptWaveform(int32_t sampling_rate, const float *waveform,
                             int32_t n) {
   impl_->AcceptWaveform(sampling_rate, waveform, n);
 }
