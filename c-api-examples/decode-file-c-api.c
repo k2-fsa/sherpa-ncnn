@@ -96,6 +96,9 @@ int32_t main(int32_t argc, char *argv[]) {
 
   SherpaNcnnStream *s = CreateStream(recognizer);
 
+  SherpaNcnnDisplay *display = CreateDisplay(50);
+  int32_t segment_id = -1;
+
   while (!feof(fp)) {
     size_t n = fread((void *)buffer, sizeof(int16_t), N, fp);
     if (n > 0) {
@@ -109,7 +112,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
       SherpaNcnnResult *r = GetResult(recognizer, s);
       if (strlen(r->text)) {
-        fprintf(stderr, "%s\n", r->text);
+        SherpaNcnnPrint(display, segment_id, r->text);
       }
       DestroyResult(r);
     }
@@ -126,11 +129,18 @@ int32_t main(int32_t argc, char *argv[]) {
     Decode(recognizer, s);
   }
   SherpaNcnnResult *r = GetResult(recognizer, s);
-  fprintf(stderr, "%s\n", r->text);
+  if (strlen(r->text)) {
+    SherpaNcnnPrint(display, segment_id, r->text);
+  }
+
   DestroyResult(r);
+
+  DestroyDisplay(display);
 
   DestroyStream(s);
   DestroyRecognizer(recognizer);
+
+  fprintf(stderr, "\n");
 
   return 0;
 }
