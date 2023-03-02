@@ -212,6 +212,18 @@ void InputFinished(SherpaNcnnStream *s);
 /// @return Return 1 if an endpoint is detected. Return 0 otherwise.
 int32_t IsEndpoint(SherpaNcnnRecognizer *p, SherpaNcnnStream *s);
 
+// for displaying results on Linux/macOS.
+typedef struct SherpaNcnnDisplay SherpaNcnnDisplay;
+
+/// Create a display object. Must be freed using DestroyDisplay to avoid
+/// memory leak.
+SherpaNcnnDisplay *CreateDisplay(int32_t max_word_per_line);
+
+void DestroyDisplay(SherpaNcnnDisplay *display);
+
+/// Print the result.
+void SherpaNcnnPrint(SherpaNcnnDisplay *display, int32_t idx, const char *s);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

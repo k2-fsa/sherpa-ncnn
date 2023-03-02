@@ -224,7 +224,7 @@ end:
     return ret;
 }
 
-static void sherpa_decode_frame(const AVFrame *frame, SherpaNcnnRecognizer *recognizer, SherpaNcnnStream *s)
+static void sherpa_decode_frame(const AVFrame *frame, SherpaNcnnRecognizer *recognizer, SherpaNcnnStream *s, SherpaNcnnDisplay * display, int *segment_id)
 {
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
     static float samples[N];
@@ -239,13 +239,17 @@ static void sherpa_decode_frame(const AVFrame *frame, SherpaNcnnRecognizer *reco
 
         SherpaNcnnResult *r = GetResult(recognizer, s);
         if (strlen(r->text)) {
-            fprintf(stderr, "%s\n", r->text);
+            SherpaNcnnPrint(display, *segment_id, r->text);
         }
-        DestroyResult(r);
 
         if (IsEndpoint(recognizer, s)) {
           Reset(recognizer, s);
+          if (strlen(r->text)) {
+            ++(*segment_id);
+          }
         }
+
+        DestroyResult(r);
         nb_samples = 0;
     }
 
@@ -331,6 +335,9 @@ int main(int argc, char **argv)
 
     SherpaNcnnStream *s = CreateStream(recognizer);
 
+    SherpaNcnnDisplay *display = CreateDisplay(60);
+    int segment_id = 0;
+
     if ((ret = open_input_file(argv[8])) < 0)
         exit(1);
 
@@ -372,7 +379,7 @@ int main(int argc, char **argv)
                             break;
                         if (ret < 0)
                             exit(1);
-                        sherpa_decode_frame(filt_frame, recognizer, s);
+                        sherpa_decode_frame(filt_frame, recognizer, s, display, &segment_id);
                         av_frame_unref(filt_frame);
                     }
                     av_frame_unref(frame);
@@ -392,9 +399,12 @@ int main(int argc, char **argv)
       Decode(recognizer, s);
     }
     SherpaNcnnResult *r = GetResult(recognizer, s);
-    fprintf(stderr, "%s\n", r->text);
+    if(strlen(r->text)) {
+      SherpaNcnnPrint(display, segment_id, r->text);
+    }
     DestroyResult(r);
 
+    DestroyDisplay(display);
     DestroyStream(s);
     DestroyRecognizer(recognizer);
     avfilter_graph_free(&filter_graph);

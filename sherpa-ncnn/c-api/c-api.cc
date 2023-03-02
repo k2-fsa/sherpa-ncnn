@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 
+#include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
@@ -34,8 +35,14 @@ struct SherpaNcnnRecognizer {
   std::unique_ptr<sherpa_ncnn::Recognizer> recognizer;
 };
 
+SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnStream {
   std::unique_ptr<sherpa_ncnn::Stream> stream;
+};
+
+SHERPA_NCNN_EXTERN_C
+struct SherpaNcnnDisplay {
+  std::unique_ptr<sherpa_ncnn::Display> impl;
 };
 
 SherpaNcnnRecognizer *CreateRecognizer(
@@ -134,4 +141,16 @@ void InputFinished(SherpaNcnnStream *s) { s->stream->InputFinished(); }
 
 int32_t IsEndpoint(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   return p->recognizer->IsEndpoint(s->stream.get());
+}
+
+SherpaNcnnDisplay *CreateDisplay(int32_t max_word_per_line) {
+  SherpaNcnnDisplay *ans = new SherpaNcnnDisplay;
+  ans->impl = std::make_unique<sherpa_ncnn::Display>(max_word_per_line);
+  return ans;
+}
+
+void DestroyDisplay(SherpaNcnnDisplay *display) { delete display; }
+
+void SherpaNcnnPrint(SherpaNcnnDisplay *display, int32_t idx, const char *s) {
+  display->impl->Print(idx, s);
 }
