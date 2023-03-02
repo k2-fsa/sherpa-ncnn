@@ -32,12 +32,15 @@ class Stream {
   ~Stream();
 
   /**
-     @param sampling_rate The sampling_rate of the input waveform. Should match
-                          the one expected by the feature extractor.
+     @param sampling_rate The sampling_rate of the input waveform. We will
+                          do resample if it is different from
+                          config.sampling_rate.
+                          Caution: You MUST not use a different sampling rate
+                          across different calls for AcceptWaveform().
      @param waveform Pointer to a 1-D array of size n
      @param n Number of entries in waveform
    */
-  void AcceptWaveform(float sampling_rate, const float *waveform, int32_t n);
+  void AcceptWaveform(int32_t sampling_rate, const float *waveform, int32_t n);
 
   /**
    * InputFinished() tells the class you won't be providing any

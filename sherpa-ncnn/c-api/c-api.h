@@ -149,8 +149,10 @@ void DestroyStream(SherpaNcnnStream *s);
 /// Accept input audio samples and compute the features.
 ///
 /// @param s  A pointer returned by CreateStream().
-/// @param sample_rate  Sampler rate of the input samples. It has to be 16 kHz
-///                     for models from icefall.
+/// @param sample_rate  Sample rate of the input samples. If it is different
+///                     from feat_config.sampling_rate, we will do resample.
+///                     Caution: You MUST not use a different sampling_rate
+///                     across different calls to AcceptWaveform()
 /// @param samples A pointer to a 1-D array containing audio samples.
 ///                The range of samples has to be normalized to [-1, 1].
 /// @param n  Number of elements in the samples array.
