@@ -47,8 +47,8 @@ It should print something like below:
 
 ls -lh \$HOME/asr
 total 24368
--rw-r--r--   1 fangjun  staff    59K Feb  2 17:01 kaldi-native-fbank-1.11.tar.gz
--rw-r--r--   1 fangjun  staff    12M Feb  2 17:01 sherpa-0.8.tar.gz
+-rw-r--r--   1 fangjun  staff    59K Feb  2 17:01 kaldi-native-fbank-1.12.tar.gz
+-rw-r--r--   1 fangjun  staff    12M Feb  2 17:01 sherpa-0.9.tar.gz
 drwxr-xr-x  29 fangjun  staff   928B Feb  2 16:05 sherpa-ncnn-${SHERPA_NCNN_VERSION}
 
 # Note: It is OK if the versions of the above files are different.
