@@ -10,6 +10,7 @@ to install sherpa-ncnn and to download the pre-trained models
 used in this file.
 """
 
+import time
 import wave
 
 import numpy as np
@@ -17,6 +18,8 @@ import sherpa_ncnn
 
 
 def main():
+    # Please refer to https://k2-fsa.github.io/sherpa/ncnn/index.html
+    # to download the model files
     recognizer = sherpa_ncnn.Recognizer(
         tokens="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/tokens.txt",
         encoder_param="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/encoder_jit_trace-pnnx.ncnn.param",
@@ -30,10 +33,9 @@ def main():
 
     filename = "./sherpa-ncnn-conv-emformer-transducer-2022-12-06/test_wavs/1.wav"
     with wave.open(filename) as f:
-        assert f.getframerate() == recognizer.sample_rate, (
-            f.getframerate(),
-            recognizer.sample_rate,
-        )
+        # Note: If wave_file_sample_rate is different from
+        # recognizer.sample_rate, we will do resampling inside sherpa-ncnn
+        wave_file_sample_rate = f.getframerate()
         assert f.getnchannels() == 1, f.getnchannels()
         assert f.getsampwidth() == 2, f.getsampwidth()  # it is in bytes
         num_samples = f.getnframes()
@@ -43,14 +45,27 @@ def main():
 
         samples_float32 = samples_float32 / 32768
 
-    recognizer.accept_waveform(recognizer.sample_rate, samples_float32)
+    # simulate streaming
+    chunk_size = int(0.1 * wave_file_sample_rate)  # 0.1 seconds
+    start = 0
+    while start < samples_float32.shape[0]:
+        end = start + chunk_size
+        end = min(end, samples_float32.shape[0])
+        recognizer.accept_waveform(wave_file_sample_rate, samples_float32[start:end])
+        start = end
+        text = recognizer.text
+        if text:
+            print(text)
 
-    tail_paddings = np.zeros(int(recognizer.sample_rate * 0.5), dtype=np.float32)
-    recognizer.accept_waveform(recognizer.sample_rate, tail_paddings)
+        # simulate streaming by sleeping
+        time.sleep(0.1)
 
+    tail_paddings = np.zeros(int(wave_file_sample_rate * 0.5), dtype=np.float32)
+    recognizer.accept_waveform(wave_file_sample_rate, tail_paddings)
     recognizer.input_finished()
-
-    print(recognizer.text)
+    text = recognizer.text
+    if text:
+        print(text)
 
 
 if __name__ == "__main__":
