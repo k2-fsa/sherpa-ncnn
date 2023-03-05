@@ -39,7 +39,7 @@ class Display {
           last_segment_ = segment_id;
       }
       else{
-          fprintf(stderr, "%s", s.c_str());
+          fprintf(stderr, "\r%d:%s", segment_id, s.c_str());
       }
     } else {
       fprintf(stderr, "%s\n", s.c_str());
