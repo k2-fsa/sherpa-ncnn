@@ -10,11 +10,10 @@
     <TextView
         android:id="@+id/my_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="2.5"
-        android:padding="24dp"
-        android:scrollbars="vertical"
-        android:singleLine="false" />
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:textSize="22sp"
+        android:gravity="center"/>
 
     <View
         android:layout_width="match_parent"

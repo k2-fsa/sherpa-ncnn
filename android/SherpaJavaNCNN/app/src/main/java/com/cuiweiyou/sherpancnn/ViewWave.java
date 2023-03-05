@@ -18,7 +18,7 @@ import java.util.Arrays;
  */
 public class ViewWave extends View {
     
-    private byte[] mWaveform;     // 波纹形状
+    private short[] mWaveform;     // 波纹形状
     private Paint paint;
     
     public ViewWave(Context context) {
@@ -46,7 +46,7 @@ public class ViewWave extends View {
         paint.setStyle(Paint.Style.STROKE); // 填充
     }
     
-    public void setWaveform(byte[] waveform) {
+    public void setWaveform(short[] waveform) {
         if (null == waveform) {
             mWaveform = null;
         } else {
@@ -71,7 +71,7 @@ public class ViewWave extends View {
         }
     }
     
-    private void renderWaveform(byte[] data, Canvas canvas) {
+    private void renderWaveform(short[] data, Canvas canvas) {
         if (null == data) {
             return;
         }
@@ -107,18 +107,5 @@ public class ViewWave extends View {
         path.lineTo(width, y);
         canvas.drawPath(path, paint);
     }
-    
-    public Handler getWaveHandler() {
-        return waveHandler;
-    }
-    
-    private Handler waveHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            byte[] buffer = (byte[]) msg.obj;
-            setWaveform(buffer);
-        }
-    };
 }
 

@@ -36,20 +36,34 @@ public class ToolSherpaNcnn {
         return instance;
     }
     
+    // 初始化解码器
+    // init SherpaNCNN
     public void init(AssetManager assetManager) {
         FeatureExtractorConfig featConfig = new FeatureExtractorConfig(SAMPLE_RATE_IN_HZ, 80, 1 * 100); // cache 1 second of feature frames
         ModelConfig modelConfig = ModelConfig.getInstance(1, false);   // 声学文件
         DecoderConfig decoderConfig = new DecoderConfig("greedy_search", 4);
         RecognizerConfig config = new RecognizerConfig(featConfig, modelConfig, decoderConfig, true, 2.0f, 0.8f, 20.0f);
-        
+    
         sherpaNcnn = new SherpaNcnn(assetManager, config);
         ptr = sherpaNcnn.getPtr();
-        Log.e("ard", "翻译id：" + ptr);
-        
+        Log.e("ard", "翻译id(decoder id)：" + ptr);
+    }
+    
+    // 启动解码线程
+    // start decode thread.
+    public void start(){
         runnableSherpa = new RunnableSherpa(sherpaNcnn);
         new Thread(runnableSherpa).start();
     }
     
+    // 界面ActivityMain2测试用
+    // test for ActivityMain2
+    public SherpaNcnn getSherpaNcnn(){
+        return sherpaNcnn;
+    }
+    
+    // 解码器释放资源
+    // SherpaNCNN release
     public void delete() {
         runnableSherpa.stopDecode();
         sherpaNcnn.delete(ptr);
@@ -57,7 +71,9 @@ public class ToolSherpaNcnn {
         sherpaNcnn = null;
     }
     
-    public void processSamples(byte[] bytes, Handler handler) {
+    // 解码
+    // SherpaNCNN decode
+    public void processSamples(float[] bytes, Handler handler) {
         if (null == bytes || null == handler || null == runnableSherpa) {
             return;
         }
@@ -65,21 +81,26 @@ public class ToolSherpaNcnn {
         runnableSherpa.decode(bytes, handler);
     }
     
+    // 解码线程
+    // decode thread
     private class RunnableSherpa implements Runnable {
-        private boolean isWorking = true;
+        private boolean isWorking = true; // 线程存活标记。keep thread alive
         private SherpaNcnn sherpaNcnn;
-        private byte[] bytes;
-        private Handler handler;
+        private float[] samples;          // audio source
+        private Handler handler;          // connect to activity
         
         public RunnableSherpa(SherpaNcnn ncnn) {
             this.sherpaNcnn = ncnn;
         }
         
-        public void decode(byte[] bytes, Handler handler) {
-            this.bytes = bytes;
+        // 解码
+        // decode
+        public void decode(float[] bytes, Handler handler) {
+            this.samples = bytes;
             this.handler = handler;
         }
         
+        // kill thread
         public void stopDecode() {
             isWorking = false;
         }
@@ -87,37 +108,31 @@ public class ToolSherpaNcnn {
         @Override
         public void run() {
             while (isWorking) {
-                if (null == bytes || null == handler) {
+                if (null == samples || null == handler) {
                     continue;
                 }
                 
-                float[] samples = new float[bytes.length];
-                for (int i = 0; i < bytes.length; i++) {
-                    Float af = Float.valueOf(bytes[i]); // 这里是否有问题？
-                    samples[i] = af.floatValue();
-                }
-                
-                sherpaNcnn.acceptWaveform(ptr, samples, sherpaNcnn.recognizerConfig.featConfig.sampleRate);
+                sherpaNcnn.acceptWaveform(ptr, samples, SAMPLE_RATE_IN_HZ); // 核心代码。core code.
                 while (sherpaNcnn.isReady(ptr)) {
                     sherpaNcnn.decode(ptr);
                 }
                 
                 boolean isEndpoint = sherpaNcnn.isEndpoint(ptr);
-                String text = sherpaNcnn.getText(ptr);
                 if (isEndpoint) {
+                    String text = sherpaNcnn.getText(ptr);
+                    Log.e("ard", "-----：" + text);
                     sherpaNcnn.reset(ptr);
+                
+                    Bundle data = new Bundle();
+                    data.putString("text", text);
+                    Message msg = handler.obtainMessage();
+                    msg.setData(data);
+                    handler.sendMessage(msg);
                 }
                 
-                Log.e("ard", "解码：" + text);
-                
-                Bundle data = new Bundle();
-                data.putString("text", text);
-                Message msg = handler.obtainMessage();
-                msg.setData(data);
-                handler.sendMessage(msg);
-                
                 handler = null;
-                bytes = null;
+                samples = null;
+    
             }
         }
     }

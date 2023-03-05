@@ -7,6 +7,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import java.util.Arrays;
 
@@ -45,11 +46,21 @@ public class ToolRecorder {
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, audioChannel, encodingFormat, minBufferSize * 2);
     }
     
+    // 界面ActivityMain2测试用
+    // test for ActivityMain2
+    public AudioRecord getAudioRecord() {
+        return audioRecord;
+    }
+    
+    // 启动录音
+    // start record thread
     public void startRecord(Handler handler1, Handler handler2) {
         recordRunner = new RecordRunner(audioRecord, handler1, handler2);
         new Thread(recordRunner).start();
     }
     
+    // 停止录音
+    // stop record thread
     public void stopRecord() {
         if (null != recordRunner) {
             recordRunner.stopRecod();
@@ -57,6 +68,7 @@ public class ToolRecorder {
         recordRunner = null;
     }
     
+    // release source
     public void release() {
         if (null != recordRunner) {
             recordRunner.releaseRecod();
@@ -65,7 +77,7 @@ public class ToolRecorder {
     }
     
     class RecordRunner implements Runnable {
-        private boolean isRecording = true;
+        private boolean isRecording = true; // keep thread alive
         private boolean isRelease = false;
         private AudioRecord audioRecord;
         private Handler recordHandler;
@@ -88,36 +100,33 @@ public class ToolRecorder {
         
         @Override
         public void run() {
-            if (null == recordHandler) {
-                return;
-            }
-            if (audioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) {
-                return;
-            }
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-            
-            float interval = 0.1f;                             // i.e., 100 ms
-            int bufferSize = (int) (interval * minBufferSize); // in samples
+            float interval = 0.1f; // i.e., 100 ms
+            int bufferSize = (int) (interval * ToolSherpaNcnn.SAMPLE_RATE_IN_HZ); // in samples
             
             audioRecord.startRecording();
             
             while (isRecording) {
-                byte[] buffer = new byte[bufferSize];
-                int ret = audioRecord.read(buffer, 0, bufferSize);
-                if (ret > 0) {
+                short[] buffer = new short[bufferSize];
+                int count = audioRecord.read(buffer, 0, bufferSize);
+                if (count > 0) {
+                    float[] samples = new float[count];
+                    for (int i = 0; i < count; i++) {
+                        samples[i] = buffer[i] / 32768.0f;
+                    }
                     
-                    ToolSherpaNcnn.getInstance().processSamples(buffer, sherpaHandler); // 解码
+                    ToolSherpaNcnn.getInstance().processSamples(samples, sherpaHandler); // 解码。decode
                     
-                    byte[] tmpbytes = Arrays.copyOf(buffer, ret);
+                    short[] tmpbytes = Arrays.copyOf(buffer, count);
                     Bundle data = new Bundle();
-                    data.putByteArray("buffer", tmpbytes);
+                    data.putShortArray("buffer", tmpbytes);
                     Message msg = recordHandler.obtainMessage();
                     msg.setData(data);
-                    recordHandler.sendMessage(msg); // 发给ui绘制
+                    recordHandler.sendMessage(msg); // 发给ui绘制。send to aty
                 }
             }
             
             audioRecord.stop();
+            
             if (isRelease) {
                 audioRecord.release();
                 audioRecord = null;

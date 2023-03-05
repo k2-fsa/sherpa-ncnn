@@ -33,10 +33,10 @@ public class SherpaNcnn {
         return ptr;
     }
     
-    private native long newer(AssetManager assetManager, RecognizerConfig config); // 初始化
+    private native long newer(AssetManager assetManager, RecognizerConfig config); // 初始化，返回解码器id。init, get NCNN id.
     public native void delete(long ptr);
-    public native void acceptWaveform(long ptr, float[] samples, float sampleRate); // 开始识别
-    public native String getText(long ptr); // 识别结果
+    public native void acceptWaveform(long ptr, float[] samples, float sampleRate); // 开始识别。decode
+    public native String getText(long ptr); // 识别结果。decoding result
     public native void inputFinished(long ptr);
     public native boolean isReady(long ptr);
     public native boolean decode(long ptr);
