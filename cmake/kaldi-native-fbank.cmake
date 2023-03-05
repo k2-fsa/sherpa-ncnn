@@ -3,6 +3,7 @@ function(download_kaldi_native_fbank)
 
   # Please also change ../pack-for-embedded-systems.sh
   set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.12.tar.gz")
+  set(kaldi_native_fbank_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/kaldi-native-fbank-1.12.tar.gz")
   set(kaldi_native_fbank_HASH "SHA256=8f4dfc3f6ddb1adcd9ac0ae87743ebc6cbcae147aacf9d46e76fa54134e12b44")
 
   # If you don't have access to the Internet, please download it to your
@@ -27,7 +28,9 @@ function(download_kaldi_native_fbank)
   set(KALDI_NATIVE_FBANK_ENABLE_CHECK OFF CACHE BOOL "" FORCE)
 
   FetchContent_Declare(kaldi_native_fbank
-    URL               ${kaldi_native_fbank_URL}
+    URL
+      ${kaldi_native_fbank_URL}
+      ${kaldi_native_fbank_URL2}
     URL_HASH          ${kaldi_native_fbank_HASH}
   )
 
