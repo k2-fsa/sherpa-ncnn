@@ -33,12 +33,10 @@ class Display {
   void Print(int32_t segment_id, const std::string &s) {
 #ifdef _MSC_VER
     if (segment_id != -1) {
-      if (last_segment_ != segment_id) 
-      {
+      if (last_segment_ != segment_id) {
           fprintf(stderr, "\n%d:%s", segment_id, s.c_str());
           last_segment_ = segment_id;
-      }
-      else{
+      } else {
           fprintf(stderr, "\r%d:%s", segment_id, s.c_str());
       }
     } else {
