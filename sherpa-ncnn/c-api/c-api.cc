@@ -86,8 +86,6 @@ SherpaNcnnRecognizer *CreateRecognizer(
 
   config.feat_config.sampling_rate = in_config->feat_config.sampling_rate;
   config.feat_config.feature_dim = in_config->feat_config.feature_dim;
-  config.feat_config.max_feature_vectors =
-      in_config->feat_config.max_feature_vectors;
 
   auto ans = new SherpaNcnnRecognizer;
   ans->recognizer = std::make_unique<sherpa_ncnn::Recognizer>(config);

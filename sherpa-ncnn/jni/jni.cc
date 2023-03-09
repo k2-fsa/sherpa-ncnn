@@ -101,9 +101,6 @@ static FeatureExtractorConfig GetFeatureExtractorConfig(JNIEnv *env,
   fid = env->GetFieldID(feat_config_cls, "featureDim", "I");
   ans.feature_dim = env->GetIntField(feat_config, fid);
 
-  fid = env->GetFieldID(feat_config_cls, "maxFeatureVectors", "I");
-  ans.max_feature_vectors = env->GetIntField(feat_config, fid);
-
   return ans;
 }
 

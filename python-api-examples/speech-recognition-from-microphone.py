@@ -34,7 +34,6 @@ def create_recognizer():
         joiner_param="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/joiner_jit_trace-pnnx.ncnn.param",
         joiner_bin="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/joiner_jit_trace-pnnx.ncnn.bin",
         num_threads=4,
-        max_feature_vectors=100,  # cache 1 second of feature frames
     )
     return recognizer
 

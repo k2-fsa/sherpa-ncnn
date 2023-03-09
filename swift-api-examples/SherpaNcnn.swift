@@ -75,13 +75,11 @@ func sherpaNcnnModelConfig(
 
 func sherpaNcnnFeatureExtractorConfig(
     sampleRate: Float,
-    featureDim: Int,
-    maxFeatureVectors: Int
+    featureDim: Int
 )-> SherpaNcnnFeatureExtractorConfig {
     return SherpaNcnnFeatureExtractorConfig(
         sampling_rate: sampleRate,
-        feature_dim: Int32(featureDim),
-        max_feature_vectors: Int32(maxFeatureVectors))
+        feature_dim: Int32(featureDim))
 }
 
 /// Create an instance of SherpaNcnnDecoderConfig

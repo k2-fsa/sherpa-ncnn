@@ -87,8 +87,7 @@ class ViewController: UIViewController {
         // https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
         let featConfig = sherpaNcnnFeatureExtractorConfig(
             sampleRate: 16000,
-            featureDim: 80,
-            maxFeatureVectors: 1*100)
+            featureDim: 80)
 
         let modelConfig = getMultilingualModelConfig2022_12_06()
         // var modelConfig = getMultilingualModelConfig2022_12_06_Int8()

@@ -85,10 +85,6 @@ typedef struct SherpaNcnnFeatureExtractorConfig {
   // feature dimension. Must match the one expected by the model.
   // For instance, it should be 80 for models from icefall.
   int32_t feature_dim;
-
-  // It specifies how many feature frames to cache.
-  // Use -1 to cache all past feature frames.
-  int32_t max_feature_vectors;
 } SherpaNcnnFeatureExtractorConfig;
 
 typedef struct SherpaNcnnRecognizerConfig {

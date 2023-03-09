@@ -577,7 +577,6 @@ int QuantNet::quantize_KL(const std::vector<std::string> &wave_filenames) {
     sherpa_ncnn::FeatureExtractorConfig config;
     config.sampling_rate = 16000;
     config.feature_dim = 80;
-    config.max_feature_vectors = -1;
     sherpa_ncnn::FeatureExtractor feature_extractor(config);
     feature_extractor.AcceptWaveform(expected_sampling_rate, samples.data(),
                                      samples.size());
@@ -713,7 +712,6 @@ int QuantNet::quantize_KL(const std::vector<std::string> &wave_filenames) {
     sherpa_ncnn::FeatureExtractorConfig config;
     config.sampling_rate = 16000;
     config.feature_dim = 80;
-    config.max_feature_vectors = -1;
     sherpa_ncnn::FeatureExtractor feature_extractor(config);
     feature_extractor.AcceptWaveform(expected_sampling_rate, samples.data(),
                                      samples.size());

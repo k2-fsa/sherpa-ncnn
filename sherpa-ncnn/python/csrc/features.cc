@@ -27,19 +27,15 @@ namespace sherpa_ncnn {
 void PybindFeatures(py::module *m) {
   using PyClass = FeatureExtractorConfig;
   py::class_<PyClass>(*m, "FeatureExtractorConfig")
-      .def(py::init([](int32_t sampling_rate, int32_t feature_dim,
-                       int32_t max_feature_vectors) {
+      .def(py::init([](int32_t sampling_rate, int32_t feature_dim) {
              auto ans = std::make_unique<PyClass>();
              ans->sampling_rate = sampling_rate;
              ans->feature_dim = feature_dim;
-             ans->max_feature_vectors = max_feature_vectors;
              return ans;
            }),
-           py::arg("sampling_rate"), py::arg("feature_dim"),
-           py::arg("max_feature_vectors"))
+           py::arg("sampling_rate"), py::arg("feature_dim"))
       .def_readwrite("sampling_rate", &PyClass::sampling_rate)
       .def_readwrite("feature_dim", &PyClass::feature_dim)
-      .def_readwrite("max_feature_vectors", &PyClass::max_feature_vectors)
       .def("__str__", &PyClass::ToString);
 }
 

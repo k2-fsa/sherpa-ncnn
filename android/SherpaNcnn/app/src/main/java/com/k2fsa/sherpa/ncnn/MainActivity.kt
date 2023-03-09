@@ -179,8 +179,7 @@ class MainActivity : AppCompatActivity() {
     private fun initModel() {
         val featConfig = getFeatureExtractorConfig(
             sampleRate = 16000.0f,
-            featureDim = 80,
-            maxFeatureVectors = 1 * 100 // cache 1 second of feature frames
+            featureDim = 80
         )
         //Please change the argument "type" if you use a different model
         val modelConfig = getModelConfig(type = 1, useGPU = false)!!
