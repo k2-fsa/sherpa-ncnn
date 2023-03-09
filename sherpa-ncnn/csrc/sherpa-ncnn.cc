@@ -76,7 +76,6 @@ for a list of pre-trained models to download.
 
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
-  config.feat_config.max_feature_vectors = -1;  // for non-streaming
 
   sherpa_ncnn::Recognizer recognizer(config);
 

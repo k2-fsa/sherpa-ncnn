@@ -5,7 +5,6 @@ import android.content.res.AssetManager
 data class FeatureExtractorConfig(
     var sampleRate: Float,
     var featureDim: Int,
-    var maxFeatureVectors: Int,
 )
 
 
@@ -87,13 +86,11 @@ class SherpaNcnn(
 
 fun getFeatureExtractorConfig(
     sampleRate: Float,
-    featureDim: Int,
-    maxFeatureVectors: Int
+    featureDim: Int
 ): FeatureExtractorConfig {
     return FeatureExtractorConfig(
         sampleRate = sampleRate,
         featureDim = featureDim,
-        maxFeatureVectors = maxFeatureVectors,
     )
 }
 

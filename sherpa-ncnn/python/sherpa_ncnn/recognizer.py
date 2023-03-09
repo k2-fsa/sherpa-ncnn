@@ -90,7 +90,6 @@ class Recognizer(object):
         rule1_min_trailing_silence: int = 2.4,
         rule2_min_trailing_silence: int = 1.2,
         rule3_min_utterance_length: int = 20,
-        max_feature_vectors: int = -1,
         model_sample_rate: int = 16000,
     ):
         """
@@ -142,9 +141,6 @@ class Recognizer(object):
             Used only when enable_endpoint_detection is True. If the utterance
             length in seconds is larger than this value, we assume an endpoint
             is detected.
-          max_feature_vectors:
-            It specifies the number of feature frames to cache. Use -1
-            to cache all processed frames
           model_sample_rate:
             Sample rate expected by the model
         """
@@ -164,7 +160,6 @@ class Recognizer(object):
         feat_config = FeatureExtractorConfig(
             sampling_rate=model_sample_rate,
             feature_dim=80,
-            max_feature_vectors=-1,
         )
 
         model_config = ModelConfig(

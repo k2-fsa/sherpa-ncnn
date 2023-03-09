@@ -28,8 +28,7 @@ func run() {
 
     let featConfig = sherpaNcnnFeatureExtractorConfig(
         sampleRate: 16000,
-        featureDim: 80,
-        maxFeatureVectors: -1
+        featureDim: 80
     )
 
     let modelConfig = sherpaNcnnModelConfig(

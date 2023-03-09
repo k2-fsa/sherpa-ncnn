@@ -107,9 +107,6 @@ for a list of pre-trained models to download.
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
 
-  // cache 2 seconds of features
-  config.feat_config.max_feature_vectors = 2 * 100;
-  //
   fprintf(stderr, "%s\n", config.ToString().c_str());
 
   sherpa_ncnn::Recognizer recognizer(config);
