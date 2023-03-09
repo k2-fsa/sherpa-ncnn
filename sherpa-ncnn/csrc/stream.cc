@@ -31,21 +31,19 @@ class Stream::Impl {
 
   void InputFinished() { feat_extractor_.InputFinished(); }
 
-  int32_t NumFramesReady() const {
-    return feat_extractor_.NumFramesReady() - start_frame_index_;
-  }
+  int32_t NumFramesReady() const { return feat_extractor_.NumFramesReady(); }
 
   bool IsLastFrame(int32_t frame) const {
     return feat_extractor_.IsLastFrame(frame);
   }
 
   ncnn::Mat GetFrames(int32_t frame_index, int32_t n) const {
-    return feat_extractor_.GetFrames(frame_index + start_frame_index_, n);
+    return feat_extractor_.GetFrames(frame_index, n);
   }
 
   void Reset() {
-    start_frame_index_ += num_processed_frames_;
     num_processed_frames_ = 0;
+    feat_extractor_.Reset();
   }
 
   int32_t &GetNumProcessedFrames() { return num_processed_frames_; }
@@ -61,7 +59,6 @@ class Stream::Impl {
  private:
   FeatureExtractor feat_extractor_;
   int32_t num_processed_frames_ = 0;  // before subsampling
-  int32_t start_frame_index_ = 0;
   DecoderResult result_;
   std::vector<ncnn::Mat> states_;
 };

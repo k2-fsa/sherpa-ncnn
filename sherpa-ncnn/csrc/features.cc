@@ -131,6 +131,11 @@ class FeatureExtractor::Impl {
     return features;
   }
 
+  void Reset() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    fbank_ = std::make_unique<knf::OnlineFbank>(opts_);
+  }
+
  private:
   std::unique_ptr<knf::OnlineFbank> fbank_;
   knf::FbankOptions opts_;
@@ -161,5 +166,7 @@ bool FeatureExtractor::IsLastFrame(int32_t frame) const {
 ncnn::Mat FeatureExtractor::GetFrames(int32_t frame_index, int32_t n) const {
   return impl_->GetFrames(frame_index, n);
 }
+
+void FeatureExtractor::Reset() { impl_->Reset(); }
 
 }  // namespace sherpa_ncnn
