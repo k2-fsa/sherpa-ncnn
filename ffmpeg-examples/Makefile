@@ -14,7 +14,7 @@ ifeq ($(GDB), TRUE)
 	OPTFLAG += -g
 endif
 
-CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 -fopenmp ${OPTFLAG}
+CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 ${OPTFLAG}
 LDLIBS := $(shell pkg-config --libs $(SHARED_LIBS)) -L../build/lib -lsherpa-ncnn-c-api -lsherpa-ncnn-core -lkaldi-native-fbank-core -lncnn -lportaudio -lpthread -lm
 
 #Get libavutil version and extract major, minor and micro
@@ -41,7 +41,7 @@ all: $(EXAMPLES)
 $(EXAMPLES): $(OBJS)
 	$(CC) $(addsuffix .o,$@) $(CFLAGS) $(LDLIBS) -o $@
 
-%.o : %.c
+%.o : %.cc
 	${CC} ${CFLAGS} -c -o $@ $<
 
 clean:
