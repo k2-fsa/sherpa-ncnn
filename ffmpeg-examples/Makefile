@@ -14,8 +14,13 @@ ifeq ($(GDB), TRUE)
 	OPTFLAG += -g
 endif
 
-CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 -fopenmp ${OPTFLAG}
+CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 ${OPTFLAG}
 LDLIBS := $(shell pkg-config --libs $(SHARED_LIBS)) -L../build/lib -lsherpa-ncnn-c-api -lsherpa-ncnn-core -lkaldi-native-fbank-core -lncnn -lportaudio -lpthread -lm
+
+# Set the flag if not macOS, or it fails with "DSO missing from command line".
+ifneq ($(shell uname -s), Darwin)
+  CFLAGS += -fopenmp
+endif
 
 #Get libavutil version and extract major, minor and micro
 LIBAVUTIL_VERSION := $(shell pkg-config --modversion libavutil)
@@ -41,7 +46,7 @@ all: $(EXAMPLES)
 $(EXAMPLES): $(OBJS)
 	$(CC) $(addsuffix .o,$@) $(CFLAGS) $(LDLIBS) -o $@
 
-%.o : %.c
+%.o : %.cc
 	${CC} ${CFLAGS} -c -o $@ $<
 
 clean:

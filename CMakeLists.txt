@@ -37,6 +37,7 @@ option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
 option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
 option(SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE "Whether to generate-int8-scale-table" ON)
+option(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES "Whether to enable ffmpeg-examples" OFF)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
@@ -57,6 +58,7 @@ message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
 message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
 message(STATUS "SHERPA_NCNN_ENABLE_C_API ${SHERPA_NCNN_ENABLE_C_API}")
 message(STATUS "SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE ${SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE}")
+message(STATUS "SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES ${SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
@@ -114,6 +116,10 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
 endif()
 
 add_subdirectory(sherpa-ncnn)
+
+if(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES)
+  add_subdirectory(ffmpeg-examples)
+endif()
 
 if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)

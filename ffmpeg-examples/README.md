@@ -1,3 +1,23 @@
+# ffmpeg-examples
+
+Enable sherpa-ncnn to use any url/file input that FFmpeg supports.
+
+## Usage
+
+This example is disabled by default, please enable it by:
+
+```bash
+cd sherpa-ncnn
+mkdir -p build
+cd build
+cmake -DSHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES=ON ..
+make -j10
+```
+
+Please install ffmpeg first:
+
+* macOS: `brew install ffmpeg`
+
 # Fixes for errors
 
 To fix the following error:
