@@ -14,7 +14,7 @@ ifeq ($(GDB), TRUE)
 	OPTFLAG += -g
 endif
 
-CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 ${OPTFLAG}
+CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -I../build/_deps/ncnn-src/src -I../build/_deps/ncnn-build/src -Wall -std=c++14 ${OPTFLAG}
 LDLIBS := $(shell pkg-config --libs $(SHARED_LIBS)) -L../build/lib -lsherpa-ncnn-core -lkaldi-native-fbank-core -lncnn -lportaudio -lpthread -lm
 
 # Set the flag if not macOS, or it fails with "DSO missing from command line".
