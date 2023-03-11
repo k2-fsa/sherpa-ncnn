@@ -1,10 +1,10 @@
 # ffmpeg-examples
 
-Enable sherpa-ncnn to use any url/file input that FFmpeg support.
+Enable sherpa-ncnn to use any url/file input that FFmpeg supports.
 
 ## Usage
 
-This examples is disabled by default, please enable it by:
+This example is disabled by default, please enable it by:
 
 ```bash
 cd sherpa-ncnn
