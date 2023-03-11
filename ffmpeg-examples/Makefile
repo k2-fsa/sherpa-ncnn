@@ -17,6 +17,11 @@ endif
 CFLAGS := $(shell pkg-config --cflags $(SHARED_LIBS)) -I.. -Wall -std=c++11 ${OPTFLAG}
 LDLIBS := $(shell pkg-config --libs $(SHARED_LIBS)) -L../build/lib -lsherpa-ncnn-c-api -lsherpa-ncnn-core -lkaldi-native-fbank-core -lncnn -lportaudio -lpthread -lm
 
+# If not macOS.
+ifneq ($(shell uname -s), Darwin)
+  CFLAGS += -fopenmp
+endif
+
 #Get libavutil version and extract major, minor and micro
 LIBAVUTIL_VERSION := $(shell pkg-config --modversion libavutil)
 LIBAVUTIL_MAJOR := $(shell echo "$(LIBAVUTIL_VERSION)" | awk -F. '{print $$1}')
