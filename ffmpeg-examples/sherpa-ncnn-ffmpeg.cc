@@ -15,13 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "sherpa-ncnn/c-api/c-api.h"
+#include <string>
+
+#include "sherpa-ncnn/csrc/display.h"
+#include "sherpa-ncnn/csrc/recognizer.h"
 
 /*
+ * The MIT License (MIT)
+ *
  * Copyright (c) 2010 Nicolas George
  * Copyright (c) 2011 Stefano Sabatini
  * Copyright (c) 2012 Clément Bœsch
@@ -233,33 +239,43 @@ end:
 }
 
 static void sherpa_decode_frame(const AVFrame *frame,
-                                SherpaNcnnRecognizer *recognizer,
-                                SherpaNcnnStream *s, SherpaNcnnDisplay *display,
-                                int *segment_id) {
+                                const sherpa_ncnn::Recognizer &recognizer,
+                                sherpa_ncnn::Stream *s,
+                                sherpa_ncnn::Display &display,
+                                std::string &last_text,
+                                int32_t &segment_index) {
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
   static int nb_samples = 0;
   const int16_t *p = (int16_t *)frame->data[0];
 
   if (frame->nb_samples + nb_samples >= N) {
-    AcceptWaveform(s, 16000, samples, nb_samples);
-    while (IsReady(recognizer, s)) {
-      Decode(recognizer, s);
+    s->AcceptWaveform(16000, samples, nb_samples);
+
+    while (recognizer.IsReady(s)) {
+      recognizer.DecodeStream(s);
     }
 
-    SherpaNcnnResult *r = GetResult(recognizer, s);
-    if (strlen(r->text)) {
-      SherpaNcnnPrint(display, *segment_id, r->text);
+    bool is_endpoint = recognizer.IsEndpoint(s);
+    auto text = recognizer.GetResult(s).text;
+
+    if (!text.empty() && last_text != text) {
+      last_text = text;
+
+      std::transform(text.begin(), text.end(), text.begin(),
+                     [](auto c) { return std::tolower(c); });
+
+      display.Print(segment_index, text);
     }
 
-    if (IsEndpoint(recognizer, s)) {
-      Reset(recognizer, s);
-      if (strlen(r->text)) {
-        ++(*segment_id);
+    if (is_endpoint) {
+      if (!text.empty()) {
+        ++segment_index;
       }
+
+      recognizer.Reset(s);
     }
 
-    DestroyResult(r);
     nb_samples = 0;
   }
 
@@ -274,41 +290,47 @@ static inline char *__av_err2str(int errnum) {
   return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
 }
 
+static void Handler(int32_t sig) {
+  fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
+  signal(sig, SIG_DFL);
+  raise(sig);
+};
+
 int main(int argc, char **argv) {
-  int ret;
-  int num_threads = 4;
+  if (argc < 9 || argc > 11) {
+    const char *usage = R"usage(
+Usage:
+  ./bin/sherpa-ncnn-microphone \
+    /path/to/tokens.txt \
+    /path/to/encoder.ncnn.param \
+    /path/to/encoder.ncnn.bin \
+    /path/to/decoder.ncnn.param \
+    /path/to/decoder.ncnn.bin \
+    /path/to/joiner.ncnn.param \
+    /path/to/joiner.ncnn.bin \
+    ffmpeg-input-url \
+    [num_threads] [decode_method, can be greedy_search/modified_beam_search]
+
+Please refer to
+https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
+for a list of pre-trained models to download.
+)usage";
+    fprintf(stderr, "%s\n", usage);
+    fprintf(stderr, "argc, %d\n", argc);
+
+    return -1;
+  }
+  signal(SIGINT, Handler);
+
   AVPacket *packet = av_packet_alloc();
   AVFrame *frame = av_frame_alloc();
   AVFrame *filt_frame = av_frame_alloc();
-  const char *kUsage =
-      "\n"
-      "Usage:\n"
-      "  ./sherpa-ncnn-ffmpeg \\\n"
-      "    /path/to/tokens.txt \\\n"
-      "    /path/to/encoder.ncnn.param \\\n"
-      "    /path/to/encoder.ncnn.bin \\\n"
-      "    /path/to/decoder.ncnn.param \\\n"
-      "    /path/to/decoder.ncnn.bin \\\n"
-      "    /path/to/joiner.ncnn.param \\\n"
-      "    /path/to/joiner.ncnn.bin \\\n"
-      "    /path/to/foo.wav [<num_threads> [decode_method, can be "
-      "greedy_search/modified_beam_search]]"
-      "\n\n"
-      "Please refer to \n"
-      "https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html\n"
-      "for a list of pre-trained models to download.\n";
-
   if (!packet || !frame || !filt_frame) {
     fprintf(stderr, "Could not allocate frame or packet\n");
     exit(1);
   }
 
-  if (argc < 9 || argc > 11) {
-    fprintf(stderr, "%s\n", kUsage);
-    return -1;
-  }
-
-  SherpaNcnnRecognizerConfig config;
+  sherpa_ncnn::RecognizerConfig config;
   config.model_config.tokens = argv[1];
   config.model_config.encoder_param = argv[2];
   config.model_config.encoder_bin = argv[3];
@@ -316,41 +338,55 @@ int main(int argc, char **argv) {
   config.model_config.decoder_bin = argv[5];
   config.model_config.joiner_param = argv[6];
   config.model_config.joiner_bin = argv[7];
-
-  if (argc >= 10 && atoi(argv[9]) > 0) {
-    num_threads = atoi(argv[9]);
+  int32_t num_threads = 4;
+  if (argc >= 9 && atoi(argv[8]) > 0) {
+    num_threads = atoi(argv[8]);
   }
-  config.model_config.num_threads = num_threads;
-  config.model_config.use_vulkan_compute = 0;
+  config.model_config.encoder_opt.num_threads = num_threads;
+  config.model_config.decoder_opt.num_threads = num_threads;
+  config.model_config.joiner_opt.num_threads = num_threads;
 
-  config.decoder_config.decoding_method = "greedy_search";
-
+  const float expected_sampling_rate = 16000;
   if (argc == 11) {
-    config.decoder_config.decoding_method = argv[10];
+    std::string method = argv[10];
+    if (method.compare("greedy_search") ||
+        method.compare("modified_beam_search")) {
+      config.decoder_config.method = method;
+    }
   }
-  config.decoder_config.num_active_paths = 4;
-  config.enable_endpoint = 1;
-  config.rule1_min_trailing_silence = 2.4;
-  config.rule2_min_trailing_silence = 1.2;
-  config.rule3_min_utterance_length = 300;
 
-  config.feat_config.sampling_rate = 16000;
+  config.enable_endpoint = true;
+
+  config.endpoint_config.rule1.min_trailing_silence = 1.2;
+  config.endpoint_config.rule2.min_trailing_silence = 0.6;
+  config.endpoint_config.rule3.min_utterance_length = 15;
+
+  config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
 
-  SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
+  fprintf(stderr, "%s\n", config.ToString().c_str());
 
-  SherpaNcnnStream *s = CreateStream(recognizer);
+  sherpa_ncnn::Recognizer recognizer(config);
+  auto s = recognizer.CreateStream();
 
-  SherpaNcnnDisplay *display = CreateDisplay(60);
-  int segment_id = 0;
+  int ret;
+  if ((ret = open_input_file(argv[8])) < 0) {
+    fprintf(stderr, "Open input file %s failed, r0=%d\n", argv[8], ret);
+    exit(1);
+  }
 
-  if ((ret = open_input_file(argv[8])) < 0) exit(1);
+  if ((ret = init_filters(filter_descr)) < 0) {
+    fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
+    exit(1);
+  }
 
-  if ((ret = init_filters(filter_descr)) < 0) exit(1);
-
-  /* read all packets */
+  std::string last_text;
+  int32_t segment_index = 0;
+  sherpa_ncnn::Display display;
   while (1) {
-    if ((ret = av_read_frame(fmt_ctx, packet)) < 0) break;
+    if ((ret = av_read_frame(fmt_ctx, packet)) < 0) {
+      break;
+    }
 
     if (packet->stream_index == audio_stream_index) {
       ret = avcodec_send_packet(dec_ctx, packet);
@@ -382,10 +418,14 @@ int main(int argc, char **argv) {
           /* pull filtered audio from the filtergraph */
           while (1) {
             ret = av_buffersink_get_frame(buffersink_ctx, filt_frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
-            if (ret < 0) exit(1);
-            sherpa_decode_frame(filt_frame, recognizer, s, display,
-                                &segment_id);
+            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+              break;
+            }
+            if (ret < 0) {
+              exit(1);
+            }
+            sherpa_decode_frame(filt_frame, recognizer, s.get(), display,
+                                last_text, segment_index);
             av_frame_unref(filt_frame);
           }
           av_frame_unref(frame);
@@ -397,22 +437,22 @@ int main(int argc, char **argv) {
 
   // add some tail padding
   float tail_paddings[4800] = {0};  // 0.3 seconds at 16 kHz sample rate
-  AcceptWaveform(s, 16000, tail_paddings, 4800);
+  s->AcceptWaveform(16000, tail_paddings, 4800);
 
-  InputFinished(s);
+  s->InputFinished();
 
-  while (IsReady(recognizer, s)) {
-    Decode(recognizer, s);
+  while (recognizer.IsReady(s.get())) {
+    recognizer.DecodeStream(s.get());
   }
-  SherpaNcnnResult *r = GetResult(recognizer, s);
-  if (strlen(r->text)) {
-    SherpaNcnnPrint(display, segment_id, r->text);
-  }
-  DestroyResult(r);
 
-  DestroyDisplay(display);
-  DestroyStream(s);
-  DestroyRecognizer(recognizer);
+  auto text = recognizer.GetResult(s.get()).text;
+  if (!text.empty() && last_text != text) {
+    last_text = text;
+    std::transform(text.begin(), text.end(), text.begin(),
+                   [](auto c) { return std::tolower(c); });
+    display.Print(segment_index, text);
+  }
+
   avfilter_graph_free(&filter_graph);
   avcodec_free_context(&dec_ctx);
   avformat_close_input(&fmt_ctx);
@@ -424,8 +464,6 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Error occurred: %s\n", __av_err2str(ret));
     exit(1);
   }
-
-  fprintf(stderr, "\n");
 
   return 0;
 }
