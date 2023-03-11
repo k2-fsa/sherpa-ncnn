@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include <string>
+#include <cctype>  // std::tolower
 
 #include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
