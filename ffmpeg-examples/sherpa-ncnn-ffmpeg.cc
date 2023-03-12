@@ -83,11 +83,11 @@ static AVCodecContext *dec_ctx;
 AVFilterContext *buffersink_ctx;
 AVFilterContext *buffersrc_ctx;
 AVFilterGraph *filter_graph;
-static int audio_stream_index = -1;
+static int32_t audio_stream_index = -1;
 
-static int open_input_file(const char *filename) {
+static int32_t open_input_file(const char *filename) {
   const AVCodec *dec;
-  int ret;
+  int32_t ret;
 
   if ((ret = avformat_open_input(&fmt_ctx, filename, NULL, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s\n", filename);
@@ -123,16 +123,16 @@ static int open_input_file(const char *filename) {
   return 0;
 }
 
-static int init_filters(const char *filters_descr) {
+static int32_t init_filters(const char *filters_descr) {
   char args[512];
-  int ret = 0;
+  int32_t ret = 0;
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
   const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
   AVFilterInOut *outputs = avfilter_inout_alloc();
   AVFilterInOut *inputs = avfilter_inout_alloc();
   static const enum AVSampleFormat out_sample_fmts[] = {AV_SAMPLE_FMT_S16,
                                                         AV_SAMPLE_FMT_NONE};
-  static const int out_sample_rates[] = {16000, -1};
+  static const int32_t out_sample_rates[] = {16000, -1};
   const AVFilterLink *outlink;
   AVRational time_base = fmt_ctx->streams[audio_stream_index]->time_base;
 
@@ -247,7 +247,7 @@ static void sherpa_decode_frame(const AVFrame *frame,
                                 int32_t &segment_index) {
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
-  static int nb_samples = 0;
+  static int32_t nb_samples = 0;
   const int16_t *p = (int16_t *)frame->data[0];
 
   if (frame->nb_samples + nb_samples >= N) {
@@ -280,12 +280,12 @@ static void sherpa_decode_frame(const AVFrame *frame,
     nb_samples = 0;
   }
 
-  for (int i = 0; i < frame->nb_samples; i++) {
+  for (int32_t i = 0; i < frame->nb_samples; i++) {
     samples[nb_samples++] = p[i] / 32768.;
   }
 }
 
-static inline char *__av_err2str(int errnum) {
+static inline char *__av_err2str(int32_t errnum) {
   static char str[AV_ERROR_MAX_STRING_SIZE];
   memset(str, 0, sizeof(str));
   return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
@@ -306,9 +306,9 @@ static void Handler(int32_t sig) {
     }                                            \
   }
 
-int ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
+int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
                        std::string *input_url) {
-  int parsed_required_envs = 0;
+  int32_t parsed_required_envs = 0;
 
   sherpa_ncnn::ModelConfig &mc = config->model_config;
   SET_CONFIG_BY_ENV(mc.tokens, "SHERPA_NCNN_TOKENS", true);
@@ -397,7 +397,7 @@ void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
   config->feat_config.feature_dim = 80;
 }
 
-int OverwriteConfigByCLI(int argc, char **argv,
+int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
                          sherpa_ncnn::RecognizerConfig *config,
                          std::string *input_url) {
   if (argc > 1) config->model_config.tokens = argv[1];
@@ -409,7 +409,7 @@ int OverwriteConfigByCLI(int argc, char **argv,
   if (argc > 7) config->model_config.joiner_bin = argv[7];
   if (argc > 8) *input_url = argv[8];
   if (argc >= 10 && atoi(argv[9]) > 0) {
-    int num_threads = atoi(argv[9]);
+    int32_t num_threads = atoi(argv[9]);
     config->model_config.encoder_opt.num_threads = num_threads;
     config->model_config.decoder_opt.num_threads = num_threads;
     config->model_config.joiner_opt.num_threads = num_threads;
@@ -427,14 +427,14 @@ int OverwriteConfigByCLI(int argc, char **argv,
   return 0;
 }
 
-int main(int argc, char **argv) {
+int32_t main(int32_t argc, char **argv) {
   // Set the default values for config.
   sherpa_ncnn::RecognizerConfig config;
   SetDefaultConfigurations(&config);
 
   // Load and overwrite config from environment variables.
   std::string input_url;
-  int parsed_required_envs = ParseConfigFromENV(&config, &input_url);
+  int32_t parsed_required_envs = ParseConfigFromENV(&config, &input_url);
   if (parsed_required_envs < 0) {
     exit(-1);
   }
@@ -501,7 +501,7 @@ for a list of pre-trained models to download.
     exit(1);
   }
 
-  int ret;
+  int32_t ret;
   if ((ret = open_input_file(input_url.c_str())) < 0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
