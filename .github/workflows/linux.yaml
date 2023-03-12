@@ -84,8 +84,8 @@ jobs:
           ls -lh bin/decode-file-c-api
           file bin/decode-file-c-api
 
-          cd ../ffmpeg-examples
-          make
+          ls -lh bin/sherpa-ncnn-ffmpeg
+          file bin/sherpa-ncnn-ffmpeg
 
       - name: Upload binary sherpa-ncnn and sherpa-ncnn-microphone
         uses: actions/upload-artifact@v2
@@ -95,7 +95,7 @@ jobs:
 
       - name: Test sherpa-ncnn-ffmpeg
         run: |
-          export PATH=$PWD/ffmpeg-examples:$PATH
+          export PATH=$PWD/build/bin:$PATH
           export EXE=sherpa-ncnn-ffmpeg
 
           .github/scripts/run-test.sh
