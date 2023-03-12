@@ -455,21 +455,21 @@ Usage:
     [num_threads] [decode_method, can be greedy_search/modified_beam_search]
 
 Or configure by environment variables:
-  env SHERPA_NCNN_TOKENS=/path/to/tokens.txt \
-    SHERPA_NCNN_ENCODER_PARAM=/path/to/encoder_jit_trace-pnnx.ncnn.param  \
-    SHERPA_NCNN_ENCODER_BIN=/path/to/encoder_jit_trace-pnnx.ncnn.bin \
-    SHERPA_NCNN_DECODER_PARAM=/path/to/decoder_jit_trace-pnnx.ncnn.param \
-    SHERPA_NCNN_DECODER_BIN=/path/to/decoder_jit_trace-pnnx.ncnn.bin \
-    SHERPA_NCNN_JOINER_PARAM=/path/to/joiner_jit_trace-pnnx.ncnn.param  \
-    SHERPA_NCNN_JOINER_BIN=/path/to/joiner_jit_trace-pnnx.ncnn.bin \
-    SHERPA_NCNN_INPUT_URL=ffmpeg-input-url \
-    SHERPA_NCNN_NUM_THREADS=4 \
-    SHERPA_NCNN_METHOD=greedy_search|modified_beam_search \
-    SHERPA_NCNN_ENABLE_ENDPOINT=on|off \
-    SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE=2.4 \
-    SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=1.2 \
-    SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
-    ./bin/sherpa-ncnn-ffmpeg
+  SHERPA_NCNN_TOKENS=/path/to/tokens.txt \
+  SHERPA_NCNN_ENCODER_PARAM=/path/to/encoder_jit_trace-pnnx.ncnn.param  \
+  SHERPA_NCNN_ENCODER_BIN=/path/to/encoder_jit_trace-pnnx.ncnn.bin \
+  SHERPA_NCNN_DECODER_PARAM=/path/to/decoder_jit_trace-pnnx.ncnn.param \
+  SHERPA_NCNN_DECODER_BIN=/path/to/decoder_jit_trace-pnnx.ncnn.bin \
+  SHERPA_NCNN_JOINER_PARAM=/path/to/joiner_jit_trace-pnnx.ncnn.param  \
+  SHERPA_NCNN_JOINER_BIN=/path/to/joiner_jit_trace-pnnx.ncnn.bin \
+  SHERPA_NCNN_INPUT_URL=ffmpeg-input-url \
+  SHERPA_NCNN_NUM_THREADS=4 \
+  SHERPA_NCNN_METHOD=greedy_search|modified_beam_search \
+  SHERPA_NCNN_ENABLE_ENDPOINT=on|off \
+  SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE=2.4 \
+  SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=1.2 \
+  SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
+  ./bin/sherpa-ncnn-ffmpeg
 
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
