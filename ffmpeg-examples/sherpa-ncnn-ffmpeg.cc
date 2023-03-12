@@ -85,7 +85,7 @@ AVFilterContext *buffersrc_ctx;
 AVFilterGraph *filter_graph;
 static int32_t audio_stream_index = -1;
 
-static int32_t open_input_file(const char *filename) {
+static int32_t FFmpegOpenInputFile(const char *filename) {
   const AVCodec *dec;
   int32_t ret;
 
@@ -123,7 +123,7 @@ static int32_t open_input_file(const char *filename) {
   return 0;
 }
 
-static int32_t init_filters(const char *filters_descr) {
+static int32_t FFmpegInitFilters(const char *filters_descr) {
   char args[512];
   int32_t ret = 0;
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
@@ -239,12 +239,11 @@ end:
   return ret;
 }
 
-static void sherpa_decode_frame(const AVFrame *frame,
-                                const sherpa_ncnn::Recognizer &recognizer,
-                                sherpa_ncnn::Stream *s,
-                                sherpa_ncnn::Display &display,
-                                std::string &last_text,
-                                int32_t &segment_index) {
+static void FFmpegDecodeFrame(const AVFrame *frame,
+                              const sherpa_ncnn::Recognizer &recognizer,
+                              sherpa_ncnn::Stream *s,
+                              sherpa_ncnn::Display &display,
+                              std::string &last_text, int32_t &segment_index) {
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
   static int32_t nb_samples = 0;
@@ -285,7 +284,7 @@ static void sherpa_decode_frame(const AVFrame *frame,
   }
 }
 
-static inline char *__av_err2str(int32_t errnum) {
+static inline char *FFmpegAvError2String(int32_t errnum) {
   static char str[AV_ERROR_MAX_STRING_SIZE];
   memset(str, 0, sizeof(str));
   return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
@@ -307,7 +306,7 @@ static void Handler(int32_t sig) {
   }
 
 int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
-                       std::string *input_url) {
+                           std::string *input_url) {
   int32_t parsed_required_envs = 0;
 
   sherpa_ncnn::ModelConfig &mc = config->model_config;
@@ -398,8 +397,8 @@ void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
 }
 
 int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
-                         sherpa_ncnn::RecognizerConfig *config,
-                         std::string *input_url) {
+                             sherpa_ncnn::RecognizerConfig *config,
+                             std::string *input_url) {
   if (argc > 1) config->model_config.tokens = argv[1];
   if (argc > 2) config->model_config.encoder_param = argv[2];
   if (argc > 3) config->model_config.encoder_bin = argv[3];
@@ -502,13 +501,13 @@ for a list of pre-trained models to download.
   }
 
   int32_t ret;
-  if ((ret = open_input_file(input_url.c_str())) < 0) {
+  if ((ret = FFmpegOpenInputFile(input_url.c_str())) < 0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
     exit(1);
   }
 
-  if ((ret = init_filters(filter_descr)) < 0) {
+  if ((ret = FFmpegInitFilters(filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
     exit(1);
   }
@@ -558,8 +557,8 @@ for a list of pre-trained models to download.
             if (ret < 0) {
               exit(1);
             }
-            sherpa_decode_frame(filt_frame, recognizer, s.get(), display,
-                                last_text, segment_index);
+            FFmpegDecodeFrame(filt_frame, recognizer, s.get(), display,
+                              last_text, segment_index);
             av_frame_unref(filt_frame);
           }
           av_frame_unref(frame);
@@ -595,7 +594,7 @@ for a list of pre-trained models to download.
   av_frame_free(&filt_frame);
 
   if (ret < 0 && ret != AVERROR_EOF) {
-    fprintf(stderr, "Error occurred: %s\n", __av_err2str(ret));
+    fprintf(stderr, "Error occurred: %s\n", FFmpegAvError2String(ret));
     exit(1);
   }
 
