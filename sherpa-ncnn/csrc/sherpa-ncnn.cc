@@ -68,8 +68,7 @@ for a list of pre-trained models to download.
   float expected_sampling_rate = 16000;
   if (argc == 11) {
     std::string method = argv[10];
-    if (method.compare("greedy_search") ||
-        method.compare("modified_beam_search")) {
+    if (method == "greedy_search" || method == "modified_beam_search") {
       config.decoder_config.method = method;
     }
   }
