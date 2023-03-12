@@ -305,8 +305,8 @@ static void Handler(int32_t sig) {
     }                                            \
   }
 
-int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
-                           std::string *input_url) {
+static int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
+                                  std::string *input_url) {
   int32_t parsed_required_envs = 0;
 
   sherpa_ncnn::ModelConfig &mc = config->model_config;
@@ -380,7 +380,7 @@ int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
   return parsed_required_envs;
 }
 
-void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
+static void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
   int32_t num_threads = 4;
   config->model_config.encoder_opt.num_threads = num_threads;
   config->model_config.decoder_opt.num_threads = num_threads;
@@ -396,9 +396,9 @@ void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
   config->feat_config.feature_dim = 80;
 }
 
-int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
-                             sherpa_ncnn::RecognizerConfig *config,
-                             std::string *input_url) {
+static int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
+                                    sherpa_ncnn::RecognizerConfig *config,
+                                    std::string *input_url) {
   if (argc > 1) config->model_config.tokens = argv[1];
   if (argc > 2) config->model_config.encoder_param = argv[2];
   if (argc > 3) config->model_config.encoder_bin = argv[3];
