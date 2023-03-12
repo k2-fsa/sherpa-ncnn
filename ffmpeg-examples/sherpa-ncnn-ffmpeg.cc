@@ -306,11 +306,11 @@ static void Handler(int32_t sig) {
     }                                            \
   }
 
-int parse_config_from_env(sherpa_ncnn::RecognizerConfig &config,
-                          std::string &input_url) {
+int ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
+                       std::string *input_url) {
   int parsed_required_envs = 0;
 
-  sherpa_ncnn::ModelConfig &mc = config.model_config;
+  sherpa_ncnn::ModelConfig &mc = config->model_config;
   SET_CONFIG_BY_ENV(mc.tokens, "SHERPA_NCNN_TOKENS", true);
   SET_CONFIG_BY_ENV(mc.encoder_param, "SHERPA_NCNN_ENCODER_PARAM", true);
   SET_CONFIG_BY_ENV(mc.encoder_bin, "SHERPA_NCNN_ENCODER_BIN", true);
@@ -318,11 +318,15 @@ int parse_config_from_env(sherpa_ncnn::RecognizerConfig &config,
   SET_CONFIG_BY_ENV(mc.decoder_bin, "SHERPA_NCNN_DECODER_BIN", true);
   SET_CONFIG_BY_ENV(mc.joiner_param, "SHERPA_NCNN_JOINER_PARAM", true);
   SET_CONFIG_BY_ENV(mc.joiner_bin, "SHERPA_NCNN_JOINER_BIN", true);
-  SET_CONFIG_BY_ENV(input_url, "SHERPA_NCNN_INPUT_URL", true);
+  SET_CONFIG_BY_ENV(*input_url, "SHERPA_NCNN_INPUT_URL", true);
 
   std::string val;
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_NUM_THREADS", false);
   if (!val.empty()) {
+    if (atoi(val.c_str()) <= 0) {
+      fprintf(stderr, "Invalid SHERPA_NCNN_NUM_THREADS=%s\n", val.c_str());
+      return -1;
+    }
     mc.encoder_opt.num_threads = atoi(val.c_str());
     mc.decoder_opt.num_threads = atoi(val.c_str());
     mc.joiner_opt.num_threads = atoi(val.c_str());
@@ -330,86 +334,113 @@ int parse_config_from_env(sherpa_ncnn::RecognizerConfig &config,
 
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_METHOD", false);
   if (!val.empty()) {
-    if (val.compare("greedy_search") || val.compare("modified_beam_search")) {
-      config.decoder_config.method = val;
+    if (val != "greedy_search" && val != "modified_beam_search") {
+      fprintf(stderr, "Invalid SHERPA_NCNN_METHOD=%s\n", val.c_str());
+      return -1;
     }
+    config->decoder_config.method = val;
   }
 
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_ENABLE_ENDPOINT", false);
-  config.enable_endpoint = !val.empty();
+  if (!val.empty()) {
+    std::transform(val.begin(), val.end(), val.begin(),
+                   [](auto c) { return std::tolower(c); });
+    config->enable_endpoint = val == "true" || val == "on";
+  }
 
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE", false);
   if (!val.empty()) {
-    config.endpoint_config.rule1.min_trailing_silence = ::atof(val.c_str());
+    if (::atof(val.c_str()) <= 0) {
+      fprintf(stderr, "Invalid SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE=%s\n",
+              val.c_str());
+      return -1;
+    }
+    config->endpoint_config.rule1.min_trailing_silence = ::atof(val.c_str());
   }
 
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE", false);
   if (!val.empty()) {
-    config.endpoint_config.rule2.min_trailing_silence = ::atof(val.c_str());
+    if (::atof(val.c_str()) <= 0) {
+      fprintf(stderr, "Invalid SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=%s\n",
+              val.c_str());
+      return -1;
+    }
+    config->endpoint_config.rule2.min_trailing_silence = ::atof(val.c_str());
   }
 
   SET_CONFIG_BY_ENV(val, "SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH", false);
   if (!val.empty()) {
-    config.endpoint_config.rule3.min_utterance_length = ::atof(val.c_str());
+    if (::atof(val.c_str()) <= 0) {
+      fprintf(stderr, "Invalid SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=%s\n",
+              val.c_str());
+      return -1;
+    }
+    config->endpoint_config.rule3.min_utterance_length = ::atof(val.c_str());
   }
 
   return parsed_required_envs;
 }
 
-void set_default_configurations(sherpa_ncnn::RecognizerConfig &config) {
+void SetDefaultConfigurations(sherpa_ncnn::RecognizerConfig *config) {
   int32_t num_threads = 4;
-  config.model_config.encoder_opt.num_threads = num_threads;
-  config.model_config.decoder_opt.num_threads = num_threads;
-  config.model_config.joiner_opt.num_threads = num_threads;
+  config->model_config.encoder_opt.num_threads = num_threads;
+  config->model_config.decoder_opt.num_threads = num_threads;
+  config->model_config.joiner_opt.num_threads = num_threads;
 
-  config.enable_endpoint = true;
-  config.endpoint_config.rule1.min_trailing_silence = 2.4;
-  config.endpoint_config.rule2.min_trailing_silence = 1.2;
-  config.endpoint_config.rule3.min_utterance_length = 300;
+  config->enable_endpoint = true;
+  config->endpoint_config.rule1.min_trailing_silence = 2.4;
+  config->endpoint_config.rule2.min_trailing_silence = 1.2;
+  config->endpoint_config.rule3.min_utterance_length = 300;
 
   const float expected_sampling_rate = 16000;
-  config.feat_config.sampling_rate = expected_sampling_rate;
-  config.feat_config.feature_dim = 80;
+  config->feat_config.sampling_rate = expected_sampling_rate;
+  config->feat_config.feature_dim = 80;
 }
 
-void overwrite_config_by_cli(int argc, char **argv,
-                             sherpa_ncnn::RecognizerConfig &config,
-                             std::string &input_url) {
-  if (argc > 1) config.model_config.tokens = argv[1];
-  if (argc > 2) config.model_config.encoder_param = argv[2];
-  if (argc > 3) config.model_config.encoder_bin = argv[3];
-  if (argc > 4) config.model_config.decoder_param = argv[4];
-  if (argc > 5) config.model_config.decoder_bin = argv[5];
-  if (argc > 6) config.model_config.joiner_param = argv[6];
-  if (argc > 7) config.model_config.joiner_bin = argv[7];
-  if (argc > 8) input_url = argv[8];
+int OverwriteConfigByCLI(int argc, char **argv,
+                         sherpa_ncnn::RecognizerConfig *config,
+                         std::string *input_url) {
+  if (argc > 1) config->model_config.tokens = argv[1];
+  if (argc > 2) config->model_config.encoder_param = argv[2];
+  if (argc > 3) config->model_config.encoder_bin = argv[3];
+  if (argc > 4) config->model_config.decoder_param = argv[4];
+  if (argc > 5) config->model_config.decoder_bin = argv[5];
+  if (argc > 6) config->model_config.joiner_param = argv[6];
+  if (argc > 7) config->model_config.joiner_bin = argv[7];
+  if (argc > 8) *input_url = argv[8];
   if (argc >= 10 && atoi(argv[9]) > 0) {
     int num_threads = atoi(argv[9]);
-    config.model_config.encoder_opt.num_threads = num_threads;
-    config.model_config.decoder_opt.num_threads = num_threads;
-    config.model_config.joiner_opt.num_threads = num_threads;
+    config->model_config.encoder_opt.num_threads = num_threads;
+    config->model_config.decoder_opt.num_threads = num_threads;
+    config->model_config.joiner_opt.num_threads = num_threads;
   }
 
   if (argc == 11) {
-    std::string method = argv[10];
-    if (method.compare("greedy_search") ||
-        method.compare("modified_beam_search")) {
-      config.decoder_config.method = method;
+    std::string val = argv[10];
+    if (val != "greedy_search" && val != "modified_beam_search") {
+      fprintf(stderr, "Invalid SHERPA_NCNN_METHOD=%s\n", val.c_str());
+      return -1;
     }
+    config->decoder_config.method = val;
   }
+
+  return 0;
 }
 
 int main(int argc, char **argv) {
   // Set the default values for config.
   sherpa_ncnn::RecognizerConfig config;
-  set_default_configurations(config);
+  SetDefaultConfigurations(&config);
 
   // Load and overwrite config from environment variables.
   std::string input_url;
-  int parsed_required_envs = parse_config_from_env(config, input_url);
+  int parsed_required_envs = ParseConfigFromENV(&config, &input_url);
+  if (parsed_required_envs < 0) {
+    exit(-1);
+  }
 
   // Error if not set by neither environment variables nor CLI.
-  if (parsed_required_envs < 9 && (argc < 9 || argc > 11)) {
+  if (parsed_required_envs < 8 && (argc < 9 || argc > 11)) {
     const char *usage = R"usage(
 Usage:
   ./bin/sherpa-ncnn-ffmpeg \
@@ -423,6 +454,23 @@ Usage:
     ffmpeg-input-url \
     [num_threads] [decode_method, can be greedy_search/modified_beam_search]
 
+Or configure by environment variables:
+  env SHERPA_NCNN_TOKENS=/path/to/tokens.txt \
+    SHERPA_NCNN_ENCODER_PARAM=/path/to/encoder_jit_trace-pnnx.ncnn.param  \
+    SHERPA_NCNN_ENCODER_BIN=/path/to/encoder_jit_trace-pnnx.ncnn.bin \
+    SHERPA_NCNN_DECODER_PARAM=/path/to/decoder_jit_trace-pnnx.ncnn.param \
+    SHERPA_NCNN_DECODER_BIN=/path/to/decoder_jit_trace-pnnx.ncnn.bin \
+    SHERPA_NCNN_JOINER_PARAM=/path/to/joiner_jit_trace-pnnx.ncnn.param  \
+    SHERPA_NCNN_JOINER_BIN=/path/to/joiner_jit_trace-pnnx.ncnn.bin \
+    SHERPA_NCNN_INPUT_URL=ffmpeg-input-url \
+    SHERPA_NCNN_NUM_THREADS=4 \
+    SHERPA_NCNN_METHOD=greedy_search|modified_beam_search \
+    SHERPA_NCNN_ENABLE_ENDPOINT=on|off \
+    SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE=2.4 \
+    SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=1.2 \
+    SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
+    ./bin/sherpa-ncnn-ffmpeg
+
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
 for a list of pre-trained models to download.
@@ -435,7 +483,9 @@ for a list of pre-trained models to download.
   signal(SIGINT, Handler);
 
   // Overwrite the config by CLI.
-  overwrite_config_by_cli(argc, argv, config, input_url);
+  if (OverwriteConfigByCLI(argc, argv, &config, &input_url)) {
+    exit(-1);
+  }
 
   fprintf(stderr, "%s\n", config.ToString().c_str());
 
@@ -462,6 +512,7 @@ for a list of pre-trained models to download.
     fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
     exit(1);
   }
+  fprintf(stderr, "Started\n");
 
   std::string last_text;
   int32_t segment_index = 0;

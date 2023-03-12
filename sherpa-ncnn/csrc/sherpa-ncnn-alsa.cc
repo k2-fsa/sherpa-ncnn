@@ -103,8 +103,7 @@ as the device_name.
   sherpa_ncnn::DecoderConfig decoder_conf;
   if (argc == 11) {
     std::string method = argv[10];
-    if (method.compare("greedy_search") ||
-        method.compare("modified_beam_search")) {
+    if (method == "greedy_search" || method == "modified_beam_search") {
       decoder_conf.method = method;
     }
   }
