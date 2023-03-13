@@ -242,8 +242,8 @@ end:
 static void FFmpegDecodeFrame(const AVFrame *frame,
                               const sherpa_ncnn::Recognizer &recognizer,
                               sherpa_ncnn::Stream *s,
-                              sherpa_ncnn::Display &display,
-                              std::string &last_text, int32_t &segment_index) {
+                              sherpa_ncnn::Display *display,
+                              std::string *last_text, int32_t *segment_index) {
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
   static int32_t nb_samples = 0;
@@ -259,18 +259,18 @@ static void FFmpegDecodeFrame(const AVFrame *frame,
     bool is_endpoint = recognizer.IsEndpoint(s);
     auto text = recognizer.GetResult(s).text;
 
-    if (!text.empty() && last_text != text) {
-      last_text = text;
+    if (!text.empty() && *last_text != text) {
+      *last_text = text;
 
       std::transform(text.begin(), text.end(), text.begin(),
                      [](auto c) { return std::tolower(c); });
 
-      display.Print(segment_index, text);
+      display->Print(*segment_index, text);
     }
 
     if (is_endpoint) {
       if (!text.empty()) {
-        ++segment_index;
+        (*segment_index)++;
       }
 
       recognizer.Reset(s);
@@ -296,13 +296,16 @@ static void Handler(int32_t sig) {
   raise(sig);
 };
 
+#define SET_STRING_BY_ENV(config, key) \
+  if (getenv(key)) {                   \
+    config = getenv(key);              \
+  }
+
 #define SET_CONFIG_BY_ENV(config, key, required) \
   config = "";                                   \
-  if (getenv(key)) {                             \
-    config = getenv(key);                        \
-    if (required) {                              \
-      parsed_required_envs++;                    \
-    }                                            \
+  SET_STRING_BY_ENV(config, key);                \
+  if (!(config).empty() && required) {           \
+    parsed_required_envs++;                      \
   }
 
 static int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
@@ -426,6 +429,48 @@ static int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
   return 0;
 }
 
+// A simple display, without window support, doesn't rewrite current line.
+// It only output the new text, which only works in greedy_search mode.
+// It doesn't support modified_beam_search mode, which might change the
+// generated text.
+class SimpleDisplay : public sherpa_ncnn::Display {
+ public:
+  SimpleDisplay() {}
+  void Print(int32_t segment_id, const std::string &s) {
+    if (last_segment_ != segment_id) {
+      last_segment_ = segment_id;
+      last_text_ = "";
+      fprintf(stderr, "\n%d:", segment_id);
+    }
+
+    if (s.length() > last_text_.length()) {
+      std::string tmp(s.begin() + last_text_.length(), s.end());
+      fprintf(stderr, "%s", tmp.c_str());
+    } else {
+      fprintf(stderr, "%s", s.c_str());
+    }
+    last_text_ = s;
+  }
+
+ private:
+  std::string last_text_;
+  int32_t last_segment_ = -1;
+};
+
+std::unique_ptr<sherpa_ncnn::Display> CreateDisplay() {
+  std::string val;
+  SET_STRING_BY_ENV(val, "SHERPA_NCNN_SIMPLE_DISLAY");
+
+  std::transform(val.begin(), val.end(), val.begin(),
+                 [](auto c) { return std::tolower(c); });
+
+  if (val == "on" || val == "true") {
+    return std::make_unique<SimpleDisplay>();
+  } else {
+    return std::make_unique<sherpa_ncnn::Display>();
+  }
+}
+
 int32_t main(int32_t argc, char **argv) {
   // Set the default values for config.
   sherpa_ncnn::RecognizerConfig config;
@@ -468,6 +513,7 @@ Or configure by environment variables:
   SHERPA_NCNN_RULE1_MIN_TRAILING_SILENCE=2.4 \
   SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=1.2 \
   SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
+  SHERPA_NCNN_SIMPLE_DISLAY=on|off \
   ./bin/sherpa-ncnn-ffmpeg
 
 Please refer to
@@ -515,7 +561,7 @@ for a list of pre-trained models to download.
 
   std::string last_text;
   int32_t segment_index = 0;
-  sherpa_ncnn::Display display;
+  std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
   while (1) {
     if ((ret = av_read_frame(fmt_ctx, packet)) < 0) {
       break;
@@ -557,8 +603,8 @@ for a list of pre-trained models to download.
             if (ret < 0) {
               exit(1);
             }
-            FFmpegDecodeFrame(filt_frame, recognizer, s.get(), display,
-                              last_text, segment_index);
+            FFmpegDecodeFrame(filt_frame, recognizer, s.get(), display.get(),
+                              &last_text, &segment_index);
             av_frame_unref(filt_frame);
           }
           av_frame_unref(frame);
@@ -583,7 +629,7 @@ for a list of pre-trained models to download.
     last_text = text;
     std::transform(text.begin(), text.end(), text.begin(),
                    [](auto c) { return std::tolower(c); });
-    display.Print(segment_index, text);
+    display->Print(segment_index, text);
   }
 
   avfilter_graph_free(&filter_graph);
