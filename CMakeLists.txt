@@ -66,6 +66,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
+# Set the release compiler flags to support debugging, see https://github.com/k2-fsa/sherpa-ncnn/issues/147
+if(SHERPA_NCNN_ENABLE_DEBUG_FOR_RELEASE)
+  message(STATUS "Enable debugging for Release")
+  set(CMAKE_CXX_FLAGS_RELEASE "-g -O0")
+endif()
+
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "The C++ version to be used.")
 set(CMAKE_CXX_EXTENSIONS OFF)
 
