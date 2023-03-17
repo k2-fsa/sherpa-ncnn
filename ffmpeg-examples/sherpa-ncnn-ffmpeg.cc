@@ -226,11 +226,13 @@ static int32_t FFmpegInitFilters(const char *filters_descr) {
    * Note: args buffer is reused to store channel layout string */
   outlink = buffersink_ctx->inputs[0];
   av_channel_layout_describe(&outlink->ch_layout, args, sizeof(args));
-  av_log(NULL, AV_LOG_INFO, "Output: srate:%dHz fmt:%s chlayout:%s\n",
-         (int)outlink->sample_rate,
-         (char *)av_x_if_null(
-             av_get_sample_fmt_name((AVSampleFormat)outlink->format), "?"),
-         args);
+  fprintf(
+      stdout,
+      "Event:FFmpeg: Detect audio stream ok, srate:%dHz fmt:%s chlayout:%s\n",
+      (int)outlink->sample_rate,
+      (char *)av_x_if_null(
+          av_get_sample_fmt_name((AVSampleFormat)outlink->format), "?"),
+      args);
 
 end:
   avfilter_inout_free(&inputs);
@@ -243,7 +245,9 @@ static void FFmpegDecodeFrame(const AVFrame *frame,
                               const sherpa_ncnn::Recognizer &recognizer,
                               sherpa_ncnn::Stream *s,
                               sherpa_ncnn::Display *display,
-                              std::string *last_text, int32_t *segment_index) {
+                              std::string *last_text, int32_t *segment_index,
+                              int32_t *zero_samples) {
+  // TODO: FIXME: Can we directly consume frame by s without buffer?
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
   static int32_t nb_samples = 0;
@@ -280,6 +284,9 @@ static void FFmpegDecodeFrame(const AVFrame *frame,
   }
 
   for (int32_t i = 0; i < frame->nb_samples; i++) {
+    if (p[i] == 0) {
+      (*zero_samples)++;
+    }
     samples[nb_samples++] = p[i] / 32768.;
   }
 }
@@ -290,7 +297,15 @@ static inline char *FFmpegAvError2String(int32_t errnum) {
   return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
 }
 
+// When stream unpublish, use this signal to notify application.
+static int32_t signal_unpublish_sigusr1 = 0;
+
 static void Handler(int32_t sig) {
+  if (sig == SIGUSR1) {
+    signal_unpublish_sigusr1 = 1;
+    return;
+  }
+
   fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
   signal(sig, SIG_DFL);
   raise(sig);
@@ -435,12 +450,17 @@ static int32_t OverwriteConfigByCLI(int32_t argc, char **argv,
 // generated text.
 class SimpleDisplay : public sherpa_ncnn::Display {
  public:
-  SimpleDisplay() {}
+  SimpleDisplay(std::string label) {
+    label_ = label.empty() ? "" : label + ":";
+  }
   void Print(int32_t segment_id, const std::string &s) {
     if (last_segment_ != segment_id) {
       last_segment_ = segment_id;
       last_text_ = "";
-      fprintf(stderr, "\n%d:", segment_id);
+      fprintf(stderr, "\n%s%d:", label_.c_str(), segment_id);
+      if (!s.empty() && s.at(0) != ' ') {
+        fprintf(stderr, " ");
+      }
     }
 
     if (s.length() > last_text_.length()) {
@@ -453,6 +473,7 @@ class SimpleDisplay : public sherpa_ncnn::Display {
   }
 
  private:
+  std::string label_;
   std::string last_text_;
   int32_t last_segment_ = -1;
 };
@@ -465,7 +486,9 @@ std::unique_ptr<sherpa_ncnn::Display> CreateDisplay() {
                  [](auto c) { return std::tolower(c); });
 
   if (val == "on" || val == "true") {
-    return std::make_unique<SimpleDisplay>();
+    std::string label;
+    SET_STRING_BY_ENV(label, "SHERPA_NCNN_DISPLAY_LABEL");
+    return std::make_unique<SimpleDisplay>(label);
   } else {
     return std::make_unique<sherpa_ncnn::Display>();
   }
@@ -514,6 +537,7 @@ Or configure by environment variables:
   SHERPA_NCNN_RULE2_MIN_TRAILING_SILENCE=1.2 \
   SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
   SHERPA_NCNN_SIMPLE_DISLAY=on|off \
+  SHERPA_NCNN_DISPLAY_LABEL=Data \
   ./bin/sherpa-ncnn-ffmpeg
 
 Please refer to
@@ -526,16 +550,18 @@ for a list of pre-trained models to download.
     return -1;
   }
   signal(SIGINT, Handler);
+  signal(SIGUSR1, Handler);
 
   // Overwrite the config by CLI.
   if (OverwriteConfigByCLI(argc, argv, &config, &input_url)) {
     exit(-1);
   }
 
-  fprintf(stderr, "%s\n", config.ToString().c_str());
+  fprintf(stdout, "Event:K2: Config is %s\n", config.ToString().c_str());
 
   sherpa_ncnn::Recognizer recognizer(config);
   auto s = recognizer.CreateStream();
+  fprintf(stdout, "Event:K2: Create recognizer ok\n");
 
   // Initialize FFmpeg framework.
   AVPacket *packet = av_packet_alloc();
@@ -547,24 +573,43 @@ for a list of pre-trained models to download.
   }
 
   int32_t ret;
+  fprintf(stdout, "Event:FFmpeg: Open input %s\n", input_url.c_str());
   if ((ret = FFmpegOpenInputFile(input_url.c_str())) < 0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
     exit(1);
   }
+  fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
 
   if ((ret = FFmpegInitFilters(filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
     exit(1);
   }
-  fprintf(stderr, "Started\n");
 
   std::string last_text;
-  int32_t segment_index = 0;
+  int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
   while (1) {
     if ((ret = av_read_frame(fmt_ctx, packet)) < 0) {
       break;
+    }
+
+    // Reset the ASD segment when stream unpublish.
+    if (signal_unpublish_sigusr1) {
+      signal_unpublish_sigusr1 = 0;
+      if (asd_segment != segment_index) {
+        asd_segment = segment_index;
+        fprintf(stdout, "\n");
+      }
+    }
+
+    // ASD(Active speaker detection), note that 16000 samples is 1s.
+    if (zero_samples > 5 * 16000) {
+      if (asd_segment == segment_index) {
+        fprintf(stdout,
+                "Event:FFmpeg: All silence samples, incorrect microphone?\n");
+      }
+      zero_samples = 0;
     }
 
     if (packet->stream_index == audio_stream_index) {
@@ -601,10 +646,11 @@ for a list of pre-trained models to download.
               break;
             }
             if (ret < 0) {
+              fprintf(stderr, "Error get frame, ret=%d\n", ret);
               exit(1);
             }
             FFmpegDecodeFrame(filt_frame, recognizer, s.get(), display.get(),
-                              &last_text, &segment_index);
+                              &last_text, &segment_index, &zero_samples);
             av_frame_unref(filt_frame);
           }
           av_frame_unref(frame);
