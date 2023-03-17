@@ -233,6 +233,7 @@ static int32_t FFmpegInitFilters(const char *filters_descr) {
       (char *)av_x_if_null(
           av_get_sample_fmt_name((AVSampleFormat)outlink->format), "?"),
       args);
+  fflush(stdout);
 
 end:
   avfilter_inout_free(&inputs);
@@ -302,11 +303,15 @@ static int32_t signal_unpublish_sigusr1 = 0;
 
 static void Handler(int32_t sig) {
   if (sig == SIGUSR1) {
+    fprintf(stdout, "\nEvent:Signal: Got signal %d\n", sig);
+    fflush(stdout);
     signal_unpublish_sigusr1 = 1;
     return;
   }
 
-  fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
+  fprintf(stdout, "\nEvent:Signal: Caught Ctrl + C. Exiting...\n");
+  fflush(stdout);
+
   signal(sig, SIG_DFL);
   raise(sig);
 };
@@ -457,7 +462,10 @@ class SimpleDisplay : public sherpa_ncnn::Display {
     if (last_segment_ != segment_id) {
       last_segment_ = segment_id;
       last_text_ = "";
-      fprintf(stderr, "\n%s%d:", label_.c_str(), segment_id);
+      if (segment_id) {
+        fprintf(stderr, "\n");
+      }
+      fprintf(stderr, "%s%d:", label_.c_str(), segment_id);
       if (!s.empty() && s.at(0) != ' ') {
         fprintf(stderr, " ");
       }
@@ -558,10 +566,12 @@ for a list of pre-trained models to download.
   }
 
   fprintf(stdout, "Event:K2: Config is %s\n", config.ToString().c_str());
+  fflush(stdout);
 
   sherpa_ncnn::Recognizer recognizer(config);
   auto s = recognizer.CreateStream();
   fprintf(stdout, "Event:K2: Create recognizer ok\n");
+  fflush(stdout);
 
   // Initialize FFmpeg framework.
   AVPacket *packet = av_packet_alloc();
@@ -574,12 +584,14 @@ for a list of pre-trained models to download.
 
   int32_t ret;
   fprintf(stdout, "Event:FFmpeg: Open input %s\n", input_url.c_str());
+  fflush(stdout);
   if ((ret = FFmpegOpenInputFile(input_url.c_str())) < 0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
     exit(1);
   }
   fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
+  fflush(stdout);
 
   if ((ret = FFmpegInitFilters(filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
@@ -599,15 +611,16 @@ for a list of pre-trained models to download.
       signal_unpublish_sigusr1 = 0;
       if (asd_segment != segment_index) {
         asd_segment = segment_index;
-        fprintf(stdout, "\n");
       }
     }
 
     // ASD(Active speaker detection), note that 16000 samples is 1s.
     if (zero_samples > 5 * 16000) {
-      if (asd_segment == segment_index) {
+      // When unpublish, there might be some left samples in buffer.
+      if (segment_index - asd_segment < 3) {
         fprintf(stdout,
-                "Event:FFmpeg: All silence samples, incorrect microphone?\n");
+                "\nEvent:FFmpeg: All silence samples, incorrect microphone?\n");
+        fflush(stdout);
       }
       zero_samples = 0;
     }
