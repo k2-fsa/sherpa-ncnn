@@ -329,7 +329,7 @@ static void Handler(int32_t sig) {
   }
 
 #define SET_INTEGER_BY_ENV(config, key)                  \
-  if (true) {                                            \
+  {                                                      \
     std::string val;                                     \
     SET_STRING_BY_ENV(val, "SHERPA_NCNN_ASD_ENDPOINTS"); \
     if (!val.empty() && ::atoi(val.c_str()) > 0) {       \
