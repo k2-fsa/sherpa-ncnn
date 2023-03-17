@@ -328,6 +328,15 @@ static void Handler(int32_t sig) {
     parsed_required_envs++;                      \
   }
 
+#define SET_INTEGER_BY_ENV(config, key)                  \
+  if (true) {                                            \
+    std::string val;                                     \
+    SET_STRING_BY_ENV(val, "SHERPA_NCNN_ASD_ENDPOINTS"); \
+    if (!val.empty() && ::atoi(val.c_str()) > 0) {       \
+      config = ::atoi(val.c_str());                      \
+    }                                                    \
+  }
+
 static int32_t ParseConfigFromENV(sherpa_ncnn::RecognizerConfig *config,
                                   std::string *input_url) {
   int32_t parsed_required_envs = 0;
@@ -546,6 +555,8 @@ Or configure by environment variables:
   SHERPA_NCNN_RULE3_MIN_UTTERANCE_LENGTH=300 \
   SHERPA_NCNN_SIMPLE_DISLAY=on|off \
   SHERPA_NCNN_DISPLAY_LABEL=Data \
+  SHERPA_NCNN_ASD_ENDPOINTS=3 \
+  SHERPA_NCNN_ASD_SAMPLES=10 \
   ./bin/sherpa-ncnn-ffmpeg
 
 Please refer to
@@ -598,6 +609,10 @@ for a list of pre-trained models to download.
     exit(1);
   }
 
+  int32_t asd_endpoints = 0, asd_samples = 0;
+  SET_INTEGER_BY_ENV(asd_endpoints, "SHERPA_NCNN_ASD_ENDPOINTS");
+  SET_INTEGER_BY_ENV(asd_samples, "SHERPA_NCNN_ASD_SAMPLES");
+
   std::string last_text;
   int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
@@ -615,9 +630,9 @@ for a list of pre-trained models to download.
     }
 
     // ASD(Active speaker detection), note that 16000 samples is 1s.
-    if (zero_samples > 5 * 16000) {
+    if (asd_samples && zero_samples > asd_samples * 16000) {
       // When unpublish, there might be some left samples in buffer.
-      if (segment_index - asd_segment < 3) {
+      if (asd_endpoints && segment_index - asd_segment < asd_endpoints) {
         fprintf(stdout,
                 "\nEvent:FFmpeg: All silence samples, incorrect microphone?\n");
         fflush(stdout);
