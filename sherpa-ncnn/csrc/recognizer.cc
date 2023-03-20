@@ -28,17 +28,37 @@
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
 
+#include <iostream>
+
 namespace sherpa_ncnn {
 
 static RecognitionResult Convert(const DecoderResult &src,
-                                 const SymbolTable &sym_table) {
+                                 const SymbolTable &sym_table,
+								 int32_t frame_shift_ms,
+								 int32_t subsampling_factor) {
+  RecognitionResult ans;
+  ans.tokens.reserve(src.tokens.size());
+  ans.words.reserve(src.tokens.size());
+  ans.timestamps.reserve(src.timestamps.size());
+
   std::string text;
-  for (auto t : src.tokens) {
-    text += sym_table[t];
+  for (auto i : src.tokens) {
+    auto sym = sym_table[i];
+    text.append(sym);
+	ans.words.push_back(sym);
+    ans.tokens.push_back(i);
   }
 
-  RecognitionResult ans;
   ans.text = std::move(text);
+  ans.tokens = src.tokens;
+  float frame_shift_s = frame_shift_ms / 1000. * subsampling_factor;
+  //std::cout<<"frame_shift="<<frame_shift_s;
+  for (auto t : src.timestamps) {
+    float time = frame_shift_s * t;
+	//std::cout<<",["<<t<<"|"<<time<<"]";
+    ans.timestamps.push_back(time);
+  }
+  //std::cout<<std::endl;
   return ans;
 }
 
@@ -163,7 +183,13 @@ class Recognizer::Impl {
     DecoderResult decoder_result = s->GetResult();
     decoder_->StripLeadingBlanks(&decoder_result);
 
-    return Convert(decoder_result, sym_);
+    //return Convert(decoder_result, sym_);
+	// Those 2 parameter figured out from sherpa source code
+	int32_t frame_shift_ms = 10;
+	int32_t subsampling_factor = 4;
+    return Convert(decoder_result, sym_, frame_shift_ms, subsampling_factor);
+			//config_.feat_config.fbank_opts.frame_opts.frame_shift_ms,
+			//model_->SubsamplingFactor());
   }
 
  private:

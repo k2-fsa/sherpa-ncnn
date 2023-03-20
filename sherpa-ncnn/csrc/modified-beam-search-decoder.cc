@@ -169,6 +169,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
     auto topk = TopkIndex(static_cast<float *>(joiner_out),
                           joiner_out.w * joiner_out.h, num_active_paths_);
 
+	int32_t frame_offset = result->frame_offset;
     for (auto i : topk) {
       int32_t hyp_index = i / joiner_out.w;
       int32_t new_token = i % joiner_out.w;
@@ -181,6 +182,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
       if (new_token != 0) {
         new_hyp.ys.push_back(new_token);
         new_hyp.num_trailing_blanks = 0;
+		new_hyp.timestamps.push_back(t + frame_offset);
       } else {
         ++new_hyp.num_trailing_blanks;
       }
@@ -190,6 +192,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
   }
 
   result->hyps = std::move(cur);
+  result->frame_offset += encoder_out.h;
   auto hyp = result->hyps.GetMostProbable(true);
 
   // set decoder_out in case of endpointing

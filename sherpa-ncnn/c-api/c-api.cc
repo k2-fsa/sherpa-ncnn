@@ -117,17 +117,76 @@ void Decode(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
 
 SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   std::string text = p->recognizer->GetResult(s->stream.get()).text;
+  auto res = p->recognizer->GetResult(s->stream.get());
 
   auto r = new SherpaNcnnResult;
   r->text = new char[text.size() + 1];
   std::copy(text.begin(), text.end(), const_cast<char *>(r->text));
   const_cast<char *>(r->text)[text.size()] = 0;
+  r->count = 0;
+  size_t count = res.tokens.size();
+  if( count > 0 )
+  {
+	  // each word end with nullptr
+	  r->words = new char[text.size() + count];
+	  memset((void*)r->words, 0, text.size() + count );
+	  r->timestamps = new float[count]; // maximum number of timestamps
+	  int pos = 0;
+	  std::string word = "";
+	  float start = 0;
+	  int index = 0;
+	  for( int i = 0; i < count; ++i )
+	  {
+		  if( res.words[i][0] == ' ' ) // if token is ' BLABLA', then last word is finished
+		  {
+			  if( word.size() > 0 )
+			  {
+				  memcpy((void*)(r->words + pos), word.c_str(), word.size());
+				  pos += word.size() + 1;
+				  r->timestamps[index++] = start;
+				  word = "";
+
+				  start = res.timestamps[i];
+				  word = res.words[i];
+			  }
+			  else // The first token is ' BLABLA'
+			  {
+				  start = res.timestamps[i];
+				  word = res.words[i];
+			  }
+		  }
+		  else
+		  {
+			  if( word.size() == 0 )
+			  {
+				  start = res.timestamps[i];
+			  }
+			  word += res.words[i];
+		  }
+	  }
+	  if( word != "" )
+	  {
+		  memcpy((void*)(r->words + pos), word.c_str(), word.size());
+		  r->timestamps[index++] = start;
+	  }
+	  r->count = index;
+
+  }
+  else 
+  {
+	r->timestamps = nullptr;
+	r->words = nullptr;
+  }
 
   return r;
 }
 
 void DestroyResult(const SherpaNcnnResult *r) {
   delete[] r->text;
+  if( r->timestamps != nullptr )
+	  delete[] r->timestamps;
+  if( r->words != nullptr )
+	  delete[] r->words;
   delete r;
 }
 

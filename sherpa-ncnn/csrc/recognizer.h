@@ -34,9 +34,10 @@
 namespace sherpa_ncnn {
 
 struct RecognitionResult {
-  std::vector<int32_t> tokens;
   std::string text;
   std::vector<float> timestamps;
+  std::vector<int32_t> tokens;
+  std::vector<std::string> words;
 
   std::string ToString() const;
 };
