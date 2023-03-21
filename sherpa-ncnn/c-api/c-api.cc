@@ -123,59 +123,25 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   r->text = new char[text.size() + 1];
   std::copy(text.begin(), text.end(), const_cast<char *>(r->text));
   const_cast<char *>(r->text)[text.size()] = 0;
-  r->count = 0;
-  size_t count = res.tokens.size();
-  if( count > 0 )
+  r->count = res.tokens.size();
+  if( r->count > 0 )
   {
-	  // each word end with nullptr
-	  r->words = new char[text.size() + count];
-	  memset((void*)r->words, 0, text.size() + count );
-	  r->timestamps = new float[count]; // maximum number of timestamps
+	  // Each word ends with nullptr
+	  r->tokens = new char[text.size() + r->count];
+	  memset((void*)r->tokens, 0, text.size() + r->count );
+	  r->timestamps = new float[r->count]; 
 	  int pos = 0;
-	  std::string word = "";
-	  float start = 0;
-	  int index = 0;
-	  for( int i = 0; i < count; ++i )
+	  for( int i = 0; i < r->count; ++i )
 	  {
-		  if( res.words[i][0] == ' ' ) // if token is ' BLABLA', then last word is finished
-		  {
-			  if( word.size() > 0 )
-			  {
-				  memcpy((void*)(r->words + pos), word.c_str(), word.size());
-				  pos += word.size() + 1;
-				  r->timestamps[index++] = start;
-				  word = "";
-
-				  start = res.timestamps[i];
-				  word = res.words[i];
-			  }
-			  else // The first token is ' BLABLA'
-			  {
-				  start = res.timestamps[i];
-				  word = res.words[i];
-			  }
-		  }
-		  else
-		  {
-			  if( word.size() == 0 )
-			  {
-				  start = res.timestamps[i];
-			  }
-			  word += res.words[i];
-		  }
+		  memcpy((void*)(r->tokens + pos), res.stokens[i].c_str(), res.stokens[i].size());
+		  pos += res.stokens[i].size() + 1;
+		  r->timestamps[i] = res.timestamps[i];
 	  }
-	  if( word != "" )
-	  {
-		  memcpy((void*)(r->words + pos), word.c_str(), word.size());
-		  r->timestamps[index++] = start;
-	  }
-	  r->count = index;
-
   }
   else 
   {
 	r->timestamps = nullptr;
-	r->words = nullptr;
+	r->tokens = nullptr;
   }
 
   return r;
@@ -185,8 +151,8 @@ void DestroyResult(const SherpaNcnnResult *r) {
   delete[] r->text;
   if( r->timestamps != nullptr )
 	  delete[] r->timestamps;
-  if( r->words != nullptr )
-	  delete[] r->words;
+  if( r->tokens != nullptr )
+	  delete[] r->tokens;
   delete r;
 }
 

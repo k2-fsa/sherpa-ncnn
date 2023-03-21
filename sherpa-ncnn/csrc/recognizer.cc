@@ -38,14 +38,14 @@ static RecognitionResult Convert(const DecoderResult &src,
 								 int32_t subsampling_factor) {
   RecognitionResult ans;
   ans.tokens.reserve(src.tokens.size());
-  ans.words.reserve(src.tokens.size());
+  ans.stokens.reserve(src.tokens.size());
   ans.timestamps.reserve(src.timestamps.size());
 
   std::string text;
   for (auto i : src.tokens) {
     auto sym = sym_table[i];
     text.append(sym);
-	ans.words.push_back(sym);
+	ans.stokens.push_back(sym);
     ans.tokens.push_back(i);
   }
 

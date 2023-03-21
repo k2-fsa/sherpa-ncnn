@@ -114,7 +114,7 @@ typedef struct SherpaNcnnRecognizerConfig {
 
 typedef struct SherpaNcnnResult {
   const char *text;
-  const char *words;
+  const char *tokens;
   float* timestamps;
   int count;
 } SherpaNcnnResult;

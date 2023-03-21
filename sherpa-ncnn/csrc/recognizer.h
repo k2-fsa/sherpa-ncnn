@@ -37,7 +37,7 @@ struct RecognitionResult {
   std::string text;
   std::vector<float> timestamps;
   std::vector<int32_t> tokens;
-  std::vector<std::string> words;
+  std::vector<std::string> stokens;
 
   std::string ToString() const;
 };
