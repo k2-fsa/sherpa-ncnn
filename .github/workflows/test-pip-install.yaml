@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - nightly
-      - fix-windows-dll
   schedule:
     # minute (0-59)
     # hour (0-23)
@@ -27,8 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
