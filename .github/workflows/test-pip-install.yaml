@@ -56,8 +56,7 @@ jobs:
       - name: Install sherpa-ncnn
         shell: bash
         run: |
-          # pip3 install --verbose -U sherpa-ncnn
-          python3 setup.py install
+          pip3 install --verbose -U sherpa-ncnn
 
       - name: Run test
         shell: bash
