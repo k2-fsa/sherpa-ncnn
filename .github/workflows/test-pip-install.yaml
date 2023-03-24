@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - nightly
+      - fix-windows-dll
   schedule:
     # minute (0-59)
     # hour (0-23)
@@ -56,7 +57,8 @@ jobs:
       - name: Install sherpa-ncnn
         shell: bash
         run: |
-          pip3 install --verbose -U sherpa-ncnn
+          # pip3 install --verbose -U sherpa-ncnn
+          python3 setup.py install
 
       - name: Run test
         shell: bash
