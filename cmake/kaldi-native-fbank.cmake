@@ -46,7 +46,11 @@ function(download_kaldi_native_fbank)
   message(STATUS "kaldi-native-fbank's binary dir is ${kaldi_native_fbank_BINARY_DIR}")
 
   add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR})
-  install(TARGETS kaldi-native-fbank-core DESTINATION lib)
+  if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
+    install(TARGETS kaldi-native-fbank-core DESTINATION ..)
+  else()
+    install(TARGETS kaldi-native-fbank-core DESTINATION lib)
+  endif()
 
   target_include_directories(kaldi-native-fbank-core
     INTERFACE

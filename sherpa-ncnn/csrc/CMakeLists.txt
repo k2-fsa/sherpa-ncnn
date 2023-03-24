@@ -20,7 +20,12 @@ set(sherpa_ncnn_core_srcs
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
-install(TARGETS sherpa-ncnn-core DESTINATION lib)
+
+if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
+  install(TARGETS sherpa-ncnn-core DESTINATION ..)
+else()
+  install(TARGETS sherpa-ncnn-core DESTINATION lib)
+endif()
 
 if(NOT SHERPA_NCNN_ENABLE_PYTHON)
   if(SHERPA_NCNN_ENABLE_BINARY)
