@@ -9,7 +9,6 @@ on:
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
-      - 'ffmpeg-examples/**'
       - 'sherpa-ncnn/csrc/*'
   pull_request:
     branches:
@@ -19,7 +18,6 @@ on:
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
-      - 'ffmpeg-examples/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/csrc/*'
 
@@ -43,29 +41,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install ffmpeg
-        shell: bash
-        run: |
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:savoury1/ffmpeg4
-          sudo add-apt-repository ppa:savoury1/ffmpeg5
-
-          sudo apt-get install -y libavdevice-dev libavutil-dev ffmpeg
-          pkg-config --modversion libavutil
-          ffmpeg -version
-
-      - name: Show ffmpeg version
-        shell: bash
-        run: |
-          pkg-config --modversion libavutil
-          ffmpeg -version
-
       - name: Configure CMake
         shell: bash
         run: |
           mkdir build
           cd build
-          cmake -D CMAKE_BUILD_TYPE=Release -DSHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES=ON ..
+          cmake -D CMAKE_BUILD_TYPE=Release -DSHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES=OFF ..
 
       - name: Build sherpa for ubuntu
         run: |
@@ -84,21 +65,11 @@ jobs:
           ls -lh bin/decode-file-c-api
           file bin/decode-file-c-api
 
-          ls -lh bin/sherpa-ncnn-ffmpeg
-          file bin/sherpa-ncnn-ffmpeg
-
       - name: Upload binary sherpa-ncnn and sherpa-ncnn-microphone
         uses: actions/upload-artifact@v2
         with:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
           path: ./build/bin
-
-      - name: Test sherpa-ncnn-ffmpeg
-        run: |
-          export PATH=$PWD/build/bin:$PATH
-          export EXE=sherpa-ncnn-ffmpeg
-
-          .github/scripts/run-test.sh
 
       - name: Test sherpa-ncnn
         run: |
