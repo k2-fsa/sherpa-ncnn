@@ -37,7 +37,6 @@ static RecognitionResult Convert(const DecoderResult &src,
 								 int32_t frame_shift_ms,
 								 int32_t subsampling_factor) {
   RecognitionResult ans;
-  ans.tokens.reserve(src.tokens.size());
   ans.stokens.reserve(src.tokens.size());
   ans.timestamps.reserve(src.timestamps.size());
 
@@ -46,19 +45,15 @@ static RecognitionResult Convert(const DecoderResult &src,
     auto sym = sym_table[i];
     text.append(sym);
 	ans.stokens.push_back(sym);
-    ans.tokens.push_back(i);
   }
 
   ans.text = std::move(text);
   ans.tokens = src.tokens;
   float frame_shift_s = frame_shift_ms / 1000. * subsampling_factor;
-  //std::cout<<"frame_shift="<<frame_shift_s;
   for (auto t : src.timestamps) {
     float time = frame_shift_s * t;
-	//std::cout<<",["<<t<<"|"<<time<<"]";
     ans.timestamps.push_back(time);
   }
-  //std::cout<<std::endl;
   return ans;
 }
 

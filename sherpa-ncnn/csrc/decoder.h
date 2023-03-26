@@ -42,7 +42,7 @@ struct DecoderConfig {
 };
 
 struct DecoderResult {
-  /// Number of frames we have decoded so far
+  /// Number of frames we have decoded so far, counted after subsampling
   int32_t frame_offset = 0;
 
   /// The decoded token IDs so far

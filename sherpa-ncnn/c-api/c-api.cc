@@ -124,19 +124,17 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   std::copy(text.begin(), text.end(), const_cast<char *>(r->text));
   const_cast<char *>(r->text)[text.size()] = 0;
   r->count = res.tokens.size();
-  if( r->count > 0 )
-  {
-	  // Each word ends with nullptr
-	  r->tokens = new char[text.size() + r->count];
-	  memset((void*)r->tokens, 0, text.size() + r->count );
-	  r->timestamps = new float[r->count]; 
-	  int pos = 0;
-	  for( int i = 0; i < r->count; ++i )
-	  {
-		  memcpy((void*)(r->tokens + pos), res.stokens[i].c_str(), res.stokens[i].size());
-		  pos += res.stokens[i].size() + 1;
-		  r->timestamps[i] = res.timestamps[i];
-	  }
+  if( r->count > 0 ) {
+	// Each word ends with nullptr
+	r->tokens = new char[text.size() + r->count];
+	memset((void*)r->tokens, 0, text.size() + r->count );
+	r->timestamps = new float[r->count]; 
+	int pos = 0;
+	for( int i = 0; i < r->count; ++i ) {
+	  memcpy((void*)(r->tokens + pos), res.stokens[i].c_str(), res.stokens[i].size());
+	  pos += res.stokens[i].size() + 1;
+	  r->timestamps[i] = res.timestamps[i];
+	}
   }
   else 
   {
