@@ -196,7 +196,7 @@ class SherpaNcnnRecognizer {
     }
 
     func isReady() -> Bool {
-        return IsReady(recognizer, stream) == 1 ? true : false
+        return IsReady(recognizer, stream) == 1
     }
 
     /// If there are enough number of feature frames, it invokes the neural
@@ -225,6 +225,6 @@ class SherpaNcnnRecognizer {
 
     /// Return true is an endpoint has been detected.
     func isEndpoint() -> Bool {
-        return IsEndpoint(recognizer, stream) == 1 ? true : false
+        return IsEndpoint(recognizer, stream) == 1
     }
 }
