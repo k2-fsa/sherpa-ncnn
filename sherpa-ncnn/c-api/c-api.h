@@ -113,10 +113,19 @@ typedef struct SherpaNcnnRecognizerConfig {
 } SherpaNcnnRecognizerConfig;
 
 typedef struct SherpaNcnnResult {
+  // Recognized text
   const char *text;
+
+  // Pointer to continuous memory which holds string based tokens
+  // which are seperated by \0
   const char *tokens;
+
+  // Pointer to continuous memory which holds timestamps which
+  // are seperated by \0
   float* timestamps;
-  int count;
+
+  // The number of tokens/timestamps in above pointer
+  int32_t count;
 } SherpaNcnnResult;
 
 typedef struct SherpaNcnnRecognizer SherpaNcnnRecognizer;

@@ -127,11 +127,13 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   if (r->count > 0) {
     // Each word ends with nullptr
     r->tokens = new char[text.size() + r->count];
-    memset(reinterpret_cast<void*>(r->tokens), 0, text.size() + r->count);
+    memset(reinterpret_cast<void*>(const_cast<char*>(r->tokens)), 0,
+             text.size() + r->count);
     r->timestamps = new float[r->count];
     int pos = 0;
-    for (int i = 0; i < r->count; ++i) {
-      memcpy(reinterpret_cast<void*>(r->tokens + pos), res.stokens[i].c_str(),
+    for (int32_t i = 0; i < r->count; ++i) {
+      memcpy(reinterpret_cast<void*>(const_cast<char*>(r->tokens + pos)),
+             res.stokens[i].c_str(),
              res.stokens[i].size());
       pos += res.stokens[i].size() + 1;
       r->timestamps[i] = res.timestamps[i];

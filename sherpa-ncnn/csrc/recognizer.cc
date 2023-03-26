@@ -176,7 +176,7 @@ class Recognizer::Impl {
     DecoderResult decoder_result = s->GetResult();
     decoder_->StripLeadingBlanks(&decoder_result);
 
-    // Those 2 parameter figured out from sherpa source code
+    // Those 2 parameters are figured out from sherpa source code
     int32_t frame_shift_ms = 10;
     int32_t subsampling_factor = 4;
     return Convert(decoder_result, sym_, frame_shift_ms, subsampling_factor);
