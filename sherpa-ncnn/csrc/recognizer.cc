@@ -28,14 +28,12 @@
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
 
-#include <iostream>
-
 namespace sherpa_ncnn {
 
 static RecognitionResult Convert(const DecoderResult &src,
                                  const SymbolTable &sym_table,
-								 int32_t frame_shift_ms,
-								 int32_t subsampling_factor) {
+                                 int32_t frame_shift_ms,
+                                 int32_t subsampling_factor) {
   RecognitionResult ans;
   ans.stokens.reserve(src.tokens.size());
   ans.timestamps.reserve(src.timestamps.size());
@@ -44,7 +42,7 @@ static RecognitionResult Convert(const DecoderResult &src,
   for (auto i : src.tokens) {
     auto sym = sym_table[i];
     text.append(sym);
-	ans.stokens.push_back(sym);
+    ans.stokens.push_back(sym);
   }
 
   ans.text = std::move(text);
@@ -178,13 +176,10 @@ class Recognizer::Impl {
     DecoderResult decoder_result = s->GetResult();
     decoder_->StripLeadingBlanks(&decoder_result);
 
-    //return Convert(decoder_result, sym_);
-	// Those 2 parameter figured out from sherpa source code
-	int32_t frame_shift_ms = 10;
-	int32_t subsampling_factor = 4;
+    // Those 2 parameter figured out from sherpa source code
+    int32_t frame_shift_ms = 10;
+    int32_t subsampling_factor = 4;
     return Convert(decoder_result, sym_, frame_shift_ms, subsampling_factor);
-			//config_.feat_config.fbank_opts.frame_opts.frame_shift_ms,
-			//model_->SubsamplingFactor());
   }
 
  private:
