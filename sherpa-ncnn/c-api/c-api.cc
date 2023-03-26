@@ -117,17 +117,41 @@ void Decode(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
 
 SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   std::string text = p->recognizer->GetResult(s->stream.get()).text;
+  auto res = p->recognizer->GetResult(s->stream.get());
 
   auto r = new SherpaNcnnResult;
   r->text = new char[text.size() + 1];
   std::copy(text.begin(), text.end(), const_cast<char *>(r->text));
   const_cast<char *>(r->text)[text.size()] = 0;
+  r->count = res.tokens.size();
+  if (r->count > 0) {
+    // Each word ends with nullptr
+    r->tokens = new char[text.size() + r->count];
+    memset(reinterpret_cast<void*>(const_cast<char*>(r->tokens)), 0,
+             text.size() + r->count);
+    r->timestamps = new float[r->count];
+    int pos = 0;
+    for (int32_t i = 0; i < r->count; ++i) {
+      memcpy(reinterpret_cast<void*>(const_cast<char*>(r->tokens + pos)),
+             res.stokens[i].c_str(),
+             res.stokens[i].size());
+      pos += res.stokens[i].size() + 1;
+      r->timestamps[i] = res.timestamps[i];
+    }
+  } else {
+    r->timestamps = nullptr;
+    r->tokens = nullptr;
+  }
 
   return r;
 }
 
 void DestroyResult(const SherpaNcnnResult *r) {
   delete[] r->text;
+  if (r->timestamps != nullptr)
+      delete[] r->timestamps;
+  if (r->tokens != nullptr)
+      delete[] r->tokens;
   delete r;
 }
 

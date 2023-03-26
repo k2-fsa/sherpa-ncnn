@@ -31,14 +31,27 @@
 namespace sherpa_ncnn {
 
 static RecognitionResult Convert(const DecoderResult &src,
-                                 const SymbolTable &sym_table) {
+                                 const SymbolTable &sym_table,
+                                 int32_t frame_shift_ms,
+                                 int32_t subsampling_factor) {
+  RecognitionResult ans;
+  ans.stokens.reserve(src.tokens.size());
+  ans.timestamps.reserve(src.timestamps.size());
+
   std::string text;
-  for (auto t : src.tokens) {
-    text += sym_table[t];
+  for (auto i : src.tokens) {
+    auto sym = sym_table[i];
+    text.append(sym);
+    ans.stokens.push_back(sym);
   }
 
-  RecognitionResult ans;
   ans.text = std::move(text);
+  ans.tokens = src.tokens;
+  float frame_shift_s = frame_shift_ms / 1000. * subsampling_factor;
+  for (auto t : src.timestamps) {
+    float time = frame_shift_s * t;
+    ans.timestamps.push_back(time);
+  }
   return ans;
 }
 
@@ -163,7 +176,10 @@ class Recognizer::Impl {
     DecoderResult decoder_result = s->GetResult();
     decoder_->StripLeadingBlanks(&decoder_result);
 
-    return Convert(decoder_result, sym_);
+    // Those 2 parameters are figured out from sherpa source code
+    int32_t frame_shift_ms = 10;
+    int32_t subsampling_factor = 4;
+    return Convert(decoder_result, sym_, frame_shift_ms, subsampling_factor);
   }
 
  private:

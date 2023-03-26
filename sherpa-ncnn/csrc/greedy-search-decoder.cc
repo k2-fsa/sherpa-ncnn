@@ -59,6 +59,7 @@ void GreedySearchDecoder::Decode(ncnn::Mat encoder_out, DecoderResult *result) {
     decoder_out = model_->RunDecoder(decoder_input);
   }
 
+  int32_t frame_offset = result->frame_offset;
   for (int32_t t = 0; t != encoder_out.h; ++t) {
     ncnn::Mat encoder_out_t(encoder_out.w, encoder_out.row(t));
     ncnn::Mat joiner_out = model_->RunJoiner(encoder_out_t, decoder_out);
@@ -75,11 +76,13 @@ void GreedySearchDecoder::Decode(ncnn::Mat encoder_out, DecoderResult *result) {
       ncnn::Mat decoder_input = BuildDecoderInput(*result);
       decoder_out = model_->RunDecoder(decoder_input);
       result->num_trailing_blanks = 0;
+      result->timestamps.push_back(t + frame_offset);
     } else {
       ++result->num_trailing_blanks;
     }
   }
 
+  result->frame_offset += encoder_out.h;
   result->decoder_out = decoder_out;
 }
 
