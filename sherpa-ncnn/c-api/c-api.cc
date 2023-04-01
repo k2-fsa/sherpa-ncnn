@@ -26,21 +26,16 @@
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
-#ifdef __cplusplus
-#define SHERPA_NCNN_EXTERN_C extern "C"
-#endif
 
-SHERPA_NCNN_EXTERN_C
+
 struct SherpaNcnnRecognizer {
   std::unique_ptr<sherpa_ncnn::Recognizer> recognizer;
 };
 
-SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnStream {
   std::unique_ptr<sherpa_ncnn::Stream> stream;
 };
 
-SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnDisplay {
   std::unique_ptr<sherpa_ncnn::Display> impl;
 };
