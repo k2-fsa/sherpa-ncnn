@@ -42,19 +42,17 @@ namespace sherpa_ncnn {
 
 class SherpaNcnn {
  public:
-  SherpaNcnn(
 #if __ANDROID_API__ >= 9
-      AAssetManager *mgr,
-#endif
-      const sherpa_ncnn::RecognizerConfig &config)
-      : recognizer_(
-#if __ANDROID_API__ >= 9
-            mgr,
-#endif
-            config),
+  SherpaNcnn(AAssetManager *mgr, const sherpa_ncnn::RecognizerConfig &config)
+      : recognizer_(mgr, config),
         stream_(recognizer_.CreateStream()),
-        tail_padding_(16000 * 0.32, 0) {
-  }
+        tail_padding_(16000 * 0.32, 0) {}
+#endif
+
+  explicit SherpaNcnn(const sherpa_ncnn::RecognizerConfig &config)
+      : recognizer_(config),
+        stream_(recognizer_.CreateStream()),
+        tail_padding_(16000 * 0.32, 0) {}
 
   void AcceptWaveform(float sample_rate, const float *samples, int32_t n) {
     stream_->AcceptWaveform(sample_rate, samples, n);
@@ -237,18 +235,7 @@ static DecoderConfig GetDecoderConfig(JNIEnv *env, jobject config) {
 #endif
 }
 
-}  // namespace sherpa_ncnn
-
-SHERPA_EXTERN_C
-JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
-    JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _config) {
-#if __ANDROID_API__ >= 9
-  AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
-  if (!mgr) {
-    NCNN_LOGE("Failed to get asset manager: %p", mgr);
-  }
-#endif
-
+static RecognizerConfig ParseConfig(JNIEnv *env, jobject _config) {
   sherpa_ncnn::RecognizerConfig config;
   config.feat_config = sherpa_ncnn::GetFeatureExtractorConfig(env, _config);
   config.model_config = sherpa_ncnn::GetModelConfig(env, _config);
@@ -274,6 +261,31 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_new(
 
   NCNN_LOGE("------config------\n%s\n", config.ToString().c_str());
 
+  return config;
+}
+
+}  // namespace sherpa_ncnn
+
+SHERPA_EXTERN_C
+JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_newFromFile(
+    JNIEnv *env, jobject /*obj*/, jobject _config) {
+  sherpa_ncnn::RecognizerConfig config = sherpa_ncnn::ParseConfig(env, _config);
+  auto model = new sherpa_ncnn::SherpaNcnn(config);
+
+  return (jlong)model;
+}
+
+SHERPA_EXTERN_C
+JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_newFromAsset(
+    JNIEnv *env, jobject /*obj*/, jobject asset_manager, jobject _config) {
+#if __ANDROID_API__ >= 9
+  AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
+  if (!mgr) {
+    NCNN_LOGE("Failed to get asset manager: %p", mgr);
+  }
+#endif
+
+  sherpa_ncnn::RecognizerConfig config = sherpa_ncnn::ParseConfig(env, _config);
   auto model = new sherpa_ncnn::SherpaNcnn(
 #if __ANDROID_API__ >= 9
       mgr,
