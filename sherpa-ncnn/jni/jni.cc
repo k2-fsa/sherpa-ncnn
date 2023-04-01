@@ -49,7 +49,7 @@ class SherpaNcnn {
         tail_padding_(16000 * 0.32, 0) {}
 #endif
 
-  SherpaNcnn(const sherpa_ncnn::RecognizerConfig &config)
+  explicit SherpaNcnn(const sherpa_ncnn::RecognizerConfig &config)
       : recognizer_(config),
         stream_(recognizer_.CreateStream()),
         tail_padding_(16000 * 0.32, 0) {}
