@@ -182,12 +182,12 @@ for wave in ${waves[@]}; do
 
     time $EXE \
       $repo/tokens.txt \
-      $repo/encoder_jit_trace-pnnx-ncnn.param \
-      $repo/encoder_jit_trace-pnnx-ncnn.bin \
-      $repo/decoder_jit_trace-pnnx-ncnn.param \
-      $repo/decoder_jit_trace-pnnx-ncnn.bin \
-      $repo/joiner_jit_trace-pnnx-ncnn.param \
-      $repo/joiner_jit_trace-pnnx-ncnn.bin \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
       $wave \
       4 \
       $m
