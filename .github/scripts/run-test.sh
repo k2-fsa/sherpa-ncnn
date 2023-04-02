@@ -160,13 +160,13 @@ repo=$(basename $repo_url)
 log "Download pretrained model and test-data from $repo_url"
 
 GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
-pushd $repo/v2
-git lfs pull --include "encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin"
-git lfs pull --include "decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin"
-git lfs pull --include "joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin"
+pushd $repo
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
 
-git lfs pull --include "encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin"
-git lfs pull --include "joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin"
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.int8.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.int8.bin"
 
 popd
 
@@ -181,13 +181,13 @@ for wave in ${waves[@]}; do
     log "----test $m ---"
 
     time $EXE \
-      $repo/v2/tokens.txt \
-      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx-ncnn.param \
+      $repo/encoder_jit_trace-pnnx-ncnn.bin \
+      $repo/decoder_jit_trace-pnnx-ncnn.param \
+      $repo/decoder_jit_trace-pnnx-ncnn.bin \
+      $repo/joiner_jit_trace-pnnx-ncnn.param \
+      $repo/joiner_jit_trace-pnnx-ncnn.bin \
       $wave \
       4 \
       $m
@@ -201,13 +201,13 @@ for wave in ${waves[@]}; do
     log "----test $m ---"
 
     time $EXE \
-      $repo/v2/tokens.txt \
-      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
-      $repo/v2/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
-      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param \
-      $repo/v2/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin \
-      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.param \
-      $repo/v2/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.int8.bin \
+      $repo/tokens.txt \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.bin \
       $wave \
       4 \
       $m
@@ -305,12 +305,12 @@ log "Download pretrained model and test-data from $repo_url"
 
 GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
 pushd $repo
-git lfs pull --include "encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin"
-git lfs pull --include "decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin"
-git lfs pull --include "joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin"
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
 
-git lfs pull --include "encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin"
-git lfs pull --include "joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin"
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.int8.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.int8.bin"
 popd
 
 waves=(
@@ -325,12 +325,12 @@ for wave in ${waves[@]}; do
 
     time $EXE \
       $repo/tokens.txt \
-      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
+      $repo/encoder_jit_trace-pnnx.ncnn.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.bin \
       $wave \
       4 \
       $m
@@ -346,12 +346,12 @@ for wave in ${waves[@]}; do
 
     time $EXE \
       $repo/tokens.txt \
-      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
-      $repo/encoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
-      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.param \
-      $repo/decoder_jit_trace-epoch-30-avg-10-pnnx.ncnn.bin \
-      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.param \
-      $repo/joiner_jit_trace-epoch-30-avg-10-pnnx.ncnn.int8.bin \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.param \
+      $repo/encoder_jit_trace-pnnx.ncnn.int8.bin \
+      $repo/decoder_jit_trace-pnnx.ncnn.param \
+      $repo/decoder_jit_trace-pnnx.ncnn.bin \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.param \
+      $repo/joiner_jit_trace-pnnx.ncnn.int8.bin \
       $wave \
       4 \
       $m
