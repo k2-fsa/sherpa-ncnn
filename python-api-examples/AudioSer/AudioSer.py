@@ -76,7 +76,7 @@ def allowed_file(filename):
     if ext not in ALLOWED_EXTENSIONS:
         return False
     mime_type, _ = mimetypes.guess_type(filename)
-    if mime_type is None or mime_type != 'audio/wav':
+    if mime_type is None or mime_type not in ['audio/wav', 'audio/x-wav']:
         return False
     return True
 
