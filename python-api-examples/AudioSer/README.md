@@ -45,9 +45,22 @@ pip install -r requirements.txt
 python AudioSer.py
 ```
 
-web界面：
+<table style="width:100%">
+  <tr>
+    <th>AudioSer web</th>
 
-访问
+  </tr>
+  <tr>
+    <td><img src="/web.png" alt="VITS at training" height="400"></td>
+
+  </tr>
+</table>
+
+
+```python
+http://127.0.0.1:5620
+```
+运行后可以访问WEB界面进行体验测试。
 
 ### AP调用
 
