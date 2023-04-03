@@ -1,0 +1,8 @@
+7767517
+6 6
+Input                    in0                      0 1 in0
+Embed                    embed_1                  1 1 in0 1 0=512 1=6254 2=0 3=3202048
+Permute                  permute_2                1 1 1 2 0=1
+ConvolutionDepthWise1D   convdw1d_4               1 1 2 3 0=512 1=2 2=1 3=1 4=0 5=0 6=4096 7=128
+Permute                  permute_3                1 1 3 4 0=1
+ReLU                     relu_0                   1 1 4 out0
