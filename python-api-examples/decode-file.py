@@ -36,11 +36,12 @@ def main():
         # Note: If wave_file_sample_rate is different from
         # recognizer.sample_rate, we will do resampling inside sherpa-ncnn
         wave_file_sample_rate = f.getframerate()
-        assert f.getnchannels() == 1, f.getnchannels()
+        num_channels = f.getnchannels()
         assert f.getsampwidth() == 2, f.getsampwidth()  # it is in bytes
         num_samples = f.getnframes()
         samples = f.readframes(num_samples)
         samples_int16 = np.frombuffer(samples, dtype=np.int16)
+        samples_int16 = samples_int16.reshape(-1, num_channels)[:, 0]
         samples_float32 = samples_int16.astype(np.float32)
 
         samples_float32 = samples_float32 / 32768
