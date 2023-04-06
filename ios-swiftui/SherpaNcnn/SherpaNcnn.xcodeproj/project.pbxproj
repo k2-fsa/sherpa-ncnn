@@ -1,0 +1,392 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DEB8741329DD7C7A001EF156 /* SherpaNcnnApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8741229DD7C7A001EF156 /* SherpaNcnnApp.swift */; };
+		DEB8741529DD7C7A001EF156 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8741429DD7C7A001EF156 /* ContentView.swift */; };
+		DEB8741729DD7C7A001EF156 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEB8741629DD7C7A001EF156 /* Assets.xcassets */; };
+		DEB8741A29DD7C7A001EF156 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEB8741929DD7C7A001EF156 /* Preview Assets.xcassets */; };
+		DEB8742629DD7E80001EF156 /* SherpaNcnnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8742529DD7E80001EF156 /* SherpaNcnnViewModel.swift */; };
+		DEB8742A29DD8088001EF156 /* openmp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEB8742829DD8088001EF156 /* openmp.xcframework */; };
+		DEB8742B29DD8088001EF156 /* sherpa-ncnn.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEB8742929DD8088001EF156 /* sherpa-ncnn.xcframework */; };
+		DEB8743029DD82F9001EF156 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8742F29DD82F9001EF156 /* Model.swift */; };
+		DEB8743229DD8334001EF156 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8743129DD8334001EF156 /* Extension.swift */; };
+		DEB8745829DE5BE3001EF156 /* SherpaNcnn.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8745729DE5BE3001EF156 /* SherpaNcnn.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		DEB8740F29DD7C7A001EF156 /* SherpaNcnn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SherpaNcnn.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEB8741229DD7C7A001EF156 /* SherpaNcnnApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnApp.swift; sourceTree = "<group>"; };
+		DEB8741429DD7C7A001EF156 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DEB8741629DD7C7A001EF156 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DEB8741929DD7C7A001EF156 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DEB8742529DD7E80001EF156 /* SherpaNcnnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SherpaNcnnViewModel.swift; sourceTree = "<group>"; };
+		DEB8742829DD8088001EF156 /* openmp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = openmp.xcframework; path = "../../build-ios/openmp.xcframework"; sourceTree = "<group>"; };
+		DEB8742929DD8088001EF156 /* sherpa-ncnn.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "sherpa-ncnn.xcframework"; path = "../../build-ios/sherpa-ncnn.xcframework"; sourceTree = "<group>"; };
+		DEB8742C29DD80B3001EF156 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		DEB8742F29DD82F9001EF156 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		DEB8743129DD8334001EF156 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		DEB8745629DE5BC6001EF156 /* SherpaNcnn-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SherpaNcnn-Bridging-Header.h"; path = "../../../swift-api-examples/SherpaNcnn-Bridging-Header.h"; sourceTree = "<group>"; };
+		DEB8745729DE5BE3001EF156 /* SherpaNcnn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SherpaNcnn.swift; path = "../../../swift-api-examples/SherpaNcnn.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DEB8740C29DD7C7A001EF156 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEB8742A29DD8088001EF156 /* openmp.xcframework in Frameworks */,
+				DEB8742B29DD8088001EF156 /* sherpa-ncnn.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DEB8740629DD7C7A001EF156 = {
+			isa = PBXGroup;
+			children = (
+				DEB8741129DD7C7A001EF156 /* SherpaNcnn */,
+				DEB8741029DD7C7A001EF156 /* Products */,
+				DEB8742729DD8088001EF156 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DEB8741029DD7C7A001EF156 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DEB8740F29DD7C7A001EF156 /* SherpaNcnn.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DEB8741129DD7C7A001EF156 /* SherpaNcnn */ = {
+			isa = PBXGroup;
+			children = (
+				DEB8745629DE5BC6001EF156 /* SherpaNcnn-Bridging-Header.h */,
+				DEB8745729DE5BE3001EF156 /* SherpaNcnn.swift */,
+				DEB8741229DD7C7A001EF156 /* SherpaNcnnApp.swift */,
+				DEB8741429DD7C7A001EF156 /* ContentView.swift */,
+				DEB8742529DD7E80001EF156 /* SherpaNcnnViewModel.swift */,
+				DEB8742F29DD82F9001EF156 /* Model.swift */,
+				DEB8743129DD8334001EF156 /* Extension.swift */,
+				DEB8741629DD7C7A001EF156 /* Assets.xcassets */,
+				DEB8741829DD7C7A001EF156 /* Preview Content */,
+			);
+			path = SherpaNcnn;
+			sourceTree = "<group>";
+		};
+		DEB8741829DD7C7A001EF156 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				DEB8741929DD7C7A001EF156 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		DEB8742729DD8088001EF156 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DEB8742C29DD80B3001EF156 /* libc++.tbd */,
+				DEB8742829DD8088001EF156 /* openmp.xcframework */,
+				DEB8742929DD8088001EF156 /* sherpa-ncnn.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DEB8740E29DD7C7A001EF156 /* SherpaNcnn */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEB8741D29DD7C7A001EF156 /* Build configuration list for PBXNativeTarget "SherpaNcnn" */;
+			buildPhases = (
+				DEB8740B29DD7C7A001EF156 /* Sources */,
+				DEB8740C29DD7C7A001EF156 /* Frameworks */,
+				DEB8740D29DD7C7A001EF156 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SherpaNcnn;
+			productName = SherpaNcnn;
+			productReference = DEB8740F29DD7C7A001EF156 /* SherpaNcnn.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DEB8740729DD7C7A001EF156 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					DEB8740E29DD7C7A001EF156 = {
+						CreatedOnToolsVersion = 14.3;
+					};
+				};
+			};
+			buildConfigurationList = DEB8740A29DD7C7A001EF156 /* Build configuration list for PBXProject "SherpaNcnn" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DEB8740629DD7C7A001EF156;
+			productRefGroup = DEB8741029DD7C7A001EF156 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DEB8740E29DD7C7A001EF156 /* SherpaNcnn */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DEB8740D29DD7C7A001EF156 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEB8741A29DD7C7A001EF156 /* Preview Assets.xcassets in Resources */,
+				DEB8741729DD7C7A001EF156 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DEB8740B29DD7C7A001EF156 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEB8743029DD82F9001EF156 /* Model.swift in Sources */,
+				DEB8742629DD7E80001EF156 /* SherpaNcnnViewModel.swift in Sources */,
+				DEB8741529DD7C7A001EF156 /* ContentView.swift in Sources */,
+				DEB8743229DD8334001EF156 /* Extension.swift in Sources */,
+				DEB8741329DD7C7A001EF156 /* SherpaNcnnApp.swift in Sources */,
+				DEB8745829DE5BE3001EF156 /* SherpaNcnn.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DEB8741B29DD7C7A001EF156 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DEB8741C29DD7C7A001EF156 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DEB8741E29DD7C7A001EF156 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SherpaNcnn/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.xcframework/Headers/";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Need microphone access for recording speech";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DEB8741F29DD7C7A001EF156 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SherpaNcnn/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../build-ios/";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../build-ios/sherpa-ncnn.xcframework/Headers/";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Need microphone access for recording speech";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.k2-fsa.org.SherpaNcnn";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "${PROJECT_DIR}/../../swift-api-examples/SherpaNcnn-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DEB8740A29DD7C7A001EF156 /* Build configuration list for PBXProject "SherpaNcnn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEB8741B29DD7C7A001EF156 /* Debug */,
+				DEB8741C29DD7C7A001EF156 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEB8741D29DD7C7A001EF156 /* Build configuration list for PBXNativeTarget "SherpaNcnn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEB8741E29DD7C7A001EF156 /* Debug */,
+				DEB8741F29DD7C7A001EF156 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DEB8740729DD7C7A001EF156 /* Project object */;
+}
