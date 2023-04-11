@@ -75,16 +75,12 @@ extern "C" {
 }
 #endif
 
-static const char *ffmpeg_filter_descr =
-    "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
-
 static AVCodecContext *ffmpeg_dec_ctx;
 static AVFilterContext *ffmpeg_buffersink_ctx;
 static AVFilterContext *ffmpeg_buffersrc_ctx;
 static AVFilterGraph *ffmpeg_filter_graph;
-static int32_t ffmpeg_audio_stream_index = -1;
 
-static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx, const char *filename) {
+static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx, const char *filename, int32_t *ffmpeg_audio_stream_index) {
   int32_t ret;
   if ((ret = avformat_open_input(&ffmpeg_fmt_ctx, filename, NULL, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s\n", filename);
@@ -105,14 +101,14 @@ static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx, const char *
            "Cannot find an audio stream in the input file\n");
     return ret;
   }
-  ffmpeg_audio_stream_index = ret;
+  *ffmpeg_audio_stream_index = ret;
 
   /* create decoding context */
   ffmpeg_dec_ctx = avcodec_alloc_context3(dec);
   if (!ffmpeg_dec_ctx) return AVERROR(ENOMEM);
   avcodec_parameters_to_context(
       ffmpeg_dec_ctx,
-      ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index]->codecpar);
+      ffmpeg_fmt_ctx->streams[*ffmpeg_audio_stream_index]->codecpar);
 
   /* init the audio decoder */
   if ((ret = avcodec_open2(ffmpeg_dec_ctx, dec, NULL)) < 0) {
@@ -123,13 +119,11 @@ static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx, const char *
   return 0;
 }
 
-static int32_t FFmpegInitFilters(AVFormatContext *ffmpeg_fmt_ctx, const char *filters_descr) {
+static int32_t FFmpegInitFilters(AVRational time_base, const char *filters_descr) {
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
   const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
   AVFilterInOut *outputs = avfilter_inout_alloc();
   AVFilterInOut *inputs = avfilter_inout_alloc();
-  AVRational time_base =
-      ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index]->time_base;
 
   int32_t ret;
   ffmpeg_filter_graph = avfilter_graph_alloc();
@@ -600,7 +594,8 @@ for a list of pre-trained models to download.
   int32_t ret;
   fprintf(stdout, "Event:FFmpeg: Open input %s\n", input_url.c_str());
   fflush(stdout);
-  if ((ret = FFmpegOpenInputFile(ffmpeg_fmt_ctx.get(), input_url.c_str())) <
+  int32_t ffmpeg_audio_stream_index = -1;
+  if ((ret = FFmpegOpenInputFile(ffmpeg_fmt_ctx.get(), input_url.c_str(), &ffmpeg_audio_stream_index)) <
       0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
@@ -609,7 +604,11 @@ for a list of pre-trained models to download.
   fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
   fflush(stdout);
 
-  if ((ret = FFmpegInitFilters(ffmpeg_fmt_ctx.get(), ffmpeg_filter_descr)) < 0) {
+  AVRational time_base =
+      ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index]->time_base;
+  static const char *ffmpeg_filter_descr =
+      "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
+  if ((ret = FFmpegInitFilters(time_base, ffmpeg_filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
             ret);
     exit(1);
