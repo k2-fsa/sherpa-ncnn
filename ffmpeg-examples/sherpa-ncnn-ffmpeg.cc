@@ -128,24 +128,13 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
                                  AVFilterContext **ffmpeg_buffersrc_ctx,
                                  AVRational time_base,
                                  const char *filters_descr) {
-  const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
-  const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
-
-  auto inputs = std::unique_ptr<AVFilterInOut, void (*)(AVFilterInOut *)>(
-      avfilter_inout_alloc(),
-      [](AVFilterInOut *p) { avfilter_inout_free(&p); });
-  auto outputs = std::unique_ptr<AVFilterInOut, void (*)(AVFilterInOut *)>(
-      avfilter_inout_alloc(),
-      [](AVFilterInOut *p) { avfilter_inout_free(&p); });
-  if (outputs == nullptr || outputs == nullptr) {
-    return AVERROR(ENOMEM);
-  }
-
   /* buffer audio source: the decoded frames from the decoder will be inserted
    * here. */
-  if (ffmpeg_dec_ctx->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
+  if (ffmpeg_dec_ctx->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) {
     av_channel_layout_default(&ffmpeg_dec_ctx->ch_layout,
                               ffmpeg_dec_ctx->ch_layout.nb_channels);
+  }
+
   char args[512];
   int32_t ret =
       snprintf(args, sizeof(args),
@@ -154,6 +143,8 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
                av_get_sample_fmt_name(ffmpeg_dec_ctx->sample_fmt));
   av_channel_layout_describe(&ffmpeg_dec_ctx->ch_layout, args + ret,
                              sizeof(args) - ret);
+
+  const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
   ret = avfilter_graph_create_filter(ffmpeg_buffersrc_ctx, abuffersrc, "in",
                                      args, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
@@ -162,6 +153,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   }
 
   /* buffer audio sink: to terminate the filter chain. */
+  const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
   ret = avfilter_graph_create_filter(ffmpeg_buffersink_ctx, abuffersink, "out",
                                      NULL, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
@@ -204,6 +196,13 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
    * filter input label is not specified, it is set to "in" by
    * default.
    */
+  auto outputs = std::unique_ptr<AVFilterInOut, void (*)(AVFilterInOut *)>(
+      avfilter_inout_alloc(),
+      [](AVFilterInOut *p) { avfilter_inout_free(&p); });
+  if (outputs == nullptr) {
+    av_log(NULL, AV_LOG_ERROR, "Cannot allocate memory for outputs");
+    return AVERROR(EINVAL);
+  }
   outputs->name = av_strdup("in");
   outputs->filter_ctx = *ffmpeg_buffersrc_ctx;
   outputs->pad_idx = 0;
@@ -215,6 +214,13 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
    * filter output label is not specified, it is set to "out" by
    * default.
    */
+  auto inputs = std::unique_ptr<AVFilterInOut, void (*)(AVFilterInOut *)>(
+      avfilter_inout_alloc(),
+      [](AVFilterInOut *p) { avfilter_inout_free(&p); });
+  if (inputs == nullptr) {
+    av_log(NULL, AV_LOG_ERROR, "Cannot allocate memory for inputs");
+    return AVERROR(EINVAL);
+  }
   inputs->name = av_strdup("out");
   inputs->filter_ctx = *ffmpeg_buffersink_ctx;
   inputs->pad_idx = 0;
@@ -599,14 +605,6 @@ for a list of pre-trained models to download.
   fflush(stdout);
 
   // Initialize FFmpeg framework.
-  AVPacket *packet = av_packet_alloc();
-  AVFrame *frame = av_frame_alloc();
-  AVFrame *filt_frame = av_frame_alloc();
-  if (!packet || !frame || !filt_frame) {
-    fprintf(stderr, "Could not allocate frame or packet\n");
-    exit(1);
-  }
-
   auto ffmpeg_fmt_ctx =
       std::unique_ptr<AVFormatContext, void (*)(AVFormatContext *)>(
           avformat_alloc_context(), [](auto p) { avformat_close_input(&p); });
@@ -656,11 +654,22 @@ for a list of pre-trained models to download.
   SET_INTEGER_BY_ENV(asd_endpoints, "SHERPA_NCNN_ASD_ENDPOINTS");
   SET_INTEGER_BY_ENV(asd_samples, "SHERPA_NCNN_ASD_SAMPLES");
 
+  auto packet = std::unique_ptr<AVPacket, void (*)(AVPacket *)>(
+      av_packet_alloc(), [](auto p) { av_packet_free(&p); });
+  auto frame = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+      av_frame_alloc(), [](auto p) { av_frame_free(&p); });
+  auto filt_frame = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+      av_frame_alloc(), [](auto p) { av_frame_free(&p); });
+  if (packet == nullptr || frame == nullptr || filt_frame == nullptr) {
+    fprintf(stderr, "Could not allocate frame or packet\n");
+    exit(1);
+  }
+
   std::string last_text;
   int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
   while (1) {
-    if ((ret = av_read_frame(ffmpeg_fmt_ctx.get(), packet)) < 0) {
+    if ((ret = av_read_frame(ffmpeg_fmt_ctx.get(), packet.get())) < 0) {
       break;
     }
 
@@ -674,7 +683,7 @@ for a list of pre-trained models to download.
 
     // ASD(Active speaker detection), note that 16000 samples is 1s.
     if (asd_samples && zero_samples > asd_samples * 16000) {
-      // When unpublish, there might be some left samples in buffer.
+      // When unpublished, there might be some left samples in buffer.
       if (asd_endpoints && segment_index - asd_segment < asd_endpoints) {
         fprintf(stdout,
                 "\nEvent:FFmpeg: All silence samples, incorrect microphone?\n");
@@ -684,7 +693,7 @@ for a list of pre-trained models to download.
     }
 
     if (packet->stream_index == ffmpeg_audio_stream_index) {
-      ret = avcodec_send_packet(ffmpeg_dec_ctx.get(), packet);
+      ret = avcodec_send_packet(ffmpeg_dec_ctx.get(), packet.get());
       if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR,
                "Error while sending a packet to the decoder\n");
@@ -692,7 +701,7 @@ for a list of pre-trained models to download.
       }
 
       while (ret >= 0) {
-        ret = avcodec_receive_frame(ffmpeg_dec_ctx.get(), frame);
+        ret = avcodec_receive_frame(ffmpeg_dec_ctx.get(), frame.get());
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
           break;
         } else if (ret < 0) {
@@ -703,7 +712,7 @@ for a list of pre-trained models to download.
 
         if (ret >= 0) {
           /* push the audio data from decoded frame into the filtergraph */
-          if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame,
+          if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame.get(),
                                            AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
             av_log(NULL, AV_LOG_ERROR,
                    "Error while feeding the audio filtergraph\n");
@@ -712,7 +721,8 @@ for a list of pre-trained models to download.
 
           /* pull filtered audio from the filtergraph */
           while (1) {
-            ret = av_buffersink_get_frame(ffmpeg_buffersink_ctx, filt_frame);
+            ret = av_buffersink_get_frame(ffmpeg_buffersink_ctx,
+                                          filt_frame.get());
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
               break;
             }
@@ -720,15 +730,16 @@ for a list of pre-trained models to download.
               fprintf(stderr, "Error get frame, ret=%d\n", ret);
               exit(1);
             }
-            FFmpegOnDecodedFrame(filt_frame, recognizer, s.get(), display.get(),
-                                 &last_text, &segment_index, &zero_samples);
-            av_frame_unref(filt_frame);
+            FFmpegOnDecodedFrame(filt_frame.get(), recognizer, s.get(),
+                                 display.get(), &last_text, &segment_index,
+                                 &zero_samples);
+            av_frame_unref(filt_frame.get());
           }
-          av_frame_unref(frame);
+          av_frame_unref(frame.get());
         }
       }
     }
-    av_packet_unref(packet);
+    av_packet_unref(packet.get());
   }
 
   // Add some tail padding
@@ -750,10 +761,6 @@ for a list of pre-trained models to download.
       display->Print(segment_index, text);
     }
   }
-
-  av_packet_free(&packet);
-  av_frame_free(&frame);
-  av_frame_free(&filt_frame);
 
   if (ret < 0 && ret != AVERROR_EOF) {
     fprintf(stderr, "Error occurred: %s\n", FFmpegAvError2String(ret));
