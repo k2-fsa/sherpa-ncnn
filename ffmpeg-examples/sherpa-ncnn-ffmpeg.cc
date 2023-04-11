@@ -80,12 +80,13 @@ static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx,
                                    int32_t *ffmpeg_audio_stream_index) {
   int32_t ret;
   if ((ret = avformat_open_input(&ffmpeg_fmt_ctx, filename, NULL, NULL)) < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s\n", filename);
+    av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s, ret=%d\n", filename,
+           ret);
     return ret;
   }
 
   if ((ret = avformat_find_stream_info(ffmpeg_fmt_ctx, NULL)) < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot find stream information, ret=%d\n", ret);
     return ret;
   }
 
@@ -93,7 +94,8 @@ static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx,
   enum AVMediaType type = AVMEDIA_TYPE_AUDIO;
   ret = av_find_best_stream(ffmpeg_fmt_ctx, type, -1, -1, NULL, 0);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "No audio stream in the input file\n");
+    av_log(NULL, AV_LOG_ERROR, "No audio stream in the input file, ret=%d\n",
+           ret);
     return ret;
   }
   *ffmpeg_audio_stream_index = ret;
@@ -115,7 +117,7 @@ static int32_t FFmpegOpenDecoder(AVCodecContext *ffmpeg_dec_ctx,
   /* init the audio decoder */
   int32_t ret;
   if ((ret = avcodec_open2(ffmpeg_dec_ctx, dec, NULL)) < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot open audio decoder\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot open audio decoder, ret=%d\n", ret);
     return ret;
   }
 
@@ -148,7 +150,8 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   ret = avfilter_graph_create_filter(ffmpeg_buffersrc_ctx, abuffersrc, "in",
                                      args, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source, ret=%d\n",
+           ret);
     return AVERROR(EINVAL);
   }
 
@@ -157,7 +160,8 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   ret = avfilter_graph_create_filter(ffmpeg_buffersink_ctx, abuffersink, "out",
                                      NULL, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer sink\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer sink, ret=%d\n",
+           ret);
     return AVERROR(EINVAL);
   }
 
@@ -166,14 +170,16 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   ret = av_opt_set_int_list(*ffmpeg_buffersink_ctx, "sample_fmts",
                             out_sample_fmts, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot set output sample format\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot set output sample format, ret=%d\n",
+           ret);
     return AVERROR(EINVAL);
   }
 
   ret = av_opt_set(*ffmpeg_buffersink_ctx, "ch_layouts", "mono",
                    AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot set output channel layout\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot set output channel layout, ret=%d\n",
+           ret);
     return AVERROR(EINVAL);
   }
 
@@ -181,7 +187,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   ret = av_opt_set_int_list(*ffmpeg_buffersink_ctx, "sample_rates",
                             out_sample_rates, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot set output sample rate\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot set output sample rate, ret=%d\n", ret);
     return AVERROR(EINVAL);
   }
 
@@ -237,12 +243,13 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   outputs.reset(outputs_ptr);
 
   if (ret < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot avfilter_graph_parse_ptr\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot avfilter_graph_parse_ptr, ret=%d\n",
+           ret);
     return AVERROR(EINVAL);
   }
 
   if ((ret = avfilter_graph_config(ffmpeg_filter_graph, NULL)) < 0) {
-    av_log(NULL, AV_LOG_ERROR, "Cannot avfilter_graph_config\n");
+    av_log(NULL, AV_LOG_ERROR, "Cannot avfilter_graph_config, ret=%d\n", ret);
     return AVERROR(EINVAL);
   }
 
@@ -615,7 +622,7 @@ for a list of pre-trained models to download.
   int32_t ffmpeg_audio_stream_index = -1;
   if ((ret = FFmpegOpenInputFile(ffmpeg_fmt_ctx.get(), input_url.c_str(),
                                  &ffmpeg_audio_stream_index)) < 0) {
-    fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
+    fprintf(stderr, "Open input file %s failed, ret=%d\n", input_url.c_str(),
             ret);
     exit(1);
   }
@@ -630,7 +637,7 @@ for a list of pre-trained models to download.
 
   AVStream *stream = ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index];
   if ((ret = FFmpegOpenDecoder(ffmpeg_dec_ctx.get(), stream)) < 0) {
-    fprintf(stderr, "Open decoder failed, r0=%d\n", ret);
+    fprintf(stderr, "Open decoder failed, ret=%d\n", ret);
     exit(1);
   }
 
@@ -645,7 +652,7 @@ for a list of pre-trained models to download.
   if ((ret = FFmpegInitFilters(ffmpeg_dec_ctx.get(), ffmpeg_filter_graph.get(),
                                &ffmpeg_buffersink_ctx, &ffmpeg_buffersrc_ctx,
                                stream->time_base, ffmpeg_filter_descr)) < 0) {
-    fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
+    fprintf(stderr, "Init filters %s failed, ret=%d\n", ffmpeg_filter_descr,
             ret);
     exit(1);
   }
@@ -696,7 +703,7 @@ for a list of pre-trained models to download.
       ret = avcodec_send_packet(ffmpeg_dec_ctx.get(), packet.get());
       if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR,
-               "Error while sending a packet to the decoder\n");
+               "Error while sending a packet to the decoder, ret=%d\n", ret);
         break;
       }
 
@@ -706,7 +713,8 @@ for a list of pre-trained models to download.
           break;
         } else if (ret < 0) {
           av_log(NULL, AV_LOG_ERROR,
-                 "Error while receiving a frame from the decoder\n");
+                 "Error while receiving a frame from the decoder, ret=%d\n",
+                 ret);
           exit(1);
         }
 
