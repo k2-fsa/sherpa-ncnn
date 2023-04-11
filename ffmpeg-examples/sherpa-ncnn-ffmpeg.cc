@@ -77,7 +77,6 @@ extern "C" {
 
 static AVFilterContext *ffmpeg_buffersink_ctx;
 static AVFilterContext *ffmpeg_buffersrc_ctx;
-static AVFilterGraph *ffmpeg_filter_graph;
 
 static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx,
                                    const char *filename,
@@ -127,6 +126,7 @@ static int32_t FFmpegOpenDecoder(AVCodecContext *ffmpeg_dec_ctx,
 }
 
 static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
+                                 AVFilterGraph *ffmpeg_filter_graph,
                                  AVRational time_base,
                                  const char *filters_descr) {
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
@@ -135,8 +135,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   AVFilterInOut *inputs = avfilter_inout_alloc();
 
   int32_t ret;
-  ffmpeg_filter_graph = avfilter_graph_alloc();
-  if (!outputs || !inputs || !ffmpeg_filter_graph) {
+  if (!outputs || !inputs) {
     ret = AVERROR(ENOMEM);
     goto end;
   }
@@ -625,10 +624,14 @@ for a list of pre-trained models to download.
     exit(1);
   }
 
+  auto ffmpeg_filter_graph =
+      std::unique_ptr<AVFilterGraph, void (*)(AVFilterGraph *)>(
+          avfilter_graph_alloc(), [](auto p) { avfilter_graph_free(&p); });
+
   static const char *ffmpeg_filter_descr =
       "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
-  if ((ret = FFmpegInitFilters(ffmpeg_dec_ctx.get(), stream->time_base,
-                               ffmpeg_filter_descr)) < 0) {
+  if ((ret = FFmpegInitFilters(ffmpeg_dec_ctx.get(), ffmpeg_filter_graph.get(),
+                               stream->time_base, ffmpeg_filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
             ret);
     exit(1);
@@ -733,7 +736,6 @@ for a list of pre-trained models to download.
     }
   }
 
-  avfilter_graph_free(&ffmpeg_filter_graph);
   av_packet_free(&packet);
   av_frame_free(&frame);
   av_frame_free(&filt_frame);
