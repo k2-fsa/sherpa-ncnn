@@ -75,9 +75,6 @@ extern "C" {
 }
 #endif
 
-static AVFilterContext *ffmpeg_buffersink_ctx;
-static AVFilterContext *ffmpeg_buffersrc_ctx;
-
 static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx,
                                    const char *filename,
                                    int32_t *ffmpeg_audio_stream_index) {
@@ -127,6 +124,8 @@ static int32_t FFmpegOpenDecoder(AVCodecContext *ffmpeg_dec_ctx,
 
 static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
                                  AVFilterGraph *ffmpeg_filter_graph,
+                                 AVFilterContext **ffmpeg_buffersink_ctx,
+                                 AVFilterContext **ffmpeg_buffersrc_ctx,
                                  AVRational time_base,
                                  const char *filters_descr) {
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
@@ -152,7 +151,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
                  av_get_sample_fmt_name(ffmpeg_dec_ctx->sample_fmt));
   av_channel_layout_describe(&ffmpeg_dec_ctx->ch_layout, args + ret,
                              sizeof(args) - ret);
-  ret = avfilter_graph_create_filter(&ffmpeg_buffersrc_ctx, abuffersrc, "in",
+  ret = avfilter_graph_create_filter(ffmpeg_buffersrc_ctx, abuffersrc, "in",
                                      args, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source\n");
@@ -160,7 +159,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   }
 
   /* buffer audio sink: to terminate the filter chain. */
-  ret = avfilter_graph_create_filter(&ffmpeg_buffersink_ctx, abuffersink, "out",
+  ret = avfilter_graph_create_filter(ffmpeg_buffersink_ctx, abuffersink, "out",
                                      NULL, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer sink\n");
@@ -169,14 +168,14 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
 
   static const enum AVSampleFormat out_sample_fmts[] = {AV_SAMPLE_FMT_S16,
                                                         AV_SAMPLE_FMT_NONE};
-  ret = av_opt_set_int_list(ffmpeg_buffersink_ctx, "sample_fmts",
+  ret = av_opt_set_int_list(*ffmpeg_buffersink_ctx, "sample_fmts",
                             out_sample_fmts, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output sample format\n");
     goto end;
   }
 
-  ret = av_opt_set(ffmpeg_buffersink_ctx, "ch_layouts", "mono",
+  ret = av_opt_set(*ffmpeg_buffersink_ctx, "ch_layouts", "mono",
                    AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output channel layout\n");
@@ -184,7 +183,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   }
 
   static const int32_t out_sample_rates[] = {16000, -1};
-  ret = av_opt_set_int_list(ffmpeg_buffersink_ctx, "sample_rates",
+  ret = av_opt_set_int_list(*ffmpeg_buffersink_ctx, "sample_rates",
                             out_sample_rates, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output sample rate\n");
@@ -203,7 +202,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
    * default.
    */
   outputs->name = av_strdup("in");
-  outputs->filter_ctx = ffmpeg_buffersrc_ctx;
+  outputs->filter_ctx = *ffmpeg_buffersrc_ctx;
   outputs->pad_idx = 0;
   outputs->next = NULL;
 
@@ -214,7 +213,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
    * default.
    */
   inputs->name = av_strdup("out");
-  inputs->filter_ctx = ffmpeg_buffersink_ctx;
+  inputs->filter_ctx = *ffmpeg_buffersink_ctx;
   inputs->pad_idx = 0;
   inputs->next = NULL;
 
@@ -227,7 +226,7 @@ static int32_t FFmpegInitFilters(AVCodecContext *ffmpeg_dec_ctx,
   /* Print summary of the sink buffer
    * Note: args buffer is reused to store channel layout string */
   const AVFilterLink *outlink;
-  outlink = ffmpeg_buffersink_ctx->inputs[0];
+  outlink = (*ffmpeg_buffersink_ctx)->inputs[0];
   av_channel_layout_describe(&outlink->ch_layout, args, sizeof(args));
   fprintf(
       stdout,
@@ -628,9 +627,12 @@ for a list of pre-trained models to download.
       std::unique_ptr<AVFilterGraph, void (*)(AVFilterGraph *)>(
           avfilter_graph_alloc(), [](auto p) { avfilter_graph_free(&p); });
 
+  AVFilterContext *ffmpeg_buffersink_ctx;
+  AVFilterContext *ffmpeg_buffersrc_ctx;
   static const char *ffmpeg_filter_descr =
       "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
   if ((ret = FFmpegInitFilters(ffmpeg_dec_ctx.get(), ffmpeg_filter_graph.get(),
+                               &ffmpeg_buffersink_ctx, &ffmpeg_buffersrc_ctx,
                                stream->time_base, ffmpeg_filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
             ret);
