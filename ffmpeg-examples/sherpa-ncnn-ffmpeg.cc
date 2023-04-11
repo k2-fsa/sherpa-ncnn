@@ -78,14 +78,13 @@ extern "C" {
 static const char *ffmpeg_filter_descr =
     "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
 
-static AVFormatContext *ffmpeg_fmt_ctx;
 static AVCodecContext *ffmpeg_dec_ctx;
 static AVFilterContext *ffmpeg_buffersink_ctx;
 static AVFilterContext *ffmpeg_buffersrc_ctx;
 static AVFilterGraph *ffmpeg_filter_graph;
 static int32_t ffmpeg_audio_stream_index = -1;
 
-static int32_t FFmpegOpenInputFile(const char *filename) {
+static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx, const char *filename) {
   int32_t ret;
   if ((ret = avformat_open_input(&ffmpeg_fmt_ctx, filename, NULL, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s\n", filename);
@@ -124,7 +123,7 @@ static int32_t FFmpegOpenInputFile(const char *filename) {
   return 0;
 }
 
-static int32_t FFmpegInitFilters(const char *filters_descr) {
+static int32_t FFmpegInitFilters(AVFormatContext *ffmpeg_fmt_ctx, const char *filters_descr) {
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
   const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
   AVFilterInOut *outputs = avfilter_inout_alloc();
@@ -594,10 +593,15 @@ for a list of pre-trained models to download.
     exit(1);
   }
 
+  auto ffmpeg_fmt_ctx =
+      std::unique_ptr<AVFormatContext, void (*)(AVFormatContext *)>(
+          avformat_alloc_context(), [](auto p) { avformat_close_input(&p); });
+
   int32_t ret;
   fprintf(stdout, "Event:FFmpeg: Open input %s\n", input_url.c_str());
   fflush(stdout);
-  if ((ret = FFmpegOpenInputFile(input_url.c_str())) < 0) {
+  if ((ret = FFmpegOpenInputFile(ffmpeg_fmt_ctx.get(), input_url.c_str())) <
+      0) {
     fprintf(stderr, "Open input file %s failed, r0=%d\n", input_url.c_str(),
             ret);
     exit(1);
@@ -605,7 +609,7 @@ for a list of pre-trained models to download.
   fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
   fflush(stdout);
 
-  if ((ret = FFmpegInitFilters(ffmpeg_filter_descr)) < 0) {
+  if ((ret = FFmpegInitFilters(ffmpeg_fmt_ctx.get(), ffmpeg_filter_descr)) < 0) {
     fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
             ret);
     exit(1);
@@ -619,7 +623,7 @@ for a list of pre-trained models to download.
   int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
   while (1) {
-    if ((ret = av_read_frame(ffmpeg_fmt_ctx, packet)) < 0) {
+    if ((ret = av_read_frame(ffmpeg_fmt_ctx.get(), packet)) < 0) {
       break;
     }
 
@@ -712,7 +716,6 @@ for a list of pre-trained models to download.
 
   avfilter_graph_free(&ffmpeg_filter_graph);
   avcodec_free_context(&ffmpeg_dec_ctx);
-  avformat_close_input(&ffmpeg_fmt_ctx);
   av_packet_free(&packet);
   av_frame_free(&frame);
   av_frame_free(&filt_frame);
