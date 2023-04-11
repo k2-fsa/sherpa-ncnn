@@ -75,47 +75,48 @@ extern "C" {
 }
 #endif
 
-static const char *filter_descr =
+static const char *ffmpeg_filter_descr =
     "aresample=16000,aformat=sample_fmts=s16:channel_layouts=mono";
 
-static AVFormatContext *fmt_ctx;
-static AVCodecContext *dec_ctx;
-AVFilterContext *buffersink_ctx;
-AVFilterContext *buffersrc_ctx;
-AVFilterGraph *filter_graph;
-static int32_t audio_stream_index = -1;
+static AVFormatContext *ffmpeg_fmt_ctx;
+static AVCodecContext *ffmpeg_dec_ctx;
+static AVFilterContext *ffmpeg_buffersink_ctx;
+static AVFilterContext *ffmpeg_buffersrc_ctx;
+static AVFilterGraph *ffmpeg_filter_graph;
+static int32_t ffmpeg_audio_stream_index = -1;
 
 static int32_t FFmpegOpenInputFile(const char *filename) {
-  const AVCodec *dec;
   int32_t ret;
-
-  if ((ret = avformat_open_input(&fmt_ctx, filename, NULL, NULL)) < 0) {
+  if ((ret = avformat_open_input(&ffmpeg_fmt_ctx, filename, NULL, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot open input file %s\n", filename);
     return ret;
   }
 
-  if ((ret = avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
+  if ((ret = avformat_find_stream_info(ffmpeg_fmt_ctx, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
     return ret;
   }
 
   /* select the audio stream */
-  ret = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &dec, 0);
+  const AVCodec *dec;
+  ret =
+      av_find_best_stream(ffmpeg_fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &dec, 0);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR,
            "Cannot find an audio stream in the input file\n");
     return ret;
   }
-  audio_stream_index = ret;
+  ffmpeg_audio_stream_index = ret;
 
   /* create decoding context */
-  dec_ctx = avcodec_alloc_context3(dec);
-  if (!dec_ctx) return AVERROR(ENOMEM);
-  avcodec_parameters_to_context(dec_ctx,
-                                fmt_ctx->streams[audio_stream_index]->codecpar);
+  ffmpeg_dec_ctx = avcodec_alloc_context3(dec);
+  if (!ffmpeg_dec_ctx) return AVERROR(ENOMEM);
+  avcodec_parameters_to_context(
+      ffmpeg_dec_ctx,
+      ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index]->codecpar);
 
   /* init the audio decoder */
-  if ((ret = avcodec_open2(dec_ctx, dec, NULL)) < 0) {
+  if ((ret = avcodec_open2(ffmpeg_dec_ctx, dec, NULL)) < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot open audio decoder\n");
     return ret;
   }
@@ -124,73 +125,73 @@ static int32_t FFmpegOpenInputFile(const char *filename) {
 }
 
 static int32_t FFmpegInitFilters(const char *filters_descr) {
-  char args[512];
-  int32_t ret = 0;
   const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
   const AVFilter *abuffersink = avfilter_get_by_name("abuffersink");
   AVFilterInOut *outputs = avfilter_inout_alloc();
   AVFilterInOut *inputs = avfilter_inout_alloc();
-  static const enum AVSampleFormat out_sample_fmts[] = {AV_SAMPLE_FMT_S16,
-                                                        AV_SAMPLE_FMT_NONE};
-  static const int32_t out_sample_rates[] = {16000, -1};
-  const AVFilterLink *outlink;
-  AVRational time_base = fmt_ctx->streams[audio_stream_index]->time_base;
+  AVRational time_base =
+      ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index]->time_base;
 
-  filter_graph = avfilter_graph_alloc();
-  if (!outputs || !inputs || !filter_graph) {
+  int32_t ret;
+  ffmpeg_filter_graph = avfilter_graph_alloc();
+  if (!outputs || !inputs || !ffmpeg_filter_graph) {
     ret = AVERROR(ENOMEM);
     goto end;
   }
 
   /* buffer audio source: the decoded frames from the decoder will be inserted
    * here. */
-  if (dec_ctx->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-    av_channel_layout_default(&dec_ctx->ch_layout,
-                              dec_ctx->ch_layout.nb_channels);
+  if (ffmpeg_dec_ctx->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
+    av_channel_layout_default(&ffmpeg_dec_ctx->ch_layout,
+                              ffmpeg_dec_ctx->ch_layout.nb_channels);
+  char args[512];
   ret = snprintf(args, sizeof(args),
                  "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=",
-                 time_base.num, time_base.den, dec_ctx->sample_rate,
-                 av_get_sample_fmt_name(dec_ctx->sample_fmt));
-  av_channel_layout_describe(&dec_ctx->ch_layout, args + ret,
+                 time_base.num, time_base.den, ffmpeg_dec_ctx->sample_rate,
+                 av_get_sample_fmt_name(ffmpeg_dec_ctx->sample_fmt));
+  av_channel_layout_describe(&ffmpeg_dec_ctx->ch_layout, args + ret,
                              sizeof(args) - ret);
-  ret = avfilter_graph_create_filter(&buffersrc_ctx, abuffersrc, "in", args,
-                                     NULL, filter_graph);
+  ret = avfilter_graph_create_filter(&ffmpeg_buffersrc_ctx, abuffersrc, "in",
+                                     args, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source\n");
     goto end;
   }
 
   /* buffer audio sink: to terminate the filter chain. */
-  ret = avfilter_graph_create_filter(&buffersink_ctx, abuffersink, "out", NULL,
-                                     NULL, filter_graph);
+  ret = avfilter_graph_create_filter(&ffmpeg_buffersink_ctx, abuffersink, "out",
+                                     NULL, NULL, ffmpeg_filter_graph);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer sink\n");
     goto end;
   }
 
-  ret = av_opt_set_int_list(buffersink_ctx, "sample_fmts", out_sample_fmts, -1,
-                            AV_OPT_SEARCH_CHILDREN);
+  static const enum AVSampleFormat out_sample_fmts[] = {AV_SAMPLE_FMT_S16,
+                                                        AV_SAMPLE_FMT_NONE};
+  ret = av_opt_set_int_list(ffmpeg_buffersink_ctx, "sample_fmts",
+                            out_sample_fmts, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output sample format\n");
     goto end;
   }
 
-  ret =
-      av_opt_set(buffersink_ctx, "ch_layouts", "mono", AV_OPT_SEARCH_CHILDREN);
+  ret = av_opt_set(ffmpeg_buffersink_ctx, "ch_layouts", "mono",
+                   AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output channel layout\n");
     goto end;
   }
 
-  ret = av_opt_set_int_list(buffersink_ctx, "sample_rates", out_sample_rates,
-                            -1, AV_OPT_SEARCH_CHILDREN);
+  static const int32_t out_sample_rates[] = {16000, -1};
+  ret = av_opt_set_int_list(ffmpeg_buffersink_ctx, "sample_rates",
+                            out_sample_rates, -1, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Cannot set output sample rate\n");
     goto end;
   }
 
   /*
-   * Set the endpoints for the filter graph. The filter_graph will
+   * Set the endpoints for the filter graph. The ffmpeg_filter_graph will
    * be linked to the graph described by filters_descr.
    */
 
@@ -201,7 +202,7 @@ static int32_t FFmpegInitFilters(const char *filters_descr) {
    * default.
    */
   outputs->name = av_strdup("in");
-  outputs->filter_ctx = buffersrc_ctx;
+  outputs->filter_ctx = ffmpeg_buffersrc_ctx;
   outputs->pad_idx = 0;
   outputs->next = NULL;
 
@@ -212,19 +213,20 @@ static int32_t FFmpegInitFilters(const char *filters_descr) {
    * default.
    */
   inputs->name = av_strdup("out");
-  inputs->filter_ctx = buffersink_ctx;
+  inputs->filter_ctx = ffmpeg_buffersink_ctx;
   inputs->pad_idx = 0;
   inputs->next = NULL;
 
-  if ((ret = avfilter_graph_parse_ptr(filter_graph, filters_descr, &inputs,
-                                      &outputs, NULL)) < 0)
+  if ((ret = avfilter_graph_parse_ptr(ffmpeg_filter_graph, filters_descr,
+                                      &inputs, &outputs, NULL)) < 0)
     goto end;
 
-  if ((ret = avfilter_graph_config(filter_graph, NULL)) < 0) goto end;
+  if ((ret = avfilter_graph_config(ffmpeg_filter_graph, NULL)) < 0) goto end;
 
   /* Print summary of the sink buffer
    * Note: args buffer is reused to store channel layout string */
-  outlink = buffersink_ctx->inputs[0];
+  const AVFilterLink *outlink;
+  outlink = ffmpeg_buffersink_ctx->inputs[0];
   av_channel_layout_describe(&outlink->ch_layout, args, sizeof(args));
   fprintf(
       stdout,
@@ -242,18 +244,16 @@ end:
   return ret;
 }
 
-static void FFmpegDecodeFrame(const AVFrame *frame,
-                              const sherpa_ncnn::Recognizer &recognizer,
-                              sherpa_ncnn::Stream *s,
-                              sherpa_ncnn::Display *display,
-                              std::string *last_text, int32_t *segment_index,
-                              int32_t *zero_samples) {
+static void FFmpegOnDecodedFrame(const AVFrame *frame,
+                                 const sherpa_ncnn::Recognizer &recognizer,
+                                 sherpa_ncnn::Stream *s,
+                                 sherpa_ncnn::Display *display,
+                                 std::string *last_text, int32_t *segment_index,
+                                 int32_t *zero_samples) {
   // TODO: FIXME: Can we directly consume frame by s without buffer?
 #define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
   static float samples[N];
   static int32_t nb_samples = 0;
-  const int16_t *p = (int16_t *)frame->data[0];
-
   if (frame->nb_samples + nb_samples >= N) {
     s->AcceptWaveform(16000, samples, nb_samples);
 
@@ -284,6 +284,7 @@ static void FFmpegDecodeFrame(const AVFrame *frame,
     nb_samples = 0;
   }
 
+  const int16_t *p = (int16_t *)frame->data[0];
   for (int32_t i = 0; i < frame->nb_samples; i++) {
     if (p[i] == 0) {
       (*zero_samples)++;
@@ -604,8 +605,9 @@ for a list of pre-trained models to download.
   fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
   fflush(stdout);
 
-  if ((ret = FFmpegInitFilters(filter_descr)) < 0) {
-    fprintf(stderr, "Init filters %s failed, r0=%d\n", filter_descr, ret);
+  if ((ret = FFmpegInitFilters(ffmpeg_filter_descr)) < 0) {
+    fprintf(stderr, "Init filters %s failed, r0=%d\n", ffmpeg_filter_descr,
+            ret);
     exit(1);
   }
 
@@ -617,7 +619,7 @@ for a list of pre-trained models to download.
   int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
   while (1) {
-    if ((ret = av_read_frame(fmt_ctx, packet)) < 0) {
+    if ((ret = av_read_frame(ffmpeg_fmt_ctx, packet)) < 0) {
       break;
     }
 
@@ -640,8 +642,8 @@ for a list of pre-trained models to download.
       zero_samples = 0;
     }
 
-    if (packet->stream_index == audio_stream_index) {
-      ret = avcodec_send_packet(dec_ctx, packet);
+    if (packet->stream_index == ffmpeg_audio_stream_index) {
+      ret = avcodec_send_packet(ffmpeg_dec_ctx, packet);
       if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR,
                "Error while sending a packet to the decoder\n");
@@ -649,7 +651,7 @@ for a list of pre-trained models to download.
       }
 
       while (ret >= 0) {
-        ret = avcodec_receive_frame(dec_ctx, frame);
+        ret = avcodec_receive_frame(ffmpeg_dec_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
           break;
         } else if (ret < 0) {
@@ -660,7 +662,7 @@ for a list of pre-trained models to download.
 
         if (ret >= 0) {
           /* push the audio data from decoded frame into the filtergraph */
-          if (av_buffersrc_add_frame_flags(buffersrc_ctx, frame,
+          if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame,
                                            AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
             av_log(NULL, AV_LOG_ERROR,
                    "Error while feeding the audio filtergraph\n");
@@ -669,7 +671,7 @@ for a list of pre-trained models to download.
 
           /* pull filtered audio from the filtergraph */
           while (1) {
-            ret = av_buffersink_get_frame(buffersink_ctx, filt_frame);
+            ret = av_buffersink_get_frame(ffmpeg_buffersink_ctx, filt_frame);
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
               break;
             }
@@ -677,8 +679,8 @@ for a list of pre-trained models to download.
               fprintf(stderr, "Error get frame, ret=%d\n", ret);
               exit(1);
             }
-            FFmpegDecodeFrame(filt_frame, recognizer, s.get(), display.get(),
-                              &last_text, &segment_index, &zero_samples);
+            FFmpegOnDecodedFrame(filt_frame, recognizer, s.get(), display.get(),
+                                 &last_text, &segment_index, &zero_samples);
             av_frame_unref(filt_frame);
           }
           av_frame_unref(frame);
@@ -689,26 +691,28 @@ for a list of pre-trained models to download.
   }
 
   // Add some tail padding
-  float tail_paddings[4800] = {0};  // 0.3 seconds at 16 kHz sample rate
-  s->AcceptWaveform(16000, tail_paddings, 4800);
+  if (1) {
+    float tail_paddings[4800] = {0};  // 0.3 seconds at 16 kHz sample rate
+    s->AcceptWaveform(16000, tail_paddings, 4800);
 
-  s->InputFinished();
+    s->InputFinished();
 
-  while (recognizer.IsReady(s.get())) {
-    recognizer.DecodeStream(s.get());
+    while (recognizer.IsReady(s.get())) {
+      recognizer.DecodeStream(s.get());
+    }
+
+    auto text = recognizer.GetResult(s.get()).text;
+    if (!text.empty() && last_text != text) {
+      last_text = text;
+      std::transform(text.begin(), text.end(), text.begin(),
+                     [](auto c) { return std::tolower(c); });
+      display->Print(segment_index, text);
+    }
   }
 
-  auto text = recognizer.GetResult(s.get()).text;
-  if (!text.empty() && last_text != text) {
-    last_text = text;
-    std::transform(text.begin(), text.end(), text.begin(),
-                   [](auto c) { return std::tolower(c); });
-    display->Print(segment_index, text);
-  }
-
-  avfilter_graph_free(&filter_graph);
-  avcodec_free_context(&dec_ctx);
-  avformat_close_input(&fmt_ctx);
+  avfilter_graph_free(&ffmpeg_filter_graph);
+  avcodec_free_context(&ffmpeg_dec_ctx);
+  avformat_close_input(&ffmpeg_fmt_ctx);
   av_packet_free(&packet);
   av_frame_free(&frame);
   av_frame_free(&filt_frame);
