@@ -680,6 +680,12 @@ for a list of pre-trained models to download.
       break;
     }
 
+    // The packet must be freed with av_packet_unref() when it is no longer
+    // needed.
+    auto packet_unref = std::unique_ptr<AVPacket, void (*)(AVPacket *)>(
+        packet.get(), [](auto p) { av_packet_unref(p); });
+    (void)packet_unref;
+
     // Reset the ASD segment when stream unpublish.
     if (signal_unpublish_sigusr1) {
       signal_unpublish_sigusr1 = 0;
@@ -718,36 +724,44 @@ for a list of pre-trained models to download.
           exit(1);
         }
 
-        if (ret >= 0) {
-          /* push the audio data from decoded frame into the filtergraph */
-          if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame.get(),
-                                           AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
-            av_log(NULL, AV_LOG_ERROR,
-                   "Error while feeding the audio filtergraph\n");
+        // Always free the frame with av_frame_unref() when it is no longer
+        // needed.
+        auto frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+            frame.get(), [](auto p) { av_frame_unref(p); });
+        (void)frame_unref;
+
+        /* push the audio data from decoded frame into the filtergraph */
+        if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame.get(),
+                                         AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
+          av_log(NULL, AV_LOG_ERROR,
+                 "Error while feeding the audio filtergraph\n");
+          break;
+        }
+
+        /* pull filtered audio from the filtergraph */
+        while (1) {
+          ret =
+              av_buffersink_get_frame(ffmpeg_buffersink_ctx, filt_frame.get());
+          if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             break;
           }
-
-          /* pull filtered audio from the filtergraph */
-          while (1) {
-            ret = av_buffersink_get_frame(ffmpeg_buffersink_ctx,
-                                          filt_frame.get());
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-              break;
-            }
-            if (ret < 0) {
-              fprintf(stderr, "Error get frame, ret=%d\n", ret);
-              exit(1);
-            }
-            FFmpegOnDecodedFrame(filt_frame.get(), recognizer, s.get(),
-                                 display.get(), &last_text, &segment_index,
-                                 &zero_samples);
-            av_frame_unref(filt_frame.get());
+          if (ret < 0) {
+            fprintf(stderr, "Error get frame, ret=%d\n", ret);
+            exit(1);
           }
-          av_frame_unref(frame.get());
+
+          // The filt_frame is an allocated frame that will be filled with data.
+          // The data must be freed using av_frame_unref() / av_frame_free()
+          auto filt_frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+              filt_frame.get(), [](auto p) { av_frame_unref(p); });
+          (void)filt_frame_unref;
+
+          FFmpegOnDecodedFrame(filt_frame.get(), recognizer, s.get(),
+                               display.get(), &last_text, &segment_index,
+                               &zero_samples);
         }
       }
     }
-    av_packet_unref(packet.get());
   }
 
   // Add some tail padding
