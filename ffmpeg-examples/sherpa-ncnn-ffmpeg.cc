@@ -104,8 +104,7 @@ static int32_t FFmpegOpenInputFile(AVFormatContext *ffmpeg_fmt_ctx,
 }
 
 static int32_t FFmpegOpenDecoder(AVCodecContext *ffmpeg_dec_ctx,
-                                 AVStream *stream) {
-  const AVCodec *dec = avcodec_find_decoder(stream->codecpar->codec_id);
+                                 AVStream *stream, const AVCodec *dec) {
   if (!dec) {
     av_log(NULL, AV_LOG_ERROR, "Failed to find %d codec",
            stream->codecpar->codec_id);
@@ -629,14 +628,17 @@ for a list of pre-trained models to download.
   fprintf(stdout, "Event:FFmpeg: Open input ok, %s\n", input_url.c_str());
   fflush(stdout);
 
-  /* create decoding context */
+  // Create decoder context.
+  AVStream *stream = ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index];
+  // We should use dec to initialize the decoder context, because it uses
+  // different flags set.
+  const AVCodec *dec = avcodec_find_decoder(stream->codecpar->codec_id);
   auto ffmpeg_dec_ctx =
       std::unique_ptr<AVCodecContext, void (*)(AVCodecContext *)>(
-          avcodec_alloc_context3(NULL),
+          avcodec_alloc_context3(dec),
           [](auto p) { avcodec_free_context(&p); });
 
-  AVStream *stream = ffmpeg_fmt_ctx->streams[ffmpeg_audio_stream_index];
-  if ((ret = FFmpegOpenDecoder(ffmpeg_dec_ctx.get(), stream)) < 0) {
+  if ((ret = FFmpegOpenDecoder(ffmpeg_dec_ctx.get(), stream, dec)) < 0) {
     fprintf(stderr, "Open decoder failed, ret=%d\n", ret);
     exit(1);
   }
