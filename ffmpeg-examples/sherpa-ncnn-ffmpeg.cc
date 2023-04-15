@@ -276,46 +276,53 @@ static void FFmpegOnDecodedFrame(const AVFrame *frame,
                                  sherpa_ncnn::Display *display,
                                  std::string *last_text, int32_t *segment_index,
                                  int32_t *zero_samples) {
-  // TODO: FIXME: Can we directly consume frame by s without buffer?
-#define N 3200  // 0.2 s. Sample rate is fixed to 16 kHz
-  static float samples[N];
-  static int32_t nb_samples = 0;
-  if (frame->nb_samples + nb_samples >= N) {
-    s->AcceptWaveform(16000, samples, nb_samples);
-
-    while (recognizer.IsReady(s)) {
-      recognizer.DecodeStream(s);
-    }
-
-    bool is_endpoint = recognizer.IsEndpoint(s);
-    auto text = recognizer.GetResult(s).text;
-
-    if (!text.empty() && *last_text != text) {
-      *last_text = text;
-
-      std::transform(text.begin(), text.end(), text.begin(),
-                     [](auto c) { return std::tolower(c); });
-
-      display->Print(*segment_index, text);
-    }
-
-    if (is_endpoint) {
-      if (!text.empty()) {
-        (*segment_index)++;
-      }
-
-      recognizer.Reset(s);
-    }
-
-    nb_samples = 0;
+  if (!frame->nb_samples) {
+    return;
   }
 
-  const int16_t *p = (int16_t *)frame->data[0];
-  for (int32_t i = 0; i < frame->nb_samples; i++) {
-    if (p[i] == 0) {
-      (*zero_samples)++;
+  // Convert the PCM from int16_t to float. Note that K2 sample is [-1, 1], so
+  // we need to divide by 32768.
+  static float samples[3200];  // 0.2 s. Sample rate is fixed to 16 kHz
+  int32_t nb_samples = 0;
+
+  if (1) {
+    const int16_t *p = (int16_t *)frame->data[0];
+    for (int32_t i = 0; i < frame->nb_samples; i++) {
+      // ASD(Active speaker detection) detection.
+      if (p[i] == 0) {
+        (*zero_samples)++;
+      }
+
+      // Convert to float [-1, 1].
+      samples[nb_samples++] = p[i] / 32768.;
     }
-    samples[nb_samples++] = p[i] / 32768.;
+  }
+
+  // Feed samples to K2, which accepts any number of samples.
+  s->AcceptWaveform(16000, samples, nb_samples);
+
+  while (recognizer.IsReady(s)) {
+    recognizer.DecodeStream(s);
+  }
+
+  bool is_endpoint = recognizer.IsEndpoint(s);
+  auto text = recognizer.GetResult(s).text;
+
+  if (!text.empty() && *last_text != text) {
+    *last_text = text;
+
+    std::transform(text.begin(), text.end(), text.begin(),
+                   [](auto c) { return std::tolower(c); });
+
+    display->Print(*segment_index, text);
+  }
+
+  if (is_endpoint) {
+    if (!text.empty()) {
+      (*segment_index)++;
+    }
+
+    recognizer.Reset(s);
   }
 }
 
@@ -675,8 +682,9 @@ for a list of pre-trained models to download.
   std::string last_text;
   int32_t segment_index = 0, zero_samples = 0, asd_segment = 0;
   std::unique_ptr<sherpa_ncnn::Display> display = CreateDisplay();
-  while (1) {
+  while (ret >= 0) {
     if ((ret = av_read_frame(ffmpeg_fmt_ctx.get(), packet.get())) < 0) {
+      av_log(NULL, AV_LOG_ERROR, "Error reading frame ret=%d\n", ret);
       break;
     }
 
@@ -686,7 +694,7 @@ for a list of pre-trained models to download.
         packet.get(), [](auto p) { av_packet_unref(p); });
     (void)packet_unref;
 
-    // Reset the ASD segment when stream unpublish.
+    // Reset the ASD(Active speaker detection) segment when stream unpublish.
     if (signal_unpublish_sigusr1) {
       signal_unpublish_sigusr1 = 0;
       if (asd_segment != segment_index) {
@@ -698,68 +706,68 @@ for a list of pre-trained models to download.
     if (asd_samples && zero_samples > asd_samples * 16000) {
       // When unpublished, there might be some left samples in buffer.
       if (asd_endpoints && segment_index - asd_segment < asd_endpoints) {
-        fprintf(stdout,
-                "\nEvent:FFmpeg: All silence samples, incorrect microphone?\n");
+        fprintf(stdout, "\nEvent:FFmpeg: Silence, incorrect microphone?\n");
         fflush(stdout);
       }
       zero_samples = 0;
     }
 
-    if (packet->stream_index == ffmpeg_audio_stream_index) {
-      ret = avcodec_send_packet(ffmpeg_dec_ctx.get(), packet.get());
-      if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR,
-               "Error while sending a packet to the decoder, ret=%d\n", ret);
+    // Ignore packets except audio stream.
+    if (packet->stream_index != ffmpeg_audio_stream_index) {
+      continue;
+    }
+
+    ret = avcodec_send_packet(ffmpeg_dec_ctx.get(), packet.get());
+    if (ret < 0) {
+      av_log(NULL, AV_LOG_ERROR, "Error feed decoder packet, ret=%d\n", ret);
+      break;
+    }
+
+    while (ret >= 0) {
+      ret = avcodec_receive_frame(ffmpeg_dec_ctx.get(), frame.get());
+      if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+        ret = 0;
+        break;
+      } else if (ret < 0) {
+        av_log(NULL, AV_LOG_ERROR, "Error dec receive frame, ret=%d\n", ret);
         break;
       }
 
+      // Always free the frame with av_frame_unref() when it is no longer
+      // needed.
+      auto frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+          frame.get(), [](auto p) { av_frame_unref(p); });
+      (void)frame_unref;
+
+      /* push the audio data from decoded frame into the filtergraph */
+      ret = av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame.get(),
+                                         AV_BUFFERSRC_FLAG_KEEP_REF);
+      if (ret < 0) {
+        av_log(NULL, AV_LOG_ERROR, "Error filter feed frame, ret=%d\n", ret);
+        break;
+      }
+
+      /* pull filtered audio from the filtergraph */
       while (ret >= 0) {
-        ret = avcodec_receive_frame(ffmpeg_dec_ctx.get(), frame.get());
+        ret = av_buffersink_get_frame(ffmpeg_buffersink_ctx, filt_frame.get());
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+          ret = 0;
           break;
-        } else if (ret < 0) {
-          av_log(NULL, AV_LOG_ERROR,
-                 "Error while receiving a frame from the decoder, ret=%d\n",
-                 ret);
-          exit(1);
         }
-
-        // Always free the frame with av_frame_unref() when it is no longer
-        // needed.
-        auto frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
-            frame.get(), [](auto p) { av_frame_unref(p); });
-        (void)frame_unref;
-
-        /* push the audio data from decoded frame into the filtergraph */
-        if (av_buffersrc_add_frame_flags(ffmpeg_buffersrc_ctx, frame.get(),
-                                         AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
-          av_log(NULL, AV_LOG_ERROR,
-                 "Error while feeding the audio filtergraph\n");
+        if (ret < 0) {
+          fprintf(stderr, "Error get frame, ret=%d\n", ret);
           break;
         }
 
-        /* pull filtered audio from the filtergraph */
-        while (1) {
-          ret =
-              av_buffersink_get_frame(ffmpeg_buffersink_ctx, filt_frame.get());
-          if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-            break;
-          }
-          if (ret < 0) {
-            fprintf(stderr, "Error get frame, ret=%d\n", ret);
-            exit(1);
-          }
+        // The filt_frame is an allocated frame that will be filled with data.
+        // The data must be freed using av_frame_unref() / av_frame_free()
+        auto filt_frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
+            filt_frame.get(), [](auto p) { av_frame_unref(p); });
+        (void)filt_frame_unref;
 
-          // The filt_frame is an allocated frame that will be filled with data.
-          // The data must be freed using av_frame_unref() / av_frame_free()
-          auto filt_frame_unref = std::unique_ptr<AVFrame, void (*)(AVFrame *)>(
-              filt_frame.get(), [](auto p) { av_frame_unref(p); });
-          (void)filt_frame_unref;
-
-          FFmpegOnDecodedFrame(filt_frame.get(), recognizer, s.get(),
-                               display.get(), &last_text, &segment_index,
-                               &zero_samples);
-        }
+        FFmpegOnDecodedFrame(filt_frame.get(), recognizer, s.get(),
+                             display.get(), &last_text, &segment_index,
+                             &zero_samples);
       }
     }
   }
