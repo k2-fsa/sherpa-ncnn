@@ -282,8 +282,14 @@ static void FFmpegOnDecodedFrame(const AVFrame *frame,
 
   // Convert the PCM from int16_t to float. Note that K2 sample is [-1, 1], so
   // we need to divide by 32768.
-  static float samples[3200];  // 0.2 s. Sample rate is fixed to 16 kHz
+#define MAX_SAMPLES 3200  // 0.2 s. Sample rate is fixed to 16 kHz
+  static float samples[MAX_SAMPLES];
   int32_t nb_samples = 0;
+
+  if (frame->nb_samples > MAX_SAMPLES) {
+    av_log(NULL, AV_LOG_ERROR, "Too many samples: %d\n", frame->nb_samples);
+    return;
+  }
 
   if (1) {
     const int16_t *p = (int16_t *)frame->data[0];
