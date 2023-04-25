@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - csharp-api
     paths:
       - '.github/workflows/csharp-api-test.yaml'
       - '.github/scripts/csharp-api-test.sh'
