@@ -1,34 +1,40 @@
-name: windows-x64
+name: swift-api-test
 
 on:
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/windows-x64.yaml'
-      - '.github/scripts/run-test.sh'
+      - '.github/workflows/csharp-api-test.yaml'
+      - '.github/scripts/csharp-api-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/csharp-api/*'
+      - 'sherpa-ncnn/c-api/*'
+      - 'sherpa-ncnn/csharp-api-examples/*'
   pull_request:
     branches:
       - master
     paths:
-      - '.github/workflows/windows-x64.yaml'
-      - '.github/scripts/run-test.sh'
+      - '.github/workflows/swift-api-test.yaml'
+      - '.github/scripts/swift-api-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/csharp-api/*'
+      - 'sherpa-ncnn/c-api/*'
+      - 'sherpa-ncnn/csharp-api-examples/*'
 
 concurrency:
-  group: windows-x64-${{ github.ref }}
+  group: csharp-api-test-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  windows_x64:
+  csharp-api-test:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.vs-version }}
     strategy:
@@ -67,23 +73,12 @@ jobs:
         shell: bash
         run: |
           cd build
-          cmake --build . --config Release -- -m:2
+          cmake --build . --config Release --target sherpa-ncnn-c-api -v
 
-          ls -lh ./bin/Release/sherpa-ncnn.exe
-          ls -lh ./bin/Release/sherpa-ncnn-microphone.exe
-
-      - name: Test sherpa-ncnn
+      - name: Build C# exe
         shell: bash
         run: |
           export PATH=$PWD/build/bin/Release:$PATH
-          export EXE=sherpa-ncnn.exe
 
-          .github/scripts/run-test.sh
-
-      - name: Test C API
-        shell: bash
-        run: |
-          export PATH=$PWD/build/bin/Release:$PATH
-          export EXE=decode-file-c-api.exe
-
-          .github/scripts/run-test.sh
+          csc ./csharp-api-examples/WaveReader.cs ./csharp-api-examples/DecodeFile.cs ./sherpa-ncnn/csharp-api/SherpaNcnn.cs
+          ls -lh ./DecodeFile.exe
