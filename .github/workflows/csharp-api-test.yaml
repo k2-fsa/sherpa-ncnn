@@ -68,7 +68,12 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -T ${{ matrix.toolset-version}},host=x64 -A x64 -D CMAKE_BUILD_TYPE=Release ..
+          cmake \
+            -T ${{ matrix.toolset-version}},host=x64 \
+            -A x64 \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D BUILD_SHARED_LIBS=ON \
+            ..
 
       - name: Build sherpa-ncnn for windows
         shell: bash
@@ -83,3 +88,5 @@ jobs:
 
           csc ./csharp-api-examples/WaveReader.cs ./csharp-api-examples/DecodeFile.cs ./sherpa-ncnn/csharp-api/SherpaNcnn.cs
           ls -lh ./DecodeFile.exe
+          ./DecodeFile.exe
+
