@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System;
 
 namespace SherpaNcnn {
 
@@ -25,9 +26,9 @@ public struct TransducerModelConfig {
   [MarshalAs(UnmanagedType.LPStr)]
   public string Tokens;
 
-  int UseVulkanCompute;
+  public int UseVulkanCompute;
 
-  int NumThreads;
+  public int NumThreads;
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -35,25 +36,25 @@ public struct TransducerDecoderConfig {
   [MarshalAs(UnmanagedType.LPStr)]
   public string DecodingMethod;
 
-  int NumActivePaths;
+  public int NumActivePaths;
 }
 
 [StructLayout(LayoutKind.Sequential)]
 public struct FeatureConfig {
-  float SampleRate;
-  int FeatureDim;
+  public float SampleRate;
+  public int FeatureDim;
 }
 
 [StructLayout(LayoutKind.Sequential)]
 public struct OnlineRecognizerConfig {
-  FeatureConfig FeatConfig;
-  TransducerModelConfig ModelConfig;
-  TransducerDecoderConfig DecoderConfig;
+  public FeatureConfig FeatConfig;
+  public TransducerModelConfig ModelConfig;
+  public TransducerDecoderConfig DecoderConfig;
 
-  int EnableEndpoit;
-  float Rule1MinTrailingSilence;
-  float Rule2MinTrailingSilence;
-  float Rule3MinUtteranceLength;
+  public int EnableEndpoit;
+  public float Rule1MinTrailingSilence;
+  public float Rule2MinTrailingSilence;
+  public float Rule3MinUtteranceLength;
 }
 
 
@@ -133,6 +134,33 @@ class OnlineStream : IDisposable {
   [DllImport(dllName, EntryPoint="DestroyStream")]
   public static extern void DestroyOnlineStream(IntPtr handle);
 
+}
+
+public class Hello {
+  public static void Main(String[] args) {
+    OnlineRecognizerConfig config = new OnlineRecognizerConfig();
+    config.FeatConfig.SampleRate =  16000;
+    config.FeatConfig.FeatureDim =  80;
+    config.ModelConfig.EncoderParam = "encoder_jit_trace-pnnx.ncnn.param";
+    config.ModelConfig.EncoderBin = "encoder_jit_trace-pnnx.ncnn.bin";
+
+    config.ModelConfig.DecoderParam = "decoder_jit_trace-pnnx.ncnn.param";
+    config.ModelConfig.DecoderBin = "decoder_jit_trace-pnnx.ncnn.bin";
+
+    config.ModelConfig.JoinerParam = "joiner_jit_trace-pnnx.ncnn.param";
+    config.ModelConfig.JoinerBin = "joiner_jit_trace-pnnx.ncnn.bin";
+
+    config.ModelConfig.Tokens = "tokens.txt";
+    config.ModelConfig.UseVulkanCompute = 0;
+    config.ModelConfig.NumThreads = 2;
+
+    config.DecoderConfig.DecodingMethod = "greedy_search";
+    config.DecoderConfig.NumActivePaths = 4;
+
+    OnlineRecognizer recognizer = new OnlineRecognizer(config);
+
+    Console.WriteLine("hello sherpa-ncnn");
+  }
 }
 
 }
