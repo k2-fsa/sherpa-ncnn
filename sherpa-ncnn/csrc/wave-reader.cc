@@ -41,6 +41,7 @@ struct WaveHeader {
       return false;
     }
 
+    //                       t m f
     if (subchunk1_id != 0x20746d66) {
       return false;
     }

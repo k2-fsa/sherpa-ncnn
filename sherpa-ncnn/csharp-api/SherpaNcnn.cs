@@ -1,3 +1,5 @@
+// Copyright (c)  2023  Xiaomi Corporation (authors: Fangjun Kuang)
+
 using System.Runtime.InteropServices;
 using System;
 
@@ -57,7 +59,6 @@ public struct OnlineRecognizerConfig {
   public float Rule3MinUtteranceLength;
 }
 
-
 // please see
 // https://learn.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=net-7.0
 class OnlineRecognizer : IDisposable {
@@ -68,6 +69,21 @@ class OnlineRecognizer : IDisposable {
   public OnlineStream CreateStream() {
     IntPtr p = CreateOnlineStream(handle);
     return new OnlineStream(p);
+  }
+
+  public bool IsReady(OnlineStream stream) {
+    return IsReady(handle, stream.Handle) != 0;
+  }
+
+  public void Decode(OnlineStream stream) {
+    Decode(handle, stream.Handle);
+  }
+
+  public OnlineRecognizerResult GetResult(OnlineStream stream) {
+    IntPtr h = GetResult(handle, stream.Handle);
+    OnlineRecognizerResult result = new OnlineRecognizerResult(h);
+    DestroyResult(h);
+    return result;
   }
 
   public void Dispose() {
@@ -101,11 +117,30 @@ class OnlineRecognizer : IDisposable {
 
   [DllImport(dllName, EntryPoint="CreateStream")]
   public static extern IntPtr CreateOnlineStream(IntPtr handle);
+
+  [DllImport(dllName)]
+  public static extern int IsReady(IntPtr handle, IntPtr stream);
+
+  [DllImport(dllName, EntryPoint="Decode")]
+  public static extern void Decode(IntPtr handle, IntPtr stream);
+
+  [DllImport(dllName)]
+  public static extern IntPtr GetResult(IntPtr handle, IntPtr stream);
+
+  [DllImport(dllName)]
+  public static extern void DestroyResult(IntPtr result);
 }
 
 class OnlineStream : IDisposable {
   public OnlineStream(IntPtr p) {
-    handle = p;
+    _handle = p;
+  }
+
+  public void AcceptWaveform(float sampleRate, float[] samples) {
+    AcceptWaveform(_handle, sampleRate, samples, samples.Length);
+  }
+  public void InputFinished() {
+    InputFinished(_handle);
   }
 
   public void Dispose() {
@@ -116,8 +151,8 @@ class OnlineStream : IDisposable {
   protected virtual void Dispose(bool disposing) {
     // disposing is not used
     if(!this.disposed) {
-      DestroyOnlineStream(handle);
-      handle = IntPtr.Zero;
+      DestroyOnlineStream(_handle);
+      _handle = IntPtr.Zero;
       disposed = true;
     }
   }
@@ -126,7 +161,9 @@ class OnlineStream : IDisposable {
     Dispose(disposing: false);
   }
 
-  private IntPtr handle;
+  private IntPtr _handle;
+  public IntPtr Handle => _handle;
+
   private bool disposed = false;
 
   private const string dllName = "sherpa-ncnn-c-api.dll";
@@ -134,33 +171,30 @@ class OnlineStream : IDisposable {
   [DllImport(dllName, EntryPoint="DestroyStream")]
   public static extern void DestroyOnlineStream(IntPtr handle);
 
+  [DllImport(dllName)]
+  public static extern void AcceptWaveform(IntPtr handle, float sampleRate, float[] samples, int n);
+
+  [DllImport(dllName)]
+  public static extern void InputFinished(IntPtr handle);
 }
 
-public class Hello {
-  public static void Main(String[] args) {
-    OnlineRecognizerConfig config = new OnlineRecognizerConfig();
-    config.FeatConfig.SampleRate =  16000;
-    config.FeatConfig.FeatureDim =  80;
-    config.ModelConfig.EncoderParam = "encoder_jit_trace-pnnx.ncnn.param";
-    config.ModelConfig.EncoderBin = "encoder_jit_trace-pnnx.ncnn.bin";
-
-    config.ModelConfig.DecoderParam = "decoder_jit_trace-pnnx.ncnn.param";
-    config.ModelConfig.DecoderBin = "decoder_jit_trace-pnnx.ncnn.bin";
-
-    config.ModelConfig.JoinerParam = "joiner_jit_trace-pnnx.ncnn.param";
-    config.ModelConfig.JoinerBin = "joiner_jit_trace-pnnx.ncnn.bin";
-
-    config.ModelConfig.Tokens = "tokens.txt";
-    config.ModelConfig.UseVulkanCompute = 0;
-    config.ModelConfig.NumThreads = 2;
-
-    config.DecoderConfig.DecodingMethod = "greedy_search";
-    config.DecoderConfig.NumActivePaths = 4;
-
-    OnlineRecognizer recognizer = new OnlineRecognizer(config);
-
-    Console.WriteLine("hello sherpa-ncnn");
+class OnlineRecognizerResult {
+  public OnlineRecognizerResult(IntPtr handle) {
+    Impl impl = (Impl)Marshal.PtrToStructure(handle, typeof(Impl));
+    _text = Marshal.PtrToStringAnsi(impl.Text);
   }
+
+  [StructLayout(LayoutKind.Sequential)]
+  struct Impl {
+    public IntPtr Text;
+    public IntPtr Tokens;
+    public IntPtr Timestamps;
+    int Count;
+  }
+
+  private String _text;
+  public String Text => _text;
+
 }
 
 }
