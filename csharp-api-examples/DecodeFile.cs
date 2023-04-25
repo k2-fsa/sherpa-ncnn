@@ -4,7 +4,7 @@ using System;
 class DecodeFile {
   public static void Main(String[] args) {
     String usage = @"
-      ./DecodeFile \
+      ./DecodeFile.exe \
          /path/to/tokens.txt \
          /path/to/encoder.ncnn.param \
          /path/to/encoder.ncnn.bin \
@@ -21,7 +21,6 @@ class DecodeFile {
       https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
       for a list of pre-trained models to download.
       ";
-    Console.WriteLine($"{args.Length} args");
     if (args.Length < 8 || args.Length > 10) {
       Console.WriteLine(usage);
       return;
