@@ -26,21 +26,14 @@
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 
-#ifdef __cplusplus
-#define SHERPA_NCNN_EXTERN_C extern "C"
-#endif
-
-SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnRecognizer {
   std::unique_ptr<sherpa_ncnn::Recognizer> recognizer;
 };
 
-SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnStream {
   std::unique_ptr<sherpa_ncnn::Stream> stream;
 };
 
-SHERPA_NCNN_EXTERN_C
 struct SherpaNcnnDisplay {
   std::unique_ptr<sherpa_ncnn::Display> impl;
 };
@@ -127,14 +120,13 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   if (r->count > 0) {
     // Each word ends with nullptr
     r->tokens = new char[text.size() + r->count];
-    memset(reinterpret_cast<void*>(const_cast<char*>(r->tokens)), 0,
-             text.size() + r->count);
+    memset(reinterpret_cast<void *>(const_cast<char *>(r->tokens)), 0,
+           text.size() + r->count);
     r->timestamps = new float[r->count];
     int pos = 0;
     for (int32_t i = 0; i < r->count; ++i) {
-      memcpy(reinterpret_cast<void*>(const_cast<char*>(r->tokens + pos)),
-             res.stokens[i].c_str(),
-             res.stokens[i].size());
+      memcpy(reinterpret_cast<void *>(const_cast<char *>(r->tokens + pos)),
+             res.stokens[i].c_str(), res.stokens[i].size());
       pos += res.stokens[i].size() + 1;
       r->timestamps[i] = res.timestamps[i];
     }
@@ -148,10 +140,8 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
 
 void DestroyResult(const SherpaNcnnResult *r) {
   delete[] r->text;
-  if (r->timestamps != nullptr)
-      delete[] r->timestamps;
-  if (r->tokens != nullptr)
-      delete[] r->tokens;
+  if (r->timestamps != nullptr) delete[] r->timestamps;
+  if (r->tokens != nullptr) delete[] r->tokens;
   delete r;
 }
 
