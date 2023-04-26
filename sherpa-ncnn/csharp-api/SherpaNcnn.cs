@@ -60,52 +60,38 @@ public struct OnlineRecognizerConfig {
 }
 
 // please see
-// https://learn.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=net-7.0
-public class OnlineRecognizer : IDisposable {
+// https://www.mono-project.com/docs/advanced/pinvoke/#gc-safe-pinvoke-code
+public class OnlineRecognizer {
  public OnlineRecognizer(OnlineRecognizerConfig config) {
-    handle = CreateOnlineRecognizer(config);
+    IntPtr h = CreateOnlineRecognizer(config);
+    _handle = new HandleRef(this, h);
   }
 
   public OnlineStream CreateStream() {
-    IntPtr p = CreateOnlineStream(handle);
+    IntPtr p = CreateOnlineStream(_handle.Handle);
     return new OnlineStream(p);
   }
 
   public bool IsReady(OnlineStream stream) {
-    return IsReady(handle, stream.Handle) != 0;
+    return IsReady(_handle.Handle, stream.Handle) != 0;
   }
 
   public void Decode(OnlineStream stream) {
-    Decode(handle, stream.Handle);
+    Decode(_handle.Handle, stream.Handle);
   }
 
   public OnlineRecognizerResult GetResult(OnlineStream stream) {
-    IntPtr h = GetResult(handle, stream.Handle);
+    IntPtr h = GetResult(_handle.Handle, stream.Handle);
     OnlineRecognizerResult result = new OnlineRecognizerResult(h);
     DestroyResult(h);
     return result;
   }
 
-  public void Dispose() {
-    Dispose(disposing: true);
-    GC.SuppressFinalize(this);
-  }
-
-  protected virtual void Dispose(bool disposing) {
-    // disposing is not used
-    if(!this.disposed) {
-      DestroyOnlineRecognizer(handle);
-      handle = IntPtr.Zero;
-      disposed = true;
-    }
-  }
-
   ~OnlineRecognizer() {
-    Dispose(disposing: false);
+    DestroyOnlineRecognizer(_handle.Handle);
   }
 
-  private IntPtr handle;
-  private bool disposed = false;
+  private HandleRef _handle;
 
   // private const string dllName = "sherpa-ncnn-c-api.dll";
   private const string dllName = "sherpa-ncnn-c-api";
@@ -132,40 +118,24 @@ public class OnlineRecognizer : IDisposable {
   public static extern void DestroyResult(IntPtr result);
 }
 
-public class OnlineStream : IDisposable {
+public class OnlineStream {
   public OnlineStream(IntPtr p) {
-    _handle = p;
+    _handle = new HandleRef(this, p);
   }
 
   public void AcceptWaveform(float sampleRate, float[] samples) {
-    AcceptWaveform(_handle, sampleRate, samples, samples.Length);
+    AcceptWaveform(Handle, sampleRate, samples, samples.Length);
   }
   public void InputFinished() {
-    InputFinished(_handle);
-  }
-
-  public void Dispose() {
-    Dispose(disposing: true);
-    GC.SuppressFinalize(this);
-  }
-
-  protected virtual void Dispose(bool disposing) {
-    // disposing is not used
-    if(!this.disposed) {
-      DestroyOnlineStream(_handle);
-      _handle = IntPtr.Zero;
-      disposed = true;
-    }
+    InputFinished(Handle);
   }
 
   ~OnlineStream() {
-    Dispose(disposing: false);
+    DestroyOnlineStream(Handle);
   }
 
-  private IntPtr _handle;
-  public IntPtr Handle => _handle;
-
-  private bool disposed = false;
+  private HandleRef _handle;
+  public IntPtr Handle => _handle.Handle;
 
   // private const string dllName = "sherpa-ncnn-c-api.dll";
   private const string dllName = "sherpa-ncnn-c-api";
