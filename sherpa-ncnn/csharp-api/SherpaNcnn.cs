@@ -61,7 +61,8 @@ public struct OnlineRecognizerConfig {
 
 // please see
 // https://www.mono-project.com/docs/advanced/pinvoke/#gc-safe-pinvoke-code
-public class OnlineRecognizer {
+// https://www.mono-project.com/docs/advanced/pinvoke/#properly-disposing-of-resources
+public class OnlineRecognizer : IDisposable {
  public OnlineRecognizer(OnlineRecognizerConfig config) {
     IntPtr h = CreateOnlineRecognizer(config);
     _handle = new HandleRef(this, h);
@@ -87,8 +88,22 @@ public class OnlineRecognizer {
     return result;
   }
 
+  public void Dispose() {
+    Cleanup();
+    // Prevent the object from being placed on the
+    // finalization queue
+    System.GC.SuppressFinalize(this);
+  }
+
   ~OnlineRecognizer() {
+    Cleanup();
+  }
+
+  private void Cleanup() {
     DestroyOnlineRecognizer(_handle.Handle);
+
+    // Don't permit the handle to be used again.
+    _handle = new HandleRef(this, IntPtr.Zero);
   }
 
   private HandleRef _handle;
@@ -118,7 +133,8 @@ public class OnlineRecognizer {
   public static extern void DestroyResult(IntPtr result);
 }
 
-public class OnlineStream {
+
+public class OnlineStream : IDisposable {
   public OnlineStream(IntPtr p) {
     _handle = new HandleRef(this, p);
   }
@@ -131,7 +147,21 @@ public class OnlineStream {
   }
 
   ~OnlineStream() {
+    Cleanup();
+  }
+
+  public void Dispose() {
+    Cleanup();
+    // Prevent the object from being placed on the
+    // finalization queue
+    System.GC.SuppressFinalize(this);
+  }
+
+  private void Cleanup() {
     DestroyOnlineStream(Handle);
+
+    // Don't permit the handle to be used again.
+    _handle = new HandleRef(this, IntPtr.Zero);
   }
 
   private HandleRef _handle;
