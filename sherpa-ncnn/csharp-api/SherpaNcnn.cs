@@ -61,7 +61,7 @@ public struct OnlineRecognizerConfig {
 
 // please see
 // https://learn.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=net-7.0
-class OnlineRecognizer : IDisposable {
+public class OnlineRecognizer : IDisposable {
  public OnlineRecognizer(OnlineRecognizerConfig config) {
     handle = CreateOnlineRecognizer(config);
   }
@@ -107,7 +107,8 @@ class OnlineRecognizer : IDisposable {
   private IntPtr handle;
   private bool disposed = false;
 
-  private const string dllName = "sherpa-ncnn-c-api.dll";
+  // private const string dllName = "sherpa-ncnn-c-api.dll";
+  private const string dllName = "sherpa-ncnn-c-api";
 
   [DllImport(dllName, EntryPoint="CreateRecognizer")]
   public static extern IntPtr CreateOnlineRecognizer(OnlineRecognizerConfig config);
@@ -131,7 +132,7 @@ class OnlineRecognizer : IDisposable {
   public static extern void DestroyResult(IntPtr result);
 }
 
-class OnlineStream : IDisposable {
+public class OnlineStream : IDisposable {
   public OnlineStream(IntPtr p) {
     _handle = p;
   }
@@ -166,7 +167,8 @@ class OnlineStream : IDisposable {
 
   private bool disposed = false;
 
-  private const string dllName = "sherpa-ncnn-c-api.dll";
+  // private const string dllName = "sherpa-ncnn-c-api.dll";
+  private const string dllName = "sherpa-ncnn-c-api";
 
   [DllImport(dllName, EntryPoint="DestroyStream")]
   public static extern void DestroyOnlineStream(IntPtr handle);
@@ -178,7 +180,7 @@ class OnlineStream : IDisposable {
   public static extern void InputFinished(IntPtr handle);
 }
 
-class OnlineRecognizerResult {
+public class OnlineRecognizerResult {
   public OnlineRecognizerResult(IntPtr handle) {
     Impl impl = (Impl)Marshal.PtrToStructure(handle, typeof(Impl));
     _text = Marshal.PtrToStringAnsi(impl.Text);
