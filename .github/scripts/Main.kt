@@ -4,7 +4,7 @@ import android.content.res.AssetManager
 
 fun main() {
     val featConfig =
-        getFeatureExtractorConfig(sampleRate = 16000.0f, featureDim = 80, maxFeatureVectors = -1)
+        getFeatureExtractorConfig(sampleRate = 16000.0f, featureDim = 80)
     val modelConfig = getModelConfig(type = 1, useGPU = false)!!
     val decoderConfig = getDecoderConfig(method = "greedy_search", numActivePaths = 4)
 

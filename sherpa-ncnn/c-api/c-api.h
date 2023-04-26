@@ -85,10 +85,6 @@ typedef struct SherpaNcnnFeatureExtractorConfig {
   // feature dimension. Must match the one expected by the model.
   // For instance, it should be 80 for models from icefall.
   int32_t feature_dim;
-
-  // It specifies how many feature frames to cache.
-  // Use -1 to cache all past feature frames.
-  int32_t max_feature_vectors;
 } SherpaNcnnFeatureExtractorConfig;
 
 typedef struct SherpaNcnnRecognizerConfig {
@@ -117,8 +113,19 @@ typedef struct SherpaNcnnRecognizerConfig {
 } SherpaNcnnRecognizerConfig;
 
 typedef struct SherpaNcnnResult {
+  // Recognized text
   const char *text;
-  // TODO: Add more fields
+
+  // Pointer to continuous memory which holds string based tokens
+  // which are seperated by \0
+  const char *tokens;
+
+  // Pointer to continuous memory which holds timestamps which
+  // are seperated by \0
+  float* timestamps;
+
+  // The number of tokens/timestamps in above pointer
+  int32_t count;
 } SherpaNcnnResult;
 
 typedef struct SherpaNcnnRecognizer SherpaNcnnRecognizer;

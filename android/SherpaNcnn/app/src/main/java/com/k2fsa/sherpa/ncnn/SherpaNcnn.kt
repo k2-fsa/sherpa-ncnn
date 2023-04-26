@@ -5,7 +5,6 @@ import android.content.res.AssetManager
 data class FeatureExtractorConfig(
     var sampleRate: Float,
     var featureDim: Int,
-    var maxFeatureVectors: Int,
 )
 
 
@@ -37,13 +36,17 @@ data class RecognizerConfig(
 )
 
 class SherpaNcnn(
-    assetManager: AssetManager,
     var config: RecognizerConfig,
+    assetManager: AssetManager? = null,
 ) {
     private val ptr: Long
 
     init {
-        ptr = new(assetManager, config)
+        if (assetManager != null) {
+            ptr = newFromAsset(assetManager, config)
+        } else {
+            ptr = newFromFile(config)
+        }
     }
 
     protected fun finalize() {
@@ -64,8 +67,12 @@ class SherpaNcnn(
     val text: String
         get() = getText(ptr)
 
-    private external fun new(
+    private external fun newFromAsset(
         assetManager: AssetManager,
+        config: RecognizerConfig,
+    ): Long
+
+    private external fun newFromFile(
         config: RecognizerConfig,
     ): Long
 
@@ -87,13 +94,11 @@ class SherpaNcnn(
 
 fun getFeatureExtractorConfig(
     sampleRate: Float,
-    featureDim: Int,
-    maxFeatureVectors: Int
+    featureDim: Int
 ): FeatureExtractorConfig {
     return FeatureExtractorConfig(
         sampleRate = sampleRate,
         featureDim = featureDim,
-        maxFeatureVectors = maxFeatureVectors,
     )
 }
 

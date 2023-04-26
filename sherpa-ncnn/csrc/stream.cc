@@ -50,7 +50,11 @@ class Stream::Impl {
 
   int32_t &GetNumProcessedFrames() { return num_processed_frames_; }
 
-  void SetResult(const DecoderResult &r) { result_ = r; }
+  void SetResult(const DecoderResult &r) {
+    int32_t offset = result_.frame_offset;
+    result_ = r;
+    result_.frame_offset = offset;
+  }
 
   DecoderResult &GetResult() { return result_; }
 

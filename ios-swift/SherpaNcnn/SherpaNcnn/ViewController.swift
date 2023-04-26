@@ -87,14 +87,13 @@ class ViewController: UIViewController {
         // https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
         let featConfig = sherpaNcnnFeatureExtractorConfig(
             sampleRate: 16000,
-            featureDim: 80,
-            maxFeatureVectors: 1*100)
+            featureDim: 80)
 
         let modelConfig = getMultilingualModelConfig2022_12_06()
-        // var modelConfig = getMultilingualModelConfig2022_12_06_Int8()
-        // var modelConfig = getConvEmformerSmallEnglishModelConfig2023_01_09()
-        // var modelConfig = getConvEmformerSmallEnglishModelConfig2023_01_09_Int8()
-        // var modelConfig = getLstmTransducerEnglish_2022_09_05()
+        // let modelConfig = getMultilingualModelConfig2022_12_06_Int8()
+        // let modelConfig = getConvEmformerSmallEnglishModelConfig2023_01_09()
+        // let modelConfig = getConvEmformerSmallEnglishModelConfig2023_01_09_Int8()
+        // let modelConfig = getLstmTransducerEnglish_2022_09_05()
 
         let decoderConfig = sherpaNcnnDecoderConfig(
             decodingMethod: "modified_beam_search",

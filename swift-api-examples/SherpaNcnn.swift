@@ -75,13 +75,11 @@ func sherpaNcnnModelConfig(
 
 func sherpaNcnnFeatureExtractorConfig(
     sampleRate: Float,
-    featureDim: Int,
-    maxFeatureVectors: Int
+    featureDim: Int
 )-> SherpaNcnnFeatureExtractorConfig {
     return SherpaNcnnFeatureExtractorConfig(
         sampling_rate: sampleRate,
-        feature_dim: Int32(featureDim),
-        max_feature_vectors: Int32(maxFeatureVectors))
+        feature_dim: Int32(featureDim))
 }
 
 /// Create an instance of SherpaNcnnDecoderConfig
@@ -198,7 +196,7 @@ class SherpaNcnnRecognizer {
     }
 
     func isReady() -> Bool {
-        return IsReady(recognizer, stream) == 1 ? true : false
+        return IsReady(recognizer, stream) == 1
     }
 
     /// If there are enough number of feature frames, it invokes the neural
@@ -227,6 +225,6 @@ class SherpaNcnnRecognizer {
 
     /// Return true is an endpoint has been detected.
     func isEndpoint() -> Bool {
-        return IsEndpoint(recognizer, stream) == 1 ? true : false
+        return IsEndpoint(recognizer, stream) == 1
     }
 }

@@ -30,10 +30,15 @@ class Display {
   explicit Display(int32_t max_word_per_line = 60)
       : max_word_per_line_(max_word_per_line) {}
 
-  void Print(int32_t segment_id, const std::string &s) {
+  virtual void Print(int32_t segment_id, const std::string &s) {
 #ifdef _MSC_VER
     if (segment_id != -1) {
-      fprintf(stderr, "%d:%s\n", segment_id, s.c_str());
+      if (last_segment_ != segment_id) {
+          fprintf(stderr, "\n%d:%s", segment_id, s.c_str());
+          last_segment_ = segment_id;
+      } else {
+          fprintf(stderr, "\r%d:%s", segment_id, s.c_str());
+      }
     } else {
       fprintf(stderr, "%s\n", s.c_str());
     }

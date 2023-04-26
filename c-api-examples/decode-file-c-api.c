@@ -73,7 +73,6 @@ int32_t main(int32_t argc, char *argv[]) {
 
   config.feat_config.sampling_rate = 16000;
   config.feat_config.feature_dim = 80;
-  config.feat_config.max_feature_vectors = 2 * 100;  // 2 seconds cache
 
   SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
 

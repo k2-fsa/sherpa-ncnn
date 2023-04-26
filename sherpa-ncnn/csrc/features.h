@@ -32,10 +32,6 @@ struct FeatureExtractorConfig {
   int32_t sampling_rate = 16000;
   int32_t feature_dim = 80;
 
-  // 100 hundred frames per second
-  // It specifies how many past frames to cache
-  int32_t max_feature_vectors = 10 * 100;
-
   std::string ToString() const;
 };
 

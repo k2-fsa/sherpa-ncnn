@@ -6,7 +6,8 @@ function(download_ncnn)
   # https://github.com/csukuangfj/ncnn/pull/7
 
   # Please also change ../pack-for-embedded-systems.sh
-  set(ncnn_URL "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.9.tar.gz")
+  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.9.tar.gz")
+  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-sherpa-0.9.tar.gz")
   set(ncnn_HASH "SHA256=a5fe1f69c75c06d6de858c7c660c43395b6ed3df9ee59d6e2fe621211e6928cd")
 
   # If you don't have access to the Internet, please download it to your
@@ -21,13 +22,17 @@ function(download_ncnn)
 
   foreach(f IN LISTS possible_file_locations)
     if(EXISTS ${f})
-      set(ncnn_URL  "file://${f}")
+      set(ncnn_URL  "${f}")
+      file(TO_CMAKE_PATH "${ncnn_URL}" ncnn_URL)
+      set(ncnn_URL2)
       break()
     endif()
   endforeach()
 
   FetchContent_Declare(ncnn
-    URL               ${ncnn_URL}
+    URL
+      ${ncnn_URL}
+      ${ncnn_URL2}
     URL_HASH          ${ncnn_HASH}
   )
 
@@ -168,7 +173,11 @@ function(download_ncnn)
   message(STATUS "ncnn's binary dir is ${ncnn_BINARY_DIR}")
 
   add_subdirectory(${ncnn_SOURCE_DIR} ${ncnn_BINARY_DIR})
-  install(TARGETS ncnn DESTINATION lib)
+  if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
+    install(TARGETS ncnn DESTINATION ..)
+  else()
+    install(TARGETS ncnn DESTINATION lib)
+  endif()
 endfunction()
 
 download_ncnn()

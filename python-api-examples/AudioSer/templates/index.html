@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <title>在线语音识别</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script src="../static/js/jquery-3.1.1.min.js"></script>
+    <meta chrset="utf-8" name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../static/css/font-awesome.min.css">
+</head>
+
+<body>
+
+    <div id="View-center">
+        <div class="head-box"></div>
+        <div class="view">
+            <button class="fa fa-microphone" id="record-button"></button>
+            <audio id="audio-player" controls></audio>
+        </div>
+        <hr>
+
+        <p id="result-text"></p>
+        <hr>
+
+        <label for="file" class="custom-file-upload">
+            <p3 style="font-weight: bold; font-size: 17px;">上传音频</p3>
+        </label>
+
+        <a href="../static/src/API.pdf" class="custom-file-upload"
+            style="font-weight: bold; font-size: 17px; text-decoration: none;" target="_blank">API文档</a>
+        <input type="file" id="file" name="file" accept=".wav" style="display:none;">
+
+        <div id="go-view">
+            <pre class="code-Attr"
+                role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">package</span> <span class="cm-variable">main</span></span></pre>
+            <br>
+            <pre class="code-Attr"
+                role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">import</span> <span class="cm-string">"fmt"</span></span></pre>
+            <br>
+            <pre class="code-Attr"
+                role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">func</span> <span class="cm-variable">main</span><span class="cm-variable">() {</span></span></pre>
+
+            <pre class="code-Attr"
+                role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">fmt</span><span class="cm-number"><span class="cm-variable">.</span></span><span class="cm-variable">Printf</span><span class="cm-variable">(</span><span class="cm-string">"Hello world\n"</span><span class="cm-variable">)</span></span></pre>
+            <pre class="code-Attr"
+                role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable">}</span></span></pre>
+        </div>
+
+        <audio id="start-audio" src="../static/src/audio/on.flac"></audio>
+
+        <script>
+
+            let mediaRecorder;
+            const chunks = [];
+            const recordButton = document.querySelector('#record-button');
+            const audioPlayer = document.querySelector('#audio-player');
+            const resultText = document.querySelector('#result-text');
+            const inputElement = document.getElementById("file");
+            inputElement.addEventListener("change", handleFiles, false);
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => chunks.push(event.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/wav' });
+                        const url = URL.createObjectURL(blob);
+                        audioPlayer.src = url;
+                        recordButton.style.cssText = 'color: #a1a1a1; background-color: #2b2b2b;';
+                        recordButton.disabled = false;
+
+                        const formData = new FormData();
+                        formData.append('file', blob, 'source.wav');
+                        fetch('/voice', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message != "") {
+                                    resultText.textContent = "结果：" + data.message;
+                                } else {
+                                    resultText.textContent = "结果：什么也没听出来."
+                                    console.log("什么也没听出来.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error('上传音频失败：', error);
+                            });
+
+                        chunks.length = 0;
+                    };
+                })
+                .catch(err => console.error('无法访问麦克风：', err));
+
+            recordButton.addEventListener('click', () => {
+                if (mediaRecorder.state === 'inactive') {
+                    resultText.textContent = '';
+                    audioPlayer.src = '';
+                    mediaRecorder.start();
+                    recordButton.style.cssText = 'color: #ffffff; background-color: #444444;';
+                    const startAudio = document.querySelector('#start-audio');
+                    startAudio.currentTime = 0;
+                    startAudio.play();
+                } else {
+                    mediaRecorder.stop();
+                    recordButton.disabled = true;
+                }
+            });
+
+            function handleFiles() {
+                const fileList = this.files;
+                if (fileList.length) {
+                    const xhr = new XMLHttpRequest();
+                    const formData = new FormData();
+                    formData.append("file", fileList[0], fileList[0].name);
+                    xhr.open("POST", "/voice", true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            const result = JSON.parse(xhr.responseText);
+                            if (result['message'] != "") {
+                                resultText.textContent = "结果：" + result['message'];
+                            } else {
+                                resultText.textContent = "结果：什么也没听出来."
+                                console.log("什么也没听出来.");
+                            }
+
+                        }
+                    };
+                    xhr.send(formData);
+                }
+            }
+        </script>
+</body>
+
+</html>

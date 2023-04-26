@@ -90,7 +90,7 @@ class Recognizer(object):
         rule1_min_trailing_silence: int = 2.4,
         rule2_min_trailing_silence: int = 1.2,
         rule3_min_utterance_length: int = 20,
-        max_feature_vectors: int = -1,
+        model_sample_rate: int = 16000,
     ):
         """
         Please refer to
@@ -141,9 +141,8 @@ class Recognizer(object):
             Used only when enable_endpoint_detection is True. If the utterance
             length in seconds is larger than this value, we assume an endpoint
             is detected.
-          max_feature_vectors:
-            It specifies the number of feature frames to cache. Use -1
-            to cache all processed frames
+          model_sample_rate:
+            Sample rate expected by the model
         """
         _assert_file_exists(tokens)
         _assert_file_exists(encoder_param)
@@ -159,9 +158,8 @@ class Recognizer(object):
             "modified_beam_search",
         ), decoding_method
         feat_config = FeatureExtractorConfig(
-            sampling_rate=16000,
+            sampling_rate=model_sample_rate,
             feature_dim=80,
-            max_feature_vectors=-1,
         )
 
         model_config = ModelConfig(
@@ -204,12 +202,13 @@ class Recognizer(object):
 
         Args:
           sample_rate:
-            Sample rate of the input audio samples. It should be 16000.
+            Sample rate of the input audio samples. You must use the same
+            value across different calls to `accept_waveform`! If it
+            is different from self.sample_rate, we will do resampling inside.
           waveform:
             A 1-D float32 array containing audio samples in the
             range ``[-1, 1]``.
         """
-        assert sample_rate == self.sample_rate, (sample_rate, self.sample_rate)
         self.stream.accept_waveform(sample_rate, waveform)
         self._decode()
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "1.6.0")
+set(SHERPA_NCNN_VERSION "1.8.1")
 
 # Disable warning about
 #
@@ -37,10 +37,17 @@ option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
 option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
 option(SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE "Whether to generate-int8-scale-table" ON)
+option(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES "Whether to enable ffmpeg-examples" OFF)
 
 if(DEFINED ANDROID_ABI)
   message(STATUS "Set SHERPA_NCNN_ENABLE_JNI to ON for Android")
   set(SHERPA_NCNN_ENABLE_JNI ON CACHE BOOL "" FORCE)
+endif()
+
+# See
+# https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows
+if(BUILD_SHARED_LIBS AND MSVC)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
@@ -51,12 +58,19 @@ message(STATUS "SHERPA_NCNN_ENABLE_BINARY ${SHERPA_NCNN_ENABLE_BINARY}")
 message(STATUS "SHERPA_NCNN_ENABLE_TEST ${SHERPA_NCNN_ENABLE_TEST}")
 message(STATUS "SHERPA_NCNN_ENABLE_C_API ${SHERPA_NCNN_ENABLE_C_API}")
 message(STATUS "SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE ${SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE}")
+message(STATUS "SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES ${SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES}")
 
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
   set(CMAKE_BUILD_TYPE Release)
 endif()
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+# Set the release compiler flags to support debugging, see https://github.com/k2-fsa/sherpa-ncnn/issues/147
+if(SHERPA_NCNN_ENABLE_DEBUG_FOR_RELEASE)
+  message(STATUS "Enable debugging for Release")
+  string(APPEND CMAKE_CXX_FLAGS_RELEASE " -g -O0")
+endif()
 
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "The C++ version to be used.")
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -108,6 +122,10 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
 endif()
 
 add_subdirectory(sherpa-ncnn)
+
+if(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES)
+  add_subdirectory(ffmpeg-examples)
+endif()
 
 if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)

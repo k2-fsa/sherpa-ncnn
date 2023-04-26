@@ -1,0 +1,4 @@
+flask
+numpy
+flask_caching
+sherpa_ncnn

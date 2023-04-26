@@ -110,3 +110,9 @@ encoder-scale-table.txt
 joiner-scale-table.txt
 *.tar.gz
 generate-int8-*.sh
+
+# For JetBrains IDE Clion.
+.idea
+cmake-build-release
+cmake-build-debug
+
