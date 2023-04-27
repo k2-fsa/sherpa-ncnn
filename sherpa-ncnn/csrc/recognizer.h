@@ -99,6 +99,11 @@ class Recognizer {
 
   RecognitionResult GetResult(Stream *s) const;
 
+  // Return the contained model
+  //
+  // The user should not free it.
+  const Model *GetModel() const;
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;

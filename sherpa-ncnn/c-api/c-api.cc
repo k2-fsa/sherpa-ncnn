@@ -87,8 +87,13 @@ SherpaNcnnRecognizer *CreateRecognizer(
   config.feat_config.sampling_rate = in_config->feat_config.sampling_rate;
   config.feat_config.feature_dim = in_config->feat_config.feature_dim;
 
+  auto recognizer = std::make_unique<sherpa_ncnn::Recognizer>(config);
+  if (!recognizer->GetModel()) {
+    return nullptr;
+  }
+
   auto ans = new SherpaNcnnRecognizer;
-  ans->recognizer = std::make_unique<sherpa_ncnn::Recognizer>(config);
+  ans->recognizer = std::move(recognizer);
   return ans;
 }
 
@@ -127,14 +132,13 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
   if (r->count > 0) {
     // Each word ends with nullptr
     r->tokens = new char[text.size() + r->count];
-    memset(reinterpret_cast<void*>(const_cast<char*>(r->tokens)), 0,
-             text.size() + r->count);
+    memset(reinterpret_cast<void *>(const_cast<char *>(r->tokens)), 0,
+           text.size() + r->count);
     r->timestamps = new float[r->count];
     int pos = 0;
     for (int32_t i = 0; i < r->count; ++i) {
-      memcpy(reinterpret_cast<void*>(const_cast<char*>(r->tokens + pos)),
-             res.stokens[i].c_str(),
-             res.stokens[i].size());
+      memcpy(reinterpret_cast<void *>(const_cast<char *>(r->tokens + pos)),
+             res.stokens[i].c_str(), res.stokens[i].size());
       pos += res.stokens[i].size() + 1;
       r->timestamps[i] = res.timestamps[i];
     }
@@ -148,10 +152,8 @@ SherpaNcnnResult *GetResult(SherpaNcnnRecognizer *p, SherpaNcnnStream *s) {
 
 void DestroyResult(const SherpaNcnnResult *r) {
   delete[] r->text;
-  if (r->timestamps != nullptr)
-      delete[] r->timestamps;
-  if (r->tokens != nullptr)
-      delete[] r->tokens;
+  delete[] r->timestamps;  // it is ok to delete a nullptr
+  delete[] r->tokens;
   delete r;
 }
 
