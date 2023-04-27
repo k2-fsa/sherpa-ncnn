@@ -182,6 +182,8 @@ class Recognizer::Impl {
     return Convert(decoder_result, sym_, frame_shift_ms, subsampling_factor);
   }
 
+  const Model *GetModel() const { return model_.get(); }
+
  private:
   RecognizerConfig config_;
   std::unique_ptr<Model> model_;
@@ -215,5 +217,7 @@ void Recognizer::Reset(Stream *s) const { impl_->Reset(s); }
 RecognitionResult Recognizer::GetResult(Stream *s) const {
   return impl_->GetResult(s);
 }
+
+const Model *Recognizer::GetModel() const { return impl_->GetModel(); }
 
 }  // namespace sherpa_ncnn
