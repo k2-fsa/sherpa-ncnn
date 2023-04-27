@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/model.h"
