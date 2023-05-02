@@ -8,6 +8,13 @@ on:
       - '.github/workflows/test-dot-net'
       - 'dotnet-examples/**'
 
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/test-dot-net'
+      - 'dotnet-examples/**'
+
   schedule:
     # minute (0-59)
     # hour (0-23)
