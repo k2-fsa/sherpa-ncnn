@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON ..
+          cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF ..
 
       - name: Build sherpa-ncnn for ubuntu
         run: |

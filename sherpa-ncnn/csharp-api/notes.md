@@ -36,8 +36,8 @@ cd sherpa-ncnn
 
 mkdir build
 cd build
-cmake -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON ..
-make -j 10 sherpa-ncnn-dot-net-package
+cmake -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF ..
+make -j 6 sherpa-ncnn-dot-net-package
 
 ls -lh packages
 
