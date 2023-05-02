@@ -36,11 +36,13 @@ file(GENERATE
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/timestamp
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/README.md ${CMAKE_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/README.md
   COMMAND ${CMAKE_COMMAND} -E env --unset=TARGETNAME ${DOTNET_EXECUTABLE} build -c Release /p:Platform=${SHERPA_NCNN_DOTNET_PLATFORM} sherpa-ncnn.csproj
   COMMAND ${CMAKE_COMMAND} -E env --unset=TARGETNAME ${DOTNET_EXECUTABLE} pack -c Release sherpa-ncnn.csproj
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/timestamp
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/sherpa-ncnn.csproj
+    ${CMAKE_CURRENT_LIST_DIR}/README.md
     sherpa-ncnn-c-api
   BYPRODUCTS
     ${CMAKE_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/bin
@@ -77,16 +79,17 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/wrapper/sherpa-ncnn.csproj
   @ONLY)
 
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/sherpa-ncnn.cs DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/wrapper/)
-
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/wrapper/timestamp
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/README.md ${CMAKE_CURRENT_BINARY_DIR}/wrapper/README.md
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/sherpa-ncnn.cs ${CMAKE_CURRENT_BINARY_DIR}/wrapper/sherpa-ncnn.cs
   COMMAND ${CMAKE_COMMAND} -E env --unset=TARGETNAME ${DOTNET_EXECUTABLE} build -c Release sherpa-ncnn.csproj
   COMMAND ${CMAKE_COMMAND} -E env --unset=TARGETNAME ${DOTNET_EXECUTABLE} pack -c Release sherpa-ncnn.csproj
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/wrapper/timestamp
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/wrapper/sherpa-ncnn.csproj
-    ${CMAKE_CURRENT_BINARY_DIR}/wrapper/sherpa-ncnn.cs
+    ${CMAKE_CURRENT_LIST_DIR}/README.md
+    ${CMAKE_CURRENT_LIST_DIR}/sherpa-ncnn.cs
     _sherpa-ncnn-native-dot-net-package
   BYPRODUCTS
     ${CMAKE_CURRENT_BINARY_DIR}/wrapper/bin

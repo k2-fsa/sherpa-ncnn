@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
     <RuntimeIdentifier>@SHERPA_NCNN_DOTNET_RID@</RuntimeIdentifier>
@@ -20,6 +21,10 @@
     <PublicSign>false</PublicSign>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="./README.md" Pack="true" PackagePath="/"/>
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Native library must be in native directory... -->

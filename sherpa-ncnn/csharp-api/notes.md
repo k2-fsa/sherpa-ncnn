@@ -76,6 +76,21 @@ dotnet add package org.k2fsa.sherpa.ncnn -v 1.8.1
 # Notes about dotnet
 
 To list available nuget sources:
+
 ```bash
 dotnet nuget list source
+```
+
+To publish a package:
+
+```bash
+export MY_API_KEY=xxxxxx
+dotnet nuget push ./org.k2fsa.sherpa.ncnn.runtime.osx-x64.1.8.2.nupkg --api-key $MY_API_KEY --source https://api.nuget.org/v3/index.json
+dotnet nuget push ./org.k2fsa.sherpa.ncnn.1.8.2.nupkg --api-key $MY_API_KEY --source https://api.nuget.org/v3/index.json
+```
+
+To clear all caches:
+
+```bash
+dotnet nuget locals all --clear
 ```
