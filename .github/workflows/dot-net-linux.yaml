@@ -74,4 +74,3 @@ jobs:
           # API_KEY is valid until 2024.05.02
           cd build/packages
           dotnet nuget push ./org.k2fsa.sherpa.ncnn.runtime.*.nupkg --api-key $API_KEY --source https://api.nuget.org/v3/index.json
-          dotnet nuget push ./org.k2fsa.sherpa.ncnn.*.nupkg --api-key $API_KEY --source https://api.nuget.org/v3/index.json
