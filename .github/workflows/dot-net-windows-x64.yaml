@@ -68,13 +68,15 @@ jobs:
           cmake -T ${{ matrix.toolset-version}},host=x64 -A x64 -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF ..
 
       - name: Build sherpa-ncnn for windows x64
+        shell: bash
         run: |
           cd build
-          cmake --build . --config Release --target sherpa-ncnn-dot-net-package -- -m:2
+          cmake --build . --config Release --target sherpa-ncnn-dot-net-package
 
           ls -lh packages
 
       - name: Display .Net packages
+        shell: bash
         run: |
           cd build
           ls -lh packages

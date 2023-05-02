@@ -64,9 +64,10 @@ jobs:
           cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF ..
 
       - name: Build sherpa-ncnn for macOS
+        shell: bash
         run: |
           cd build
-          make -j2 sherpa-ncnn-dot-net-package
+          make sherpa-ncnn-dot-net-package
 
           ls -lh packages
 
