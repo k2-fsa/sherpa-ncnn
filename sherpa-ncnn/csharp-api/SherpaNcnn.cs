@@ -64,7 +64,7 @@ public struct OnlineRecognizerConfig {
 // https://www.mono-project.com/docs/advanced/pinvoke/#properly-disposing-of-resources
 public class OnlineRecognizer : IDisposable {
  public OnlineRecognizer(OnlineRecognizerConfig config) {
-    IntPtr h = CreateOnlineRecognizer(config);
+    IntPtr h = CreateOnlineRecognizer(ref config);
     _handle = new HandleRef(this, h);
   }
 
@@ -112,7 +112,7 @@ public class OnlineRecognizer : IDisposable {
   private const string dllName = "sherpa-ncnn-c-api";
 
   [DllImport(dllName, EntryPoint="CreateRecognizer")]
-  public static extern IntPtr CreateOnlineRecognizer(OnlineRecognizerConfig config);
+  public static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
 
   [DllImport(dllName, EntryPoint="DestroyRecognizer")]
   public static extern void DestroyOnlineRecognizer(IntPtr handle);
