@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+    <RuntimeIdentifier>@SHERPA_NCNN_DOTNET_RID@</RuntimeIdentifier>
+    <AssemblyName>sherpa-ncnn</AssemblyName>
+    <Version>@SHERPA_NCNN_VERSION@</Version>
+
+    <!-- Nuget Properties -->
+    <Description>.NET native wrapper for the sherpa-ncnn project</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <!-- Pack Option -->
+    <Title>sherpa-ncnn @SHERPA_NCNN_DOTNET_RID@ v@SHERPA_NCNN_VERSION@</Title>
+    <PackageId>org.k2fsa.sherpa.ncnn.runtime.@SHERPA_NCNN_DOTNET_RID@</PackageId>
+
+    <!-- Signing -->
+    <SignAssembly>false</SignAssembly>
+    <PublicSign>false</PublicSign>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Native library must be in native directory... -->
+    <!-- If project is built as a STATIC_LIBRARY (e.g. Windows) then we don't have to include it -->
+    <Content Include="
+      $<TARGET_FILE:ncnn>
+      ;$<TARGET_FILE:kaldi-native-fbank-core>
+      ;$<TARGET_FILE:sherpa-ncnn-c-api>
+      ;$<TARGET_FILE:sherpa-ncnn-core>
+    ">
+      <PackagePath>runtimes/@SHERPA_NCNN_DOTNET_RID@/native/%(Filename)%(Extension)</PackagePath>
+      <Pack>true</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
