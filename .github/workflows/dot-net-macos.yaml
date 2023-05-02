@@ -3,25 +3,9 @@ name: dot-net-macos
 on:
   push:
     branches:
-      - master
-      - csharp-api
-    paths:
-      - '.github/workflows/dot-net-macos.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/c-api/*'
-      - 'sherpa-ncnn/csharp-api/*'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/dot-net-macos.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/c-api/*'
-      - 'sherpa-ncnn/csharp-api/*'
+      - dot-net
+    tags:
+      - '*'
 
 concurrency:
   group: dot-net-macos-${{ github.ref }}
@@ -81,3 +65,13 @@ jobs:
         with:
           name: sherpa-ncnn-pre-built-dot-net-packages-os-${{ matrix.os }}
           path: ./build/packages
+
+      - name: publish .Net packages to nuget.org
+        if: github.repository == 'csukuangfj/sherpa-ncnn' || github.repository == 'k2-fsa/sherpa-ncnn'
+        shell: bash
+        env:
+          API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          # API_KEY is valid until 2024.05.02
+          cd build/packages
+          dotnet nuget push ./org.k2fsa.sherpa.ncnn.runtime.*.nupkg --api-key $API_KEY --source https://api.nuget.org/v3/index.json

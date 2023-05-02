@@ -3,25 +3,9 @@ name: dot-net-windows-x64
 on:
   push:
     branches:
-      - master
-      - csharp-api
-    paths:
-      - '.github/workflows/dot-net-windows-x64.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/c-api/*'
-      - 'sherpa-ncnn/csharp-api/*'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/dot-net-windows-x64.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/c-api/*'
-      - 'sherpa-ncnn/csharp-api/*'
+      - dot-net
+    tags:
+      - '*'
 
 concurrency:
   group: dot-net-windows-x64-${{ github.ref }}
