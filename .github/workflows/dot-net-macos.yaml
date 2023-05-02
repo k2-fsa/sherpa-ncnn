@@ -1,4 +1,4 @@
-name: dot-net-linux
+name: dot-net-macos
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
       - csharp-api
     paths:
-      - '.github/workflows/dot-net-linux.yaml'
+      - '.github/workflows/dot-net-macos.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -16,7 +16,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/dot-net-linux.yaml'
+      - '.github/workflows/dot-net-macos.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -24,19 +24,19 @@ on:
       - 'sherpa-ncnn/csharp-api/*'
 
 concurrency:
-  group: dot-net-linux-${{ github.ref }}
+  group: dot-net-macos-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  dot-net-linux:
+  dot-net-macos:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
           cd build
           cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON ..
 
-      - name: Build sherpa-ncnn for ubuntu
+      - name: Build sherpa-ncnn for macOS
         run: |
           cd build
           make -j2 sherpa-ncnn-dot-net-package

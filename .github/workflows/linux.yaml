@@ -48,7 +48,7 @@ jobs:
           cd build
           cmake -D CMAKE_BUILD_TYPE=Release -DSHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES=OFF ..
 
-      - name: Build sherpa for ubuntu
+      - name: Build sherpa-ncnn for ubuntu
         run: |
           cd build
           make -j2

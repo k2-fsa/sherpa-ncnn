@@ -1,4 +1,4 @@
-name: dot-net-linux
+name: dot-net-windows-x64
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
       - csharp-api
     paths:
-      - '.github/workflows/dot-net-linux.yaml'
+      - '.github/workflows/dot-net-windows-x64.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -16,7 +16,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/dot-net-linux.yaml'
+      - '.github/workflows/dot-net-windows-x64.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -24,19 +24,23 @@ on:
       - 'sherpa-ncnn/csharp-api/*'
 
 concurrency:
-  group: dot-net-linux-${{ github.ref }}
+  group: dot-net-windows-x64-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  dot-net-linux:
+  dot-net-windows-x64:
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.vs-version }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        include:
+          - vs-version: vs2015
+            toolset-version: v140
+            os: windows-2019
 
     steps:
       - uses: actions/checkout@v2
@@ -61,12 +65,12 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON ..
+          cmake -T ${{ matrix.toolset-version}},host=x64 -A x64 -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON ..
 
-      - name: Build sherpa-ncnn for ubuntu
+      - name: Build sherpa-ncnn for windows x64
         run: |
           cd build
-          make -j2 sherpa-ncnn-dot-net-package
+          cmake --build . --config Release --target sherpa-ncnn-dot-net-package -- -m:2
 
           ls -lh packages
 
