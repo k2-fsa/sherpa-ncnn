@@ -67,6 +67,10 @@ total 5200
 cd /tmp
 mkdir hello
 cd hello
+dotnet new sln
+
+dotnet new console -o test-sherpa-ncnn
+
 
 dotnet sln add ./test-sherpa-ncnn/test-sherpa-ncnn.csproj
 cd test-sherpa-ncnn

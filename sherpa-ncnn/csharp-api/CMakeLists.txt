@@ -32,7 +32,7 @@ configure_file(
   @ONLY)
 
 file(GENERATE
-  OUTPUT ${MY_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/sherpa-ncnn.csproj
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/${SHERPA_NCNN_DOTNET_RID}/sherpa-ncnn.csproj
   INPUT ${MY_CURRENT_BINARY_DIR}/${SHERPA_NCNN_DOTNET_RID}/sherpa-ncnn.csproj.in)
 
 add_custom_command(
