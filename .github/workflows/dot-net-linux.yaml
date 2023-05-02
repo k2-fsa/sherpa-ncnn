@@ -1,0 +1,77 @@
+name: dot-net-linux
+
+on:
+  push:
+    branches:
+      - master
+      - csharp-api
+    paths:
+      - '.github/workflows/dot-net-linux.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/c-api/*'
+      - 'sherpa-ncnn/csharp-api/*'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/dot-net-linux.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/c-api/*'
+      - 'sherpa-ncnn/csharp-api/*'
+
+concurrency:
+  group: dot-net-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dot-net-linux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET Core 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
+
+      - name: Setup .NET 6.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Check dotnet
+        run: dotnet --info
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake -D CMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_C_API=ON ..
+
+      - name: Build sherpa for ubuntu
+        run: |
+          cd build
+          make -j2 sherpa-ncnn-dot-net-package
+
+          ls -lh packages
+
+      - name: Upload .Net packages sherpa-ncnn
+        uses: actions/upload-artifact@v2
+        with:
+          name: sherpa-ncnn-pre-built-dot-net-packages-os-${{ matrix.os }}
+          path: ./build/packages
