@@ -46,11 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.osx-x64" Version="@SHERPA_NCNN_VERSION@" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
-    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.linux-x64" Version="@SHERPA_NCNN_VERSION@" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.win-x64" Version="@SHERPA_NCNN_VERSION@" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
-
-  <ItemGroup>
     <RuntimeLinux Include="@SHERPA_NCNN_DOTNET_PACKAGES_DIR@/org.k2fsa.sherpa.ncnn.runtime.linux-x64.*.nupkg"/>
     <RuntimeOsx Include="@SHERPA_NCNN_DOTNET_PACKAGES_DIR@/org.k2fsa.sherpa.ncnn.runtime.osx-x64.*.nupkg"/>
     <RuntimeWin Include="@SHERPA_NCNN_DOTNET_PACKAGES_DIR@/org.k2fsa.sherpa.ncnn.runtime.win-x64.*.nupkg"/>
