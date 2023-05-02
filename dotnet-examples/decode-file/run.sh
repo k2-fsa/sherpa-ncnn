@@ -7,9 +7,10 @@ dotnet build -c Release --verbosity normal
 # to download the model files
 
 if [ ! -d ./sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13 ]; then
-  GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/marcoyang/sherpa-ncnn-streaming-zipformer-zh-14M-2023-02-23
-  cd sherpa-ncnn-streaming-zipformer-zh-14M-2023-02-23
+  GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+  cd sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
   git lfs pull --include "*.bin"
+
   cd ..
 fi
 
