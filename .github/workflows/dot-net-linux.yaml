@@ -50,7 +50,7 @@ jobs:
       - name: Build sherpa-ncnn for ubuntu
         run: |
           cd build
-          make sherpa-ncnn-dot-net-package
+          make sherpa-ncnn-native-dot-net-package
 
           ls -lh packages
 

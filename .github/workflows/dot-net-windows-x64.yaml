@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           cd build
-          cmake --build . --config Release --target sherpa-ncnn-dot-net-package
+          cmake --build . --config Release --target sherpa-ncnn-native-dot-net-package
 
           ls -lh packages
 
