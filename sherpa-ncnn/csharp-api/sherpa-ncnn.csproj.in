@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <OutputType>Library</OutputType>
+    <LangVersion>8.0</LangVersion>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64</RuntimeIdentifiers>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>sherpa-ncnn</AssemblyName>
+    <Version>@SHERPA_NCNN_VERSION@</Version>
+
+    <Authors>The Next-gen Kaldi development team</Authors>
+    <Owners>The Next-gen Kaldi development team</Owners>
+    <Company>Xiaomi Corporation</Company>
+    <Copyright>Copyright 2019-2023 Xiaomi Corporation</Copyright>
+    <Description>sherpa-ncnn is an open-source real-time speech recognition toolkit developed
+    by the Next-gen Kaldi team. It supports streaming recognition on a variety of
+    platforms such as Android, iOS, Raspberry, Linux, Windows, macOS, etc.
+
+    It does not require Internet connection during recognition.
+
+    See the documentation https://k2-fsa.github.io/sherpa/ncnn/index.html
+    for details.
+    </Description>
+
+    <!-- Pack Option -->
+    <Title>sherpa-ncnn v@SHERPA_NCNN_VERSION@</Title>
+    <PackageId>org.k2fsa.sherpa.ncnn</PackageId>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Signing -->
+    <SignAssembly>false</SignAssembly>
+    <PublicSign>false</PublicSign>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+   <DefineConstants>Linux</DefineConstants>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <None Include="./README.md" Pack="true" PackagePath="/"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.linux-x64" Version="@SHERPA_NCNN_VERSION@" />
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.osx-x64"   Version="@SHERPA_NCNN_VERSION@" />
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.win-x64"   Version="@SHERPA_NCNN_VERSION@" />
+  </ItemGroup>
+
+</Project>
