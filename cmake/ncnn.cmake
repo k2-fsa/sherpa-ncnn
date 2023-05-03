@@ -29,12 +29,23 @@ function(download_ncnn)
     endif()
   endforeach()
 
-  FetchContent_Declare(ncnn
-    URL
-      ${ncnn_URL}
-      ${ncnn_URL2}
-    URL_HASH          ${ncnn_HASH}
-  )
+  if(NOT WIN32)
+    FetchContent_Declare(ncnn
+      URL
+        ${ncnn_URL}
+        ${ncnn_URL2}
+      URL_HASH          ${ncnn_HASH}
+      PATCH_COMMAND
+        sed -i.bak "/ncnn PROPERTIES VERSION/d" "src/CMakeLists.txt"
+    )
+  else()
+    FetchContent_Declare(ncnn
+      URL
+        ${ncnn_URL}
+        ${ncnn_URL2}
+      URL_HASH          ${ncnn_HASH}
+    )
+  endif()
 
   set(NCNN_PIXEL OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_ROTATE OFF CACHE BOOL "" FORCE)
