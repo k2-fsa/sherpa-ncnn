@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+# Copyright (c)  2023  Xiaomi Corporation
 
 import argparse
 import re
 from pathlib import Path
+
 import jinja2
 
 SHERPA_NCNN_DIR = Path(__file__).resolve().parent.parent.parent
