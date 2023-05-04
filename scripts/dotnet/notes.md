@@ -28,41 +28,8 @@ dotnet --info
 ./dotnet-install.sh --runtime dotnet --install-dir /star-fj/fangjun/software/dotnet/
 ```
 
-# Build Nuget packages
-```bash
-cd /tmp
-git clone http://github.com/k2-fsa/sherpa-ncnn
-cd sherpa-ncnn
+# Test sherpa-ncnn nuget packages
 
-mkdir build
-cd build
-cmake -DBUILD_SHARED_LIBS=ON -DSHERPA_NCNN_ENABLE_DOT_NET_API=ON -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF ..
-make -j 6 sherpa-ncnn-dot-net-package
-
-ls -lh packages
-
-dotnet nuget add source --name my-source $PWD/packages
-
-dotnet nuget list source
-```
-
-If you are using Linux, you will see the following output:
-```bash
-$ ls -lh  packages/
-total 2.3M
--rw-r--r-- 1 kuangfangjun root  14K May  2 17:42 org.k2fsa.sherpa.ncnn.1.8.1.nupkg
--rw-r--r-- 1 kuangfangjun root 2.3M May  2 17:42 org.k2fsa.sherpa.ncnn.runtime.linux-x64.1.8.1.nupkg
-```
-
-If you are using macOS, you will see the following output:
-```bash
-$ ls -lh packages/
-total 5200
--rw-r--r--  1 fangjun  staff    13K May  2 17:17 org.k2fsa.sherpa.ncnn.1.8.1.nupkg
--rw-r--r--  1 fangjun  staff   2.5M May  2 17:17 org.k2fsa.sherpa.ncnn.runtime.osx-x64.1.8.1.nupkg
-```
-
-# Test the generated packages
 ```bash
 cd /tmp
 mkdir hello
@@ -74,7 +41,9 @@ dotnet new console -o test-sherpa-ncnn
 
 dotnet sln add ./test-sherpa-ncnn/test-sherpa-ncnn.csproj
 cd test-sherpa-ncnn
-dotnet add package org.k2fsa.sherpa.ncnn -v 1.8.1
+
+# please always use the latest version.
+dotnet add package org.k2fsa.sherpa.ncnn -v 1.9.0
 ```
 
 # Notes about dotnet

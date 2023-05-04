@@ -4,9 +4,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
-    <RuntimeIdentifier>@SHERPA_NCNN_DOTNET_RID@</RuntimeIdentifier>
+    <RuntimeIdentifier>{{ dotnet_rid }}</RuntimeIdentifier>
     <AssemblyName>sherpa-ncnn</AssemblyName>
-    <Version>@SHERPA_NCNN_VERSION@</Version>
+    <Version>{{ version }}</Version>
 
     <PackageProjectUrl>https://github.com/k2-fsa/sherpa-ncnn</PackageProjectUrl>
     <RepositoryUrl>https://github.com/k2-fsa/sherpa-ncnn</RepositoryUrl>
@@ -14,12 +14,17 @@
       privacy open-sourced next-gen-kaldi k2 kaldi2 sherpa-ncnn</PackageTags>
 
     <!-- Nuget Properties -->
-    <Description>.NET native wrapper for the sherpa-ncnn project</Description>
+    <Description>.NET native {{ dotnet_rid }} wrapper for the sherpa-ncnn project.
+
+    In general, you don't need to use this package directly.
+
+    Please use https://www.nuget.org/packages/org.k2fsa.sherpa.ncnn instead
+    </Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
     <!-- Pack Option -->
-    <Title>sherpa-ncnn @SHERPA_NCNN_DOTNET_RID@ v@SHERPA_NCNN_VERSION@</Title>
-    <PackageId>org.k2fsa.sherpa.ncnn.runtime.@SHERPA_NCNN_DOTNET_RID@</PackageId>
+    <Title>sherpa-ncnn {{ dotnet_rid }} v{{ version }}</Title>
+    <PackageId>org.k2fsa.sherpa.ncnn.runtime.{{ dotnet_rid }}</PackageId>
 
     <!-- Signing -->
     <SignAssembly>false</SignAssembly>
@@ -28,19 +33,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="./README.md" Pack="true" PackagePath="/"/>
+    <None Include="../README.md" Pack="true" PackagePath="/"/>
   </ItemGroup>
 
   <ItemGroup>
     <!-- Native library must be in native directory... -->
     <!-- If project is built as a STATIC_LIBRARY (e.g. Windows) then we don't have to include it -->
     <Content Include="
-      $<TARGET_FILE:ncnn>
-      ;$<TARGET_FILE:kaldi-native-fbank-core>
-      ;$<TARGET_FILE:sherpa-ncnn-c-api>
-      ;$<TARGET_FILE:sherpa-ncnn-core>
+      {{ libs }}
     ">
-      <PackagePath>runtimes/@SHERPA_NCNN_DOTNET_RID@/native/%(Filename)%(Extension)</PackagePath>
+      <PackagePath>runtimes/{{ dotnet_rid }}/native/%(Filename)%(Extension)</PackagePath>
       <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
