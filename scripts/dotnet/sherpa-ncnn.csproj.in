@@ -32,8 +32,6 @@
     <!-- Pack Option -->
     <Title>sherpa-ncnn v{{ version }}</Title>
     <PackageId>org.k2fsa.sherpa.ncnn</PackageId>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- Signing -->
     <SignAssembly>false</SignAssembly>

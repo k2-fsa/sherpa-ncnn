@@ -115,12 +115,13 @@ jobs:
         run: |
           cd scripts/dotnet
           ./run.sh
+          ls -lh packages
 
-      - name: upload nuget packages
-        shell: bash
-        run: |
-          cd scripts/dotnet
-          ./run.sh
+      - uses: actions/upload-artifact@v2
+        name: upload nuget packages
+        with:
+          name: nuget-packages
+          path: scripts/dotnet/packages/*.nupkg
 
       - name: publish .Net packages to nuget.org
         if: github.repository == 'csukuangfj/sherpa-ncnn' || github.repository == 'k2-fsa/sherpa-ncnn'
@@ -130,4 +131,4 @@ jobs:
         run: |
           # API_KEY is valid until 2024.05.02
           cd scripts/dotnet/packages
-          dotnet nuget push ./org.k2fsa.sherpa.ncnn*nupkg --api-key $API_KEY --source https://api.nuget.org/v3/index.json
+          dotnet nuget push ./org.k2fsa.sherpa.ncnn.*.nupkg --skip-duplicate --api-key $API_KEY --source https://api.nuget.org/v3/index.json
