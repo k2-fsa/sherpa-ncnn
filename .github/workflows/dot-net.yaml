@@ -1,0 +1,43 @@
+name: dot-net
+
+on:
+  push:
+    branches:
+      - dot-net-all-in-one
+    tags:
+      - '*'
+
+concurrency:
+  group: dot-net-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dot-net:
+    name: dot-net for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
+      # for a list of versions
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.4
+        env:
+          CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
+          CIBW_BUILD: "cp38-*"
+          CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
+          CIBW_BUILD_VERBOSITY: 3
+
+      - name: Display wheels
+        shell: bash
+        run: |
+          ls -lh ./wheelhouse/*.whl
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-wheels
+          path: ./wheelhouse/*.whl
