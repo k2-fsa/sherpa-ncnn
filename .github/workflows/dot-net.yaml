@@ -3,7 +3,7 @@ name: dot-net
 on:
   push:
     branches:
-      - dot-net-all-in-one
+      - dot-net
     tags:
       - '*'
 

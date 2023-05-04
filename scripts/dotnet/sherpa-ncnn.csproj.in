@@ -40,14 +40,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsLinux)'=='true'">
-   <DefineConstants>Linux</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <RestoreSources>{{ packages_dir }};$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 
