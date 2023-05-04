@@ -108,13 +108,7 @@ public class OnlineRecognizer : IDisposable {
 
   private HandleRef _handle;
 
-#if Linux
-#warning "It is Linux"
-  private const string dllName = "sherpa-ncnn-c-api.so";
-#else
-#warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
-#endif
 
   [DllImport(dllName, EntryPoint="CreateRecognizer")]
   public static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
@@ -172,13 +166,7 @@ public class OnlineStream : IDisposable {
   private HandleRef _handle;
   public IntPtr Handle => _handle.Handle;
 
-#if Linux
-#warning "It is Linux"
-  private const string dllName = "sherpa-ncnn-c-api.so";
-#else
-#warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
-#endif
 
   [DllImport(dllName, EntryPoint="DestroyStream")]
   public static extern void DestroyOnlineStream(IntPtr handle);
