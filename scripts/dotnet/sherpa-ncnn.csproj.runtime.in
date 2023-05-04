@@ -14,7 +14,12 @@
       privacy open-sourced next-gen-kaldi k2 kaldi2 sherpa-ncnn</PackageTags>
 
     <!-- Nuget Properties -->
-    <Description>.NET native wrapper for the sherpa-ncnn project</Description>
+    <Description>.NET native {{ dotnet_rid }} wrapper for the sherpa-ncnn project.
+
+    In general, you don't need to use this package directly.
+
+    Please use https://www.nuget.org/packages/org.k2fsa.sherpa.ncnn instead
+    </Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
     <!-- Pack Option -->
