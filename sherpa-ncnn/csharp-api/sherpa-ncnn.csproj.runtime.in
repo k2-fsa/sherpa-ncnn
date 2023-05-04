@@ -8,6 +8,11 @@
     <AssemblyName>sherpa-ncnn</AssemblyName>
     <Version>@SHERPA_NCNN_VERSION@</Version>
 
+    <PackageProjectUrl>https://github.com/k2-fsa/sherpa-ncnn</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/k2-fsa/sherpa-ncnn</RepositoryUrl>
+    <PackageTags>speech recognition voice audio stt asr speech-to-text AI offline
+      privacy open-sourced next-gen-kaldi k2 kaldi2 sherpa-ncnn</PackageTags>
+
     <!-- Nuget Properties -->
     <Description>.NET native wrapper for the sherpa-ncnn project</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
