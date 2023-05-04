@@ -35,6 +35,7 @@ def process_linux(s):
         "libncnn.so",
         "libsherpa-ncnn-c-api.so",
         "libsherpa-ncnn-core.so",
+        "libgomp-a34b3233.so.1.0.0",
     ]
     prefix = f"{SHERPA_NCNN_DIR}/linux/sherpa_ncnn/lib/"
     libs = [prefix + lib for lib in libs]

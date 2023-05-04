@@ -81,6 +81,8 @@ jobs:
           unzip ./*.whl
           tree .
 
+          cp -v sherpa_ncnn.libs/libgomp-a34b3233.so.1.0.0 sherpa_ncnn/lib
+
       - name: Unzip macOS wheels
         shell: bash
         run: |

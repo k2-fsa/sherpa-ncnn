@@ -110,7 +110,7 @@ public class OnlineRecognizer : IDisposable {
 
 #if Linux
 #warning "It is Linux"
-  private const string dllName = "libsherpa-ncnn-c-api.so";
+  private const string dllName = "sherpa-ncnn-c-api.so";
 #else
 #warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
@@ -174,7 +174,7 @@ public class OnlineStream : IDisposable {
 
 #if Linux
 #warning "It is Linux"
-  private const string dllName = "libsherpa-ncnn-c-api.so";
+  private const string dllName = "sherpa-ncnn-c-api.so";
 #else
 #warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
