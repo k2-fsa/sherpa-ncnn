@@ -109,8 +109,10 @@ public class OnlineRecognizer : IDisposable {
   private HandleRef _handle;
 
 #if LINUX
+#warning "It is Linux"
   private const string dllName = "libsherpa-ncnn-c-api.so";
 #else
+#warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
 #endif
 
@@ -171,8 +173,10 @@ public class OnlineStream : IDisposable {
   public IntPtr Handle => _handle.Handle;
 
 #if LINUX
+#warning "It is Linux"
   private const string dllName = "libsherpa-ncnn-c-api.so";
 #else
+#warning "It is not Linux"
   private const string dllName = "sherpa-ncnn-c-api";
 #endif
 
