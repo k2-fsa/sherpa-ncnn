@@ -56,21 +56,43 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ubuntu-latest-wheels
-          path: ./
+          path: ./ubuntu
 
       - name: Retrieve artifact from macos-latest
         uses: actions/download-artifact@v2
         with:
           name: macos-latest-wheels
-          path: ./
+          path: ./macos
 
       - name: Retrieve artifact from windows-latest
         uses: actions/download-artifact@v2
         with:
           name: windows-latest-wheels
-          path: ./
+          path: ./windows
 
       - name: Display wheels
         shell: bash
         run: |
+          tree .
+
+      - name: Unzip Ubuntu wheels
+        shell: bash
+        run: |
+          cd ubuntu
+          unzip ./*.whl
+          tree .
+
+
+      - name: Unzip macOS wheels
+        shell: bash
+        run: |
+          cd macos
+          unzip ./*.whl
+          tree .
+
+      - name: Unzip Windows wheels
+        shell: bash
+        run: |
+          cd windows
+          unzip ./*.whl
           tree .
