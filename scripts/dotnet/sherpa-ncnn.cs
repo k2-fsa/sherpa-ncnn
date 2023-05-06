@@ -111,25 +111,25 @@ public class OnlineRecognizer : IDisposable {
   private const string dllName = "sherpa-ncnn-c-api";
 
   [DllImport(dllName, EntryPoint="CreateRecognizer")]
-  public static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
+  private static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
 
   [DllImport(dllName, EntryPoint="DestroyRecognizer")]
-  public static extern void DestroyOnlineRecognizer(IntPtr handle);
+  private static extern void DestroyOnlineRecognizer(IntPtr handle);
 
   [DllImport(dllName, EntryPoint="CreateStream")]
-  public static extern IntPtr CreateOnlineStream(IntPtr handle);
+  private static extern IntPtr CreateOnlineStream(IntPtr handle);
 
   [DllImport(dllName)]
-  public static extern int IsReady(IntPtr handle, IntPtr stream);
+  private static extern int IsReady(IntPtr handle, IntPtr stream);
 
   [DllImport(dllName, EntryPoint="Decode")]
-  public static extern void Decode(IntPtr handle, IntPtr stream);
+  private static extern void Decode(IntPtr handle, IntPtr stream);
 
   [DllImport(dllName)]
-  public static extern IntPtr GetResult(IntPtr handle, IntPtr stream);
+  private static extern IntPtr GetResult(IntPtr handle, IntPtr stream);
 
   [DllImport(dllName)]
-  public static extern void DestroyResult(IntPtr result);
+  private static extern void DestroyResult(IntPtr result);
 }
 
 
@@ -169,19 +169,19 @@ public class OnlineStream : IDisposable {
   private const string dllName = "sherpa-ncnn-c-api";
 
   [DllImport(dllName, EntryPoint="DestroyStream")]
-  public static extern void DestroyOnlineStream(IntPtr handle);
+  private static extern void DestroyOnlineStream(IntPtr handle);
 
   [DllImport(dllName)]
-  public static extern void AcceptWaveform(IntPtr handle, float sampleRate, float[] samples, int n);
+  private static extern void AcceptWaveform(IntPtr handle, float sampleRate, float[] samples, int n);
 
   [DllImport(dllName)]
-  public static extern void InputFinished(IntPtr handle);
+  private static extern void InputFinished(IntPtr handle);
 }
 
 public class OnlineRecognizerResult {
   public OnlineRecognizerResult(IntPtr handle) {
     Impl impl = (Impl)Marshal.PtrToStructure(handle, typeof(Impl));
-    _text = Marshal.PtrToStringAnsi(impl.Text);
+    _text = Marshal.PtrToStringUTF8(impl.Text);
   }
 
   [StructLayout(LayoutKind.Sequential)]
