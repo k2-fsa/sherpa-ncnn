@@ -89,7 +89,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
   std::vector<int32_t> possible_channels = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
   actual_channel_count_ = -1;
   for (auto i : possible_channels) {
-    err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, 1);
+    err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, i);
     if (err) {
       fprintf(stderr, "Failed to set number of channels to %d. %s\n", i,
               snd_strerror(err));
