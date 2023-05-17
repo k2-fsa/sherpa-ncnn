@@ -105,7 +105,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
   }
 
   if (actual_channel_count_ > 1) {
-    fprintf(stderr, "We use only the first channel out of %d channels",
+    fprintf(stderr, "We use only the first channel out of %d channels\n",
             actual_channel_count_);
 
     fprintf(stderr,
