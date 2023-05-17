@@ -86,22 +86,31 @@ and if you want to select card 3 and the device 0 on that card, please use:
     exit(-1);
   }
 
-  // mono
-  err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, 1);
-  if (err) {
-    fprintf(stderr, "Failed to set number of channels to 1. %s\n",
-            snd_strerror(err));
-
-    err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, 2);
+  std::vector<int32_t> possible_channels = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+  actual_channel_count_ = -1;
+  for (auto i : possible_channels) {
+    err = snd_pcm_hw_params_set_channels(capture_handle_, hw_params, i);
     if (err) {
-      fprintf(stderr, "Failed to set number of channels to 2. %s\n",
+      fprintf(stderr, "Failed to set number of channels to %d. %s\n", i,
               snd_strerror(err));
-
-      exit(-1);
+    } else {
+      actual_channel_count_ = i;
+      break;
     }
-    actual_channel_count_ = 2;
+  }
+
+  if (actual_channel_count_ == -1) {
+    fprintf(stderr, "Please replace your microphone!\n");
+    exit(-1);
+  }
+
+  if (actual_channel_count_ > 1) {
+    fprintf(stderr, "We use only the first channel out of %d channels\n",
+            actual_channel_count_);
+
     fprintf(stderr,
-            "Channel count is set to 2. Will use only 1 channel of it.\n");
+            "Please use arecord and audacity to check that channel 0 indeed "
+            "contains audio samples\n");
   }
 
   uint32_t actual_sample_rate = expected_sample_rate_;
