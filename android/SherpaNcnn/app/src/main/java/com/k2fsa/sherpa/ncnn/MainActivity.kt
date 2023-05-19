@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
             featureDim = 80
         )
         //Please change the argument "type" if you use a different model
-        val modelConfig = getModelConfig(type = 1, useGPU = false)!!
+        val modelConfig = getModelConfig(type = 2, useGPU = true)!!
         val decoderConfig = getDecoderConfig(method = "greedy_search", numActivePaths = 4)
 
         val config = RecognizerConfig(

@@ -7,9 +7,6 @@
         Please see https://github.com/k2-fsa/sherpa-ncnn for details.
 
         \n\n\n
-        Note: This transducer-based model supports Chinese as well as English.
-
-        \n\n\n
         We use https://github.com/tencent/ncnn for neural network computation.
     </string>
     <string name="start">Start</string>
