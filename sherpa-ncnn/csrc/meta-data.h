@@ -32,6 +32,8 @@ class MetaData : public ncnn::Layer {
   //  1 - ConvEmformer
   //  2 - Zipformer
   //  3 - LSTM
+  //
+  //  arg15 is the model version, defaults to 0
   int32_t arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7;
   int32_t arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15;
 

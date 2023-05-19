@@ -49,6 +49,8 @@ class Model {
  public:
   virtual ~Model() = default;
 
+  static void RegisterCustomLayers(ncnn::Net &net);
+
   /** Create a model from a config. */
   static std::unique_ptr<Model> Create(const ModelConfig &config);
 

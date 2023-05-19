@@ -11,14 +11,14 @@ set(sherpa_ncnn_core_srcs
   meta-data.cc
   model.cc
   modified-beam-search-decoder.cc
-  poolingmodulenoproj.cpp
+  poolingmodulenoproj.cc
   recognizer.cc
   resample.cc
-  simpleupsample.cpp
+  simpleupsample.cc
+  stack.cc
   stream.cc
   symbol-table.cc
-  tensorasstrided.cpp
-  tensorasstrided.cpp
+  tensorasstrided.cc
   wave-reader.cc
   zipformer-model.cc
 )

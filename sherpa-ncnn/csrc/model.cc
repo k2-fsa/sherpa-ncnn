@@ -24,6 +24,7 @@
 #include "sherpa-ncnn/csrc/meta-data.h"
 #include "sherpa-ncnn/csrc/poolingmodulenoproj.h"
 #include "sherpa-ncnn/csrc/simpleupsample.h"
+#include "sherpa-ncnn/csrc/stack.h"
 #include "sherpa-ncnn/csrc/tensorasstrided.h"
 #include "sherpa-ncnn/csrc/zipformer-model.h"
 
@@ -96,10 +97,29 @@ static bool IsZipformerModel(const ncnn::Net &net) {
       //  error: ‘dynamic_cast’ not permitted with -fno-rtti
       const auto *meta_data = reinterpret_cast<const MetaData *>(layer);
 
-      if (meta_data->arg0 == 2) return true;
+      if (meta_data->arg0 == 2) {
+        // arg15 is the version.
+        // Staring from sherpa-ncnn 2.0, we use the master of tencent/ncnn
+        // directly and we have update the version of Zipformer from 0 to 1.
+        //
+        // If yo are using an older version of Zipformer, please
+        // re-download the model or re-export the model using the latest icefall
+        // or use sherpa-ncnn < v2.0
+        if (meta_data->arg15 < 1) {
+          NCNN_LOGE(
+              "You are using a too old version of Zipformer. You can "
+              "choose one of the following solutions: \n"
+              "  (1) Re-download the latest model\n"
+              "  (2) Re-export your model using the latest icefall. Remember "
+              "to strictly follow the documentation\n"
+              "      to update the version number to 1.\n"
+              "  (3) Use sherpa-ncnn < v2.0 (not recommended)\n");
+          exit(-1);
+        }
+        return true;
+      }
     }
   }
-
   return false;
 }
 
@@ -131,6 +151,15 @@ void Model::InitNet(AAssetManager *mgr, ncnn::Net &net,
 }
 #endif
 
+void Model::RegisterCustomLayers(ncnn::Net &net) {
+  RegisterMetaDataLayer(net);
+
+  RegisterPoolingModuleNoProjLayer(net);   // for zipformer only
+  RegisterTensorAsStridedLayer(net);       // for zipformer only
+  RegisterTensorSimpleUpsampleLayer(net);  // for zipformer only
+  RegisterStackLayer(net);                 // for zipformer only
+}
+
 std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   // 1. Load the encoder network
   // 2. If the encoder network has LSTM layers, we assume it is a LstmModel
@@ -139,11 +168,7 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   // in the future
 
   ncnn::Net net;
-  RegisterMetaDataLayer(net);
-
-  RegisterPoolingModuleNoProjLayer(net);   // for zipformer only
-  RegisterTensorAsStridedLayer(net);       // for zipformer only
-  RegisterTensorSimpleUpsampleLayer(net);  // for zipformer only
+  RegisterCustomLayers(net);
 
   auto ret = net.load_param(config.encoder_param.c_str());
   if (ret != 0) {
@@ -166,7 +191,8 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please make "
+      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please "
+      "make "
       "sure "
       "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
@@ -180,7 +206,7 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
 std::unique_ptr<Model> Model::Create(AAssetManager *mgr,
                                      const ModelConfig &config) {
   ncnn::Net net;
-  RegisterMetaDataLayer(net);
+  RegisterCustomLayers(net);
 
   auto ret = net.load_param(mgr, config.encoder_param.c_str());
   if (ret != 0) {
@@ -203,7 +229,8 @@ std::unique_ptr<Model> Model::Create(AAssetManager *mgr,
   NCNN_LOGE(
       "Unable to create a model from specified model files.\n"
       "Please check: \n"
-      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please make "
+      "  1. If you are using a ConvEmformer/Zipformer/LSTM model, please "
+      "make "
       "sure "
       "you have added SherapMetaData to encoder_xxx.ncnn.param "
       "(or encoder_xxx.ncnn.int8.param if you are using an int8 model). "
