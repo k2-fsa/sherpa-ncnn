@@ -17,6 +17,7 @@ set(sherpa_ncnn_core_srcs
   symbol-table.cc
   wave-reader.cc
   zipformer-model.cc
+  poolingmodulenoproj.cpp
 )
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
