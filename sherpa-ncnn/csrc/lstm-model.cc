@@ -159,9 +159,6 @@ ncnn::Mat LstmModel::RunJoiner(ncnn::Mat &encoder_out, ncnn::Mat &decoder_out,
 
 void LstmModel::InitEncoder(const std::string &encoder_param,
                             const std::string &encoder_bin) {
-  encoder_.opt.use_packing_layout = false;
-  encoder_.opt.use_fp16_storage = false;
-
   RegisterCustomLayers(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
 
@@ -182,9 +179,6 @@ void LstmModel::InitJoiner(const std::string &joiner_param,
 void LstmModel::InitEncoder(AAssetManager *mgr,
                             const std::string &encoder_param,
                             const std::string &encoder_bin) {
-  encoder_.opt.use_packing_layout = false;
-  encoder_.opt.use_fp16_storage = false;
-
   RegisterCustomLayers(encoder_);
   InitNet(mgr, encoder_, encoder_param, encoder_bin);
 
