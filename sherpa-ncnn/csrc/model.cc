@@ -23,6 +23,7 @@
 #include "sherpa-ncnn/csrc/lstm-model.h"
 #include "sherpa-ncnn/csrc/meta-data.h"
 #include "sherpa-ncnn/csrc/poolingmodulenoproj.h"
+#include "sherpa-ncnn/csrc/tensorasstrided.h"
 #include "sherpa-ncnn/csrc/zipformer-model.h"
 
 namespace sherpa_ncnn {
@@ -140,6 +141,7 @@ std::unique_ptr<Model> Model::Create(const ModelConfig &config) {
   RegisterMetaDataLayer(net);
 
   RegisterPoolingModuleNoProjLayer(net);  // for zipformer only
+  RegisterTensorAsStridedLayer(net);      // for zipformer only
 
   auto ret = net.load_param(config.encoder_param.c_str());
   if (ret != 0) {
