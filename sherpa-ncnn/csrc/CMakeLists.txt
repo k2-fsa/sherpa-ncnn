@@ -14,6 +14,7 @@ set(sherpa_ncnn_core_srcs
   poolingmodulenoproj.cpp
   recognizer.cc
   resample.cc
+  simpleupsample.cpp
   stream.cc
   symbol-table.cc
   tensorasstrided.cpp
