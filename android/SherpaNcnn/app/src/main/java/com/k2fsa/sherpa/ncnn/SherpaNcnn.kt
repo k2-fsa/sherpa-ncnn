@@ -16,7 +16,7 @@ data class ModelConfig(
     var joinerParam: String,
     var joinerBin: String,
     var tokens: String,
-    var numThreads: Int = 4,
+    var numThreads: Int = 1,
     var useGPU: Boolean = true, // If there is a GPU and useGPU true, we will use GPU
 )
 
@@ -109,14 +109,15 @@ fun getDecoderConfig(method: String, numActivePaths: Int): DecoderConfig {
 
 /*
 @param type
-0 - https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-04
+0 - https://huggingface.co/csukuangfj/sherpa-ncnn-2022-09-30
     This model supports only Chinese
 
 1 - https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-06
     This model supports both English and Chinese
 
-2 - https://huggingface.co/csukuangfj/sherpa-ncnn-conv-emformer-transducer-2022-12-08
-    This is a small model with about 18 M parameters. It supports only Chinese
+2 - https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+    This model supports both English and Chinese
+
 
 Please follow
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
@@ -124,6 +125,21 @@ to add more pre-trained models
  */
 fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
     when (type) {
+        0 -> {
+            val modelDir = "sherpa-ncnn-2022-09-30"
+            return ModelConfig(
+                encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.param",
+                encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.bin",
+                decoderParam = "$modelDir/decoder_jit_trace-pnnx.ncnn.param",
+                decoderBin = "$modelDir/decoder_jit_trace-pnnx.ncnn.bin",
+                joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.param",
+                joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.bin",
+                tokens = "$modelDir/tokens.txt",
+                numThreads = 1,
+                useGPU = useGPU,
+            )
+        }
+
         1 -> {
             val modelDir = "sherpa-ncnn-conv-emformer-transducer-2022-12-06"
             return ModelConfig(
@@ -134,22 +150,22 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
                 joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.int8.param",
                 joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.int8.bin",
                 tokens = "$modelDir/tokens.txt",
-                numThreads = 4,
+                numThreads = 1,
                 useGPU = useGPU,
             )
-
         }
+
         2 -> {
-            val modelDir = "sherpa-ncnn-conv-emformer-transducer-2022-12-08/v2"
+            val modelDir = "sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13"
             return ModelConfig(
-                encoderParam = "$modelDir/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param",
-                encoderBin = "$modelDir/encoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin",
-                decoderParam = "$modelDir/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.param",
-                decoderBin = "$modelDir/decoder_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin",
-                joinerParam = "$modelDir/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.param",
-                joinerBin = "$modelDir/joiner_jit_trace-pnnx-epoch-15-avg-3.ncnn.bin",
+                encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.param",
+                encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.bin",
+                decoderParam = "$modelDir/decoder_jit_trace-pnnx.ncnn.param",
+                decoderBin = "$modelDir/decoder_jit_trace-pnnx.ncnn.bin",
+                joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.param",
+                joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.bin",
                 tokens = "$modelDir/tokens.txt",
-                numThreads = 4,
+                numThreads = 1,
                 useGPU = useGPU,
             )
         }

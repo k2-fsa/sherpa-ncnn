@@ -20,11 +20,6 @@ ZipformerModel::ZipformerModel(const ModelConfig &config) {
   decoder_.opt = config.decoder_opt;
   joiner_.opt = config.joiner_opt;
 
-  encoder_.opt.use_fp16_arithmetic = false;
-  encoder_.opt.use_fp16_storage = false;
-
-  NCNN_LOGE("Disable fp16 for Zipformer encoder");
-
   bool has_gpu = false;
 #if NCNN_VULKAN
   has_gpu = ncnn::get_gpu_count() > 0;
@@ -55,11 +50,6 @@ ZipformerModel::ZipformerModel(AAssetManager *mgr, const ModelConfig &config) {
   encoder_.opt = config.encoder_opt;
   decoder_.opt = config.decoder_opt;
   joiner_.opt = config.joiner_opt;
-
-  encoder_.opt.use_fp16_arithmetic = false;
-  encoder_.opt.use_fp16_storage = false;
-
-  NCNN_LOGE("Disable fp16 for Zipformer encoder on Android");
 
   bool has_gpu = false;
 #if NCNN_VULKAN
