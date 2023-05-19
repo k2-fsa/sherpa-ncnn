@@ -50,7 +50,7 @@ class ConvEmformerModel : public Model {
     // subsampling factor 4
     //
     // segment = 32 + (8 + 2 * 4 + 3) = 32 + 19 = 51
-    return 51;
+    return chunk_length_ + (right_context_length_ + 2 * 4 + 3);
   }
 
   // Advance the feature extract by this number of frames after
