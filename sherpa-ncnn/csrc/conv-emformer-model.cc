@@ -170,7 +170,7 @@ void ConvEmformerModel::InitEncoderPostProcessing() {
 
 void ConvEmformerModel::InitEncoder(const std::string &encoder_param,
                                     const std::string &encoder_bin) {
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
   InitEncoderPostProcessing();
 }
@@ -189,7 +189,7 @@ void ConvEmformerModel::InitJoiner(const std::string &joiner_param,
 void ConvEmformerModel::InitEncoder(AAssetManager *mgr,
                                     const std::string &encoder_param,
                                     const std::string &encoder_bin) {
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(mgr, encoder_, encoder_param, encoder_bin);
   InitEncoderPostProcessing();
 }

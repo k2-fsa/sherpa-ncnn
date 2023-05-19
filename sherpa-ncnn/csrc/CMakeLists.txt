@@ -2,6 +2,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(sherpa_ncnn_core_srcs
   conv-emformer-model.cc
+  decoder.cc
   endpoint.cc
   features.cc
   greedy-search-decoder.cc
@@ -9,12 +10,15 @@ set(sherpa_ncnn_core_srcs
   lstm-model.cc
   meta-data.cc
   model.cc
-  decoder.cc
   modified-beam-search-decoder.cc
+  poolingmodulenoproj.cc
   recognizer.cc
   resample.cc
+  simpleupsample.cc
+  stack.cc
   stream.cc
   symbol-table.cc
+  tensorasstrided.cc
   wave-reader.cc
   zipformer-model.cc
 )

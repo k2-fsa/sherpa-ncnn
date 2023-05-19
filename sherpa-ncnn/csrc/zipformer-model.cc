@@ -206,7 +206,7 @@ void ZipformerModel::InitEncoderPostProcessing() {
 
 void ZipformerModel::InitEncoder(const std::string &encoder_param,
                                  const std::string &encoder_bin) {
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
   InitEncoderPostProcessing();
 }
@@ -225,7 +225,7 @@ void ZipformerModel::InitJoiner(const std::string &joiner_param,
 void ZipformerModel::InitEncoder(AAssetManager *mgr,
                                  const std::string &encoder_param,
                                  const std::string &encoder_bin) {
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(mgr, encoder_, encoder_param, encoder_bin);
   InitEncoderPostProcessing();
 }

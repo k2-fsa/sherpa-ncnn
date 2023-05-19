@@ -162,7 +162,7 @@ void LstmModel::InitEncoder(const std::string &encoder_param,
   encoder_.opt.use_packing_layout = false;
   encoder_.opt.use_fp16_storage = false;
 
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(encoder_, encoder_param, encoder_bin);
 
   InitEncoderPostProcessing();
@@ -185,7 +185,7 @@ void LstmModel::InitEncoder(AAssetManager *mgr,
   encoder_.opt.use_packing_layout = false;
   encoder_.opt.use_fp16_storage = false;
 
-  RegisterMetaDataLayer(encoder_);
+  RegisterCustomLayers(encoder_);
   InitNet(mgr, encoder_, encoder_param, encoder_bin);
 
   InitEncoderPostProcessing();
