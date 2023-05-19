@@ -6,18 +6,18 @@ function(download_ncnn)
   # https://github.com/csukuangfj/ncnn/pull/7
 
   # Please also change ../pack-for-embedded-systems.sh
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-0.9.tar.gz")
-  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-sherpa-0.9.tar.gz")
-  set(ncnn_HASH "SHA256=a5fe1f69c75c06d6de858c7c660c43395b6ed3df9ee59d6e2fe621211e6928cd")
+  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-1.0.tar.gz")
+  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-sherpa-1.0.tar.gz")
+  set(ncnn_HASH "SHA256=7c80c34c7bdfb5ce4ef3c7727f1b24d2217fca590fc87a69b1a185ed62e33c95")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
   set(possible_file_locations
-    $ENV{HOME}/Downloads/ncnn-sherpa-0.9.tar.gz
-    $ENV{HOME}/asr/ncnn-sherpa-0.9.tar.gz
-    ${PROJECT_SOURCE_DIR}/ncnn-sherpa-0.9.tar.gz
-    ${PROJECT_BINARY_DIR}/ncnn-sherpa-0.9.tar.gz
-    /tmp/ncnn-sherpa-0.9.tar.gz
+    $ENV{HOME}/Downloads/ncnn-sherpa-1.0.tar.gz
+    $ENV{HOME}/asr/ncnn-sherpa-1.0.tar.gz
+    ${PROJECT_SOURCE_DIR}/ncnn-sherpa-1.0.tar.gz
+    ${PROJECT_BINARY_DIR}/ncnn-sherpa-1.0.tar.gz
+    /tmp/ncnn-sherpa-1.0.tar.gz
   )
 
   foreach(f IN LISTS possible_file_locations)
@@ -168,6 +168,7 @@ function(download_ncnn)
     Unfold
     GridSample
     CumulativeSum
+    CopyTo
   )
 
   foreach(layer IN LISTS disabled_layers)

@@ -27,29 +27,6 @@
 
 namespace sherpa_ncnn {
 
-// @param in 1-D tensor of shape (encoder_dim,)
-// @param n Number of times to repeat
-// @return Return a 2-d tensor of shape (n, encoder_dim)
-//
-// TODO(fangjun): Remove this function
-// once
-// https://github.com/nihui/ncnn/tree/pnnx-ncnn-binary-broadcast
-// gets merged
-static ncnn::Mat RepeatEncoderOut(ncnn::Mat in, int32_t n) {
-  int32_t w = in.w;
-  ncnn::Mat out(w, n, sizeof(float));
-
-  const float *in_ptr = in;
-  float *out_ptr = out;
-
-  for (int32_t i = 0; i != n; ++i) {
-    std::copy(in_ptr, in_ptr + w, out_ptr);
-    out_ptr += w;
-  }
-
-  return out;
-}
-
 DecoderResult ModifiedBeamSearchDecoder::GetEmptyResult() const {
   DecoderResult r;
 
@@ -159,10 +136,13 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
 
     // decoder_out.w == decoder_dim
     // decoder_out.h == num_active_paths
-    ncnn::Mat encoder_out_t(encoder_out.w, encoder_out.row(t));
-    encoder_out_t = RepeatEncoderOut(encoder_out_t, decoder_out.h);
-
+    ncnn::Mat encoder_out_t(encoder_out.w, 1, encoder_out.row(t));
+    // Note: encoder_out_t.h == 1, we rely on the binary op broadcasting
+    // in ncnn
+    // See https://github.com/Tencent/ncnn/wiki/binaryop-broadcasting
+    // broadcast B for outer axis, type 14
     ncnn::Mat joiner_out = model_->RunJoiner(encoder_out_t, decoder_out);
+
     // joiner_out.w == vocab_size
     // joiner_out.h == num_active_paths
     LogSoftmax(&joiner_out);
