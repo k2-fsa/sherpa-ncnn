@@ -45,11 +45,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      # - uses: nttld/setup-ndk@v1
-      #   id: setup-ndk
-      #   with:
-      #     ndk-version: r21e
-      #     local-cache: true
       - name: Display NDK HOME
         shell: bash
         run: |
@@ -59,4 +54,14 @@ jobs:
       - name: build APK
         shell: bash
         run: |
-          ./.github/scripts/build-apk.sh
+          ./build-apk.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./apk/*.apk
+
+      - name: Release APK
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: apks/*.apk
