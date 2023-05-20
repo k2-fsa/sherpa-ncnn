@@ -56,10 +56,14 @@ for arch in arm64-v8a armeabi-v7a x86_64; do
   log "------------------------------------------------------------"
   log "build apk for $arch"
   log "------------------------------------------------------------"
+  src_arch=$arch
+  if [ $arch == "armeabi-v7a" ]; then
+    src_arch=armv7-eabi
+  fi
 
-  ls -lh ./build-android-$arch/install/lib/*.so
+  ls -lh ./build-android-$src_arch/install/lib/*.so
 
-  cp -v ./build-android-$arch/install/lib/*.so ./android/SherpaNcnn/app/src/main/jniLibs/$arch/
+  cp -v ./build-android-$src_arch/install/lib/*.so ./android/SherpaNcnn/app/src/main/jniLibs/$arch/
 
   pushd ./android/SherpaNcnn
   ./gradlew build
