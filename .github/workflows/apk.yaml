@@ -4,36 +4,15 @@ on:
   push:
     branches:
       - apk
-    paths:
-      - '.github/workflows/apk.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/jni/*'
-      - 'build-apk.sh'
-      - 'build-android-arm64-v8a.sh'
-      - 'build-android-armeabi-v7a.sh'
-      - 'build-android-x86-64.sh'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/apk.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'sherpa-ncnn/jni/*'
-      - 'build-apk.sh'
-      - 'build-android-arm64-v8a.sh'
-      - 'build-android-armeabi-v7a.sh'
-      - 'build-android-x86-64.sh'
+    tags:
+      - '*'
 
 concurrency:
   group: apk-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   jni:
@@ -61,7 +40,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./apk/*.apk
+          path: ./apks/*.apk
 
       - name: Release APK
         uses: svenstaro/upload-release-action@v2
