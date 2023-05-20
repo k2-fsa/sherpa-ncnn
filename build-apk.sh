@@ -57,7 +57,7 @@ for arch in arm64-v8a armeabi-v7a x86_64; do
   src_arch=$arch
   if [ $arch == "armeabi-v7a" ]; then
     src_arch=armv7-eabi
-  elif [ $arc == "x86_64" ]; then
+  elif [ $arch == "x86_64" ]; then
     src_arch=x86-64
   fi
 
