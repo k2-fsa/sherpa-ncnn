@@ -21,9 +21,9 @@ log "Building APK for sherpa-ncnn v${SHERPA_NCNN_VERSION}"
 log "====================arm64-v8a================="
 ./build-android-arm64-v8a.sh
 log "====================x86-64===================="
-./build-android-x86-64.sh
-log "====================armv7-eabi================"
 ./build-android-armv7-eabi.sh
+log "====================armv7-eabi================"
+./build-android-x86-64.sh
 log "----------------------------------------------"
 
 
