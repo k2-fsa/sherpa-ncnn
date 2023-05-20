@@ -1,0 +1,58 @@
+name: apk
+
+on:
+  push:
+    branches:
+      - master
+      - apk
+    paths:
+      - '.github/workflows/apk.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/jni/*'
+      - '.github/scripts/apk.sh'
+      - 'build-android-arm64-v8a.sh'
+  pull_request:
+    branches:
+      - master
+      - apk
+    paths:
+      - '.github/workflows/apk.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+      - 'sherpa-ncnn/jni/*'
+      - '.github/scripts/apk.sh'
+      - 'build-android-arm64-v8a.sh'
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  jni:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          local-cache: true
+      - name: Display java version
+        shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          echo "ANDROID_NDK_HOME: ${ANDROID_NDK_HOME}"
