@@ -3,7 +3,6 @@ name: apk
 on:
   push:
     branches:
-      - master
       - apk
     paths:
       - '.github/workflows/apk.yaml'
@@ -11,20 +10,23 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
-      - '.github/scripts/build-apk.sh'
+      - 'build-apk.sh'
       - 'build-android-arm64-v8a.sh'
+      - 'build-android-armeabi-v7a.sh'
+      - 'build-android-x86-64.sh'
   pull_request:
     branches:
       - master
-      - apk
     paths:
       - '.github/workflows/apk.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
-      - '.github/scripts/apk.sh'
+      - 'build-apk.sh'
       - 'build-android-arm64-v8a.sh'
+      - 'build-android-armeabi-v7a.sh'
+      - 'build-android-x86-64.sh'
 
 concurrency:
   group: apk-${{ github.ref }}
