@@ -69,7 +69,7 @@ for arch in arm64-v8a armeabi-v7a x86_64; do
   ./gradlew build
   popd
 
-  mv android/SherpaNcnn/app/build/outputs/apk/debug/app-debug.apk ./apks/sherpa-ncnn-${SHERPA_NCNN_VERSION}-$arch-bilingual-en-zh.apk
+  mv android/SherpaNcnn/app/build/outputs/apk/debug/app-debug.apk ./apks/sherpa-ncnn-${SHERPA_NCNN_VERSION}-cpu-$arch-bilingual-en-zh.apk
   ls -lh apks
   rm -v ./android/SherpaNcnn/app/src/main/jniLibs/$arch/*.so
 done
