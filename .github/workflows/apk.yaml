@@ -56,6 +56,7 @@ jobs:
       - name: build APK
         shell: bash
         run: |
+          export ANDROID_NDK=$ANDROID_NDK_LATEST_HOME
           ./build-apk.sh
 
       - uses: actions/upload-artifact@v2

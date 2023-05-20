@@ -18,8 +18,6 @@ SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " 
 
 log "Building APK for sherpa-ncnn v${SHERPA_NCNN_VERSION}"
 
-# export ANDROID_NDK=$ANDROID_NDK_LATEST_HOME
-
 log "====================arm64-v8a================="
 ./build-android-arm64-v8a.sh
 log "====================x86-64===================="
@@ -59,6 +57,8 @@ for arch in arm64-v8a armeabi-v7a x86_64; do
   src_arch=$arch
   if [ $arch == "armeabi-v7a" ]; then
     src_arch=armv7-eabi
+  elif [ $arc == "x86_64" ]; then
+    src_arch=x86-64
   fi
 
   ls -lh ./build-android-$src_arch/install/lib/*.so
