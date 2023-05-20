@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  jni:
+  apk:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
