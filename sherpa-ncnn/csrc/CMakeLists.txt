@@ -66,6 +66,16 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
       install(TARGETS sherpa-ncnn-microphone DESTINATION bin)
     endif()
 
+    if(SHERPA_NCNN_ENABLE_TINY_ALSA)
+      add_executable(sherpa-ncnn-tinyalsa
+        sherpa-ncnn-tinyalsa.cc
+        tinyalsa.cc
+      )
+      target_link_libraries(sherpa-ncnn-tinyalsa PRIVATE tinyalsa sherpa-ncnn-core)
+
+      install(TARGETS sherpa-ncnn-tinyalsa DESTINATION bin)
+    endif()
+
     set(hdrs
       features.h
       model.h
