@@ -52,7 +52,6 @@ def main():
     last_result = ""
     segment_id = 0
 
-    display = sherpa_ncnn.Display(max_word_per_line=30)
 
     with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
         while True:
@@ -65,10 +64,11 @@ def main():
             result = recognizer.text
             if result and (last_result != result):
                 last_result = result
-                display.print(segment_id, result)
+                print("\r{}:{}".format(segment_id, result), end="", flush=True)
 
             if is_endpoint:
                 if result:
+                    print("\r{}:{}".format(segment_id, result), flush=True)
                     segment_id += 1
                 recognizer.reset()
 

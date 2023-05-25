@@ -44,7 +44,6 @@ def main():
     sample_rate = recognizer.sample_rate
     samples_per_read = int(0.1 * sample_rate)  # 0.1 second = 100 ms
     last_result = ""
-    display = sherpa_ncnn.Display()
     with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
         while True:
             samples, _ = s.read(samples_per_read)  # a blocking read
@@ -53,7 +52,7 @@ def main():
             result = recognizer.text
             if last_result != result:
                 last_result = result
-                display.print(-1, result)
+                print("\r{}".format(result), end="", flush=True)
 
 
 if __name__ == "__main__":
