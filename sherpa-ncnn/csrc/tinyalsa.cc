@@ -38,16 +38,16 @@ void ToFloat(const std::vector<int16_t> &in, int32_t num_channels,
 }
 
 TinyAlsa::TinyAlsa(const char *device_name) {
-  unsigned int card = 0;
-  unsigned int device = 0;
+  unsigned int card = device_name[3] - '0';
+  unsigned int device = device_name[5] - '0';
   int flags = PCM_IN;
 
   struct pcm_config config;
 
   memset(&config, 0, sizeof(config));
-  config.channels = 2;
-  config.rate = 48000;
-  config.format = PCM_FORMAT_S32_LE;
+  config.channels = 1;
+  config.rate = 16000;
+  config.format = PCM_FORMAT_S16_LE;
   config.period_size = 1024;
   config.period_count = 2;
   config.start_threshold = 1024;
