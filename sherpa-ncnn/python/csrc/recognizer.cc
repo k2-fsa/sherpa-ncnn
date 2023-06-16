@@ -49,7 +49,7 @@ static void PybindRecognitionResult(py::module *m) {
       .def_property_readonly(
           "tokens", [](PyClass &self) -> std::vector<int> { return self.tokens; })
       .def_property_readonly(
-          "stokens", [](PyClass &self) -> std::vector<std::__cxx11::basic_string<char>> { return self.stokens; })
+          "stokens", [](PyClass &self) -> std::vector<std::string> { return self.stokens; })
       .def_property_readonly(
           "timestamps", [](PyClass &self) -> std::vector<float> { return self.timestamps; });
 }
