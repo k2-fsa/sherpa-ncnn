@@ -226,6 +226,18 @@ class Recognizer(object):
         return self.recognizer.get_result(self.stream).text
 
     @property
+    def tokens(self):
+        return self.recognizer.get_result(self.stream).tokens
+
+    @property
+    def stokens(self):
+        return self.recognizer.get_result(self.stream).stokens
+
+    @property
+    def timestamps(self):
+        return self.recognizer.get_result(self.stream).timestamps
+
+    @property
     def is_endpoint(self):
         return self.recognizer.is_endpoint(self.stream)
 
