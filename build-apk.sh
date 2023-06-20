@@ -20,11 +20,12 @@ log "Building APK for sherpa-ncnn v${SHERPA_NCNN_VERSION}"
 
 log "====================arm64-v8a================="
 ./build-android-arm64-v8a.sh
-log "====================x86-64===================="
-./build-android-armv7-eabi.sh
 log "====================armv7-eabi================"
+./build-android-armv7-eabi.sh
+log "====================x86-64===================="
 ./build-android-x86-64.sh
-log "----------------------------------------------"
+log "====================x86===================="
+./build-android-x86.sh
 
 
 # Download the model
@@ -50,7 +51,7 @@ tree ./android/SherpaNcnn/app/src/main/assets/
 
 mkdir -p apks
 
-for arch in arm64-v8a armeabi-v7a x86_64; do
+for arch in arm64-v8a armeabi-v7a x86_64 x86; do
   log "------------------------------------------------------------"
   log "build apk for $arch"
   log "------------------------------------------------------------"
