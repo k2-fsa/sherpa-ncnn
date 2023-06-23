@@ -50,7 +50,7 @@ class Alsa {
   int32_t actual_channel_count_ = 1;
 
   std::unique_ptr<LinearResample> resampler_;
-  std::vector<int16_t> samples_;  // directly from the microphone
+  std::vector<int32_t> samples_;  // directly from the microphone
   std::vector<float> samples1_;   // normalized version of samples_
   std::vector<float> samples2_;   // possibly resampled from samples1_
 };

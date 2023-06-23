@@ -26,13 +26,13 @@
 
 namespace sherpa_ncnn {
 
-void ToFloat(const std::vector<int16_t> &in, int32_t num_channels,
+void ToFloat(const std::vector<int32_t> &in, int32_t num_channels,
              std::vector<float> *out) {
   out->resize(in.size() / num_channels);
 
   int32_t n = in.size();
   for (int32_t i = 0, k = 0; i < n; i += num_channels, ++k) {
-    (*out)[k] = in[i] / 32768.;
+    (*out)[k] = in[i] / float(1 << 31);
   }
 }
 
@@ -80,7 +80,7 @@ and if you want to select card 3 and the device 0 on that card, please use:
   }
 
   err = snd_pcm_hw_params_set_format(capture_handle_, hw_params,
-                                     SND_PCM_FORMAT_S16_LE);
+                                     SND_PCM_FORMAT_S32_LE);
   if (err) {
     fprintf(stderr, "Failed to set format: %s\n", snd_strerror(err));
     exit(-1);
