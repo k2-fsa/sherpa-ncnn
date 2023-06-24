@@ -167,6 +167,16 @@ const std::vector<float> &Alsa::Read(int32_t num_samples) {
 
   // count is in frames. Each frame contains actual_channel_count_ samples
   int32_t count = snd_pcm_readi(capture_handle_, samples_.data(), num_samples);
+  if (count == -EPIPE) {
+    fprintf(
+        stderr,
+        "An overrun occurred, which means the RTF of the current "
+        "model on your board is larger than 1. You can use ./bin/sherpa-ncnn "
+        "to verify that. Please select a smaller model whose RTF is less than "
+        "1 "
+        "for your board.");
+    exit(-1);
+  }
 
   samples_.resize(count * actual_channel_count_);
 
