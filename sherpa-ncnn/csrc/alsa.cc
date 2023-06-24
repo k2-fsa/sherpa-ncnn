@@ -173,8 +173,7 @@ const std::vector<float> &Alsa::Read(int32_t num_samples) {
         "An overrun occurred, which means the RTF of the current "
         "model on your board is larger than 1. You can use ./bin/sherpa-ncnn "
         "to verify that. Please select a smaller model whose RTF is less than "
-        "1 "
-        "for your board.");
+        "1 for your board.");
     exit(-1);
   }
 
