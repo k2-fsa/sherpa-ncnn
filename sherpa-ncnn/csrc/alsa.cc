@@ -214,6 +214,13 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
     ++num_over_runs;
 
     if (num_over_runs < num_allowed_over_runs_) {
+      int32_t err = snd_pcm_prepare(capture_handle_);
+      if (err) {
+        fprintf(stderr, "Failed to prepare for recording: %s\n",
+                snd_strerror(err));
+        exit(-1);
+      }
+
       static std::vector<float> tmp;
       return tmp;
     }
@@ -249,6 +256,13 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
     ++num_over_runs;
 
     if (num_over_runs < num_allowed_over_runs_) {
+      int32_t err = snd_pcm_prepare(capture_handle_);
+      if (err) {
+        fprintf(stderr, "Failed to prepare for recording: %s\n",
+                snd_strerror(err));
+        exit(-1);
+      }
+
       static std::vector<float> tmp;
       return tmp;
     }
