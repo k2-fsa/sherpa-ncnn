@@ -210,6 +210,12 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
   int32_t count =
       snd_pcm_readi(capture_handle_, samples16_.data(), num_samples);
   if (count == -EPIPE) {
+    static int32_t num_over_runs = 0;
+    ++num_over_runs;
+
+    if (num_over_runs < num_allowed_over_runes_) {
+      return {};
+    }
     fprintf(
         stderr,
         "An overrun occurred, which means the RTF of the current "
@@ -238,6 +244,13 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
   int32_t count =
       snd_pcm_readi(capture_handle_, samples32_.data(), num_samples);
   if (count == -EPIPE) {
+    static int32_t num_over_runs = 0;
+    ++num_over_runs;
+
+    if (num_over_runs < num_allowed_over_runes_) {
+      return {};
+    }
+
     fprintf(
         stderr,
         "An overrun occurred, which means the RTF of the current "

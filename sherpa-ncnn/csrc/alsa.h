@@ -69,6 +69,8 @@ class Alsa {
 
   std::vector<float> samples1_;  // normalized version of samples_
   std::vector<float> samples2_;  // possibly resampled from samples1_
+
+  int32_t num_allowed_over_runes_ = 20;
 };
 
 }  // namespace sherpa_ncnn
