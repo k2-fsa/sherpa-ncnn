@@ -83,6 +83,15 @@ include(CheckIncludeFileCXX)
 check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
 if(SHERPA_NCNN_HAS_ALSA)
   add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
+else()
+  message(WARNING "\
+Could not find alsa/asoundlib.h !
+We won't build sherpa-ncnn-alsa
+To fix that, please do:
+  (1) sudo apt-get install alsa-utils libasound2-dev
+  (2) rm -rf build
+  (3) re-try
+")
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
