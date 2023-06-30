@@ -88,7 +88,7 @@ else()
 Could not find alsa/asoundlib.h !
 We won't build sherpa-ncnn-alsa
 To fix that, please do:
-  (1) sudo apt-get sudo apt-get install alsa-utils libasound2-dev
+  (1) sudo apt-get install alsa-utils libasound2-dev
   (2) rm -rf build
   (3) re-try
 ")
