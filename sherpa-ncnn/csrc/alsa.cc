@@ -221,7 +221,7 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
 
   samples16_.resize(count * actual_channel_count_);
 
-  ToFloat16(samples16_, channel_to_use, actual_channel_count_, &samples1_);
+  ToFloat16(samples16_, channel_to_use_, actual_channel_count_, &samples1_);
 
   if (!resampler_) {
     return samples1_;
@@ -249,7 +249,7 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
 
   samples32_.resize(count * actual_channel_count_);
 
-  ToFloat32(samples32_, channel_to_use, actual_channel_count_, &samples1_);
+  ToFloat32(samples32_, channel_to_use_, actual_channel_count_, &samples1_);
 
   if (!resampler_) {
     return samples1_;
