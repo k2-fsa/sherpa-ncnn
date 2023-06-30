@@ -212,6 +212,8 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
   if (count == -EPIPE) {
     static int32_t num_over_runs = 0;
     ++num_over_runs;
+    fprintf(stderr, "number of overruns: %d/%d\n", num_over_runs,
+            num_allowed_over_runs_);
 
     if (num_over_runs < num_allowed_over_runs_) {
       int32_t err = snd_pcm_prepare(capture_handle_);
@@ -254,6 +256,9 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
   if (count == -EPIPE) {
     static int32_t num_over_runs = 0;
     ++num_over_runs;
+
+    fprintf(stderr, "number of overruns: %d/%d\n", num_over_runs,
+            num_allowed_over_runs_);
 
     if (num_over_runs < num_allowed_over_runs_) {
       int32_t err = snd_pcm_prepare(capture_handle_);
