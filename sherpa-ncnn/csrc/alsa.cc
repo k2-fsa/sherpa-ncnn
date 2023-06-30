@@ -213,7 +213,7 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
     static int32_t num_over_runs = 0;
     ++num_over_runs;
 
-    if (num_over_runs < num_allowed_over_runes_) {
+    if (num_over_runs < num_allowed_over_runs_) {
       static std::vector<float> tmp;
       return tmp;
     }
@@ -248,7 +248,7 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
     static int32_t num_over_runs = 0;
     ++num_over_runs;
 
-    if (num_over_runs < num_allowed_over_runes_) {
+    if (num_over_runs < num_allowed_over_runs_) {
       static std::vector<float> tmp;
       return tmp;
     }
