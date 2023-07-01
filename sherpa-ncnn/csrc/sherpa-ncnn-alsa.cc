@@ -155,14 +155,17 @@ as the device_name.
   while (!stop) {
     const std::vector<float> samples = alsa.Read(chunk);
     if (!samples.empty()) {
-      fprintf(stderr, "Writing %d samples\n", int32_t(samples.size()));
-      os.write(reinterpret_cast<const char *>(samples.data()),
-               samples.size() * sizeof(float));
-      num_samples_wrote += samples.size();
-      fprintf(stderr, "Wrote %d samples so far\n", num_samples_wrote);
-      if (num_samples_wrote > 10 * alsa.GetActualSampleRate()) {
-        fprintf(stderr, "Closing test.pcm after writing 10 seconds of data\n");
-        os.close();
+      if (os.is_open()) {
+        fprintf(stderr, "Writing %d samples\n", int32_t(samples.size()));
+        os.write(reinterpret_cast<const char *>(samples.data()),
+                 samples.size() * sizeof(float));
+        num_samples_wrote += samples.size();
+        fprintf(stderr, "Wrote %d samples so far\n", num_samples_wrote);
+        if (num_samples_wrote > 10 * alsa.GetActualSampleRate()) {
+          fprintf(stderr,
+                  "Closing test.pcm after writing 10 seconds of data\n");
+          os.close();
+        }
       }
     } else {
       fprintf(stderr, "empty samples!");
