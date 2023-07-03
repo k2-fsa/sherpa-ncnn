@@ -145,7 +145,7 @@ as the device_name.
   fprintf(stderr, "Please use\n");
   fprintf(stderr,
           " sox -t raw -c 1 -e floating-point -b 32 -r %d test.pcm test.wav\n",
-          alsa.GetActualSampleRate());
+          alsa.GetExpectedSampleRate());
   fprintf(stderr, "to convert test.pcm to test.wav\n");
 
   std::ofstream os("test.pcm", std::ios::out | std::ios::binary);
@@ -161,7 +161,7 @@ as the device_name.
                  samples.size() * sizeof(float));
         num_samples_wrote += samples.size();
         fprintf(stderr, "Wrote %d samples so far\n", num_samples_wrote);
-        if (num_samples_wrote > 10 * alsa.GetActualSampleRate()) {
+        if (num_samples_wrote > 10 * alsa.GetExpectedSampleRate()) {
           fprintf(stderr,
                   "Closing test.pcm after writing 10 seconds of data\n");
           os.close();
