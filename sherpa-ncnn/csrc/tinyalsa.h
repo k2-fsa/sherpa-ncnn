@@ -22,8 +22,8 @@
 #include <memory>
 #include <vector>
 
-#include "tinyalsa/asoundlib.h"
 #include "sherpa-ncnn/csrc/resample.h"
+#include "tinyalsa/asoundlib.h"
 
 namespace sherpa_ncnn {
 
@@ -37,24 +37,25 @@ class TinyAlsa {
   // @param num_samples  Number of samples to read.
   //
   // The returned value is valid until the next call to Read().
-  const std::vector<float> &Read(int32_t num_samples);
+  const std::vector<float> &Read();
 
   int32_t GetExpectedSampleRate() const { return expected_sample_rate_; }
-  int32_t GetActualSampleRate() const { return actual_sample_rate_; }
+  int32_t GetActualSampleRate() const { return pcm_config_.rate; }
 
  private:
-  struct pcm *tinyalsa_pcm;
+  struct pcm *tinyalsa_pcm_ = nullptr;
   int32_t expected_sample_rate_ = 16000;
-  int32_t actual_sample_rate_;
 
-  int32_t actual_channel_count_ = 1;
+  struct pcm_config pcm_config_;
 
   std::unique_ptr<LinearResample> resampler_;
-  std::vector<int16_t> samples_;  // directly from the microphone
-  std::vector<float> samples1_;   // normalized version of samples_
-  std::vector<float> samples2_;   // possibly resampled from samples1_
+  std::vector<char> samples_;  // directly from the microphone
+
+  // normalized version of samples_
+  std::vector<float> samples1_;
+  std::vector<float> samples2_;  // possibly resampled from samples1_
 };
 
 }  // namespace sherpa_ncnn
 
-#endif  // SHERPA_NCNN_CSRC_ALSA_H_
+#endif  // SHERPA_NCNN_CSRC_TINYALSA_H_
