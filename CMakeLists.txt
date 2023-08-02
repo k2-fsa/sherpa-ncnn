@@ -147,8 +147,14 @@ endif()
 
 set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS)
 
-if(APPLE AND NOT BUILD_SHARED_LIBS)
-  set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS "-lomp -lc++")
+if(NOT BUILD_SHARED_LIBS)
+  if(APPLE)
+    set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS "-lomp -lc++")
+  endif()
+
+  if(UNIX AND NOT APPLE)
+    set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS "-lm -lstdc++ -fopenmp")
+  endif()
 endif()
 
 # See https://people.freedesktop.org/~dbn/pkg-config-guide.html
