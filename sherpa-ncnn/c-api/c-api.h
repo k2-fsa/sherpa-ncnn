@@ -44,7 +44,7 @@ extern "C" {
 #define SHERPA_NCNN_IMPORT
 #endif
 #else  // WIN32
-#define SHERPA_NCNN_EXPORT __attribute__((__visibility__("default")))
+#define SHERPA_NCNN_EXPORT
 #define SHERPA_NCNN_IMPORT SHERPA_NCNN_EXPORT
 #endif
 

@@ -83,7 +83,7 @@ include(CheckIncludeFileCXX)
 check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
 if(SHERPA_NCNN_HAS_ALSA)
   add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
-else()
+elseif(UNIX AND NOT APPLE)
   message(WARNING "\
 Could not find alsa/asoundlib.h !
 We won't build sherpa-ncnn-alsa
@@ -143,3 +143,19 @@ endif()
 if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)
 endif()
+
+
+set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS)
+
+if(APPLE AND NOT BUILD_SHARED_LIBS)
+  set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS "-lomp -lc++")
+endif()
+
+# See https://people.freedesktop.org/~dbn/pkg-config-guide.html
+configure_file(cmake/sherpa-ncnn.pc.in ${PROJECT_BINARY_DIR}/sherpa-ncnn.pc @ONLY)
+install(
+  FILES
+    ${PROJECT_BINARY_DIR}/sherpa-ncnn.pc
+  DESTINATION
+    .
+)
