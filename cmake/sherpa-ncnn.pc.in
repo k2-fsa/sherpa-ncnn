@@ -10,10 +10,3 @@ URL: https://github.com/k2-fsa/sherpa-ncnn
 Version: @SHERPA_NCNN_VERSION@
 Cflags: -I"${includedir}"
 Libs: -L"${libdir}" -lsherpa-ncnn-c-api -lsherpa-ncnn-core -lncnn -lkaldi-native-fbank-core -Wl,-rpath,${libdir} @SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS@
-
-
-
-
-
-
-
