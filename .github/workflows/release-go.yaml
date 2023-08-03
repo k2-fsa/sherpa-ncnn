@@ -85,7 +85,6 @@ jobs:
   macOS:
     name: macOS ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
-    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +118,6 @@ jobs:
           path: ./build/install/lib/
 
   windows:
-    if: false
     name: Windows ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -160,8 +158,7 @@ jobs:
   Release:
     name: Release
     runs-on: ubuntu-latest
-    # needs: [linux-x86_64_wheel, macOS, windows]
-    needs: [linux]
+    needs: [linux, macOS, windows]
 
     steps:
       - uses: actions/checkout@v2
@@ -185,29 +182,29 @@ jobs:
           name: ubuntu-latest-wheels-for-go-aarch64
           path: ./linux_aarch64
 
-      # - name: Retrieve artifact from macos-latest (x86_64)
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: macos-latest-for-x86_64
-      #     path: ./macos-x86_64
-      #
-      # - name: Retrieve artifact from macos-latest (arm64)
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: macos-latest-for-arm64
-      #     path: ./macos-arm64
-      #
-      # - name: Retrieve artifact from windows-latest (x64)
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: sherpa-ncnn-go-windows-x64
-      #     path: ./windows-x64
-      #
-      # - name: Retrieve artifact from windows-latest (Win32)
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: sherpa-ncnn-go-windows-Win32
-      #     path: ./windows-win32
+      - name: Retrieve artifact from macos-latest (x86_64)
+        uses: actions/download-artifact@v2
+        with:
+          name: macos-latest-for-x86_64
+          path: ./macos-x86_64
+
+      - name: Retrieve artifact from macos-latest (arm64)
+        uses: actions/download-artifact@v2
+        with:
+          name: macos-latest-for-arm64
+          path: ./macos-arm64
+
+      - name: Retrieve artifact from windows-latest (x64)
+        uses: actions/download-artifact@v2
+        with:
+          name: sherpa-ncnn-go-windows-x64
+          path: ./windows-x64
+
+      - name: Retrieve artifact from windows-latest (Win32)
+        uses: actions/download-artifact@v2
+        with:
+          name: sherpa-ncnn-go-windows-Win32
+          path: ./windows-win32
 
       - name: Unzip Ubuntu wheels
         shell: bash
