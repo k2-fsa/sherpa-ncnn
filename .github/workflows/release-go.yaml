@@ -135,7 +135,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -A ${{ matrix.arch }} -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./install ..
+          cmake -A ${{ matrix.arch }} -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build sherpa-ncnn for windows
         shell: bash
