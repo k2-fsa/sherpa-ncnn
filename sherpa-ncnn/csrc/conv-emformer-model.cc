@@ -31,9 +31,9 @@ ConvEmformerModel::ConvEmformerModel(const ModelConfig &config) {
     joiner_.opt.use_vulkan_compute = true;
     NCNN_LOGE("Use GPU");
   } else {
-    NCNN_LOGE("Don't Use GPU. has_gpu: %d, config.use_vulkan_compute: %d",
-              static_cast<int32_t>(has_gpu),
-              static_cast<int32_t>(config.use_vulkan_compute));
+    // NCNN_LOGE("Don't Use GPU. has_gpu: %d, config.use_vulkan_compute: %d",
+    //           static_cast<int32_t>(has_gpu),
+    //           static_cast<int32_t>(config.use_vulkan_compute));
   }
 
   InitEncoder(config.encoder_param, config.encoder_bin);
@@ -63,9 +63,9 @@ ConvEmformerModel::ConvEmformerModel(AAssetManager *mgr,
     joiner_.opt.use_vulkan_compute = true;
     NCNN_LOGE("Use GPU");
   } else {
-    NCNN_LOGE("Don't Use GPU. has_gpu: %d, config.use_vulkan_compute: %d",
-              static_cast<int32_t>(has_gpu),
-              static_cast<int32_t>(config.use_vulkan_compute));
+    // NCNN_LOGE("Don't Use GPU. has_gpu: %d, config.use_vulkan_compute: %d",
+    //           static_cast<int32_t>(has_gpu),
+    //           static_cast<int32_t>(config.use_vulkan_compute));
   }
 
   InitEncoder(mgr, config.encoder_param, config.encoder_bin);
