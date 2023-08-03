@@ -19,8 +19,19 @@ cp -v ./linux_x86_64/sherpa_ncnn/lib/libkaldi-native-fbank-core.so sherpa-ncnn-g
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libncnn.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libsherpa-ncnn-c-api.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libsherpa-ncnn-core.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
+cp -v ./linux_x86_64/sherpa_ncnn.libs/libgomp*.so* sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 
-echo "Copy sources for Linux x86_64"
+echo "Copy libs for Linux aarch64"
+
+rm -rf sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/lib*
+
+cp -v ./linux_aarch64/sherpa_ncnn/lib/libkaldi-native-fbank-core.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+cp -v ./linux_aarch64/sherpa_ncnn/lib/libncnn.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+cp -v ./linux_aarch64/sherpa_ncnn/lib/libsherpa-ncnn-c-api.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+cp -v ./linux_aarch64/sherpa_ncnn/lib/libsherpa-ncnn-core.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+cp -v ./linux_aarch64/sherpa_ncnn.libs/libgomp*.so* sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+
+echo "Copy sources for Linux"
 cp sherpa-ncnn/c-api/c-api.h sherpa-ncnn-go-linux/
 cp scripts/go/sherpa_ncnn.go sherpa-ncnn-go-linux/
 

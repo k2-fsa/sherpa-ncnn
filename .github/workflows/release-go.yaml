@@ -223,7 +223,8 @@ jobs:
           tree .
 
       - name: Release go
-        if: env.VERSION != ''
+        # if: env.VERSION != ''
         shell: bash
         run: |
+          export VERSION=auto
           ./scripts/go/release.sh
