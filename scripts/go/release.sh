@@ -112,17 +112,17 @@ echo "========================================================================="
 git clone git@github.com:k2-fsa/sherpa-ncnn-go-windows.git
 echo "Copy libs for Windows x86_64"
 rm -fv sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu/*
-cp -v ./windows-x64/kaldi-native-fbank-core.lib sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
-cp -v ./windows-x64/ncnn.lib sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
-cp -v ./windows-x64/sherpa-ncnn-c-api.lib sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
-cp -v ./windows-x64/sherpa-ncnn-core.lib sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
+cp -v ./windows-x64/kaldi-native-fbank-core.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
+cp -v ./windows-x64/ncnn.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
+cp -v ./windows-x64/sherpa-ncnn-c-api.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
+cp -v ./windows-x64/sherpa-ncnn-core.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
 
 echo "Copy libs for Windows x86"
 rm -fv sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu/*
-cp -v ./windows-win32/kaldi-native-fbank-core.lib sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
-cp -v ./windows-win32/ncnn.lib sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
-cp -v ./windows-win32/sherpa-ncnn-c-api.lib sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
-cp -v ./windows-win32/sherpa-ncnn-core.lib sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
+cp -v ./windows-win32/kaldi-native-fbank-core.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
+cp -v ./windows-win32/ncnn.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
+cp -v ./windows-win32/sherpa-ncnn-c-api.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
+cp -v ./windows-win32/sherpa-ncnn-core.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
 
 echo "Copy sources for Windows"
 cp sherpa-ncnn/c-api/c-api.h sherpa-ncnn-go-windows/
