@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - mfc-examples
     tags:
       - '*'
     paths:
