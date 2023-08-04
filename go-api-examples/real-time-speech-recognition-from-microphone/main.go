@@ -1,19 +1,36 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"errors"
+	"fmt"
+	"github.com/gordonklaus/portaudio"
 	sherpa "github.com/k2-fsa/sherpa-ncnn-go/sherpa_ncnn"
 	flag "github.com/spf13/pflag"
-	"github.com/youpy/go-wav"
 	"log"
 	"os"
 	"strings"
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+	err := portaudio.Initialize()
+	if err != nil {
+		log.Fatalf("Unable to initialize portaudio: %v\n", err)
+	}
+	defer portaudio.Terminate()
+
+	default_device, err := portaudio.DefaultInputDevice()
+	if err != nil {
+		log.Fatal("Failed to get default input device: %v\n", err)
+	}
+	fmt.Printf("Select default input device: %s\n", default_device.Name)
+	param := portaudio.StreamParameters{}
+	param.Input.Device = default_device
+	param.Input.Channels = 1
+	param.Input.Latency = default_device.DefaultLowInputLatency
+
+	param.SampleRate = 16000
+	param.FramesPerBuffer = 0
+	param.Flags = portaudio.ClipOff
 
 	config := sherpa.RecognizerConfig{}
 	config.Feat = sherpa.FeatureConfig{SampleRate: 16000, FeatureDim: 80}
@@ -30,95 +47,71 @@ func main() {
 	flag.StringVar(&config.Decoder.DecodingMethod, "decoding-method", "greedy_search", "Decoding method. Possible values: greedy_search, modified_beam_search")
 	flag.IntVar(&config.Decoder.NumActivePaths, "num-active-paths", 4, "Used only when --decoding-method is modified_beam_search")
 
+	flag.IntVar(&config.EnableEndpoint, "enable-endpoint", 1, "Whether to enable endpoint")
+	flag.Float32Var(&config.Rule1MinTrailingSilence, "rule1-min-trailing-silence", 2.4, "Threshold for rule1")
+	flag.Float32Var(&config.Rule2MinTrailingSilence, "rule2-min-trailing-silence", 1.2, "Threshold for rule2")
+	flag.Float32Var(&config.Rule3MinUtteranceLength, "rule3-min-utterance-length", 20, "Threshold for rule3")
+
 	flag.Parse()
 
-	if len(flag.Args()) != 1 {
-		log.Fatalf("Please provide one wave file")
-	}
 	checkConfig(&config)
-
-	log.Println("Reading", flag.Arg(0))
-
-	samples, sampleRate := readWave(flag.Arg(0))
 
 	log.Println("Initializing recognizer")
 	recognizer := sherpa.NewRecognizer(&config)
 	log.Println("Recognizer created!")
 	defer sherpa.DeleteRecognizer(recognizer)
 
-	log.Println("Start decoding!")
 	stream := sherpa.NewStream(recognizer)
 	defer sherpa.DeleteStream(stream)
 
-	stream.AcceptWaveform(sampleRate, samples)
+	// you can choose another value for 0.1 if you want
+	samplesPerCall := int32(param.SampleRate * 0.1) // 0.1 second
 
-	tailPadding := make([]float32, int(float32(sampleRate)*0.3))
-	stream.AcceptWaveform(sampleRate, tailPadding)
+	samples := make([]float32, samplesPerCall)
 
-	for recognizer.IsReady(stream) {
-		recognizer.Decode(stream)
-	}
-
-	log.Println("Decoding done!")
-	result := recognizer.GetResult(stream)
-
-	log.Println(strings.ToLower(result.Text))
-	log.Printf("Wave duration: %v seconds", float32(len(samples))/float32(sampleRate))
-}
-
-func readWave(filename string) (samples []float32, sampleRate int) {
-	file, _ := os.Open(filename)
-	defer file.Close()
-
-	reader := wav.NewReader(file)
-	format, err := reader.Format()
+	s, err := portaudio.OpenStream(param, samples)
 	if err != nil {
-		log.Fatalf("Failed to read wave format")
+		log.Fatalf("Failed to open the stream")
+	}
+	defer s.Close()
+	chk(s.Start())
+
+	var last_text string
+
+	segment_idx := 0
+
+	fmt.Println("Started! Please speak")
+
+	for {
+		chk(s.Read())
+		stream.AcceptWaveform(int(param.SampleRate), samples)
+
+		for recognizer.IsReady(stream) {
+			recognizer.Decode(stream)
+		}
+
+		text := recognizer.GetResult(stream).Text
+		if len(text) != 0 && last_text != text {
+			last_text = strings.ToLower(text)
+			fmt.Printf("\r%d: %s", segment_idx, last_text)
+		}
+
+		if recognizer.IsEndpoint(stream) {
+			if len(text) != 0 {
+				segment_idx++
+				fmt.Println()
+			}
+			recognizer.Reset(stream)
+		}
 	}
 
-	if format.AudioFormat != 1 {
-		log.Fatalf("Support only PCM format. Given: %v\n", format.AudioFormat)
-	}
-
-	if format.NumChannels != 1 {
-		log.Fatalf("Support only 1 channel wave file. Given: %v\n", format.NumChannels)
-	}
-
-	if format.BitsPerSample != 16 {
-		log.Fatalf("Support only 16-bit per sample. Given: %v\n", format.BitsPerSample)
-	}
-
-	reader.Duration() // so that it initializes reader.Size
-
-	buf := make([]byte, reader.Size)
-	n, err := reader.Read(buf)
-	if n != int(reader.Size) {
-		log.Fatalf("Failed to read %v bytes. Returned %v bytes\n", reader.Size, n)
-	}
-
-	samples = samplesInt16ToFloat(buf)
-	sampleRate = int(format.SampleRate)
-
-	return
+	chk(s.Stop())
 }
 
-func samplesInt16ToFloat(inSamples []byte) []float32 {
-	numSamples := len(inSamples) / 2
-	outSamples := make([]float32, numSamples)
-
-	for i := 0; i != numSamples; i++ {
-		s := inSamples[i*2 : (i+1)*2]
-
-		var s16 int16
-		buf := bytes.NewReader(s)
-		err := binary.Read(buf, binary.LittleEndian, &s16)
-		if err != nil {
-			log.Fatal("Failed to parse 16-bit sample")
-		}
-		outSamples[i] = float32(s16) / 32768
+func chk(err error) {
+	if err != nil {
+		panic(err)
 	}
-
-	return outSamples
 }
 
 func checkConfig(config *sherpa.RecognizerConfig) {
