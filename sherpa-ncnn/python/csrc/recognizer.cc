@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "sherpa-ncnn/csrc/recognizer.h"
 
@@ -47,11 +48,15 @@ static void PybindRecognitionResult(py::module *m) {
       .def_property_readonly(
           "text", [](PyClass &self) -> std::string { return self.text; })
       .def_property_readonly(
-          "tokens", [](PyClass &self) -> std::vector<int> { return self.tokens; })
+          "tokens",
+          [](PyClass &self) -> std::vector<int> { return self.tokens; })
+      .def_property_readonly("stokens",
+                             [](PyClass &self) -> std::vector<std::string> {
+                               return self.stokens;
+                             })
       .def_property_readonly(
-          "stokens", [](PyClass &self) -> std::vector<std::string> { return self.stokens; })
-      .def_property_readonly(
-          "timestamps", [](PyClass &self) -> std::vector<float> { return self.timestamps; });
+          "timestamps",
+          [](PyClass &self) -> std::vector<float> { return self.timestamps; });
 }
 
 static void PybindRecognizerConfig(py::module *m) {
