@@ -43,7 +43,7 @@ void ToFloat32(const std::vector<int32_t> &in, int32_t channel_to_use,
 
   int32_t n = in.size();
   for (int32_t i = 0, k = 0; i < n; i += num_channels, ++k) {
-    (*out)[k] = in[i + channel_to_use] / float(1 << 31);
+    (*out)[k] = in[i + channel_to_use] / static_cast<float>(1 << 31);
   }
 }
 

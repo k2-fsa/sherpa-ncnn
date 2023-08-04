@@ -1,0 +1,131 @@
+name: test-go
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+concurrency:
+  group: go-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go:
+    name: ${{ matrix.os }} ${{matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+          - os: macos-latest
+            arch: amd64
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: x86 # use 386 for GOARCH
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20'
+
+      - name: Display go version
+        shell: bash
+        run: |
+          go version
+          go env GOPATH
+          go env GOARCH
+
+      - name: Set up MinGW
+        if: matrix.os == 'windows-latest'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: ${{ matrix.arch }}
+
+      - name: Show gcc
+        if: matrix.os == 'windows-latest'
+        run: |
+          gcc --version
+
+      - name: Test decoding file (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          cd go-api-examples/decode-file
+          ls -lh
+          go mod tidy
+          cat go.mod
+          go build -x
+          ls -lh
+
+          git lfs install
+
+          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          ./run.sh
+          rm -rf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+
+      - name: Test decoding file (Win64)
+        if: matrix.os == 'windows-latest' && matrix.arch == 'x64'
+        shell: bash
+        run: |
+          cd go-api-examples/decode-file
+          ls -lh
+          go mod tidy
+          cat go.mod
+          go build
+          ls -lh
+
+          echo $PWD
+          ls -lh /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/
+          ls -lh /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/*
+          cp -v /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/sherpa-ncnn-go-windows*/lib/x86_64-pc-windows-gnu/*.dll .
+          ls -lh
+
+          git lfs install
+
+          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          ./run.sh
+          rm -rf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+
+      - name: Test decoding file (Win32)
+        if: matrix.os == 'windows-latest' && matrix.arch == 'x86'
+        shell: bash
+        run: |
+          cd go-api-examples/decode-file
+          ls -lh
+          go mod tidy
+          cat go.mod
+          ls -lh
+
+          go env GOARCH
+          go env
+          echo "------------------------------"
+          go env -w GOARCH=386
+          go env -w CGO_ENABLED=1
+          go env
+
+          go clean
+          go build -x
+
+          echo $PWD
+          ls -lh /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/
+          cp -v /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/sherpa-ncnn-go-windows*/lib/i686-pc-windows-gnu/*.dll .
+          ls -lh
+
+          git lfs install
+
+          git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          ./run.sh
+          rm -rf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
