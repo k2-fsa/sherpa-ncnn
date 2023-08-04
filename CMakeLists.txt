@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "2.0.4")
+set(SHERPA_NCNN_VERSION "2.0.5")
 
 # Disable warning about
 #
@@ -53,6 +53,19 @@ endif()
 if(BUILD_SHARED_LIBS AND MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
+
+if(NOT BUILD_SHARED_LIBS AND MSVC)
+  # see https://cmake.org/cmake/help/latest/prop_tgt/MSVC_RUNTIME_LIBRARY.html
+  # https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
+  if(MSVC)
+      add_compile_options(
+          $<$<CONFIG:>:/MT> #---------|
+          $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+          $<$<CONFIG:Release>:/MT> #--|
+      )
+  endif()
+endif()
+
 message(STATUS "CMAKE_EXPORT_COMPILE_COMMANDS: ${CMAKE_EXPORT_COMPILE_COMMANDS}")
 message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
 message(STATUS "SHERPA_NCNN_ENABLE_PYTHON ${SHERPA_NCNN_ENABLE_PYTHON}")

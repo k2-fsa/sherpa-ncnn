@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+	<SherpaNcnnBuildDirectory>..\..\build</SherpaNcnnBuildDirectory>
+	<SherpaNcnnInstallDirectory>..\..\build\install</SherpaNcnnInstallDirectory>
+	<SherpaNcnnLibraries>
+	  sherpa-ncnn-portaudio_static.lib;
+	  sherpa-ncnn-c-api.lib;;
+	  sherpa-ncnn-core.lib;
+	  kaldi-native-fbank-core.lib;
+	  ncnn.lib
+	</SherpaNcnnLibraries>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+	  <AdditionalIncludeDirectories>
+	    $(SherpaNcnnBuildDirectory)\_deps\portaudio-src\include;
+		$(SherpaNcnnInstallDirectory)\include;
+		%(AdditionalIncludeDirectories)
+	  </AdditionalIncludeDirectories>
+	</ClCompile>
+	 <Link>
+	   <AdditionalLibraryDirectories>$(SherpaNcnnInstallDirectory)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+	   <AdditionalDependencies>$(SherpaNcnnLibraries);</AdditionalDependencies>
+	 </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
