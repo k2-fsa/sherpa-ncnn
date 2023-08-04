@@ -11,7 +11,6 @@
     <!-- Use * to denote the latest stable version. -->
     <PackageReference Include="org.k2fsa.sherpa.ncnn" Version="*" />
 
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="PortAudioSharp2" Version="*" />
   </ItemGroup>
 
