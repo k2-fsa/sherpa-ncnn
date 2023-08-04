@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	sherpa "github.com/k2-fsa/sherpa-ncnn-go-macos"
+	sherpa "github.com/k2-fsa/sherpa-ncnn-go/sherpa_ncnn"
 	flag "github.com/spf13/pflag"
 	"github.com/youpy/go-wav"
 	"os"
