@@ -59,7 +59,7 @@ namespace SherpaNcnn
         public TransducerModelConfig ModelConfig;
         public TransducerDecoderConfig DecoderConfig;
 
-        public int EnableEndpoit;
+        public int EnableEndpoint;
         public float Rule1MinTrailingSilence;
         public float Rule2MinTrailingSilence;
         public float Rule3MinUtteranceLength;
@@ -85,6 +85,11 @@ namespace SherpaNcnn
         public bool IsReady(OnlineStream stream)
         {
             return IsReady(_handle.Handle, stream.Handle) != 0;
+        }
+
+        public void Reset(OnlineStream stream)
+        {
+            Reset(_handle.Handle, stream.Handle);
         }
 
         public void Decode(OnlineStream stream)
@@ -136,6 +141,9 @@ namespace SherpaNcnn
 
         [DllImport(dllName)]
         private static extern int IsReady(IntPtr handle, IntPtr stream);
+
+        [DllImport(dllName)]
+        private static extern void Reset(IntPtr handle, IntPtr stream);
 
         [DllImport(dllName, EntryPoint = "Decode")]
         private static extern void Decode(IntPtr handle, IntPtr stream);
