@@ -7,6 +7,8 @@ on:
     tags:
       - '*'
 
+  workflow_dispatch:
+
 concurrency:
   group: dot-net-${{ github.ref }}
   cancel-in-progress: true
@@ -29,7 +31,6 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
           CIBW_BUILD: "cp38-*64"
-          CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
           CIBW_BUILD_VERBOSITY: 3
 
       - name: Display wheels
@@ -81,7 +82,7 @@ jobs:
           unzip ./*.whl
           tree .
 
-          cp -v sherpa_ncnn.libs/libgomp-a34b3233.so.1.0.0 sherpa_ncnn/lib
+          cp -v sherpa_ncnn.libs/libgomp*.so* sherpa_ncnn/lib
 
       - name: Unzip macOS wheels
         shell: bash
