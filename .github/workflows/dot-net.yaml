@@ -7,6 +7,8 @@ on:
     tags:
       - '*'
 
+  workflow_dispatch:
+
 concurrency:
   group: dot-net-${{ github.ref }}
   cancel-in-progress: true
@@ -81,7 +83,7 @@ jobs:
           unzip ./*.whl
           tree .
 
-          cp -v sherpa_ncnn.libs/libgomp-a34b3233.so.1.0.0 sherpa_ncnn/lib
+          cp -v sherpa_ncnn.libs/libgomp*.so* sherpa_ncnn/lib
 
       - name: Unzip macOS wheels
         shell: bash

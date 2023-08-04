@@ -2,199 +2,242 @@
 
 using System.Runtime.InteropServices;
 using System;
+using System.Text;
 
-namespace SherpaNcnn {
+namespace SherpaNcnn
+{
 
-[StructLayout(LayoutKind.Sequential)]
-public struct TransducerModelConfig {
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string EncoderParam;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TransducerModelConfig
+    {
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string EncoderParam;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string EncoderBin;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string EncoderBin;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string DecoderParam;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string DecoderParam;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string DecoderBin;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string DecoderBin;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string JoinerParam;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string JoinerParam;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string JoinerBin;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string JoinerBin;
 
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string Tokens;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string Tokens;
 
-  public int UseVulkanCompute;
+        public int UseVulkanCompute;
 
-  public int NumThreads;
-}
+        public int NumThreads;
+    }
 
-[StructLayout(LayoutKind.Sequential)]
-public struct TransducerDecoderConfig {
-  [MarshalAs(UnmanagedType.LPStr)]
-  public string DecodingMethod;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TransducerDecoderConfig
+    {
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string DecodingMethod;
 
-  public int NumActivePaths;
-}
+        public int NumActivePaths;
+    }
 
-[StructLayout(LayoutKind.Sequential)]
-public struct FeatureConfig {
-  public float SampleRate;
-  public int FeatureDim;
-}
+    [StructLayout(LayoutKind.Sequential)]
+    public struct FeatureConfig
+    {
+        public float SampleRate;
+        public int FeatureDim;
+    }
 
-[StructLayout(LayoutKind.Sequential)]
-public struct OnlineRecognizerConfig {
-  public FeatureConfig FeatConfig;
-  public TransducerModelConfig ModelConfig;
-  public TransducerDecoderConfig DecoderConfig;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OnlineRecognizerConfig
+    {
+        public FeatureConfig FeatConfig;
+        public TransducerModelConfig ModelConfig;
+        public TransducerDecoderConfig DecoderConfig;
 
-  public int EnableEndpoit;
-  public float Rule1MinTrailingSilence;
-  public float Rule2MinTrailingSilence;
-  public float Rule3MinUtteranceLength;
-}
+        public int EnableEndpoit;
+        public float Rule1MinTrailingSilence;
+        public float Rule2MinTrailingSilence;
+        public float Rule3MinUtteranceLength;
+    }
 
-// please see
-// https://www.mono-project.com/docs/advanced/pinvoke/#gc-safe-pinvoke-code
-// https://www.mono-project.com/docs/advanced/pinvoke/#properly-disposing-of-resources
-public class OnlineRecognizer : IDisposable {
- public OnlineRecognizer(OnlineRecognizerConfig config) {
-    IntPtr h = CreateOnlineRecognizer(ref config);
-    _handle = new HandleRef(this, h);
-  }
+    // please see
+    // https://www.mono-project.com/docs/advanced/pinvoke/#gc-safe-pinvoke-code
+    // https://www.mono-project.com/docs/advanced/pinvoke/#properly-disposing-of-resources
+    public class OnlineRecognizer : IDisposable
+    {
+        public OnlineRecognizer(OnlineRecognizerConfig config)
+        {
+            IntPtr h = CreateOnlineRecognizer(ref config);
+            _handle = new HandleRef(this, h);
+        }
 
-  public OnlineStream CreateStream() {
-    IntPtr p = CreateOnlineStream(_handle.Handle);
-    return new OnlineStream(p);
-  }
+        public OnlineStream CreateStream()
+        {
+            IntPtr p = CreateOnlineStream(_handle.Handle);
+            return new OnlineStream(p);
+        }
 
-  public bool IsReady(OnlineStream stream) {
-    return IsReady(_handle.Handle, stream.Handle) != 0;
-  }
+        public bool IsReady(OnlineStream stream)
+        {
+            return IsReady(_handle.Handle, stream.Handle) != 0;
+        }
 
-  public void Decode(OnlineStream stream) {
-    Decode(_handle.Handle, stream.Handle);
-  }
+        public void Decode(OnlineStream stream)
+        {
+            Decode(_handle.Handle, stream.Handle);
+        }
 
-  public OnlineRecognizerResult GetResult(OnlineStream stream) {
-    IntPtr h = GetResult(_handle.Handle, stream.Handle);
-    OnlineRecognizerResult result = new OnlineRecognizerResult(h);
-    DestroyResult(h);
-    return result;
-  }
+        public OnlineRecognizerResult GetResult(OnlineStream stream)
+        {
+            IntPtr h = GetResult(_handle.Handle, stream.Handle);
+            OnlineRecognizerResult result = new OnlineRecognizerResult(h);
+            DestroyResult(h);
+            return result;
+        }
 
-  public void Dispose() {
-    Cleanup();
-    // Prevent the object from being placed on the
-    // finalization queue
-    System.GC.SuppressFinalize(this);
-  }
+        public void Dispose()
+        {
+            Cleanup();
+            // Prevent the object from being placed on the
+            // finalization queue
+            System.GC.SuppressFinalize(this);
+        }
 
-  ~OnlineRecognizer() {
-    Cleanup();
-  }
+        ~OnlineRecognizer()
+        {
+            Cleanup();
+        }
 
-  private void Cleanup() {
-    DestroyOnlineRecognizer(_handle.Handle);
+        private void Cleanup()
+        {
+            DestroyOnlineRecognizer(_handle.Handle);
 
-    // Don't permit the handle to be used again.
-    _handle = new HandleRef(this, IntPtr.Zero);
-  }
+            // Don't permit the handle to be used again.
+            _handle = new HandleRef(this, IntPtr.Zero);
+        }
 
-  private HandleRef _handle;
+        private HandleRef _handle;
 
-  private const string dllName = "sherpa-ncnn-c-api";
+        private const string dllName = "sherpa-ncnn-c-api";
 
-  [DllImport(dllName, EntryPoint="CreateRecognizer")]
-  private static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
+        [DllImport(dllName, EntryPoint = "CreateRecognizer")]
+        private static extern IntPtr CreateOnlineRecognizer(ref OnlineRecognizerConfig config);
 
-  [DllImport(dllName, EntryPoint="DestroyRecognizer")]
-  private static extern void DestroyOnlineRecognizer(IntPtr handle);
+        [DllImport(dllName, EntryPoint = "DestroyRecognizer")]
+        private static extern void DestroyOnlineRecognizer(IntPtr handle);
 
-  [DllImport(dllName, EntryPoint="CreateStream")]
-  private static extern IntPtr CreateOnlineStream(IntPtr handle);
+        [DllImport(dllName, EntryPoint = "CreateStream")]
+        private static extern IntPtr CreateOnlineStream(IntPtr handle);
 
-  [DllImport(dllName)]
-  private static extern int IsReady(IntPtr handle, IntPtr stream);
+        [DllImport(dllName)]
+        private static extern int IsReady(IntPtr handle, IntPtr stream);
 
-  [DllImport(dllName, EntryPoint="Decode")]
-  private static extern void Decode(IntPtr handle, IntPtr stream);
+        [DllImport(dllName, EntryPoint = "Decode")]
+        private static extern void Decode(IntPtr handle, IntPtr stream);
 
-  [DllImport(dllName)]
-  private static extern IntPtr GetResult(IntPtr handle, IntPtr stream);
+        [DllImport(dllName)]
+        private static extern IntPtr GetResult(IntPtr handle, IntPtr stream);
 
-  [DllImport(dllName)]
-  private static extern void DestroyResult(IntPtr result);
-}
+        [DllImport(dllName)]
+        private static extern void DestroyResult(IntPtr result);
+    }
 
 
-public class OnlineStream : IDisposable {
-  public OnlineStream(IntPtr p) {
-    _handle = new HandleRef(this, p);
-  }
+    public class OnlineStream : IDisposable
+    {
+        public OnlineStream(IntPtr p)
+        {
+            _handle = new HandleRef(this, p);
+        }
 
-  public void AcceptWaveform(float sampleRate, float[] samples) {
-    AcceptWaveform(Handle, sampleRate, samples, samples.Length);
-  }
-  public void InputFinished() {
-    InputFinished(Handle);
-  }
+        public void AcceptWaveform(float sampleRate, float[] samples)
+        {
+            AcceptWaveform(Handle, sampleRate, samples, samples.Length);
+        }
+        public void InputFinished()
+        {
+            InputFinished(Handle);
+        }
 
-  ~OnlineStream() {
-    Cleanup();
-  }
+        ~OnlineStream()
+        {
+            Cleanup();
+        }
 
-  public void Dispose() {
-    Cleanup();
-    // Prevent the object from being placed on the
-    // finalization queue
-    System.GC.SuppressFinalize(this);
-  }
+        public void Dispose()
+        {
+            Cleanup();
+            // Prevent the object from being placed on the
+            // finalization queue
+            System.GC.SuppressFinalize(this);
+        }
 
-  private void Cleanup() {
-    DestroyOnlineStream(Handle);
+        private void Cleanup()
+        {
+            DestroyOnlineStream(Handle);
 
-    // Don't permit the handle to be used again.
-    _handle = new HandleRef(this, IntPtr.Zero);
-  }
+            // Don't permit the handle to be used again.
+            _handle = new HandleRef(this, IntPtr.Zero);
+        }
 
-  private HandleRef _handle;
-  public IntPtr Handle => _handle.Handle;
+        private HandleRef _handle;
+        public IntPtr Handle => _handle.Handle;
 
-  private const string dllName = "sherpa-ncnn-c-api";
+        private const string dllName = "sherpa-ncnn-c-api";
 
-  [DllImport(dllName, EntryPoint="DestroyStream")]
-  private static extern void DestroyOnlineStream(IntPtr handle);
+        [DllImport(dllName, EntryPoint = "DestroyStream")]
+        private static extern void DestroyOnlineStream(IntPtr handle);
 
-  [DllImport(dllName)]
-  private static extern void AcceptWaveform(IntPtr handle, float sampleRate, float[] samples, int n);
+        [DllImport(dllName)]
+        private static extern void AcceptWaveform(IntPtr handle, float sampleRate, float[] samples, int n);
 
-  [DllImport(dllName)]
-  private static extern void InputFinished(IntPtr handle);
-}
+        [DllImport(dllName)]
+        private static extern void InputFinished(IntPtr handle);
+    }
 
-public class OnlineRecognizerResult {
-  public OnlineRecognizerResult(IntPtr handle) {
-    Impl impl = (Impl)Marshal.PtrToStructure(handle, typeof(Impl));
-    _text = Marshal.PtrToStringUTF8(impl.Text);
-  }
+    public class OnlineRecognizerResult
+    {
+        public OnlineRecognizerResult(IntPtr handle)
+        {
+            Impl impl = (Impl)Marshal.PtrToStructure(handle, typeof(Impl));
 
-  [StructLayout(LayoutKind.Sequential)]
-  struct Impl {
-    public IntPtr Text;
-    public IntPtr Tokens;
-    public IntPtr Timestamps;
-    int Count;
-  }
+            // PtrToStringUTF8() requires .net standard 2.1
+            // _text = Marshal.PtrToStringUTF8(impl.Text);
 
-  private String _text;
-  public String Text => _text;
+            int length = 0;
 
-}
+            unsafe
+            {
+                byte* buffer = (byte*)impl.Text;
+                while (*buffer != 0)
+                {
+                    ++buffer;
+                }
+                length = (int)(buffer - (byte*)impl.Text);
+            }
+
+            byte[] stringBuffer = new byte[length];
+            Marshal.Copy(impl.Text, stringBuffer, 0, length);
+            _text = Encoding.UTF8.GetString(stringBuffer);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct Impl
+        {
+            public IntPtr Text;
+            public IntPtr Tokens;
+            public IntPtr Timestamps;
+            int Count;
+        }
+
+        private String _text;
+        public String Text => _text;
+
+    }
 
 }
