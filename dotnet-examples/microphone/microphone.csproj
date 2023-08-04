@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Use * to denote the latest stable version. -->
+    <PackageReference Include="org.k2fsa.sherpa.ncnn" Version="*" />
+
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="PortAudioSharp2" Version="*" />
+  </ItemGroup>
+
+</Project>
