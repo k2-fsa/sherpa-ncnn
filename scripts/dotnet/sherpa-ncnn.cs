@@ -87,6 +87,11 @@ namespace SherpaNcnn
             return IsReady(_handle.Handle, stream.Handle) != 0;
         }
 
+        public bool IsEndpoint(OnlineStream stream)
+        {
+            return IsEndpoint(_handle.Handle, stream.Handle) != 0;
+        }
+
         public void Reset(OnlineStream stream)
         {
             Reset(_handle.Handle, stream.Handle);
@@ -141,6 +146,9 @@ namespace SherpaNcnn
 
         [DllImport(dllName)]
         private static extern int IsReady(IntPtr handle, IntPtr stream);
+
+        [DllImport(dllName)]
+        private static extern int IsEndpoint(IntPtr handle, IntPtr stream);
 
         [DllImport(dllName)]
         private static extern void Reset(IntPtr handle, IntPtr stream);
