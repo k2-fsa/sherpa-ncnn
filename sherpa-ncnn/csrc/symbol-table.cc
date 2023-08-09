@@ -19,9 +19,9 @@
 #include "sherpa-ncnn/csrc/symbol-table.h"
 
 #include <cassert>
+#include <cstdint>
 #include <fstream>
 #include <sstream>
-#include <strstream>
 
 #if __ANDROID_API__ >= 9
 #include "android/asset_manager.h"
