@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - jni-test-2023-01-09
     paths:
       - '.github/workflows/jni.yaml'
       - 'CMakeLists.txt'
