@@ -28,6 +28,10 @@ log "====================x86===================="
 ./build-android-x86.sh
 
 
+mkdir -p apks
+
+log "https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13"
+
 # Download the model
 # see https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/zipformer-transucer-models.html#csukuangfj-sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13-bilingual-chinese-english
 repo_url=https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
@@ -40,6 +44,7 @@ git lfs pull --include "*.bin"
 
 # remove .git to save spaces
 rm -rf .git
+rm .gitattributes
 rm -rfv test_wavs
 rm -v export-for-ncnn-bilingual.sh
 rm README.md
@@ -49,7 +54,10 @@ popd
 mv -v $repo ./android/SherpaNcnn/app/src/main/assets/
 tree ./android/SherpaNcnn/app/src/main/assets/
 
-mkdir -p apks
+pushd android/SherpaNcnn/app/src/main/java/com/k2fsa/sherpa/ncnn
+sed -i.bak s/"type = 1"/"type = 2"/ ./MainActivity.kt
+git diff
+popd
 
 for arch in arm64-v8a armeabi-v7a x86_64 x86; do
   log "------------------------------------------------------------"
@@ -74,5 +82,7 @@ for arch in arm64-v8a armeabi-v7a x86_64 x86; do
   ls -lh apks
   rm -v ./android/SherpaNcnn/app/src/main/jniLibs/$arch/*.so
 done
+
+git checkout .
 
 ls -lh apks/
