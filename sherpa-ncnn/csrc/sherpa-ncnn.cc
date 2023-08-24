@@ -75,59 +75,6 @@ for a list of pre-trained models to download.
   std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
   std::vector<std::vector<int32_t>> hotwords;
   std::vector<int32_t> tmp;
-  bool have_hotwords = false;
-  if (argc == 12) {
-    have_hotwords = true;
-    std::unordered_map<std::string, int> dictionary;
-    std::ifstream file(config.model_config.tokens);
-    if (!file) {
-        std::cerr << "open failed: " << config.model_config.tokens << std::endl;
-        return 0;
-    }
-    std::string line;
-    while (std::getline(file, line)) {
-      std::istringstream iss(line);
-      std::string first;
-      std::string second;
-      int number = 0;
-      std::size_t spacePos = line.find(' ');
-      if (spacePos != std::string::npos) {
-          first = line.substr(0, spacePos);
-          second = line.substr(spacePos + 1);
-      } else {
-          std::cerr<<"token is error"<<std::endl;
-          first = line;
-          second = "";
-		  return 0;
-      }
-      dictionary[first] = std::stoi(second);
-    }
-    file.close();
-	
-	std::string hotwordsfile = argv[11];
-    std::ifstream file1(hotwordsfile);
-    if (!file1) {
-        std::cerr << "open failed: " << hotwordsfile << std::endl;
-        return 0;
-    }
-    std::string lines;
-	std::string word;
-    while (std::getline(file1, lines)) {
-      std::istringstream iss(lines);
-	  while(iss >> word){
-	    std::cout<<word<<" ";
-        if (dictionary.find(word) != dictionary.end()) {
-          int number = dictionary[word];
-          tmp.push_back(number);
-        } else {
-          std::cout << "find failed" << std::endl;
-		  return 0;
-        }
-		std::cout<<std::endl;
-      }
-      hotwords.push_back(tmp);
-    }
-  }
 
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
