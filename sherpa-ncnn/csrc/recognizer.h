@@ -48,21 +48,29 @@ struct RecognizerConfig {
   FeatureExtractorConfig feat_config;
   ModelConfig model_config;
   DecoderConfig decoder_config;
-
+  std::string decoding_method;
   EndpointConfig endpoint_config;
   bool enable_endpoint = false;
-
+  // used only for modified_beam_search
+  int32_t max_active_paths = 4;
+  /// used only for modified_beam_search
+  float context_score = 1.5;
   RecognizerConfig() = default;
 
   RecognizerConfig(const FeatureExtractorConfig &feat_config,
                    const ModelConfig &model_config,
                    const DecoderConfig decoder_config,
-                   const EndpointConfig &endpoint_config, bool enable_endpoint)
+                   const EndpointConfig &endpoint_config, bool enable_endpoint,
+                   const std::string &decoding_method,
+                   int32_t max_active_paths, float context_score)
       : feat_config(feat_config),
         model_config(model_config),
         decoder_config(decoder_config),
         endpoint_config(endpoint_config),
-        enable_endpoint(enable_endpoint) {}
+        enable_endpoint(enable_endpoint),
+        decoding_method(decoding_method),
+        max_active_paths(max_active_paths),
+        context_score(context_score) {}
 
   std::string ToString() const;
 };
@@ -80,6 +88,10 @@ class Recognizer {
   /// Create a stream for decoding.
   std::unique_ptr<Stream> CreateStream() const;
 
+  // Create a stream with context phrases
+  std::unique_ptr<Stream> CreateStream(const char* context_list) const;
+  //std::unique_ptr<Stream> CreateStream(
+  //    const std::vector<std::vector<int32_t>> &context_list) const;
   /**
    * Return true if the given stream has enough frames for decoding.
    * Return false otherwise

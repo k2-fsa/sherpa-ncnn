@@ -18,7 +18,8 @@
  */
 
 #include "sherpa-ncnn/csrc/recognizer.h"
-
+#include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -75,8 +76,11 @@ std::string RecognizerConfig::ToString() const {
   os << "feat_config=" << feat_config.ToString() << ", ";
   os << "model_config=" << model_config.ToString() << ", ";
   os << "decoder_config=" << decoder_config.ToString() << ", ";
+  os << "max_active_paths=" << max_active_paths << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ", ";
-  os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ")";
+  os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
+  os << "context_score=" << context_score << ", ";
+  os << "decoding_method=\"" << decoding_method << "\")";
 
   return os.str();
 }
@@ -124,6 +128,77 @@ class Recognizer::Impl {
     return stream;
   }
 
+  // std::unique_ptr<Stream> CreateStream(const std::vector<std::vector<int32_t>>& contexts) const {
+  std::unique_ptr<Stream> CreateStream(const char* contexts) const {
+    std::vector<std::vector<int32_t>> hotwords;
+    std::vector<int32_t> tmp;
+    std::unordered_map<std::string, int> dictionary;
+    std::ifstream file(config_.model_config.tokens);
+    if (!file) {
+        std::cerr << "open file failed: " << config_.model_config.tokens << std::endl;
+        return nullptr;
+    }
+    std::string line;
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string first;
+      std::string second;
+      int number = 0;
+      std::size_t spacePos = line.find(' ');
+      if (spacePos != std::string::npos) {
+          first = line.substr(0, spacePos);
+          second = line.substr(spacePos + 1);
+      } else {
+          std::cerr<<"token is error"<<std::endl;
+          first = line;
+          second = "";
+		  return nullptr;
+      }
+      dictionary[first] = std::stoi(second);
+    }
+    file.close();
+	
+	std::string hotwordsfile(contexts);
+    std::ifstream file1(hotwordsfile);
+    if (!file1) {
+        std::cerr << "open file failed: " << hotwordsfile << std::endl;
+        return nullptr;
+    }
+    std::string lines;
+	std::string word;
+    while (std::getline(file1, lines)) {
+      std::istringstream iss(lines);
+	  while(iss >> word){
+	    std::cout<<word<<" ";
+        if (dictionary.find(word) != dictionary.end()) {
+          int number = dictionary[word];
+          tmp.push_back(number);
+        } else {
+          std::cout << "can't find id" << std::endl;
+		  return nullptr;
+        }
+		std::cout<<std::endl;
+      }
+      hotwords.push_back(tmp);
+    }
+    auto r = decoder_->GetEmptyResult();
+    auto context_graph =
+        std::make_shared<ContextGraph>(hotwords, config_.context_score);
+    auto stream =
+        std::make_unique<Stream>(config_.feat_config, context_graph);
+    if (config_.decoder_config.method == "modified_beam_search" &&
+        nullptr != stream->GetContextGraph()) {
+      std::cout<<"create contexts stream"<<std::endl;
+      // r.hyps has only one element.
+      for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
+        it->second.context_state = stream->GetContextGraph()->Root();
+      }
+    }
+    stream->SetResult(r);
+    stream->SetStates(model_->GetEncoderInitStates());
+    return stream;
+  }
+
   bool IsReady(Stream *s) const {
     return s->GetNumProcessedFrames() + model_->Segment() < s->NumFramesReady();
   }
@@ -131,6 +206,10 @@ class Recognizer::Impl {
   void DecodeStream(Stream *s) const {
     int32_t segment = model_->Segment();
     int32_t offset = model_->Offset();
+    bool has_context_graph = false;
+
+    if (!has_context_graph && s->GetContextGraph())
+      has_context_graph = true;
 
     ncnn::Mat features = s->GetFrames(s->GetNumProcessedFrames(), segment);
     s->GetNumProcessedFrames() += offset;
@@ -138,9 +217,14 @@ class Recognizer::Impl {
 
     ncnn::Mat encoder_out;
     std::tie(encoder_out, states) = model_->RunEncoder(features, states);
-    s->SetStates(states);
 
-    decoder_->Decode(encoder_out, &s->GetResult());
+//    decoder_->Decode(encoder_out, &s->GetResult());
+    if (has_context_graph) {
+      decoder_->Decode(encoder_out, s, &s->GetResult());
+    } else {
+      decoder_->Decode(encoder_out, &s->GetResult());
+    }
+    s->SetStates(states);
   }
 
   bool IsEndpoint(Stream *s) const {
@@ -158,6 +242,13 @@ class Recognizer::Impl {
   }
 
   void Reset(Stream *s) const {
+    auto r = decoder_->GetEmptyResult();
+    if (config_.decoding_method == "modified_beam_search" &&
+        nullptr != s->GetContextGraph()) {
+      for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
+        it->second.context_state = s->GetContextGraph()->Root();
+      }
+    }
     // Caution: We need to keep the decoder output state
     ncnn::Mat decoder_out = s->GetResult().decoder_out;
     s->SetResult(decoder_->GetEmptyResult());
@@ -204,6 +295,15 @@ Recognizer::~Recognizer() = default;
 
 std::unique_ptr<Stream> Recognizer::CreateStream() const {
   return impl_->CreateStream();
+}
+
+//std::unique_ptr<Stream> Recognizer::CreateStream(
+//    const std::vector<std::vector<int32_t>> &context_list) const {
+//  return impl_->CreateStream(context_list);
+//}
+std::unique_ptr<Stream> Recognizer::CreateStream(
+    const char* context_list) const {
+  return impl_->CreateStream(context_list);
 }
 
 bool Recognizer::IsReady(Stream *s) const { return impl_->IsReady(s); }

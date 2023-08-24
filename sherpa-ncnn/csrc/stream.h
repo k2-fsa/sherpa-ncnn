@@ -24,11 +24,13 @@
 
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/features.h"
+#include "sherpa-ncnn/csrc/context-graph.h"
 
 namespace sherpa_ncnn {
 class Stream {
  public:
-  explicit Stream(const FeatureExtractorConfig &config);
+  explicit Stream(const FeatureExtractorConfig &config = {},
+				ContextGraphPtr context_graph = nullptr);
   ~Stream();
 
   /**
@@ -80,6 +82,12 @@ class Stream {
 
   void SetStates(const std::vector<ncnn::Mat> &states);
   std::vector<ncnn::Mat> &GetStates();
+  /**
+   * Get the context graph corresponding to this stream.
+   *
+   * @return Return the context graph for this stream.
+   */
+  const ContextGraphPtr &GetContextGraph() const;
 
  private:
   class Impl;

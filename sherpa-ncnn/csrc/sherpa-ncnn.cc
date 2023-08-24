@@ -18,7 +18,7 @@
  */
 
 #include <stdio.h>
-
+#include <fstream>
 #include <algorithm>
 #include <chrono>  // NOLINT
 #include <iostream>
@@ -28,7 +28,7 @@
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-  if (argc < 9 || argc > 11) {
+  if (argc < 9 || argc > 12) {
     const char *usage = R"usage(
 Usage:
   ./bin/sherpa-ncnn \
@@ -66,10 +66,66 @@ for a list of pre-trained models to download.
   config.model_config.joiner_opt.num_threads = num_threads;
 
   float expected_sampling_rate = 16000;
-  if (argc == 11) {
+  if (argc >= 11) {
     std::string method = argv[10];
     if (method == "greedy_search" || method == "modified_beam_search") {
       config.decoder_config.method = method;
+    }
+  }
+  std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
+  std::vector<std::vector<int32_t>> hotwords;
+  std::vector<int32_t> tmp;
+  bool have_hotwords = false;
+  if (argc == 12) {
+    have_hotwords = true;
+    std::unordered_map<std::string, int> dictionary;
+    std::ifstream file(config.model_config.tokens);
+    if (!file) {
+        std::cerr << "open failed: " << config.model_config.tokens << std::endl;
+        return 0;
+    }
+    std::string line;
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string first;
+      std::string second;
+      int number = 0;
+      std::size_t spacePos = line.find(' ');
+      if (spacePos != std::string::npos) {
+          first = line.substr(0, spacePos);
+          second = line.substr(spacePos + 1);
+      } else {
+          std::cerr<<"token is error"<<std::endl;
+          first = line;
+          second = "";
+		  return 0;
+      }
+      dictionary[first] = std::stoi(second);
+    }
+    file.close();
+	
+	std::string hotwordsfile = argv[11];
+    std::ifstream file1(hotwordsfile);
+    if (!file1) {
+        std::cerr << "open failed: " << hotwordsfile << std::endl;
+        return 0;
+    }
+    std::string lines;
+	std::string word;
+    while (std::getline(file1, lines)) {
+      std::istringstream iss(lines);
+	  while(iss >> word){
+	    std::cout<<word<<" ";
+        if (dictionary.find(word) != dictionary.end()) {
+          int number = dictionary[word];
+          tmp.push_back(number);
+        } else {
+          std::cout << "find failed" << std::endl;
+		  return 0;
+        }
+		std::cout<<std::endl;
+      }
+      hotwords.push_back(tmp);
     }
   }
 
@@ -96,8 +152,7 @@ for a list of pre-trained models to download.
 
   auto begin = std::chrono::steady_clock::now();
   std::cout << "Started!\n";
-
-  auto stream = recognizer.CreateStream();
+    auto stream = recognizer.CreateStream(argv[11]);
   stream->AcceptWaveform(expected_sampling_rate, samples.data(),
                          samples.size());
   std::vector<float> tail_paddings(
