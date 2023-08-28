@@ -132,31 +132,7 @@ class Recognizer::Impl {
   std::unique_ptr<Stream> CreateStream(const char* contexts) const {
     std::vector<std::vector<int32_t>> hotwords;
     std::vector<int32_t> tmp;
-    // std::unordered_map<std::string, int> dictionary;
-    // std::ifstream file(config_.model_config.tokens);
-    // if (!file) {
-    //     std::cerr << "open file failed: " << config_.model_config.tokens << std::endl;
-    //     return nullptr;
-    // }
-    // std::string line;
-    // while (std::getline(file, line)) {
-    //   std::istringstream iss(line);
-    //   std::string first;
-    //   std::string second;
-    //   int number = 0;
-    //   std::size_t spacePos = line.find(' ');
-    //   if (spacePos != std::string::npos) {
-    //       first = line.substr(0, spacePos);
-    //       second = line.substr(spacePos + 1);
-    //   } else {
-    //       std::cerr<<"token is error"<<std::endl;
-    //       first = line;
-    //       second = "";
-		//   return nullptr;
-    //   }
-    //   dictionary[first] = std::stoi(second);
-    // }
-    // file.close();
+
 	  /*each line in hotwords file is a string which is segmented by space*/
 	  std::string hotwordsfile(contexts);
     std::ifstream file1(hotwordsfile);
@@ -170,14 +146,13 @@ class Recognizer::Impl {
       std::istringstream iss(lines);
 	    while(iss >> word){
 	      std::cout<<word<<" ";
-        if (sym2id_.find(word) != sym2id_.end()) {
-          int number = sym2id_[word];
+        if (sym_.contains(word)) {
+          int number = sym_[word];
           tmp.push_back(number);
         } else {
           std::cout << "can't find id" << std::endl;
 		      return nullptr;
         }
-      //std::cout<<std::endl;
       }
       hotwords.push_back(tmp);
       tmp.clear();
