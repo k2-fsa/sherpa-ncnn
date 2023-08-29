@@ -1,4 +1,4 @@
-// sherpa-onnx/csrc/context-graph.h
+// sherpa-ncnn/csrc/context-graph.h
 //
 // Copyright (c)  2023  Xiaomi Corporation
 
@@ -10,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-//#include "sherpa-ncnn/csrc/log.h"
 
 namespace sherpa_ncnn {
 

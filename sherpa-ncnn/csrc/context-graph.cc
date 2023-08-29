@@ -1,4 +1,4 @@
-// sherpa-onnx/csrc/context-graph.cc
+// sherpa-ncnn/csrc/context-graph.cc
 //
 // Copyright (c)  2023  Xiaomi Corporation
 
@@ -45,14 +45,6 @@ std::pair<float, const ContextState *> ContextGraph::ForwardOneStep(
     }
     score = node->node_score - state->node_score;
   }
-//  SHERPA_ONNX_CHECK(nullptr != node);
-  // float matched_score = 0;
-  // auto output = node->output;
-  // while (nullptr != output) {
-  //   matched_score += output->node_score;
-  //   output = output->output;
-  // }
-  // return std::make_pair(score + matched_score, node);
   return std::make_pair(score + node->output_score, node);
 }
 
