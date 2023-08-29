@@ -128,7 +128,6 @@ class Recognizer::Impl {
     return stream;
   }
 
-  // std::unique_ptr<Stream> CreateStream(const std::vector<std::vector<int32_t>>& contexts) const {
   std::unique_ptr<Stream> CreateStream(const char* contexts) const {
     std::vector<std::vector<int32_t>> hotwords;
     std::vector<int32_t> tmp;
@@ -194,7 +193,6 @@ class Recognizer::Impl {
     ncnn::Mat encoder_out;
     std::tie(encoder_out, states) = model_->RunEncoder(features, states);
 
-//    decoder_->Decode(encoder_out, &s->GetResult());
     if (has_context_graph) {
       decoder_->Decode(encoder_out, s, &s->GetResult());
     } else {
@@ -273,10 +271,6 @@ std::unique_ptr<Stream> Recognizer::CreateStream() const {
   return impl_->CreateStream();
 }
 
-//std::unique_ptr<Stream> Recognizer::CreateStream(
-//    const std::vector<std::vector<int32_t>> &context_list) const {
-//  return impl_->CreateStream(context_list);
-//}
 std::unique_ptr<Stream> Recognizer::CreateStream(
     const char* context_list) const {
   return impl_->CreateStream(context_list);

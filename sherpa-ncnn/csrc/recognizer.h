@@ -90,8 +90,7 @@ class Recognizer {
 
   // Create a stream with context phrases
   std::unique_ptr<Stream> CreateStream(const char* context_list) const;
-  //std::unique_ptr<Stream> CreateStream(
-  //    const std::vector<std::vector<int32_t>> &context_list) const;
+
   /**
    * Return true if the given stream has enough frames for decoding.
    * Return false otherwise
