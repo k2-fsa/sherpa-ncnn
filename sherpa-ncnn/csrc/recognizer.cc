@@ -179,7 +179,7 @@ class Recognizer::Impl {
     } else {
       auto r = decoder_->GetEmptyResult();
       auto context_graph =
-          std::make_shared<ContextGraph>(hotwords_, config_.hotwrods_score);
+          std::make_shared<ContextGraph>(hotwords_, config_.hotwords_score);
       auto stream =
           std::make_unique<Stream>(config_.feat_config, context_graph);
       if (config_.decoder_config.method == "modified_beam_search" &&

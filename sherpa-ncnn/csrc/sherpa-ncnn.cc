@@ -28,7 +28,7 @@
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-  if (argc < 9 || argc > 12) {
+  if (argc < 9 || argc > 13) {
     const char *usage = R"usage(
 Usage:
   ./bin/sherpa-ncnn \
@@ -73,12 +73,16 @@ for a list of pre-trained models to download.
     }
   }
   std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
-  if(argc == 12) {
+  if(argc >= 12) {
 	config.hotwords_file = argv[11];
   } else {
     config.hotwords_file = "";
   }
-
+  if(argc == 13) {
+    config.hotwords_score = atof(argv[12]);
+  } else {
+    config.hotwords_file = 1.5;
+  }
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
 

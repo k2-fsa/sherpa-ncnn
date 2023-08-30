@@ -40,7 +40,7 @@ const char *kUsage =
     "for a list of pre-trained models to download.\n";
 
 int32_t main(int32_t argc, char *argv[]) {
-  if (argc < 9 || argc > 12) {
+  if (argc < 9 || argc > 13) {
     fprintf(stderr, "%s\n", kUsage);
     return -1;
   }
