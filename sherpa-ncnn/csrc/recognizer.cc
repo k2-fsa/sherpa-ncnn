@@ -98,6 +98,31 @@ class Recognizer::Impl {
     } else if (config.decoder_config.method == "modified_beam_search") {
       decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
           model_.get(), config.decoder_config.num_active_paths);
+      std::vector<int32_t> tmp;
+      /*each line in hotwords file is a string which is segmented by space*/
+      std::ifstream file(config_.hotwordsfile);
+      if (file) {
+        std::string lines;
+        std::string word;
+        while (std::getline(file, lines)) {
+          std::istringstream iss(lines);
+          std::cout << lines << std::endl;
+	      while(iss >> word){
+            if (sym_.contains(word)) {
+              int number = sym_[word];
+              tmp.push_back(number);
+            } else {
+              NCNN_LOGE("hotword can't find id");
+              exit(-1);
+            }
+          }
+          hotwords_.push_back(tmp);
+          tmp.clear();
+        }
+      } else {
+        NCNN_LOGE("open file failed: %s, hotwords will not be used", 
+                 config_.hotwordsfile.c_str());
+      }
     } else {
       NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
       exit(-1);
@@ -115,6 +140,31 @@ class Recognizer::Impl {
     } else if (config.decoder_config.method == "modified_beam_search") {
       decoder_ = std::make_unique<ModifiedBeamSearchDecoder>(
           model_.get(), config.decoder_config.num_active_paths);
+      std::vector<int32_t> tmp;
+      /*each line in hotwords file is a string which is segmented by space*/
+      std::ifstream file(config_.hotwordsfile);
+      if (file) {
+        std::string lines;
+        std::string word;
+        while (std::getline(file, lines)) {
+          std::istringstream iss(lines);
+          std::cout << lines << std::endl;
+	      while(iss >> word){
+            if (sym_.contains(word)) {
+              int number = sym_[word];
+              tmp.push_back(number);
+            } else {
+              NCNN_LOGE("hotword can't find id");
+              exit(-1);
+            }
+          }
+          hotwords_.push_back(tmp);
+          tmp.clear();
+        }
+      } else {
+        NCNN_LOGE("open file failed: %s, hotwords will not be used", 
+                 config_.hotwordsfile.c_str());
+      }
     } else {
       NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
       exit(-1);
@@ -123,41 +173,15 @@ class Recognizer::Impl {
 #endif
 
   std::unique_ptr<Stream> CreateStream() const {
-    if(config_.hotwordsfile.empty()) {
+    if(hotwords_.empty()) {
       auto stream = std::make_unique<Stream>(config_.feat_config);
       stream->SetResult(decoder_->GetEmptyResult());
       stream->SetStates(model_->GetEncoderInitStates());
       return stream;
     } else {
-      std::vector<std::vector<int32_t>> hotwords;
-      std::vector<int32_t> tmp;
-
-	    /*each line in hotwords file is a string which is segmented by space*/
-      std::ifstream file1(config_.hotwordsfile);
-      if (!file1) {
-        std::cerr << "open file failed: " << config_.hotwordsfile << std::endl;
-        return nullptr;
-      }
-      std::string lines;
-      std::string word;
-      while (std::getline(file1, lines)) {
-        std::istringstream iss(lines);
-	      while(iss >> word){
-	        std::cout<<word<<" ";
-          if (sym_.contains(word)) {
-            int number = sym_[word];
-            tmp.push_back(number);
-          } else {
-            std::cout << "can't find id" << std::endl;
-            return nullptr;
-          }
-        }
-        hotwords.push_back(tmp);
-        tmp.clear();
-      }
       auto r = decoder_->GetEmptyResult();
       auto context_graph =
-          std::make_shared<ContextGraph>(hotwords, config_.context_score);
+          std::make_shared<ContextGraph>(hotwords_, config_.context_score);
       auto stream =
           std::make_unique<Stream>(config_.feat_config, context_graph);
       if (config_.decoder_config.method == "modified_beam_search" &&
@@ -255,6 +279,7 @@ class Recognizer::Impl {
   std::unique_ptr<Decoder> decoder_;
   Endpoint endpoint_;
   SymbolTable sym_;
+  std::vector<std::vector<int32_t>> hotwords_;
 };
 
 Recognizer::Recognizer(const RecognizerConfig &config)
