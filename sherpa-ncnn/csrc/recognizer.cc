@@ -79,7 +79,7 @@ std::string RecognizerConfig::ToString() const {
   os << "max_active_paths=" << max_active_paths << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ", ";
   os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
-  os << "hotwords_file=" << hotwords_file << ", ";
+  os << "hotwords_file=\"" << hotwords_file << "\", ";
   os << "hotwrods_score=" << hotwords_score << ", ";
   os << "decoding_method=\"" << decoding_method << "\")";
 
