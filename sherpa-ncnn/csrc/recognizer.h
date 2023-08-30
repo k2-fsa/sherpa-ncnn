@@ -49,6 +49,7 @@ struct RecognizerConfig {
   ModelConfig model_config;
   DecoderConfig decoder_config;
   std::string decoding_method;
+  std::string hotwordsfile;
   EndpointConfig endpoint_config;
   bool enable_endpoint = false;
   // used only for modified_beam_search
@@ -62,6 +63,7 @@ struct RecognizerConfig {
                    const DecoderConfig decoder_config,
                    const EndpointConfig &endpoint_config, bool enable_endpoint,
                    const std::string &decoding_method,
+                   const std::string &hotwordsfile,
                    int32_t max_active_paths, float context_score)
       : feat_config(feat_config),
         model_config(model_config),
@@ -69,6 +71,7 @@ struct RecognizerConfig {
         endpoint_config(endpoint_config),
         enable_endpoint(enable_endpoint),
         decoding_method(decoding_method),
+        hotwordsfile(hotwordsfile),
         max_active_paths(max_active_paths),
         context_score(context_score) {}
 
@@ -87,9 +90,6 @@ class Recognizer {
 
   /// Create a stream for decoding.
   std::unique_ptr<Stream> CreateStream() const;
-
-  // Create a stream with context phrases
-  std::unique_ptr<Stream> CreateStream(const char* context_list) const;
 
   /**
    * Return true if the given stream has enough frames for decoding.

@@ -66,6 +66,7 @@ SherpaNcnnRecognizer *CreateRecognizer(
   config.decoder_config.method = in_config->decoder_config.decoding_method;
   config.decoder_config.num_active_paths =
       in_config->decoder_config.num_active_paths;
+  config.hotwordsfile = in_config->decoder_config.hotwordsfile;
 
   config.enable_endpoint = in_config->enable_endpoint;
 

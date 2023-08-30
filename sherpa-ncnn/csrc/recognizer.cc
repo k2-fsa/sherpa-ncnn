@@ -79,6 +79,7 @@ std::string RecognizerConfig::ToString() const {
   os << "max_active_paths=" << max_active_paths << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ", ";
   os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
+  os << "hotwordsfile=" << hotwordsfile << ", ";
   os << "context_score=" << context_score << ", ";
   os << "decoding_method=\"" << decoding_method << "\")";
 
@@ -122,56 +123,55 @@ class Recognizer::Impl {
 #endif
 
   std::unique_ptr<Stream> CreateStream() const {
-    auto stream = std::make_unique<Stream>(config_.feat_config);
-    stream->SetResult(decoder_->GetEmptyResult());
-    stream->SetStates(model_->GetEncoderInitStates());
-    return stream;
-  }
+    if(config_.hotwordsfile.empty()) {
+      auto stream = std::make_unique<Stream>(config_.feat_config);
+      stream->SetResult(decoder_->GetEmptyResult());
+      stream->SetStates(model_->GetEncoderInitStates());
+      return stream;
+    } else {
+      std::vector<std::vector<int32_t>> hotwords;
+      std::vector<int32_t> tmp;
 
-  std::unique_ptr<Stream> CreateStream(const char* contexts) const {
-    std::vector<std::vector<int32_t>> hotwords;
-    std::vector<int32_t> tmp;
-
-	  /*each line in hotwords file is a string which is segmented by space*/
-	  std::string hotwordsfile(contexts);
-    std::ifstream file1(hotwordsfile);
-    if (!file1) {
-      std::cerr << "open file failed: " << hotwordsfile << std::endl;
-      return nullptr;
-    }
-    std::string lines;
-	  std::string word;
-    while (std::getline(file1, lines)) {
-      std::istringstream iss(lines);
-	    while(iss >> word){
-	      std::cout<<word<<" ";
-        if (sym_.contains(word)) {
-          int number = sym_[word];
-          tmp.push_back(number);
-        } else {
-          std::cout << "can't find id" << std::endl;
-		      return nullptr;
+	    /*each line in hotwords file is a string which is segmented by space*/
+      std::ifstream file1(config_.hotwordsfile);
+      if (!file1) {
+        std::cerr << "open file failed: " << config_.hotwordsfile << std::endl;
+        return nullptr;
+      }
+      std::string lines;
+      std::string word;
+      while (std::getline(file1, lines)) {
+        std::istringstream iss(lines);
+	      while(iss >> word){
+	        std::cout<<word<<" ";
+          if (sym_.contains(word)) {
+            int number = sym_[word];
+            tmp.push_back(number);
+          } else {
+            std::cout << "can't find id" << std::endl;
+            return nullptr;
+          }
+        }
+        hotwords.push_back(tmp);
+        tmp.clear();
+      }
+      auto r = decoder_->GetEmptyResult();
+      auto context_graph =
+          std::make_shared<ContextGraph>(hotwords, config_.context_score);
+      auto stream =
+          std::make_unique<Stream>(config_.feat_config, context_graph);
+      if (config_.decoder_config.method == "modified_beam_search" &&
+          nullptr != stream->GetContextGraph()) {
+        std::cout<<"create contexts stream"<<std::endl;
+        // r.hyps has only one element.
+        for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
+          it->second.context_state = stream->GetContextGraph()->Root();
         }
       }
-      hotwords.push_back(tmp);
-      tmp.clear();
-    }
-    auto r = decoder_->GetEmptyResult();
-    auto context_graph =
-        std::make_shared<ContextGraph>(hotwords, config_.context_score);
-    auto stream =
-        std::make_unique<Stream>(config_.feat_config, context_graph);
-    if (config_.decoder_config.method == "modified_beam_search" &&
-        nullptr != stream->GetContextGraph()) {
-      std::cout<<"create contexts stream"<<std::endl;
-      // r.hyps has only one element.
-      for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
-        it->second.context_state = stream->GetContextGraph()->Root();
-      }
-    }
-    stream->SetResult(r);
-    stream->SetStates(model_->GetEncoderInitStates());
-    return stream;
+      stream->SetResult(r);
+      stream->SetStates(model_->GetEncoderInitStates());
+      return stream;
+	  }
   }
 
   bool IsReady(Stream *s) const {
@@ -271,10 +271,6 @@ std::unique_ptr<Stream> Recognizer::CreateStream() const {
   return impl_->CreateStream();
 }
 
-std::unique_ptr<Stream> Recognizer::CreateStream(
-    const char* context_list) const {
-  return impl_->CreateStream(context_list);
-}
 
 bool Recognizer::IsReady(Stream *s) const { return impl_->IsReady(s); }
 

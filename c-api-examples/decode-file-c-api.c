@@ -40,7 +40,7 @@ const char *kUsage =
     "for a list of pre-trained models to download.\n";
 
 int32_t main(int32_t argc, char *argv[]) {
-  if (argc < 9 || argc > 11) {
+  if (argc < 9 || argc > 12) {
     fprintf(stderr, "%s\n", kUsage);
     return -1;
   }
@@ -62,7 +62,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
   config.decoder_config.decoding_method = "greedy_search";
 
-  if (argc == 11) {
+  if (argc >= 11) {
     config.decoder_config.decoding_method = argv[10];
   }
   config.decoder_config.num_active_paths = 4;
@@ -73,6 +73,11 @@ int32_t main(int32_t argc, char *argv[]) {
 
   config.feat_config.sampling_rate = 16000;
   config.feat_config.feature_dim = 80;
+  if(argc == 12) {
+    config.decoder_config.hotwordsfile = argv[11];
+  } else {
+    config.decoder_config.hotwordsfile = "";
+  }
 
   SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
 
@@ -92,7 +97,6 @@ int32_t main(int32_t argc, char *argv[]) {
 
   int16_t buffer[N];
   float samples[N];
-
   SherpaNcnnStream *s = CreateStream(recognizer);
 
   SherpaNcnnDisplay *display = CreateDisplay(50);

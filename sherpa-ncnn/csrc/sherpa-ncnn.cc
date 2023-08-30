@@ -73,8 +73,11 @@ for a list of pre-trained models to download.
     }
   }
   std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
-  std::vector<std::vector<int32_t>> hotwords;
-  std::vector<int32_t> tmp;
+  if(argc == 12) {
+	config.hotwordsfile = argv[11];
+  } else {
+    config.hotwordsfile = "";
+  }
 
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
@@ -99,7 +102,7 @@ for a list of pre-trained models to download.
 
   auto begin = std::chrono::steady_clock::now();
   std::cout << "Started!\n";
-    auto stream = recognizer.CreateStream(argv[11]);
+  auto stream = recognizer.CreateStream();
   stream->AcceptWaveform(expected_sampling_rate, samples.data(),
                          samples.size());
   std::vector<float> tail_paddings(
