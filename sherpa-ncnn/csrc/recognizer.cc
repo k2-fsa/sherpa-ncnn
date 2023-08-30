@@ -102,17 +102,16 @@ class Recognizer::Impl {
       /*each line in hotwords file is a string which is segmented by space*/
       std::ifstream file(config_.hotwordsfile);
       if (file) {
-        std::string lines;
+        std::string line;
         std::string word;
-        while (std::getline(file, lines)) {
-          std::istringstream iss(lines);
-          std::cout << lines << std::endl;
-	      while(iss >> word){
+        while (std::getline(file, line)) {
+          std::istringstream iss(line);
+          while(iss >> word){
             if (sym_.contains(word)) {
               int number = sym_[word];
               tmp.push_back(number);
             } else {
-              NCNN_LOGE("hotword can't find id");
+              NCNN_LOGE("hotword %s can't find id. line: %s", word.c_str(), line.c_str());
               exit(-1);
             }
           }
@@ -144,17 +143,16 @@ class Recognizer::Impl {
       /*each line in hotwords file is a string which is segmented by space*/
       std::ifstream file(config_.hotwordsfile);
       if (file) {
-        std::string lines;
+        std::string line;
         std::string word;
-        while (std::getline(file, lines)) {
-          std::istringstream iss(lines);
-          std::cout << lines << std::endl;
-	      while(iss >> word){
+        while (std::getline(file, line)) {
+          std::istringstream iss(line);
+          while(iss >> word){
             if (sym_.contains(word)) {
               int number = sym_[word];
               tmp.push_back(number);
             } else {
-              NCNN_LOGE("hotword can't find id");
+              NCNN_LOGE("hotword %s can't find id. line: %s", word.c_str(), line.c_str());
               exit(-1);
             }
           }
@@ -195,7 +193,7 @@ class Recognizer::Impl {
       stream->SetResult(r);
       stream->SetStates(model_->GetEncoderInitStates());
       return stream;
-	  }
+    }
   }
 
   bool IsReady(Stream *s) const {
@@ -207,9 +205,9 @@ class Recognizer::Impl {
     int32_t offset = model_->Offset();
     bool has_context_graph = false;
 
-    if (!has_context_graph && s->GetContextGraph())
+    if (!has_context_graph && s->GetContextGraph()) {
       has_context_graph = true;
-
+    }
     ncnn::Mat features = s->GetFrames(s->GetNumProcessedFrames(), segment);
     s->GetNumProcessedFrames() += offset;
     std::vector<ncnn::Mat> states = s->GetStates();
