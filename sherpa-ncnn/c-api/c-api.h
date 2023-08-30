@@ -97,11 +97,6 @@ SHERPA_NCNN_API typedef struct SherpaNcnnDecoderConfig {
   /// Number of active paths for modified_beam_search.
   /// It is ignored when decoding_method is greedy_search.
   int32_t num_active_paths;
-
-  /// hotwords file, each line is a hotword which is segmented into char by space
-  /// if language is something like CJK, segment manually,
-  /// if language is something like English, segment by bpe model.
-  const char *hotwords;
 } SherpaNcnnDecoderConfig;
 
 SHERPA_NCNN_API typedef struct SherpaNcnnFeatureExtractorConfig {
@@ -138,6 +133,14 @@ SHERPA_NCNN_API typedef struct SherpaNcnnRecognizerConfig {
   /// this value.
   /// Used only when enable_endpoint is not 0.
   float rule3_min_utterance_length;
+  
+  /// hotwords file, each line is a hotword which is segmented into char by space
+  /// if language is something like CJK, segment manually,
+  /// if language is something like English, segment by bpe model.
+  const char *hotwords_file;
+
+  /// scale of hotwords, used only when hotwords_file is not empty
+  float hotwords_score;
 } SherpaNcnnRecognizerConfig;
 
 SHERPA_NCNN_API typedef struct SherpaNcnnResult {

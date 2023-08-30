@@ -49,13 +49,13 @@ struct RecognizerConfig {
   ModelConfig model_config;
   DecoderConfig decoder_config;
   std::string decoding_method;
-  std::string hotwordsfile;
+  std::string hotwords_file;
   EndpointConfig endpoint_config;
   bool enable_endpoint = false;
   // used only for modified_beam_search
   int32_t max_active_paths = 4;
   /// used only for modified_beam_search
-  float context_score = 1.5;
+  float hotwords_score = 1.5;
   RecognizerConfig() = default;
 
   RecognizerConfig(const FeatureExtractorConfig &feat_config,
@@ -63,17 +63,17 @@ struct RecognizerConfig {
                    const DecoderConfig decoder_config,
                    const EndpointConfig &endpoint_config, bool enable_endpoint,
                    const std::string &decoding_method,
-                   const std::string &hotwordsfile,
-                   int32_t max_active_paths, float context_score)
+                   const std::string &hotwords_file,
+                   int32_t max_active_paths, float hotwords_score)
       : feat_config(feat_config),
         model_config(model_config),
         decoder_config(decoder_config),
         endpoint_config(endpoint_config),
         enable_endpoint(enable_endpoint),
         decoding_method(decoding_method),
-        hotwordsfile(hotwordsfile),
+        hotwords_file(hotwords_file),
         max_active_paths(max_active_paths),
-        context_score(context_score) {}
+        hotwords_score(hotwords_score) {}
 
   std::string ToString() const;
 };

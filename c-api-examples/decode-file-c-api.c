@@ -73,12 +73,16 @@ int32_t main(int32_t argc, char *argv[]) {
 
   config.feat_config.sampling_rate = 16000;
   config.feat_config.feature_dim = 80;
-  if(argc == 12) {
-    config.decoder_config.hotwordsfile = argv[11];
+  if(argc >= 12) {
+    config.hotwords_file = argv[11];
   } else {
-    config.decoder_config.hotwordsfile = "";
+    config.hotwords_file = "";
   }
-
+  if(argc == 13) {
+    config.hotwords_score = atof(argv[12]);
+  } else {
+    config.hotwords_score = 1.5;
+  }
   SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
 
   const char *wav_filename = argv[8];

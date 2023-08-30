@@ -79,8 +79,8 @@ std::string RecognizerConfig::ToString() const {
   os << "max_active_paths=" << max_active_paths << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ", ";
   os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
-  os << "hotwordsfile=" << hotwordsfile << ", ";
-  os << "context_score=" << context_score << ", ";
+  os << "hotwords_file=" << hotwords_file << ", ";
+  os << "hotwrods_score=" << hotwords_score << ", ";
   os << "decoding_method=\"" << decoding_method << "\")";
 
   return os.str();
@@ -100,7 +100,7 @@ class Recognizer::Impl {
           model_.get(), config.decoder_config.num_active_paths);
       std::vector<int32_t> tmp;
       /*each line in hotwords file is a string which is segmented by space*/
-      std::ifstream file(config_.hotwordsfile);
+      std::ifstream file(config_.hotwords_file);
       if (file) {
         std::string line;
         std::string word;
@@ -120,7 +120,7 @@ class Recognizer::Impl {
         }
       } else {
         NCNN_LOGE("open file failed: %s, hotwords will not be used", 
-                 config_.hotwordsfile.c_str());
+                 config_.hotwords_file.c_str());
       }
     } else {
       NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
@@ -141,7 +141,7 @@ class Recognizer::Impl {
           model_.get(), config.decoder_config.num_active_paths);
       std::vector<int32_t> tmp;
       /*each line in hotwords file is a string which is segmented by space*/
-      std::ifstream file(config_.hotwordsfile);
+      std::ifstream file(config_.hotwords_file);
       if (file) {
         std::string line;
         std::string word;
@@ -161,7 +161,7 @@ class Recognizer::Impl {
         }
       } else {
         NCNN_LOGE("open file failed: %s, hotwords will not be used", 
-                 config_.hotwordsfile.c_str());
+                 config_.hotwords_file.c_str());
       }
     } else {
       NCNN_LOGE("Unsupported method: %s", config.decoder_config.method.c_str());
@@ -179,7 +179,7 @@ class Recognizer::Impl {
     } else {
       auto r = decoder_->GetEmptyResult();
       auto context_graph =
-          std::make_shared<ContextGraph>(hotwords_, config_.context_score);
+          std::make_shared<ContextGraph>(hotwords_, config_.hotwrods_score);
       auto stream =
           std::make_unique<Stream>(config_.feat_config, context_graph);
       if (config_.decoder_config.method == "modified_beam_search" &&

@@ -40,8 +40,8 @@ class ContextGraph {
  public:
   ContextGraph() = default;
   ContextGraph(const std::vector<std::vector<int32_t>> &token_ids,
-               float context_score)
-      : context_score_(context_score) {
+               float hotwords_score)
+      : context_score_(hotwords_score) {
     root_ = std::make_unique<ContextState>(-1, 0, 0, 0, false);
     root_->fail = root_.get();
     Build(token_ids);

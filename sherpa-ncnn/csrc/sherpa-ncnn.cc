@@ -74,9 +74,9 @@ for a list of pre-trained models to download.
   }
   std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
   if(argc == 12) {
-	config.hotwordsfile = argv[11];
+	config.hotwords_file = argv[11];
   } else {
-    config.hotwordsfile = "";
+    config.hotwords_file = "";
   }
 
   config.feat_config.sampling_rate = expected_sampling_rate;
