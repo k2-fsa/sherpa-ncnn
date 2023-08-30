@@ -544,3 +544,34 @@ for wave in ${waves[@]}; do
 done
 
 rm -rf $repo
+
+log "------------------------------------------------------------"
+log "Run hotwords test (Chinese)"
+log "------------------------------------------------------------"
+repo_url=https://huggingface.co/HalFTeen/sherpa-ncnn-hotwords-test/
+log "Start testing ${repo_url}"
+repo=$(basename $repo_url)
+log "Download pretrained model and test-data from $repo_url"
+GIT_LFS_SKIP_SMUDGE=1 git clone $repo_url
+pushd $repo
+git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
+git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
+
+popd
+log "----test $m ---"
+
+time $EXE \
+  $repo/tokens.txt \
+  $repo/encoder_jit_trace-pnnx.ncnn.param \
+  $repo/encoder_jit_trace-pnnx.ncnn.bin \
+  $repo/decoder_jit_trace-pnnx.ncnn.param \
+  $repo/decoder_jit_trace-pnnx.ncnn.bin \
+  $repo/joiner_jit_trace-pnnx.ncnn.param \
+  $repo/joiner_jit_trace-pnnx.ncnn.bin \
+  $repo/hotwords.wav \
+  4 \
+  modified_beam_search \
+  $repo/hotwords.txt
+
+rm -rf $repo

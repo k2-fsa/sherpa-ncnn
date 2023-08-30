@@ -93,10 +93,15 @@ SHERPA_NCNN_API typedef struct SherpaNcnnDecoderConfig {
   /// Decoding method. Supported values are:
   /// greedy_search, modified_beam_search
   const char *decoding_method;
-  const char *hotwordsfile;
+
   /// Number of active paths for modified_beam_search.
   /// It is ignored when decoding_method is greedy_search.
   int32_t num_active_paths;
+
+  /// hotwords file, each line is a hotword which is segmented into char by space
+  /// if language is something like CJK, segment manually,
+  /// if language is something like English, segment by bpe model.
+  const char *hotwords;
 } SherpaNcnnDecoderConfig;
 
 SHERPA_NCNN_API typedef struct SherpaNcnnFeatureExtractorConfig {
