@@ -34,7 +34,7 @@ data class RecognizerConfig(
     var rule2MinTrailingSilence: Float = 1.0f,
     var rule3MinUtteranceLength: Float = 30.0f,
     var hotwordsFile: String = "",
-    var hotwordsScore: Float = 1.5,
+    var hotwordsScore: Float = 1.5f,
 )
 
 class SherpaNcnn(
