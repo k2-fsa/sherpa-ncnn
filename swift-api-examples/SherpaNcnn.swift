@@ -118,7 +118,9 @@ func sherpaNcnnRecognizerConfig(
     enableEndpoint: Bool = false,
     rule1MinTrailingSilence: Float = 2.4,
     rule2MinTrailingSilence: Float = 1.2,
-    rule3MinUtteranceLength: Float = 30
+    rule3MinUtteranceLength: Float = 30,
+    hotwordsFile: String = "",
+    hotwordsScore: Float = 1.5
 ) -> SherpaNcnnRecognizerConfig {
     return SherpaNcnnRecognizerConfig(
         feat_config: featConfig,
@@ -127,7 +129,9 @@ func sherpaNcnnRecognizerConfig(
         enable_endpoint: enableEndpoint ? 1 : 0,
         rule1_min_trailing_silence: rule1MinTrailingSilence,
         rule2_min_trailing_silence: rule2MinTrailingSilence,
-        rule3_min_utterance_length: rule3MinUtteranceLength)
+        rule3_min_utterance_length: rule3MinUtteranceLength,
+        hotwords_file: toCPointer(hotwordsFile),
+        hotwords_score: hotwordsScore)
 }
 
 /// Wrapper for recognition result.
