@@ -557,10 +557,24 @@ pushd $repo
 git lfs pull --include "encoder_jit_trace-pnnx.ncnn.bin"
 git lfs pull --include "decoder_jit_trace-pnnx.ncnn.bin"
 git lfs pull --include "joiner_jit_trace-pnnx.ncnn.bin"
-
 popd
-log "----test $m ---"
 
+
+log "----test $m without hotwords---"
+time $EXE \
+  $repo/tokens.txt \
+  $repo/encoder_jit_trace-pnnx.ncnn.param \
+  $repo/encoder_jit_trace-pnnx.ncnn.bin \
+  $repo/decoder_jit_trace-pnnx.ncnn.param \
+  $repo/decoder_jit_trace-pnnx.ncnn.bin \
+  $repo/joiner_jit_trace-pnnx.ncnn.param \
+  $repo/joiner_jit_trace-pnnx.ncnn.bin \
+  $repo/hotwords.wav \
+  4 \
+  modified_beam_search
+
+
+log "----test $m with hotwords---"
 time $EXE \
   $repo/tokens.txt \
   $repo/encoder_jit_trace-pnnx.ncnn.param \
@@ -572,6 +586,6 @@ time $EXE \
   $repo/hotwords.wav \
   4 \
   modified_beam_search \
-  $repo/hotwords.txt
+  $repo/hotwords.txt 1.6
 
 rm -rf $repo
