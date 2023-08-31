@@ -23,12 +23,12 @@
 #include <fstream>
 #include <sstream>
 
-
 #if __ANDROID_API__ >= 9
+#include <strstream>
+
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #include "android/log.h"
-#include <strstream>
 #endif
 
 namespace sherpa_ncnn {

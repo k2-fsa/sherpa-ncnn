@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "sherpa-ncnn/csrc/context-graph.h"
 
 namespace sherpa_ncnn {
@@ -43,7 +44,7 @@ struct Hypothesis {
 
   Hypothesis() = default;
   Hypothesis(const std::vector<int32_t> &ys, double log_prob,
-            const ContextState *context_state = nullptr)
+             const ContextState *context_state = nullptr)
       : ys(ys), log_prob(log_prob), context_state(context_state) {}
 
   // If two Hypotheses have the same `Key`, then they contain
