@@ -31,6 +31,11 @@
 #include "sherpa-ncnn/csrc/stream.h"
 #include "sherpa-ncnn/csrc/symbol-table.h"
 
+#if __ANDROID_API__ >= 9
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#endif
+
 namespace sherpa_ncnn {
 
 struct RecognitionResult {
@@ -48,31 +53,33 @@ struct RecognizerConfig {
   FeatureExtractorConfig feat_config;
   ModelConfig model_config;
   DecoderConfig decoder_config;
-  std::string decoding_method;
-  std::string hotwords_file;
   EndpointConfig endpoint_config;
   bool enable_endpoint = false;
+  std::string decoding_method;
   // used only for modified_beam_search
   int32_t max_active_paths = 4;
+
+  std::string hotwords_file;
+
   /// used only for modified_beam_search
   float hotwords_score = 1.5;
+
   RecognizerConfig() = default;
 
   RecognizerConfig(const FeatureExtractorConfig &feat_config,
                    const ModelConfig &model_config,
                    const DecoderConfig decoder_config,
                    const EndpointConfig &endpoint_config, bool enable_endpoint,
-                   const std::string &decoding_method,
-                   const std::string &hotwords_file,
-                   int32_t max_active_paths, float hotwords_score)
+                   const std::string &decoding_method, int32_t max_active_paths,
+                   const std::string &hotwords_file, float hotwords_score)
       : feat_config(feat_config),
         model_config(model_config),
         decoder_config(decoder_config),
         endpoint_config(endpoint_config),
         enable_endpoint(enable_endpoint),
         decoding_method(decoding_method),
-        hotwords_file(hotwords_file),
         max_active_paths(max_active_paths),
+        hotwords_file(hotwords_file),
         hotwords_score(hotwords_score) {}
 
   std::string ToString() const;
