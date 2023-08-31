@@ -195,7 +195,6 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
   result->num_trailing_blanks = hyp.num_trailing_blanks;
 }
 
-
 void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
                                        DecoderResult *result) {
   int32_t context_size = model_->ContextSize();
@@ -204,7 +203,6 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
   for (int32_t t = 0; t != encoder_out.h; ++t) {
     std::vector<Hypothesis> prev = cur.GetTopK(num_active_paths_, true);
     cur.Clear();
-
 
     ncnn::Mat decoder_input = BuildDecoderInput(prev);
     ncnn::Mat decoder_out;
@@ -218,13 +216,12 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
 
     // decoder_out.w == decoder_dim
     // decoder_out.h == num_active_paths
-	ncnn::Mat encoder_out_t(encoder_out.w, 1, encoder_out.row(t));
+    ncnn::Mat encoder_out_t(encoder_out.w, 1, encoder_out.row(t));
 
     ncnn::Mat joiner_out = model_->RunJoiner(encoder_out_t, decoder_out);
     // joiner_out.w == vocab_size
     // joiner_out.h == num_active_paths
     LogSoftmax(&joiner_out);
-
 
     float *p_joiner_out = joiner_out;
 
@@ -255,8 +252,8 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
         new_hyp.num_trailing_blanks = 0;
         new_hyp.timestamps.push_back(t + frame_offset);
         if (s != nullptr && s->GetContextGraph() != nullptr) {
-          auto context_res = s->GetContextGraph()->ForwardOneStep(
-              context_state, new_token);
+          auto context_res =
+              s->GetContextGraph()->ForwardOneStep(context_state, new_token);
           context_score = context_res.first;
           new_hyp.context_state = context_res.second;
         }

@@ -18,9 +18,10 @@
  */
 
 #include <stdio.h>
-#include <fstream>
+
 #include <algorithm>
 #include <chrono>  // NOLINT
+#include <fstream>
 #include <iostream>
 
 #include "net.h"  // NOLINT
@@ -72,17 +73,19 @@ for a list of pre-trained models to download.
       config.decoder_config.method = method;
     }
   }
-  std::cout<<"decode method:"<<config.decoder_config.method<<std::endl;
-  if(argc >= 12) {
-	config.hotwords_file = argv[11];
+
+  if (argc >= 12) {
+    config.hotwords_file = argv[11];
   } else {
     config.hotwords_file = "";
   }
-  if(argc == 13) {
+
+  if (argc == 13) {
     config.hotwords_score = atof(argv[12]);
   } else {
     config.hotwords_file = 1.5;
   }
+
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
 

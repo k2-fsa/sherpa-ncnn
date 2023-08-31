@@ -22,15 +22,15 @@
 #include <memory>
 #include <vector>
 
+#include "sherpa-ncnn/csrc/context-graph.h"
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/features.h"
-#include "sherpa-ncnn/csrc/context-graph.h"
 
 namespace sherpa_ncnn {
 class Stream {
  public:
   explicit Stream(const FeatureExtractorConfig &config = {},
-				ContextGraphPtr context_graph = nullptr);
+                  ContextGraphPtr context_graph = nullptr);
   ~Stream();
 
   /**
