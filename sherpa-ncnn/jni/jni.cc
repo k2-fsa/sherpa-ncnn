@@ -259,6 +259,15 @@ static RecognizerConfig ParseConfig(JNIEnv *env, jobject _config) {
   config.endpoint_config.rule3.min_utterance_length =
       env->GetFloatField(_config, fid);
 
+  fid = env->GetFieldID(cls, "hotwordsFile", "Ljava/lang/String;");
+  jstring s = (jstring)env->GetObjectField(_config, fid);
+  const char *p = env->GetStringUTFChars(s, nullptr);
+  config.hotwords_file = p;
+  env->ReleaseStringUTFChars(s, p);
+
+  fid = env->GetFieldID(cls, "hotwordsScore", "F");
+  config.hotwords_score = env->GetFloatField(_config, fid);
+
   NCNN_LOGE("------config------\n%s\n", config.ToString().c_str());
 
   return config;

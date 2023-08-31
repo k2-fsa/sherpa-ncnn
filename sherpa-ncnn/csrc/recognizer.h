@@ -55,9 +55,6 @@ struct RecognizerConfig {
   DecoderConfig decoder_config;
   EndpointConfig endpoint_config;
   bool enable_endpoint = false;
-  std::string decoding_method;
-  // used only for modified_beam_search
-  int32_t max_active_paths = 4;
 
   std::string hotwords_file;
 
@@ -70,15 +67,12 @@ struct RecognizerConfig {
                    const ModelConfig &model_config,
                    const DecoderConfig decoder_config,
                    const EndpointConfig &endpoint_config, bool enable_endpoint,
-                   const std::string &decoding_method, int32_t max_active_paths,
                    const std::string &hotwords_file, float hotwords_score)
       : feat_config(feat_config),
         model_config(model_config),
         decoder_config(decoder_config),
         endpoint_config(endpoint_config),
         enable_endpoint(enable_endpoint),
-        decoding_method(decoding_method),
-        max_active_paths(max_active_paths),
         hotwords_file(hotwords_file),
         hotwords_score(hotwords_score) {}
 

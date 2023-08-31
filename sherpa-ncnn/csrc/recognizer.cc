@@ -84,12 +84,10 @@ std::string RecognizerConfig::ToString() const {
   os << "feat_config=" << feat_config.ToString() << ", ";
   os << "model_config=" << model_config.ToString() << ", ";
   os << "decoder_config=" << decoder_config.ToString() << ", ";
-  os << "max_active_paths=" << max_active_paths << ", ";
   os << "endpoint_config=" << endpoint_config.ToString() << ", ";
   os << "enable_endpoint=" << (enable_endpoint ? "True" : "False") << ", ";
   os << "hotwords_file=\"" << hotwords_file << "\", ";
-  os << "hotwrods_score=" << hotwords_score << ", ";
-  os << "decoding_method=\"" << decoding_method << "\")";
+  os << "hotwrods_score=" << hotwords_score << ")";
 
   return os.str();
 }
@@ -153,8 +151,7 @@ class Recognizer::Impl {
       auto stream =
           std::make_unique<Stream>(config_.feat_config, context_graph);
 
-      if (config_.decoder_config.method == "modified_beam_search" &&
-          stream->GetContextGraph()) {
+      if (stream->GetContextGraph()) {
         // r.hyps has only one element.
         for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
           it->second.context_state = stream->GetContextGraph()->Root();
@@ -211,8 +208,8 @@ class Recognizer::Impl {
 
   void Reset(Stream *s) const {
     auto r = decoder_->GetEmptyResult();
-    if (config_.decoding_method == "modified_beam_search" &&
-        s->GetContextGraph()) {
+
+    if (s->GetContextGraph()) {
       for (auto it = r.hyps.begin(); it != r.hyps.end(); ++it) {
         it->second.context_state = s->GetContextGraph()->Root();
       }

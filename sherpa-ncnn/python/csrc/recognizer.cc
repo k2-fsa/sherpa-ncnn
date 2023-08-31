@@ -63,16 +63,20 @@ static void PybindRecognizerConfig(py::module *m) {
   using PyClass = RecognizerConfig;
   py::class_<PyClass>(*m, "RecognizerConfig")
       .def(py::init<const FeatureExtractorConfig &, const ModelConfig &,
-                    const DecoderConfig &, const EndpointConfig &, bool>(),
+                    const DecoderConfig &, const EndpointConfig &, bool,
+                    const std::string &, float>(),
            py::arg("feat_config"), py::arg("model_config"),
            py::arg("decoder_config"), py::arg("endpoint_config"),
-           py::arg("enable_endpoint"), kRecognizerConfigInitDoc)
+           py::arg("enable_endpoint"), py::arg("hotwords_file") = "",
+           py::arg("hotwords_score") = 1.5, kRecognizerConfigInitDoc)
       .def("__str__", &PyClass::ToString)
       .def_readwrite("feat_config", &PyClass::feat_config)
       .def_readwrite("model_config", &PyClass::model_config)
       .def_readwrite("decoder_config", &PyClass::decoder_config)
       .def_readwrite("endpoint_config", &PyClass::endpoint_config)
-      .def_readwrite("enable_endpoint", &PyClass::enable_endpoint);
+      .def_readwrite("enable_endpoint", &PyClass::enable_endpoint)
+      .def_readwrite("hotwords_file", &PyClass::hotwords_file)
+      .def_readwrite("hotwords_score", &PyClass::hotwords_score);
 }
 
 void PybindRecognizer(py::module *m) {

@@ -91,6 +91,8 @@ class Recognizer(object):
         rule2_min_trailing_silence: int = 1.2,
         rule3_min_utterance_length: int = 20,
         model_sample_rate: int = 16000,
+        hotwords_file: str = "",
+        hotwords_score: float = 1.5,
     ):
         """
         Please refer to
@@ -143,6 +145,14 @@ class Recognizer(object):
             is detected.
           model_sample_rate:
             Sample rate expected by the model
+          hotwords_file:
+            Optional. If not empty, it specifies the hotwords file.
+            Each line in the hotwords file is a hotword. A hotword
+            consists of words seperated by spaces.
+            Used only when decoding_method is modified_beam_search.
+          hotwords_score:
+            The scale applied to hotwords score. Used only
+            when hotwords_file is not empty.
         """
         _assert_file_exists(tokens)
         _assert_file_exists(encoder_param)
@@ -190,6 +200,8 @@ class Recognizer(object):
             decoder_config=decoder_config,
             endpoint_config=endpoint_config,
             enable_endpoint=enable_endpoint_detection,
+            hotwords_file=hotwords_file,
+            hotwords_score=hotwords_score,
         )
 
         self.sample_rate = self.config.feat_config.sampling_rate
