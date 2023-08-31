@@ -251,7 +251,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
         new_hyp.ys.push_back(new_token);
         new_hyp.num_trailing_blanks = 0;
         new_hyp.timestamps.push_back(t + frame_offset);
-        if (s != nullptr && s->GetContextGraph() != nullptr) {
+        if (s && s->GetContextGraph()) {
           auto context_res =
               s->GetContextGraph()->ForwardOneStep(context_state, new_token);
           context_score = context_res.first;
