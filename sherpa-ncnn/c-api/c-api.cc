@@ -39,6 +39,8 @@ struct SherpaNcnnDisplay {
   std::unique_ptr<sherpa_ncnn::Display> impl;
 };
 
+#define SHERPA_NCNN_OR(x, y) (x ? x : y)
+
 SherpaNcnnRecognizer *CreateRecognizer(
     const SherpaNcnnRecognizerConfig *in_config) {
   // model_config
@@ -56,7 +58,7 @@ SherpaNcnnRecognizer *CreateRecognizer(
   config.model_config.use_vulkan_compute =
       in_config->model_config.use_vulkan_compute;
 
-  int32_t num_threads = in_config->model_config.num_threads;
+  int32_t num_threads = SHERPA_NCNN_OR(in_config->model_config.num_threads, 1);
 
   config.model_config.encoder_opt.num_threads = num_threads;
   config.model_config.decoder_opt.num_threads = num_threads;
@@ -66,8 +68,9 @@ SherpaNcnnRecognizer *CreateRecognizer(
   config.decoder_config.method = in_config->decoder_config.decoding_method;
   config.decoder_config.num_active_paths =
       in_config->decoder_config.num_active_paths;
-  config.hotwords_file = in_config->hotwords_file;
-  config.hotwords_score = in_config->hotwords_score;
+
+  config.hotwords_file = SHERPA_NCNN_OR(in_config->hotwords_file, "");
+  config.hotwords_score = SHERPA_NCNN_OR(in_config->hotwords_score, 1.5);
 
   config.enable_endpoint = in_config->enable_endpoint;
 
@@ -80,11 +83,17 @@ SherpaNcnnRecognizer *CreateRecognizer(
   config.endpoint_config.rule3.min_utterance_length =
       in_config->rule3_min_utterance_length;
 
-  config.feat_config.sampling_rate = in_config->feat_config.sampling_rate;
-  config.feat_config.feature_dim = in_config->feat_config.feature_dim;
+  config.feat_config.sampling_rate =
+      SHERPA_NCNN_OR(in_config->feat_config.sampling_rate, 16000);
+
+  config.feat_config.feature_dim =
+      SHERPA_NCNN_OR(in_config->feat_config.feature_dim, 80);
 
   auto recognizer = std::make_unique<sherpa_ncnn::Recognizer>(config);
+
   if (!recognizer->GetModel()) {
+    NCNN_LOGE("Failed to create the recognizer! Please check your config: %s",
+              config.ToString().c_str());
     return nullptr;
   }
 

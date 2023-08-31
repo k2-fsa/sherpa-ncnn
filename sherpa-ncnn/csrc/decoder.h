@@ -59,7 +59,9 @@ struct DecoderResult {
   // used only for modified_beam_search
   Hypotheses hyps;
 };
+
 class Stream;
+
 class Decoder {
  public:
   virtual ~Decoder() = default;
@@ -88,7 +90,11 @@ class Decoder {
    * and there are no paddings.
    */
   virtual void Decode(ncnn::Mat encoder_out, DecoderResult *result) = 0;
-  virtual void Decode(ncnn::Mat encoder_out, Stream *s, DecoderResult *result){};
+
+  virtual void Decode(ncnn::Mat encoder_out, Stream *s, DecoderResult *result) {
+    NCNN_LOGE("Please override it!");
+    exit(-1);
+  }
 };
 
 }  // namespace sherpa_ncnn

@@ -63,6 +63,11 @@ namespace SherpaNcnn
         public float Rule1MinTrailingSilence;
         public float Rule2MinTrailingSilence;
         public float Rule3MinUtteranceLength;
+
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string HotwordsFile;
+
+        public float HotwordsScore;
     }
 
     // please see
