@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include "sherpa-ncnn/csrc/context-graph.h"
 
 namespace sherpa_ncnn {
 
@@ -37,12 +38,13 @@ struct Hypothesis {
 
   // The total score of ys in log space.
   double log_prob = 0;
-
+  const ContextState *context_state;
   int32_t num_trailing_blanks = 0;
 
   Hypothesis() = default;
-  Hypothesis(const std::vector<int32_t> &ys, double log_prob)
-      : ys(ys), log_prob(log_prob) {}
+  Hypothesis(const std::vector<int32_t> &ys, double log_prob,
+            const ContextState *context_state = nullptr)
+      : ys(ys), log_prob(log_prob), context_state(context_state) {}
 
   // If two Hypotheses have the same `Key`, then they contain
   // the same token sequence.
@@ -104,6 +106,8 @@ class Hypotheses {
 
   const auto begin() const { return hyps_dict_.begin(); }
   const auto end() const { return hyps_dict_.end(); }
+  auto begin() { return hyps_dict_.begin(); }
+  auto end() { return hyps_dict_.end(); }
 
   void Clear() { hyps_dict_.clear(); }
 

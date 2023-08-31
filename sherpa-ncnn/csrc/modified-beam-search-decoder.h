@@ -25,6 +25,8 @@
 #include "mat.h"  // NOLINT
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/model.h"
+#include "sherpa-ncnn/csrc/stream.h"
+#include "sherpa-ncnn/csrc/context-graph.h"
 
 namespace sherpa_ncnn {
 
@@ -38,6 +40,7 @@ class ModifiedBeamSearchDecoder : public Decoder {
   void StripLeadingBlanks(DecoderResult *r) const override;
 
   void Decode(ncnn::Mat encoder_out, DecoderResult *result) override;
+  void Decode(ncnn::Mat encoder_out, Stream *s, DecoderResult *result) override;
 
  private:
   ncnn::Mat BuildDecoderInput(const std::vector<Hypothesis> &hyps) const;
