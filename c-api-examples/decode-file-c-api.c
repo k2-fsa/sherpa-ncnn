@@ -45,6 +45,8 @@ int32_t main(int32_t argc, char *argv[]) {
     return -1;
   }
   SherpaNcnnRecognizerConfig config;
+  memset(&config, 0, sizeof(config));
+
   config.model_config.tokens = argv[1];
   config.model_config.encoder_param = argv[2];
   config.model_config.encoder_bin = argv[3];
@@ -57,6 +59,7 @@ int32_t main(int32_t argc, char *argv[]) {
   if (argc >= 10 && atoi(argv[9]) > 0) {
     num_threads = atoi(argv[9]);
   }
+
   config.model_config.num_threads = num_threads;
   config.model_config.use_vulkan_compute = 0;
 
@@ -65,6 +68,7 @@ int32_t main(int32_t argc, char *argv[]) {
   if (argc >= 11) {
     config.decoder_config.decoding_method = argv[10];
   }
+
   config.decoder_config.num_active_paths = 4;
   config.enable_endpoint = 0;
   config.rule1_min_trailing_silence = 2.4;
@@ -73,16 +77,14 @@ int32_t main(int32_t argc, char *argv[]) {
 
   config.feat_config.sampling_rate = 16000;
   config.feat_config.feature_dim = 80;
-  if(argc >= 12) {
+  if (argc >= 12) {
     config.hotwords_file = argv[11];
-  } else {
-    config.hotwords_file = "";
   }
-  if(argc == 13) {
+
+  if (argc == 13) {
     config.hotwords_score = atof(argv[12]);
-  } else {
-    config.hotwords_score = 1.5;
   }
+
   SherpaNcnnRecognizer *recognizer = CreateRecognizer(&config);
 
   const char *wav_filename = argv[8];

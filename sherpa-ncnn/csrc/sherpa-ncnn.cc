@@ -76,24 +76,20 @@ for a list of pre-trained models to download.
 
   if (argc >= 12) {
     config.hotwords_file = argv[11];
-  } else {
-    config.hotwords_file = "";
   }
 
   if (argc == 13) {
     config.hotwords_score = atof(argv[12]);
-  } else {
-    config.hotwords_file = 1.5;
   }
 
   config.feat_config.sampling_rate = expected_sampling_rate;
   config.feat_config.feature_dim = 80;
 
+  std::cout << config.ToString() << "\n";
+
   sherpa_ncnn::Recognizer recognizer(config);
 
   std::string wav_filename = argv[8];
-
-  std::cout << config.ToString() << "\n";
 
   bool is_ok = false;
   std::vector<float> samples =
