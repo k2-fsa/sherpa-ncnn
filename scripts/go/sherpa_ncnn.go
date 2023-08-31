@@ -84,6 +84,9 @@ type RecognizerConfig struct {
 	Rule1MinTrailingSilence float32
 	Rule2MinTrailingSilence float32
 	Rule3MinUtteranceLength float32
+
+	HotwordsFile  string
+	HotwordsScore float32
 }
 
 // It contains the recognition result for a online stream.
@@ -147,6 +150,11 @@ func NewRecognizer(config *RecognizerConfig) *Recognizer {
 	c.rule1_min_trailing_silence = C.float(config.Rule1MinTrailingSilence)
 	c.rule2_min_trailing_silence = C.float(config.Rule2MinTrailingSilence)
 	c.rule3_min_utterance_length = C.float(config.Rule3MinUtteranceLength)
+
+	c.hotwords_file = C.CString(config.HotwordsFile)
+	defer C.free(unsafe.Pointer(c.hotwords_file))
+
+	c.hotwords_score = C.float(config.HotwordsScore)
 
 	recognizer := &Recognizer{}
 	recognizer.impl = C.CreateRecognizer(&c)
