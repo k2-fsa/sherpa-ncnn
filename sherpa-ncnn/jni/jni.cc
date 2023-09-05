@@ -74,7 +74,13 @@ class SherpaNcnn {
 
   bool IsEndpoint() const { return recognizer_.IsEndpoint(stream_.get()); }
 
-  void Reset() { return recognizer_.Reset(stream_.get()); }
+  void Reset(bool recreate) {
+    if (recreate) {
+      stream_ = recognizer_.CreateStream();
+    } else {
+      recognizer_.Reset(stream_.get());
+    }
+  }
 
  private:
   Recognizer recognizer_;
@@ -319,9 +325,9 @@ JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_decode(
 
 SHERPA_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_reset(
-    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+    JNIEnv *env, jobject /*obj*/, jlong ptr, jboolean recreate) {
   auto model = reinterpret_cast<sherpa_ncnn::SherpaNcnn *>(ptr);
-  model->Reset();
+  model->Reset(recreate);
 }
 
 SHERPA_EXTERN_C
