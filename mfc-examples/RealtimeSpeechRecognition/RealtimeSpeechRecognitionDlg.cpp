@@ -413,6 +413,7 @@ void CRealtimeSpeechRecognitionDlg::InitRecognizer() {
   }
 
   SherpaNcnnRecognizerConfig config;
+  memset(&config, 0, sizeof(config));
   config.model_config.num_threads = 1;
 
   config.decoder_config.decoding_method = "greedy_search";
