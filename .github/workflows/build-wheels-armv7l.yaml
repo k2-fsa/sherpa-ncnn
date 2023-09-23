@@ -47,7 +47,6 @@ jobs:
 
       # https://github.com/mshr-h/onnx-dockerfile-for-raspberry-pi/blob/main/3.10-bullseye-build/Dockerfile.arm32v7
       - name: Run docker
-        if: false
         uses: addnab/docker-run-action@v3
         with:
             image: balenalib/raspberrypi3-python:${{ matrix.python-version }}-bullseye-build
