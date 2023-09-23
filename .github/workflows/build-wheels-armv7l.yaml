@@ -64,7 +64,7 @@ jobs:
               wget -qq https://huggingface.co/csukuangfj/sherpa-onnx-cmake-deps/resolve/main/cmake-3.27-for-armv7.tar.bz2
 
               ls -lh
-              tar xvf cmake-3.27-for-armv7.tar.bz2
+              tar xf cmake-3.27-for-armv7.tar.bz2
               ls -lh cmake/data/bin
               chmod +x cmake/data/bin/cmake
               export PATH=$PWD/cmake/data/bin:$PATH
