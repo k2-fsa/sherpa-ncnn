@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - wheel
-      - armv7l
     tags:
       - '*'
   workflow_dispatch:
@@ -82,8 +81,6 @@ jobs:
         shell: bash
         run: |
           ls -lh ./wheelhouse/
-
-          ls -lh ./wheelhouse/*.whl
 
       - uses: actions/upload-artifact@v2
         with:
