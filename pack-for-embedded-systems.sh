@@ -25,8 +25,8 @@ rm -v sherpa-ncnn-${SHERPA_NCNN_VERSION}.tar.gz
 
 # Please also change ./build-m3axpi.sh
 wget \
-  -O kaldi-native-fbank-1.14.tar.gz \
-  https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.14.tar.gz
+  -O kaldi-native-fbank-1.18.5.tar.gz \
+  https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.18.5.tar.gz
 
 wget \
   -O ncnn-sherpa-1.1.tar.gz \
@@ -47,7 +47,7 @@ It should print something like below:
 
 ls -lh \$HOME/asr
 total 24368
--rw-r--r--   1 fangjun  staff    59K Feb  2 17:01 kaldi-native-fbank-1.14.tar.gz
+-rw-r--r--   1 fangjun  staff    59K Feb  2 17:01 kaldi-native-fbank-1.18.5.tar.gz
 -rw-r--r--   1 fangjun  staff    12M Feb  2 17:01 sherpa-1.1.tar.gz
 drwxr-xr-x  29 fangjun  staff   928B Feb  2 16:05 sherpa-ncnn-${SHERPA_NCNN_VERSION}
 
