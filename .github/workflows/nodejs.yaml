@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - nodejs-2
     paths:
       - '.github/workflows/nodejs.yaml'
       - 'CMakeLists.txt'
