@@ -62,4 +62,7 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --version
 
+          cd nodejs-examples
+          ls -lh
+
           ./run.sh
