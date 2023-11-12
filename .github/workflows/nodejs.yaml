@@ -1,0 +1,95 @@
+name: nodejs
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/nodejs.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'nodejs-examples/**'
+      - 'sherpa-ncnn/csrc/*'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/nodejs.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'nodejs-examples/**'
+      - 'sherpa-ncnn/csrc/*'
+
+concurrency:
+  group: nodejs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  nodejs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 13
+
+      - name: Display node version
+        shell: bash
+        run: |
+          node --version
+          npm --version
+          cd nodejs-examples
+
+          npm install npm@6.14.4 -g
+          npm install npm@6.14.4
+          npm --version
+
+      - name: Install npm packages
+        shell: bash
+        run: |
+          cd nodejs-examples
+          npm install ffi-napi ref-struct-napi wav
+          npm list
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-shared
+
+      - name: Download model
+        shell: bash
+        run: |
+          cd nodejs-examples
+          GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          cd sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          git lfs pull --include "*.bin"
+          ls -lh
+
+      - name: Test
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          cd nodejs-examples
+          ls -lh
+
+          ./run.sh

@@ -92,19 +92,21 @@ endif()
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "The C++ version to be used.")
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(CheckIncludeFileCXX)
-check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
-if(SHERPA_NCNN_HAS_ALSA)
-  add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
-elseif(UNIX AND NOT APPLE)
-  message(WARNING "\
-Could not find alsa/asoundlib.h !
-We won't build sherpa-ncnn-alsa
-To fix that, please do:
-  (1) sudo apt-get install alsa-utils libasound2-dev
-  (2) rm -rf build
-  (3) re-try
-")
+if(SHERPA_NCNN_ENABLE_BINARY AND UNIX AND NOT APPLE)
+  include(CheckIncludeFileCXX)
+  check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
+  if(SHERPA_NCNN_HAS_ALSA)
+    add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
+  elseif(UNIX AND NOT APPLE)
+    message(WARNING "\
+  Could not find alsa/asoundlib.h !
+  We won't build sherpa-ncnn-alsa
+  To fix that, please do:
+    (1) sudo apt-get install alsa-utils libasound2-dev
+    (2) rm -rf build
+    (3) re-try
+  ")
+  endif()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
