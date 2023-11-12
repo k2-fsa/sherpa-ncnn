@@ -50,6 +50,8 @@ jobs:
         run: |
           node --version
           npm --version
+          sudo npm install -g npm
+          npm --version
 
       - name: Install npm packages
         shell: bash

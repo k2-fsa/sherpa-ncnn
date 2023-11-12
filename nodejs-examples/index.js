@@ -7,9 +7,11 @@
 // before you use this file
 //
 //
-// Please use node 16. node 18, 20, and 21 are known not working.
+// Please use node 13. node 16, 18, 20, and 21 are known not working.
 // See also
 // https://github.com/node-ffi-napi/node-ffi-napi/issues/244
+// and
+// https://github.com/node-ffi-napi/node-ffi-napi/issues/97
 'use strict'
 
 const debug = require('debug')('sherpa-ncnn');
@@ -158,12 +160,7 @@ class Recognizer {
     const h =
         libsherpa_ncnn.GetResult(this.recognizer_handle, this.stream_handle);
     const text = Buffer.from(h.deref().text, 'utf-8').toString();
-
-    // TODO(fangjun): Enable it to avoid memory leak.
-    //
-    // It is commented out since it causes errors occasionally.
-    //
-    // libsherpa_ncnn.DestroyResult(h);
+    libsherpa_ncnn.DestroyResult(h);
     return text;
   }
 };
