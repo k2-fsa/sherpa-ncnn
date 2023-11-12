@@ -1,0 +1,65 @@
+name: nodejs
+
+on:
+  push:
+    branches:
+      - master
+      - nodejs
+    paths:
+      - '.github/workflows/nodejs.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'nodejs-examples/**'
+      - 'sherpa-ncnn/csrc/*'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/nodejs.yaml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'nodejs-examples/**'
+      - 'sherpa-ncnn/csrc/*'
+
+concurrency:
+  group: nodejs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  nodejs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-shared
+
+      - name: Download model
+        shell: bash
+        run: |
+          cd nodejs-examples
+          GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/csukuangfj/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          cd sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          git lfs pull --include "*.bin"
+          ls -lh
+
+      - name: Test
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          ./run.sh
