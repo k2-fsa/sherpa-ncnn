@@ -50,6 +50,8 @@ jobs:
         run: |
           node --version
           npm --version
+          cd nodejs-examples
+
           npm install npm@6.14.4 -g
           npm install npm@6.14.4
           npm --version
