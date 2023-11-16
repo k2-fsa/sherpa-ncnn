@@ -70,6 +70,8 @@ class Stream {
 
   void Reset();
 
+  void Finalize();
+
   // Return a reference to the number of processed frames so far
   // before subsampling..
   // Initially, it is 0. It is always less than NumFramesReady().

@@ -225,7 +225,11 @@ class Recognizer::Impl {
   }
 
   RecognitionResult GetResult(Stream *s) const {
+    if (IsEndpoint(s)) {
+      s->Finalize();
+    }
     DecoderResult decoder_result = s->GetResult();
+
     decoder_->StripLeadingBlanks(&decoder_result);
 
     // Those 2 parameters are figured out from sherpa source code

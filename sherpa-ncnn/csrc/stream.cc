@@ -18,6 +18,8 @@
 
 #include "sherpa-ncnn/csrc/stream.h"
 
+#include <iostream>
+
 namespace sherpa_ncnn {
 
 class Stream::Impl {
@@ -47,6 +49,19 @@ class Stream::Impl {
   void Reset() {
     start_frame_index_ += num_processed_frames_;
     num_processed_frames_ = 0;
+  }
+
+  void Finalize() {
+    if (!context_graph_) return;
+    std::cerr << std::endl;
+    auto &cur = result_.hyps;
+    for (auto iter = cur.begin(); iter != cur.end(); ++iter) {
+      auto context_res = context_graph_->Finalize(iter->second.context_state);
+      iter->second.log_prob += context_res.first;
+      iter->second.context_state = context_res.second;
+    }
+    auto hyp = result_.hyps.GetMostProbable(true);
+    result_.tokens = std::move(hyp.ys);
   }
 
   int32_t &GetNumProcessedFrames() { return num_processed_frames_; }
@@ -98,6 +113,8 @@ ncnn::Mat Stream::GetFrames(int32_t frame_index, int32_t n) const {
 }
 
 void Stream::Reset() { impl_->Reset(); }
+
+void Stream::Finalize() { impl_->Finalize(); }
 
 int32_t &Stream::GetNumProcessedFrames() {
   return impl_->GetNumProcessedFrames();

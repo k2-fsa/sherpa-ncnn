@@ -112,10 +112,10 @@ for a list of pre-trained models to download.
       static_cast<int>(0.3 * expected_sampling_rate));
   stream->AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
                          tail_paddings.size());
-
   while (recognizer.IsReady(stream.get())) {
     recognizer.DecodeStream(stream.get());
   }
+  stream->Finalize();
   auto result = recognizer.GetResult(stream.get());
   std::cout << "Done!\n";
 
