@@ -53,7 +53,6 @@ class Stream::Impl {
 
   void Finalize() {
     if (!context_graph_) return;
-    std::cerr << std::endl;
     auto &cur = result_.hyps;
     for (auto iter = cur.begin(); iter != cur.end(); ++iter) {
       auto context_res = context_graph_->Finalize(iter->second.context_state);
