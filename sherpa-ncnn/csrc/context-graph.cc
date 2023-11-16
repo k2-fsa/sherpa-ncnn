@@ -9,17 +9,27 @@
 #include <utility>
 
 namespace sherpa_ncnn {
-void ContextGraph::Build(
-    const std::vector<std::vector<int32_t>> &token_ids) const {
+void ContextGraph::Build(const std::vector<ContextItem> &token_ids) const {
   for (int32_t i = 0; i < token_ids.size(); ++i) {
     auto node = root_.get();
-    for (int32_t j = 0; j < token_ids[i].size(); ++j) {
-      int32_t token = token_ids[i][j];
+    auto &ids = std::get<0>(token_ids[i]);
+    float score = std::get<1>(token_ids[i]);
+    float token_score = score == 0.0 ? context_score_ : score / ids.size();
+    for (int32_t j = 0; j < ids.size(); ++j) {
+      int32_t token = ids[j];
+      bool is_end = j == ids.size() - 1;
       if (0 == node->next.count(token)) {
-        bool is_end = j == token_ids[i].size() - 1;
         node->next[token] = std::make_unique<ContextState>(
-            token, context_score_, node->node_score + context_score_,
-            is_end ? node->node_score + context_score_ : 0, is_end);
+            token, token_score, node->node_score + token_score,
+            is_end ? node->node_score + token_score : 0, is_end);
+      } else {
+        ContextState *current_node = node->next[token].get();
+        current_node->is_end = is_end || current_node->is_end;
+        current_node->token_score =
+            std::max(token_score, current_node->token_score);
+        current_node->node_score = node->node_score + current_node->token_score;
+        current_node->output_score =
+            current_node->is_end ? current_node->node_score : 0;
       }
       node = node->next[token].get();
     }

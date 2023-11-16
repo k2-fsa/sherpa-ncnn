@@ -10,11 +10,11 @@
 #include <utility>
 #include <vector>
 
-
 namespace sherpa_ncnn {
 
 class ContextGraph;
 using ContextGraphPtr = std::shared_ptr<ContextGraph>;
+using ContextItem = std::pair<std::vector<int32_t>, float>;
 
 struct ContextState {
   int32_t token;
@@ -39,8 +39,7 @@ struct ContextState {
 class ContextGraph {
  public:
   ContextGraph() = default;
-  ContextGraph(const std::vector<std::vector<int32_t>> &token_ids,
-               float hotwords_score)
+  ContextGraph(const std::vector<ContextItem> &token_ids, float hotwords_score)
       : context_score_(hotwords_score) {
     root_ = std::make_unique<ContextState>(-1, 0, 0, 0, false);
     root_->fail = root_.get();
@@ -57,7 +56,7 @@ class ContextGraph {
  private:
   float context_score_;
   std::unique_ptr<ContextState> root_;
-  void Build(const std::vector<std::vector<int32_t>> &token_ids) const;
+  void Build(const std::vector<ContextItem> &token_ids) const;
   void FillFailOutput() const;
 };
 

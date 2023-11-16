@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include "sherpa-ncnn/csrc/context-graph.h"
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
@@ -279,20 +280,25 @@ class Recognizer::Impl {
 
     while (std::getline(is, line)) {
       std::istringstream iss(line);
+      float tmp_score = 0.0;
       while (iss >> word) {
         if (sym_.contains(word)) {
           int32_t number = sym_[word];
           tmp.push_back(number);
         } else {
-          NCNN_LOGE(
-              "Cannot find ID for hotword %s at line: %s. (Hint: words on the "
-              "same line are separated by spaces)",
-              word.c_str(), line.c_str());
-          exit(-1);
+          if (word[0] == ':') {
+            tmp_score = std::stof(word.substr(1));
+          } else {
+            NCNN_LOGE(
+                "Cannot find ID for hotword %s at line: %s. (Hint: words on "
+                "the "
+                "same line are separated by spaces)",
+                word.c_str(), line.c_str());
+            exit(-1);
+          }
         }
       }
-
-      hotwords_.push_back(std::move(tmp));
+      hotwords_.push_back(ContextItem(std::move(tmp), tmp_score));
     }
   }
 
@@ -302,7 +308,7 @@ class Recognizer::Impl {
   std::unique_ptr<Decoder> decoder_;
   Endpoint endpoint_;
   SymbolTable sym_;
-  std::vector<std::vector<int32_t>> hotwords_;
+  std::vector<ContextItem> hotwords_;
 };
 
 Recognizer::Recognizer(const RecognizerConfig &config)
