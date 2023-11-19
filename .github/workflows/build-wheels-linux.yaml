@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - wheel
+      - refactor-wheels
     tags:
       - '*'
   workflow_dispatch:
@@ -70,7 +71,7 @@ jobs:
             git pull
             git merge -m "merge remote" --ff origin main
 
-            cp -v ../dist/*.whl .
+            cp -v ../wheelhouse/*.whl .
 
             git status
             git add .
