@@ -9,6 +9,10 @@ echo "SHERPA_NCNN_DIR: $SHERPA_NCNN_DIR"
 SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" $SHERPA_NCNN_DIR/CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
 
 echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json.in
+cp package.json.in package.json
+rm package.json.in
+
 
 function windows_x64() {
   echo "Process Windows (x64)"

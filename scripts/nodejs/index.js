@@ -76,11 +76,37 @@ const RecognizerConfigPtr = ref.refType(SherpaNcnnRecognizerConfig)
 
 let soname;
 if (os.platform() == 'win32') {
-  soname = path.join(__dirname, 'install', 'lib', 'sherpa-ncnn-c-api.dll');
+  // see https://nodejs.org/api/process.html#processarch
+  if (process.arch == 'x64') {
+    let currentPath = process.env.Path;
+    let dllDirectory = path.resolve(path.join(__dirname, 'lib', 'win-x64'));
+    process.env.Path = currentPath + path.delimiter + dllDirectory;
+
+    soname = path.join(__dirname, 'lib', 'win-x64', 'sherpa-ncnn-c-api.dll')
+  } else if (process.arch == 'ia32') {
+    let currentPath = process.env.Path;
+    let dllDirectory = path.resolve(path.join(__dirname, 'lib', 'win-x86'));
+    process.env.Path = currentPath + path.delimiter + dllDirectory;
+
+    soname = path.join(__dirname, 'lib', 'win-x86', 'sherpa-ncnn-c-api.dll')
+  } else {
+    throw new Error(
+        `Support only Windows x86 and x64 for now. Given ${process.arch}`);
+  }
 } else if (os.platform() == 'darwin') {
-  soname = path.join(__dirname, 'install', 'lib', 'libsherpa-ncnn-c-api.dylib');
+  soname = path.join(
+      __dirname, 'lib', 'osx-universal2', 'libsherpa-ncnn-c-api.dylib');
 } else if (os.platform() == 'linux') {
-  soname = path.join(__dirname, 'install', 'lib', 'libsherpa-ncnn-c-api.so');
+  if (process.arch == 'x64') {
+    soname =
+        path.join(__dirname, 'lib', 'linux-x64', 'libsherpa-ncnn-c-api.so');
+  } else if (process.arch == 'ia32') {
+    soname =
+        path.join(__dirname, 'lib', 'linux-x86', 'libsherpa-ncnn-c-api.so');
+  } else {
+    throw new Error(
+        `Support only Linux x86 and x64 for now. Given ${process.arch}`);
+  }
 } else {
   throw new Error(`Unsupported platform ${os.platform()}`);
 }
