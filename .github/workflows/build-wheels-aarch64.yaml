@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - wheel
+      - refactor-wheels
     tags:
       - '*'
   workflow_dispatch:
@@ -17,12 +18,13 @@ concurrency:
 
 jobs:
   build_wheels_aarch64:
-    name: Build wheels for aarch64 on ${{ matrix.os }}
+    name: ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
+        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
 
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +39,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.4
         env:
-          CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
+          CIBW_BUILD: "${{ matrix.python-version}}-* "
           CIBW_ENVIRONMENT: SHERPA_NCNN_CMAKE_ARGS='-DCMAKE_C_FLAGS="-march=armv8-a" -DCMAKE_CXX_FLAGS="-march=armv8-a"'
           CIBW_SKIP: "cp27-* cp35-* cp36-* *-win32 pp* *-musllinux* *-manylinux_i686"
           CIBW_BUILD_VERBOSITY: 3
