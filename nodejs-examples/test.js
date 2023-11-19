@@ -4,7 +4,7 @@ const fs = require('fs');
 const {Readable} = require('stream');
 const wav = require('wav');
 
-sherpa_ncnn = require('./index.js')
+const sherpa_ncnn = require('sherpa-ncnn2')
 
 const featConfig = new sherpa_ncnn.FeatureConfig();
 featConfig.sampleRate = 16000;

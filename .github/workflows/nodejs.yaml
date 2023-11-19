@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - nodejs
     paths:
       - '.github/workflows/nodejs.yaml'
       - 'CMakeLists.txt'
@@ -65,17 +64,6 @@ jobs:
           npm install npm@6.14.4
           npm --version
 
-      - name: Build nodejs package
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd scripts/nodejs
-          ./run.sh
-          npm ci
-          npm publish --provenance --access public
-
       - name: Install npm packages
         shell: bash
         run: |
@@ -100,11 +88,7 @@ jobs:
       - name: Test
         shell: bash
         run: |
-          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          cmake --version
-
           cd nodejs-examples
           ls -lh
-
-          ./run.sh
+          npm install sherpa-ncnn2 wav
+          node ./test.js
