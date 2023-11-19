@@ -1,29 +1,32 @@
 {
   "name": "sherpa-ncnn",
-  "version": "2.1.4",
+  "version": "$SHERPA_NCNN_VERSION",
   "description": "Real-time speech recognition with Next-gen Kaldi",
   "main": "index.js",
-  "dependencies": {
-    "ffi-napi": "^4.0.3",
-    "ref-struct-napi": "^1.1.1",
-    "wav": "^1.0.2"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "k2-fsa/sherpa-ncnn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k2-fsa/sherpa-ncnn.git"
+  },
   "keywords": [
-    "speech-to-text;",
+    "speech-to-text",
     "ASR",
     "speech",
     "speech recognition",
     "voice"
   ],
-  "author": "The Next-gen Kaldi team",
+  "author": "The next-gen Kaldi team",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/k2-fsa/sherpa-ncnn/issues"
   },
-  "homepage": "https://github.com/k2-fsa/sherpa-ncnn#readme"
+  "homepage": "https://github.com/k2-fsa/sherpa-ncnn#readme",
+  "dependencies": {
+    "ffi-napi": "^4.0.3",
+    "npm": "^6.14.4",
+    "ref-napi": "^3.0.3",
+    "ref-struct-napi": "^1.1.1"
+  }
 }
