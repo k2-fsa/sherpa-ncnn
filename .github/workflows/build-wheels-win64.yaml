@@ -1,28 +1,28 @@
-name: build-wheels
+name: build-wheels-win64
 
 on:
   push:
     branches:
       - wheel
+      - refactor-wheels
     tags:
       - '*'
+
   workflow_dispatch:
 
-env:
-  SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1
-
 concurrency:
-  group: build-wheels-${{ github.ref }}
+  group: build-wheels-win64-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+  build_wheels_win64:
+    name: ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
+        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
 
     steps:
       - uses: actions/checkout@v2
@@ -30,8 +30,9 @@ jobs:
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.4
+        uses: pypa/cibuildwheel@v2.15.0
         env:
+          CIBW_BUILD: "${{ matrix.python-version}}-* "
           CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
           CIBW_BUILD_VERBOSITY: 3
 
@@ -39,8 +40,6 @@ jobs:
         shell: bash
         run: |
           ls -lh ./wheelhouse/
-
-          ls -lh ./wheelhouse/*.whl
 
       - uses: actions/upload-artifact@v2
         with:
