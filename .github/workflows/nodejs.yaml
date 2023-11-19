@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - master
+      - nodejs
     paths:
       - '.github/workflows/nodejs.yaml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'nodejs-examples/**'
       - 'sherpa-ncnn/csrc/*'
+      - 'scripts/nodejs/**'
   pull_request:
     branches:
       - master
@@ -19,6 +21,7 @@ on:
       - 'cmake/**'
       - 'nodejs-examples/**'
       - 'sherpa-ncnn/csrc/*'
+      - 'scripts/nodejs/**'
 
 concurrency:
   group: nodejs-${{ github.ref }}
@@ -49,6 +52,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 13
+
+      - name: Build nodejs package
+        shell: bash
+        run: |
+          cd scripts/nodejs
+          ./run.sh
 
       - name: Display node version
         shell: bash
