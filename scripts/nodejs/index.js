@@ -94,8 +94,15 @@ if (os.platform() == 'win32') {
         `Support only Windows x86 and x64 for now. Given ${process.arch}`);
   }
 } else if (os.platform() == 'darwin') {
-  soname = path.join(
-      __dirname, 'lib', 'osx-universal2', 'libsherpa-ncnn-c-api.dylib');
+  if (process.arch == 'x64') {
+    soname = path.join(__dirname, 'lib', 'osx-x64', 'libsherpa-ncnn-c-api.so');
+  } else if (process.arch == 'arm64') {
+    soname =
+        path.join(__dirname, 'lib', 'osx-arm64', 'libsherpa-ncnn-c-api.so');
+  } else {
+    throw new Error(
+        `Support only macOS x64 and arm64 for now. Given ${process.arch}`);
+  }
 } else if (os.platform() == 'linux') {
   if (process.arch == 'x64') {
     soname =

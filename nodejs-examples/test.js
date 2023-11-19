@@ -4,7 +4,7 @@ const fs = require('fs');
 const {Readable} = require('stream');
 const wav = require('wav');
 
-const sherpa_ncnn = require('sherpa-ncnn2')
+const sherpa_ncnn = require('sherpa-ncnn3')
 
 const featConfig = new sherpa_ncnn.FeatureConfig();
 featConfig.sampleRate = 16000;
@@ -39,16 +39,19 @@ const recognizerConfig = new sherpa_ncnn.RecognizerConfig();
 recognizerConfig.featConfig = featConfig;
 recognizerConfig.modelConfig = modelConfig;
 recognizerConfig.decoderConfig = decoderConfig;
+recognizerConfig.enableEndpoint = 0;
 
 const recognizer = new sherpa_ncnn.Recognizer(recognizerConfig);
 
 const waveFilename =
-    './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/test_wavs/2.wav'
+    './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/test_wavs/0.wav'
 
 const reader = new wav.Reader();
 const readable = new Readable().wrap(reader);
 
 function decode(samples) {
+  i += samples.length;
+  console.log(i);
   recognizer.acceptWaveform(recognizerConfig.featConfig.sampleRate, samples);
 
   while (recognizer.isReady()) {
@@ -71,6 +74,7 @@ reader.on('format', ({audioFormat, sampleRate, channels, bitDepth}) => {
   }
 });
 
+let i = 0;
 fs.createReadStream(waveFilename, {'highWaterMark': 4096})
     .pipe(reader)
     .on('finish', function(err) {

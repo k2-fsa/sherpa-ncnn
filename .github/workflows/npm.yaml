@@ -1,6 +1,10 @@
 name: npm
 
 on:
+  push:
+    branches:
+      - master
+      - nodejs
   workflow_dispatch:
 
 concurrency:

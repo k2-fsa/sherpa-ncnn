@@ -70,14 +70,27 @@ function linux_x86() {
   rm -rf t
 }
 
-function osx_universal2() {
-  echo "Process osx-universal2"
-  mkdir -p lib/osx-universal2
-  dst=$(realpath lib/osx-universal2)
+function osx_x64() {
+  echo "Process osx-x64"
+  mkdir -p lib/osx-x64
+  dst=$(realpath lib/osx-x64)
   mkdir t
   cd t
-  wget -q https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_10_9_universal2.whl
-  unzip ./sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_10_9_universal2.whl
+  wget -q https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_10_9_x86_64.whl
+  unzip ./sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_10_9_x86_64.whl
+  cp -v sherpa_ncnn/lib/*.dylib $dst/
+  cd ..
+  rm -rf t
+}
+
+function osx_arm64() {
+  echo "Process osx-arm64"
+  mkdir -p lib/osx-arm64
+  dst=$(realpath lib/osx-arm64)
+  mkdir t
+  cd t
+  wget -q https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_11_0_arm64.whl
+  unzip ./https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_11_0_arm64.whl
   cp -v sherpa_ncnn/lib/*.dylib $dst/
   cd ..
   rm -rf t
@@ -95,5 +108,8 @@ ls -lh lib/linux-x64
 linux_x86
 ls -lh lib/linux-x86
 
-osx_universal2
-ls -lh lib/osx-universal2
+osx_x64
+ls -lh lib/osx-x64
+
+osx_arm64
+ls -lh lib/osx-arm64
