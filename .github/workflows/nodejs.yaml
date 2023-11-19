@@ -4,24 +4,15 @@ on:
   push:
     branches:
       - master
-      - nodejs
     paths:
-      - '.github/workflows/nodejs.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
       - 'nodejs-examples/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'scripts/nodejs/**'
+
   pull_request:
     branches:
       - master
     paths:
-      - '.github/workflows/nodejs.yaml'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
       - 'nodejs-examples/**'
-      - 'sherpa-ncnn/csrc/*'
-      - 'scripts/nodejs/**'
+
   workflow_dispatch:
 
 concurrency:
