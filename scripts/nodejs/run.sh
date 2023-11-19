@@ -90,7 +90,7 @@ function osx_arm64() {
   mkdir t
   cd t
   wget -q https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_11_0_arm64.whl
-  unzip ./https://huggingface.co/csukuangfj/sherpa-ncnn-wheels/resolve/main/sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_11_0_arm64.whl
+  unzip ./sherpa_ncnn-${SHERPA_NCNN_VERSION}-cp38-cp38-macosx_11_0_arm64.whl
   cp -v sherpa_ncnn/lib/*.dylib $dst/
   cd ..
   rm -rf t
