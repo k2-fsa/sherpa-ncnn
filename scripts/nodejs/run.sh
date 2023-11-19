@@ -12,7 +12,7 @@ echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
 sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json.in
 cp package.json.in package.json
 rm package.json.in
-
+rm package.json.in.bak
 
 function windows_x64() {
   echo "Process Windows (x64)"
