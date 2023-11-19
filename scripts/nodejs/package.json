@@ -1,6 +1,6 @@
 {
   "name": "sherpa-ncnn",
-  "version": "2.4.1",
+  "version": "2.1.4",
   "description": "Real-time speech recognition with Next-gen Kaldi",
   "main": "index.js",
   "scripts": {

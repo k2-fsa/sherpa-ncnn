@@ -95,10 +95,11 @@ if (os.platform() == 'win32') {
   }
 } else if (os.platform() == 'darwin') {
   if (process.arch == 'x64') {
-    soname = path.join(__dirname, 'lib', 'osx-x64', 'libsherpa-ncnn-c-api.so');
+    soname =
+        path.join(__dirname, 'lib', 'osx-x64', 'libsherpa-ncnn-c-api.dylib');
   } else if (process.arch == 'arm64') {
     soname =
-        path.join(__dirname, 'lib', 'osx-arm64', 'libsherpa-ncnn-c-api.so');
+        path.join(__dirname, 'lib', 'osx-arm64', 'libsherpa-ncnn-c-api.dylib');
   } else {
     throw new Error(
         `Support only macOS x64 and arm64 for now. Given ${process.arch}`);

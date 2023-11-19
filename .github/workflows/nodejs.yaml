@@ -5,14 +5,10 @@ on:
     branches:
       - master
       - nodejs
-    paths:
-      - 'nodejs-examples/**'
 
   pull_request:
     branches:
       - master
-    paths:
-      - 'nodejs-examples/**'
 
   workflow_dispatch:
 
@@ -72,5 +68,5 @@ jobs:
         run: |
           cd nodejs-examples
           ls -lh
-          npm install sherpa-ncnn2 wav
+          npm install sherpa-ncnn4 wav
           node ./test.js
