@@ -1,5 +1,5 @@
 {
-  "name": "sherpa-ncnn",
+  "name": "sherpa-ncnn2",
   "version": "SHERPA_NCNN_VERSION",
   "description": "Real-time speech recognition with Next-gen Kaldi",
   "main": "index.js",
