@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - wheel
+      - refactor-wheels
     tags:
       - '*'
   workflow_dispatch:
@@ -48,6 +49,36 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
+      - name: Publish to huggingface
+        if: matrix.python-version == 'cp38'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            git clone https://huggingface.co/csukuangfj/sherpa-ncnn-wheels huggingface
+            cd huggingface
+            git fetch
+            git pull
+            git merge -m "merge remote" --ff origin main
+
+            cp -v ../dist/*.whl .
+
+            git status
+            git add .
+            git commit -m "add more wheels"
+            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-ncnn-wheels main
+
+
       - name: Publish wheels to PyPI
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -59,14 +90,14 @@ jobs:
           twine upload ./wheelhouse/*.whl
 
       - name: Build sdist
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == 'cp38'
+        if: matrix.python-version == 'cp38'
         shell: bash
         run: |
           python3 setup.py sdist
           ls -lh dist/*
 
       - name: Publish sdist to PyPI
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == 'cp38'
+        if: matrix.python-version == 'cp38'
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
@@ -74,3 +105,4 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel twine setuptools
           twine upload dist/sherpa*.tar.gz
+
