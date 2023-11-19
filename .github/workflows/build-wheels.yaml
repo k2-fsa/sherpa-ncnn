@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - wheel
+      - refactor-wheels
     tags:
       - '*'
   workflow_dispatch:
@@ -17,12 +18,13 @@ concurrency:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
+        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
 
     steps:
       - uses: actions/checkout@v2
@@ -30,8 +32,9 @@ jobs:
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.4
+        uses: pypa/cibuildwheel@v2.15.0
         env:
+          CIBW_BUILD: "${{ matrix.python-version}}-* "
           CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
           CIBW_BUILD_VERBOSITY: 3
 
@@ -55,3 +58,14 @@ jobs:
           python3 -m pip install wheel twine setuptools
 
           twine upload ./wheelhouse/*.whl
+
+      - name: Publish sdist to PyPI
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == 'cp38'
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine setuptools
+          ls -lh dist
+          twine upload dist/sherpa*.tar.gz
