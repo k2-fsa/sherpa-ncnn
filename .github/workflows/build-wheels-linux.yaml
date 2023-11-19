@@ -58,6 +58,13 @@ jobs:
 
           twine upload ./wheelhouse/*.whl
 
+      - name: Build sdist
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == 'cp38'
+        shell: bash
+        run: |
+          python3 setup.py sdist
+          ls -lh dist/*
+
       - name: Publish sdist to PyPI
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == 'cp38'
         env:
@@ -66,5 +73,4 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel twine setuptools
-          ls -lh dist
           twine upload dist/sherpa*.tar.gz
