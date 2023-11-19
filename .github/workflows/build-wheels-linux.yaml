@@ -1,4 +1,4 @@
-name: build-wheels
+name: build-wheels-linux
 
 on:
   push:
@@ -13,11 +13,11 @@ env:
   SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1
 
 concurrency:
-  group: build-wheels-${{ github.ref }}
+  group: build-wheels-linux-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build_wheels:
+  build_wheels_linux:
     name: ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
