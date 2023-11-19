@@ -19,6 +19,7 @@ on:
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
+  workflow_dispatch:
 
 concurrency:
   group: windows-x64-${{ github.ref }}

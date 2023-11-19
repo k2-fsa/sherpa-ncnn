@@ -20,6 +20,8 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
 
+  workflow_dispatch:
+
 concurrency:
   group: macos-${{ github.ref }}
   cancel-in-progress: true

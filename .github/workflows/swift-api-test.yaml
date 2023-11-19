@@ -23,6 +23,7 @@ on:
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/swift-api-examples/*'
       - 'build-swift-macos.sh'
+  workflow_dispatch:
 
 concurrency:
   group: swift-api-test-${{ github.ref }}

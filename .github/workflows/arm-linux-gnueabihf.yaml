@@ -22,6 +22,7 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'toolchains/arm-linux-gnueabihf.toolchain.cmake'
+  workflow_dispatch:
 
 concurrency:
   group: arm-linux-gnueabihf-${{ github.ref }}

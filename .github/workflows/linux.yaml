@@ -21,6 +21,8 @@ on:
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/csrc/*'
 
+  workflow_dispatch:
+
 concurrency:
   group: linux-${{ github.ref }}
   cancel-in-progress: true
