@@ -34,6 +34,8 @@ def create_recognizer():
         joiner_param="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/joiner_jit_trace-pnnx.ncnn.param",
         joiner_bin="./sherpa-ncnn-conv-emformer-transducer-2022-12-06/joiner_jit_trace-pnnx.ncnn.bin",
         num_threads=4,
+        hotwords_file="",
+        hotwords_score=1.5,
     )
     return recognizer
 
