@@ -40,6 +40,8 @@ def create_recognizer():
         rule1_min_trailing_silence=2.4,
         rule2_min_trailing_silence=1.2,
         rule3_min_utterance_length=300,
+        hotwords_file="",
+        hotwords_score=1.5,
     )
     return recognizer
 
@@ -51,7 +53,6 @@ def main():
     samples_per_read = int(0.1 * sample_rate)  # 0.1 second = 100 ms
     last_result = ""
     segment_id = 0
-
 
     with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
         while True:
