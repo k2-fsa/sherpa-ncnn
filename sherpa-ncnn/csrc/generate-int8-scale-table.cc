@@ -560,6 +560,12 @@ int QuantNet::quantize_KL(const std::vector<std::string> &wave_filenames) {
   fbank_opts.frame_opts.samp_freq = expected_sampling_rate;
   fbank_opts.mel_opts.num_bins = 80;
 
+  // Please see
+  // https://github.com/lhotse-speech/lhotse/blob/master/lhotse/features/fbank.py#L27
+  // and
+  // https://github.com/k2-fsa/sherpa-onnx/issues/514
+  fbank_opts.mel_opts.high_freq = -400;
+
   int32_t segment = model->Segment();
   int32_t offset = model->Offset();
 
