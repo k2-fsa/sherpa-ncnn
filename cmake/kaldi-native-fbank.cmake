@@ -3,7 +3,7 @@ function(download_kaldi_native_fbank)
 
   # Please also change ../pack-for-embedded-systems.sh
   set(kaldi_native_fbank_URL  "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.18.6.tar.gz")
-  set(kaldi_native_fbank_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps /resolve/main/kaldi-native-fbank-1.18.6.tar.gz")
+  set(kaldi_native_fbank_URL2  "https://hub.nuaa.cf/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.18.6.tar.gz")
   set(kaldi_native_fbank_HASH "SHA256=6202a00cd06ba8ff89beb7b6f85cda34e073e94f25fc29e37c519bff0706bf19")
 
   # If you don't have access to the Internet, please download it to your
