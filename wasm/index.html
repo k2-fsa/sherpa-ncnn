@@ -1,0 +1,50 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width" />
+  <title>Next-gen Kaldi WebAssembly with sherpa-ncnn for ASR</title>
+  <script src="sherpa-ncnn-wasm-main.js"></script>
+</head>
+
+<body>
+  <button onclick="myFunction()">Click Me!</button>
+  <button onclick="myFunction2()">Test!</button>
+  <button onclick="myFunction3()">Read!</button>
+
+  <script>
+    function myFunction() {
+      console.log("Button clicked!")
+      _RunSherpaNcnn()
+    }
+
+    function myFunction2() {
+      let array = [1, 2, 3, 4, 5];
+      let typedArray = new Float32Array(array);
+      let pointer = Module._malloc(
+        typedArray.length * typedArray.BYTES_PER_ELEMENT
+      );
+      Module.HEAPF32.set(typedArray, pointer/typedArray.BYTES_PER_ELEMENT);
+      Module.ccall(
+        "MyTest",
+        null,
+        ["number", "number"],
+        [pointer, typedArray.length]
+      );
+      Module._free(pointer);
+    }
+
+    function myFunction3() {
+      let pointer = Module._malloc(4);
+      let a = Module.ccall(
+        "ReadData",
+        "number",
+        ["number"],
+        [pointer]
+      );
+      var n = new Int32Array(Module.HEAP32.buffer, pointer, 1);
+      console.log(n[0])
+
+    }
+  </script>
+</body>
