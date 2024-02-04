@@ -74,7 +74,7 @@ function initSherpaNcnnModelConfig(config, wasmModule) {
   Module.setValue(ptr + 32, config.numThreads, 'i32');
 
   return {
-    buffer: buffer, ptr: ptr,
+    buffer: buffer, ptr: ptr, len: 36,
   }
 }
 
@@ -89,7 +89,7 @@ function initSherpaNcnnDecoderConfig(config, wasmModule) {
   Module.setValue(ptr + 4, config.numActivePaths, 'i32');
 
   return {
-    buffer: buffer, ptr: ptr,
+    buffer: buffer, ptr: ptr, len: 8,
   }
 }
 
@@ -98,7 +98,64 @@ function initSherpaNcnnFeatureExtractorConfig(config, wasmModule) {
   Module.setValue(ptr, config.samplingRate, 'float');
   Module.setValue(ptr + 4, config.featureDim, 'i32');
   return {
-    ptr: ptr
+    ptr: ptr, len: 8,
+  }
+}
+
+function copyHeap(dstPtr, srcPtr, len, wasmModule) {
+  console.log(len);
+
+  let src = new Uint8Array(HEAPU8, srcPtr, len);
+  let dst = new Uint8Array(HEAPU8, dstPtr, len);
+  dst.set(src)
+}
+
+function initSherpaNcnnRecognizerConfig(config, wasmModule) {
+  let featConfig =
+      initSherpaNcnnFeatureExtractorConfig(config.featConfig, wasmModule);
+  let modelConfig = initSherpaNcnnModelConfig(config.modelConfig, wasmModule);
+  let decoderConfig =
+      initSherpaNcnnDecoderConfig(config.decoderConfig, wasmModule);
+
+  let numBytes =
+      featConfig.len + modelConfig.len + decoderConfig.len + 4 * 4 + 4 * 2;
+  console.log(numBytes)
+
+  let ptr = wasmModule._malloc(numBytes);
+  let offset = 0;
+  wasmModule._CopyHeap(featConfig.ptr, featConfig.len, ptr + offset);
+  offset += featConfig.len;
+
+  wasmModule._CopyHeap(modelConfig.ptr, modelConfig.len, ptr + offset)
+  offset += modelConfig.len;
+
+  wasmModule._CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
+  offset += decoderConfig.len;
+
+  wasmModule.setValue(ptr + offset, config.enableEndpoint, 'i32');
+  offset += 4;
+
+  wasmModule.setValue(ptr + offset, config.rule1MinTrailingSilence, 'float');
+  offset += 4;
+
+  wasmModule.setValue(ptr + offset, config.rule2MinTrailingSilence, 'float');
+  offset += 4;
+
+  wasmModule.setValue(ptr + offset, config.rule3MinUtternceLength, 'float');
+  offset += 4;
+
+  wasmModule.setValue(ptr + offset, 0, 'i32');  // hotwords file
+  offset += 4;
+
+  wasmModule.setValue(ptr + offset, 0.5, 'float');  // hotwords_score
+  offset += 4;
+
+  freeConfig(featConfig, wasmModule);
+  freeConfig(modelConfig, wasmModule);
+  freeConfig(decoderConfig, wasmModule);
+
+  return {
+    ptr: ptr, len: numBytes,
   }
 }
 

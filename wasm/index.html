@@ -50,7 +50,7 @@
     }
 
     function myFunction4() {
-      let modelConfigObj = {
+      let modelConfig = {
         encoderParam: "./encoder.ncnn.param",
         encoderBin: "./encoder.ncnn.bin",
         decoderParam: "./decoder.ncnn.param",
@@ -61,28 +61,31 @@
         useVulkanCompute: 0,
         numThreads: 1,
       }
-      let modelConfig = initSherpaNcnnModelConfig(modelConfigObj, Module)
 
-      let decoderConfigObj = {
+      let decoderConfig = {
         decodingMethod: "greedy_search",
         numActivePaths: 4,
       }
-      let decoderConfig = initSherpaNcnnDecoderConfig(decoderConfigObj, Module)
 
-      let featConfigObj = {
+      let featConfig = {
         samplingRate: 16000,
         featureDim: 80,
       }
-      let featConfig = initSherpaNcnnFeatureExtractorConfig(featConfigObj, Module)
 
-      _MyTest2(modelConfig.ptr, decoderConfig.ptr, featConfig.ptr);
+      let configObj = {
+        featConfig: featConfig,
+        modelConfig: modelConfig,
+        decoderConfig: decoderConfig,
+        enableEndpoint: 1,
+        rule1MinTrailingSilence: 1.2,
+        rule2MinTrailingSilence: 2.4,
+        rule3MinUtternceLength: 20,
+      }
 
+      let config = initSherpaNcnnRecognizerConfig(configObj, Module);
+      _MyTest2(config.ptr);
 
-      freeConfig(modelConfig, Module)
-      freeConfig(decoderConfig, Module)
-      freeConfig(featConfig, Module)
-
-
+      freeConfig(config, Module)
     }
   </script>
 </body>

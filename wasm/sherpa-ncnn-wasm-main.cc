@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 
 #include "sherpa-ncnn/c-api/c-api.h"
@@ -12,13 +13,21 @@ extern "C" {
 sherpa_ncnn::Recognizer *g_recognizer = nullptr;
 std::unique_ptr<sherpa_ncnn::Stream> g_stream;
 
+static_assert(sizeof(SherpaNcnnFeatureExtractorConfig) == 4 * 2, "");
 static_assert(sizeof(SherpaNcnnModelConfig) == 4 * 9, "");
 static_assert(sizeof(SherpaNcnnDecoderConfig) == 4 * 2, "");
-static_assert(sizeof(SherpaNcnnFeatureExtractorConfig) == 4 * 2, "");
+static_assert(sizeof(SherpaNcnnRecognizerConfig) ==
+                  4 * 2 + 4 * 9 + 4 * 2 + 4 * 4 + 4 * 2,
+              "");
 
-void MyTest2(SherpaNcnnModelConfig *model_config,
-             SherpaNcnnDecoderConfig *decoder_config,
-             SherpaNcnnFeatureExtractorConfig *feat_config) {
+void CopyHeap(const char *src, int32_t num_bytes, char *dst) {
+  std::copy(src, src + num_bytes, dst);
+}
+
+void MyTest2(SherpaNcnnRecognizerConfig *config) {
+  auto model_config = &config->model_config;
+  auto decoder_config = &config->decoder_config;
+  auto feat_config = &config->feat_config;
   fprintf(stdout, "encoder_param: %s\n", model_config->encoder_param);
   fprintf(stdout, "encoder_bin: %s\n", model_config->encoder_bin);
 
@@ -38,6 +47,15 @@ void MyTest2(SherpaNcnnModelConfig *model_config,
 
   fprintf(stdout, "sampling_rate: %f\n", feat_config->sampling_rate);
   fprintf(stdout, "feature_dim: %d\n", feat_config->feature_dim);
+
+  fprintf(stdout, "----------\n");
+  fprintf(stdout, "enable_endpoint: %d\n", config->enable_endpoint);
+  fprintf(stdout, "rule1_min_trailing_silence: %d\n",
+          config->rule1_min_trailing_silence);
+  fprintf(stdout, "rule2_min_trailing_silence: %d\n",
+          config->rule2_min_trailing_silence);
+  fprintf(stdout, "rule3_min_utterance_length: %d\n",
+          config->rule3_min_utterance_length);
 }
 
 void MyTest(const float *samples, int32_t n) {
