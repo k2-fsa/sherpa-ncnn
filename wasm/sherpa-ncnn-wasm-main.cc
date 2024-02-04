@@ -1,12 +1,32 @@
 #include <memory>
 
+#include "sherpa-ncnn/c-api/c-api.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
 #include "sherpa-ncnn/csrc/wave-reader.h"
+
+// see also
+// https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html
 
 extern "C" {
 
 sherpa_ncnn::Recognizer *g_recognizer = nullptr;
 std::unique_ptr<sherpa_ncnn::Stream> g_stream;
+
+static_assert(sizeof(SherpaNcnnModelConfig) == 4 * 9, "");
+
+void MyTest2(SherpaNcnnModelConfig *model_config) {
+  fprintf(stdout, "encoder_param: %s\n", model_config->encoder_param);
+  fprintf(stdout, "encoder_bin: %s\n", model_config->encoder_bin);
+
+  fprintf(stdout, "decoder_param: %s\n", model_config->decoder_param);
+  fprintf(stdout, "decoder_bin: %s\n", model_config->decoder_bin);
+
+  fprintf(stdout, "joiner_param: %s\n", model_config->joiner_param);
+  fprintf(stdout, "joiner_bin: %s\n", model_config->joiner_bin);
+  fprintf(stdout, "tokens: %s\n", model_config->tokens);
+  fprintf(stdout, "use_vulkan_compute: %d\n", model_config->use_vulkan_compute);
+  fprintf(stdout, "num_threads: %d\n", model_config->num_threads);
+}
 
 void MyTest(const float *samples, int32_t n) {
   fprintf(stdout, "n: %d\n", n);

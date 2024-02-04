@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width" />
   <title>Next-gen Kaldi WebAssembly with sherpa-ncnn for ASR</title>
   <script src="sherpa-ncnn-wasm-main.js"></script>
+  <script src="sherpa-ncnn.js"></script>
 </head>
 
 <body>
   <button onclick="myFunction()">Click Me!</button>
   <button onclick="myFunction2()">Test!</button>
   <button onclick="myFunction3()">Read!</button>
+  <button onclick="myFunction4()">String!</button>
 
   <script>
     function myFunction() {
@@ -45,6 +47,24 @@
       var n = new Int32Array(Module.HEAP32.buffer, pointer, 1);
       console.log(n[0])
 
+    }
+
+    function myFunction4() {
+      modelConfig = {
+        encoderParam: "./encoder.ncnn.param",
+        encoderBin: "./encoder.ncnn.bin",
+        decoderParam: "./decoder.ncnn.param",
+        decoderBin: "./decoder.ncnn.bin",
+        joinerParam: "./joiner.ncnn.param",
+        joinerBin: "./joiner.ncnn.bin",
+        tokens: "./tokens.txt",
+        useVulkanCompute: 0,
+        numThreads: 1,
+      }
+      let config = initSherpaNcnnModelConfig(modelConfig, Module)
+      _MyTest2(config.ptr)
+
+      freeConfig(config, Module)
     }
   </script>
 </body>

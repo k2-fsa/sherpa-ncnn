@@ -163,7 +163,6 @@ if(SHERPA_NCNN_ENABLE_WASM)
   add_subdirectory(wasm)
 endif()
 
-
 set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS)
 
 if(NOT BUILD_SHARED_LIBS)
