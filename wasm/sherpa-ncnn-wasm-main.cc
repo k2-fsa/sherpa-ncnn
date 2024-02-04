@@ -14,9 +14,11 @@ std::unique_ptr<sherpa_ncnn::Stream> g_stream;
 
 static_assert(sizeof(SherpaNcnnModelConfig) == 4 * 9, "");
 static_assert(sizeof(SherpaNcnnDecoderConfig) == 4 * 2, "");
+static_assert(sizeof(SherpaNcnnFeatureExtractorConfig) == 4 * 2, "");
 
 void MyTest2(SherpaNcnnModelConfig *model_config,
-             SherpaNcnnDecoderConfig *decoder_config) {
+             SherpaNcnnDecoderConfig *decoder_config,
+             SherpaNcnnFeatureExtractorConfig *feat_config) {
   fprintf(stdout, "encoder_param: %s\n", model_config->encoder_param);
   fprintf(stdout, "encoder_bin: %s\n", model_config->encoder_bin);
 
@@ -32,6 +34,10 @@ void MyTest2(SherpaNcnnModelConfig *model_config,
 
   fprintf(stdout, "decoding_method: %s\n", decoder_config->decoding_method);
   fprintf(stdout, "num_active_paths: %d\n", decoder_config->num_active_paths);
+  fprintf(stdout, "----------\n");
+
+  fprintf(stdout, "sampling_rate: %f\n", feat_config->sampling_rate);
+  fprintf(stdout, "feature_dim: %d\n", feat_config->feature_dim);
 }
 
 void MyTest(const float *samples, int32_t n) {

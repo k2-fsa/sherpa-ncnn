@@ -68,11 +68,19 @@
         numActivePaths: 4,
       }
       let decoderConfig = initSherpaNcnnDecoderConfig(decoderConfigObj, Module)
-      _MyTest2(modelConfig.ptr, decoderConfig.ptr);
+
+      let featConfigObj = {
+        samplingRate: 16000,
+        featureDim: 80,
+      }
+      let featConfig = initSherpaNcnnFeatureExtractorConfig(featConfigObj, Module)
+
+      _MyTest2(modelConfig.ptr, decoderConfig.ptr, featConfig.ptr);
 
 
       freeConfig(modelConfig, Module)
       freeConfig(decoderConfig, Module)
+      freeConfig(featConfig, Module)
 
 
     }

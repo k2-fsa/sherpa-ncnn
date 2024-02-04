@@ -1,7 +1,9 @@
 
 
 function freeConfig(config, wasmModule) {
-  wasmModule._free(config.buffer);
+  if ('buffer' in config) {
+    wasmModule._free(config.buffer);
+  }
   wasmModule._free(config.ptr);
 }
 
@@ -88,6 +90,15 @@ function initSherpaNcnnDecoderConfig(config, wasmModule) {
 
   return {
     buffer: buffer, ptr: ptr,
+  }
+}
+
+function initSherpaNcnnFeatureExtractorConfig(config, wasmModule) {
+  let ptr = wasmModule._malloc(4 * 2);
+  Module.setValue(ptr, config.samplingRate, 'float');
+  Module.setValue(ptr + 4, config.featureDim, 'i32');
+  return {
+    ptr: ptr
   }
 }
 
