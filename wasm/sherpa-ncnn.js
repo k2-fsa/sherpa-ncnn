@@ -80,6 +80,15 @@ function initSherpaNcnnDecoderConfig(config, wasmModule) {
   let n = lengthBytesUTF8(config.decodingMethod) + 1;
   let buffer = wasmModule._malloc(n);
   let ptr = wasmModule._malloc(4 * 2);
+
+  stringToUTF8(config.decodingMethod, buffer, n);
+
+  Module.setValue(ptr, buffer, 'i8*');
+  Module.setValue(ptr + 4, config.numActivePaths, 'i32');
+
+  return {
+    buffer: buffer, ptr: ptr,
+  }
 }
 
 class Recognizer {

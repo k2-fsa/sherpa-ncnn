@@ -50,7 +50,7 @@
     }
 
     function myFunction4() {
-      modelConfig = {
+      let modelConfigObj = {
         encoderParam: "./encoder.ncnn.param",
         encoderBin: "./encoder.ncnn.bin",
         decoderParam: "./decoder.ncnn.param",
@@ -61,10 +61,20 @@
         useVulkanCompute: 0,
         numThreads: 1,
       }
-      let config = initSherpaNcnnModelConfig(modelConfig, Module)
-      _MyTest2(config.ptr)
+      let modelConfig = initSherpaNcnnModelConfig(modelConfigObj, Module)
 
-      freeConfig(config, Module)
+      let decoderConfigObj = {
+        decodingMethod: "greedy_search",
+        numActivePaths: 4,
+      }
+      let decoderConfig = initSherpaNcnnDecoderConfig(decoderConfigObj, Module)
+      _MyTest2(modelConfig.ptr, decoderConfig.ptr);
+
+
+      freeConfig(modelConfig, Module)
+      freeConfig(decoderConfig, Module)
+
+
     }
   </script>
 </body>

@@ -13,8 +13,10 @@ sherpa_ncnn::Recognizer *g_recognizer = nullptr;
 std::unique_ptr<sherpa_ncnn::Stream> g_stream;
 
 static_assert(sizeof(SherpaNcnnModelConfig) == 4 * 9, "");
+static_assert(sizeof(SherpaNcnnDecoderConfig) == 4 * 2, "");
 
-void MyTest2(SherpaNcnnModelConfig *model_config) {
+void MyTest2(SherpaNcnnModelConfig *model_config,
+             SherpaNcnnDecoderConfig *decoder_config) {
   fprintf(stdout, "encoder_param: %s\n", model_config->encoder_param);
   fprintf(stdout, "encoder_bin: %s\n", model_config->encoder_bin);
 
@@ -26,6 +28,10 @@ void MyTest2(SherpaNcnnModelConfig *model_config) {
   fprintf(stdout, "tokens: %s\n", model_config->tokens);
   fprintf(stdout, "use_vulkan_compute: %d\n", model_config->use_vulkan_compute);
   fprintf(stdout, "num_threads: %d\n", model_config->num_threads);
+  fprintf(stdout, "----------\n");
+
+  fprintf(stdout, "decoding_method: %s\n", decoder_config->decoding_method);
+  fprintf(stdout, "num_active_paths: %d\n", decoder_config->num_active_paths);
 }
 
 void MyTest(const float *samples, int32_t n) {
