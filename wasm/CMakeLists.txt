@@ -9,9 +9,9 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 set(MY_FLAGS " -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=512MB -s EXIT_RUNTIME=1 ")
-string(APPEND MY_FLAGS " -sEXPORTED_FUNCTIONS=['_CopyHeap','_RunSherpaNcnn','_malloc','_free','_MyTest','_ReadData','_MyTest2'] ")
+string(APPEND MY_FLAGS " -sEXPORTED_FUNCTIONS=['_CopyHeap','_CreateRecognizer','_RunSherpaNcnn','_malloc','_free','_MyTest','_ReadData','_MyTest2'] ")
 string(APPEND MY_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/assets@. ")
-string(APPEND MY_FLAGS " -sEXPORTED_RUNTIME_METHODS=['ccall','stringToUTF8','setValue'] ")
+string(APPEND MY_FLAGS " -sEXPORTED_RUNTIME_METHODS=['ccall','stringToUTF8','setValue','getValue'] ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MY_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_FLAGS}")

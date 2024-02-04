@@ -51,12 +51,12 @@
 
     function myFunction4() {
       let modelConfig = {
-        encoderParam: "./encoder.ncnn.param",
-        encoderBin: "./encoder.ncnn.bin",
-        decoderParam: "./decoder.ncnn.param",
-        decoderBin: "./decoder.ncnn.bin",
-        joinerParam: "./joiner.ncnn.param",
-        joinerBin: "./joiner.ncnn.bin",
+        encoderParam: "./encoder_jit_trace-pnnx.ncnn.param",
+        encoderBin: "./encoder_jit_trace-pnnx.ncnn.bin",
+        decoderParam: "./decoder_jit_trace-pnnx.ncnn.param",
+        decoderBin: "./decoder_jit_trace-pnnx.ncnn.bin",
+        joinerParam: "./joiner_jit_trace-pnnx.ncnn.param",
+        joinerBin: "./joiner_jit_trace-pnnx.ncnn.bin",
         tokens: "./tokens.txt",
         useVulkanCompute: 0,
         numThreads: 1,
@@ -81,11 +81,35 @@
         rule2MinTrailingSilence: 2.4,
         rule3MinUtternceLength: 20,
       }
+      console.log(Module)
 
-      let config = initSherpaNcnnRecognizerConfig(configObj, Module);
-      _MyTest2(config.ptr);
+      let recognizer = new Recognizer(configObj, Module);
 
-      freeConfig(config, Module)
+      let stream = recognizer.createStream();
+
+      let pointer = Module._malloc(4);
+      let a = Module.ccall(
+        "ReadData",
+        "number",
+        ["number"],
+        [pointer]
+      );
+      var n = new Int32Array(Module.HEAP32.buffer, pointer, 1);
+      console.log(n[0])
+
+      var samples = new Float32Array(Module.HEAPF32.buffer, a, n);
+      stream.acceptWaveform(16000, samples);
+
+      while(recognizer.isReady(stream)) {
+        recognizer.decode(stream);
+      }
+
+      let result = recognizer.getResult(stream)
+      console.log(result);
+
+      stream.free();
+
+      recognizer.free();
     }
   </script>
 </body>

@@ -50,11 +50,11 @@ void MyTest2(SherpaNcnnRecognizerConfig *config) {
 
   fprintf(stdout, "----------\n");
   fprintf(stdout, "enable_endpoint: %d\n", config->enable_endpoint);
-  fprintf(stdout, "rule1_min_trailing_silence: %d\n",
+  fprintf(stdout, "rule1_min_trailing_silence: %2.f\n",
           config->rule1_min_trailing_silence);
-  fprintf(stdout, "rule2_min_trailing_silence: %d\n",
+  fprintf(stdout, "rule2_min_trailing_silence: %.2f\n",
           config->rule2_min_trailing_silence);
-  fprintf(stdout, "rule3_min_utterance_length: %d\n",
+  fprintf(stdout, "rule3_min_utterance_length: %.2f\n",
           config->rule3_min_utterance_length);
 }
 
@@ -72,6 +72,7 @@ float *ReadData(int32_t *n) {
   std::copy(samples.begin(), samples.end(), p);
   *n = samples.size();
   fprintf(stdout, "n: %d\n", *n);
+
   return p;
 }
 

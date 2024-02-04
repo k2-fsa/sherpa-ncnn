@@ -1,14 +1,14 @@
 
 
-function freeConfig(config, wasmModule) {
+function freeConfig(config) {
   if ('buffer' in config) {
-    wasmModule._free(config.buffer);
+    _free(config.buffer);
   }
-  wasmModule._free(config.ptr);
+  _free(config.ptr);
 }
 
 // The user should free the returned pointers
-function initSherpaNcnnModelConfig(config, wasmModule) {
+function initSherpaNcnnModelConfig(config) {
   let encoderParamLen = lengthBytesUTF8(config.encoderParam) + 1;
   let decoderParamLen = lengthBytesUTF8(config.decoderParam) + 1;
   let joinerParamLen = lengthBytesUTF8(config.joinerParam) + 1;
@@ -23,8 +23,8 @@ function initSherpaNcnnModelConfig(config, wasmModule) {
   n += encoderBinLen + decoderBinLen + joinerBinLen;
   n += tokensLen;
 
-  let buffer = wasmModule._malloc(n);
-  let ptr = wasmModule._malloc(4 * 9);
+  let buffer = _malloc(n);
+  let ptr = _malloc(4 * 9);
 
   let offset = 0;
   stringToUTF8(config.encoderParam, buffer + offset, encoderParamLen);
@@ -78,10 +78,10 @@ function initSherpaNcnnModelConfig(config, wasmModule) {
   }
 }
 
-function initSherpaNcnnDecoderConfig(config, wasmModule) {
+function initSherpaNcnnDecoderConfig(config) {
   let n = lengthBytesUTF8(config.decodingMethod) + 1;
-  let buffer = wasmModule._malloc(n);
-  let ptr = wasmModule._malloc(4 * 2);
+  let buffer = _malloc(n);
+  let ptr = _malloc(4 * 2);
 
   stringToUTF8(config.decodingMethod, buffer, n);
 
@@ -93,8 +93,8 @@ function initSherpaNcnnDecoderConfig(config, wasmModule) {
   }
 }
 
-function initSherpaNcnnFeatureExtractorConfig(config, wasmModule) {
-  let ptr = wasmModule._malloc(4 * 2);
+function initSherpaNcnnFeatureExtractorConfig(config) {
+  let ptr = _malloc(4 * 2);
   Module.setValue(ptr, config.samplingRate, 'float');
   Module.setValue(ptr + 4, config.featureDim, 'i32');
   return {
@@ -102,65 +102,126 @@ function initSherpaNcnnFeatureExtractorConfig(config, wasmModule) {
   }
 }
 
-function copyHeap(dstPtr, srcPtr, len, wasmModule) {
-  console.log(len);
-
-  let src = new Uint8Array(HEAPU8, srcPtr, len);
-  let dst = new Uint8Array(HEAPU8, dstPtr, len);
-  dst.set(src)
-}
-
-function initSherpaNcnnRecognizerConfig(config, wasmModule) {
-  let featConfig =
-      initSherpaNcnnFeatureExtractorConfig(config.featConfig, wasmModule);
-  let modelConfig = initSherpaNcnnModelConfig(config.modelConfig, wasmModule);
-  let decoderConfig =
-      initSherpaNcnnDecoderConfig(config.decoderConfig, wasmModule);
+function initSherpaNcnnRecognizerConfig(config) {
+  let featConfig = initSherpaNcnnFeatureExtractorConfig(config.featConfig);
+  let modelConfig = initSherpaNcnnModelConfig(config.modelConfig);
+  let decoderConfig = initSherpaNcnnDecoderConfig(config.decoderConfig);
 
   let numBytes =
       featConfig.len + modelConfig.len + decoderConfig.len + 4 * 4 + 4 * 2;
-  console.log(numBytes)
 
-  let ptr = wasmModule._malloc(numBytes);
+  let ptr = _malloc(numBytes);
   let offset = 0;
-  wasmModule._CopyHeap(featConfig.ptr, featConfig.len, ptr + offset);
+  _CopyHeap(featConfig.ptr, featConfig.len, ptr + offset);
   offset += featConfig.len;
 
-  wasmModule._CopyHeap(modelConfig.ptr, modelConfig.len, ptr + offset)
+  _CopyHeap(modelConfig.ptr, modelConfig.len, ptr + offset)
   offset += modelConfig.len;
 
-  wasmModule._CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
+  _CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
   offset += decoderConfig.len;
 
-  wasmModule.setValue(ptr + offset, config.enableEndpoint, 'i32');
+  Module.setValue(ptr + offset, config.enableEndpoint, 'i32');
   offset += 4;
 
-  wasmModule.setValue(ptr + offset, config.rule1MinTrailingSilence, 'float');
+  Module.setValue(ptr + offset, config.rule1MinTrailingSilence, 'float');
   offset += 4;
 
-  wasmModule.setValue(ptr + offset, config.rule2MinTrailingSilence, 'float');
+  Module.setValue(ptr + offset, config.rule2MinTrailingSilence, 'float');
   offset += 4;
 
-  wasmModule.setValue(ptr + offset, config.rule3MinUtternceLength, 'float');
+  Module.setValue(ptr + offset, config.rule3MinUtternceLength, 'float');
   offset += 4;
 
-  wasmModule.setValue(ptr + offset, 0, 'i32');  // hotwords file
+  Module.setValue(ptr + offset, 0, 'i32');  // hotwords file
   offset += 4;
 
-  wasmModule.setValue(ptr + offset, 0.5, 'float');  // hotwords_score
+  Module.setValue(ptr + offset, 0.5, 'float');  // hotwords_score
   offset += 4;
-
-  freeConfig(featConfig, wasmModule);
-  freeConfig(modelConfig, wasmModule);
-  freeConfig(decoderConfig, wasmModule);
 
   return {
-    ptr: ptr, len: numBytes,
+    ptr: ptr, len: numBytes, featConfig: featConfig, modelConfig: modelConfig,
+        decoderConfig: decoderConfig,
   }
 }
 
+class Stream {
+  constructor(handle) {
+    this.handle = handle;
+    this.pointer = null;
+    this.n = 0
+  }
+
+  free() {
+    if (this.handle) {
+      _DestroyStream(this.handle);
+      this.handle = null;
+      _free(this.pointer);
+      this.pointer = null;
+      this.n = 0;
+    }
+  }
+
+  /**
+   * @param sampleRate {Number}
+   * @param samples {Float32Array} Containing samples in the range [-1, 1]
+   */
+  acceptWaveform(sampleRate, samples) {
+    if (this.n < samples.length) {
+      _free(this.pointer);
+      this.pointer = _malloc(samples.length * samples.BYTES_PER_ELEMENT);
+      this.n = samples.length
+    }
+
+    Module.HEAPF32.set(samples, this.pointer / samples.BYTES_PER_ELEMENT);
+    _AcceptWaveform(this.handle, sampleRate, this.pointer, samples.length);
+  }
+
+  inputFinished() {
+    _InputFinished(this.handle);
+  }
+};
+
 class Recognizer {
-  constructor(config, wasmModule) {
-    modelConfig = initSherpaNcnnModelConfig(config.modelConfig)
+  constructor(configObj) {
+    let config = initSherpaNcnnRecognizerConfig(configObj)
+    let handle = _CreateRecognizer(config.ptr);
+
+    freeConfig(config.featConfig);
+    freeConfig(config.modelConfig);
+    freeConfig(config.decoderConfig);
+    freeConfig(config);
+
+    this.handle = handle;
+  }
+
+  free() {
+    _DestroyRecognizer(this.handle);
+    this.handle = 0
+  }
+
+  createStream() {
+    let handle = _CreateStream(this.handle);
+    return new Stream(handle);
+  }
+
+  isReady(stream) {
+    return _IsReady(this.handle, stream.handle) == 1;
+  }
+
+  isEndpoint(stream) {
+    return _IsEndpoint(this.handle, stream.handle) == 1;
+  }
+
+  decode(stream) {
+    return _Decode(this.handle, stream.handle);
+  }
+
+  getResult(stream) {
+    let r = _GetResult(this.handle, stream.handle);
+    let textPtr = getValue(r, 'i8*');
+    let text = UTF8ToString(textPtr);
+    _DestroyResult(r);
+    return text;
   }
 }
