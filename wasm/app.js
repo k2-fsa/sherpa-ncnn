@@ -9,7 +9,6 @@ const soundClips = document.getElementById('sound-clips');
 
 let textArea = document.getElementById('results');
 
-
 let lastResult = '';
 let resultList = [];
 
@@ -64,7 +63,7 @@ if (navigator.mediaDevices.getUserMedia) {
 
   let onSuccess = function(stream) {
     if (!audioCtx) {
-      audioCtx = new AudioContext();
+      audioCtx = new AudioContext({sampleRate: 16000});
     }
     console.log(audioCtx);
     recordSampleRate = audioCtx.sampleRate;
