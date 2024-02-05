@@ -183,7 +183,12 @@ class Stream {
 };
 
 class Recognizer {
-  constructor(configObj) {
+  constructor(configObj, borrowedHandle) {
+    if (borrowedHandle) {
+      this.handle = borrowedHandle;
+      return;
+    }
+
     let config = initSherpaNcnnRecognizerConfig(configObj)
     let handle = _CreateRecognizer(config.ptr);
 
@@ -217,6 +222,10 @@ class Recognizer {
     return _Decode(this.handle, stream.handle);
   }
 
+  reset(stream) {
+    _Reset(this.handle, stream.handle);
+  }
+
   getResult(stream) {
     let r = _GetResult(this.handle, stream.handle);
     let textPtr = getValue(r, 'i8*');
@@ -224,4 +233,40 @@ class Recognizer {
     _DestroyResult(r);
     return text;
   }
+}
+
+function createRecognizer() {
+  let modelConfig = {
+    encoderParam: './encoder_jit_trace-pnnx.ncnn.param',
+    encoderBin: './encoder_jit_trace-pnnx.ncnn.bin',
+    decoderParam: './decoder_jit_trace-pnnx.ncnn.param',
+    decoderBin: './decoder_jit_trace-pnnx.ncnn.bin',
+    joinerParam: './joiner_jit_trace-pnnx.ncnn.param',
+    joinerBin: './joiner_jit_trace-pnnx.ncnn.bin',
+    tokens: './tokens.txt',
+    useVulkanCompute: 0,
+    numThreads: 1,
+  };
+
+  let decoderConfig = {
+    decodingMethod: 'greedy_search',
+    numActivePaths: 4,
+  };
+
+  let featConfig = {
+    samplingRate: 16000,
+    featureDim: 80,
+  };
+
+  let configObj = {
+    featConfig: featConfig,
+    modelConfig: modelConfig,
+    decoderConfig: decoderConfig,
+    enableEndpoint: 1,
+    rule1MinTrailingSilence: 1.2,
+    rule2MinTrailingSilence: 2.4,
+    rule3MinUtternceLength: 20,
+  };
+
+  return new Recognizer(configObj);
 }

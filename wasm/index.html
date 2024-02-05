@@ -4,112 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width" />
   <title>Next-gen Kaldi WebAssembly with sherpa-ncnn for ASR</title>
-  <script src="sherpa-ncnn-wasm-main.js"></script>
-  <script src="sherpa-ncnn.js"></script>
+  <style>
+    h1,div {
+      text-align: center;
+    }
+    textarea {
+      width:100%;
+    }
+  </style>
 </head>
 
 <body>
-  <button onclick="myFunction()">Click Me!</button>
-  <button onclick="myFunction2()">Test!</button>
-  <button onclick="myFunction3()">Read!</button>
-  <button onclick="myFunction4()">String!</button>
+  <h1>
+    Next-gen Kaldi + WebAssembly ASR Demo
+  </h1>
+  <div>
+    <span id="hint">Loading model ... ...</span>
+    <br/>
+    <br/>
+    <button id="startBtn" disabled>Start</button>
+    <button id="stopBtn" disabled>Stop</button>
+    <br/>
+    <br/>
+    <textarea id="results" rows="10" readonly></textarea>
+  </div>
 
-  <script>
-    function myFunction() {
-      console.log("Button clicked!")
-      _RunSherpaNcnn()
-    }
+  <section flex="1" overflow="auto" id="sound-clips">
+  </section>
 
-    function myFunction2() {
-      let array = [1, 2, 3, 4, 5];
-      let typedArray = new Float32Array(array);
-      let pointer = Module._malloc(
-        typedArray.length * typedArray.BYTES_PER_ELEMENT
-      );
-      Module.HEAPF32.set(typedArray, pointer/typedArray.BYTES_PER_ELEMENT);
-      Module.ccall(
-        "MyTest",
-        null,
-        ["number", "number"],
-        [pointer, typedArray.length]
-      );
-      Module._free(pointer);
-    }
+  <script src="sherpa-ncnn.js"></script>
+  <script src="app.js"></script>
+  <script src="sherpa-ncnn-wasm-main.js"></script>
 
-    function myFunction3() {
-      let pointer = Module._malloc(4);
-      let a = Module.ccall(
-        "ReadData",
-        "number",
-        ["number"],
-        [pointer]
-      );
-      var n = new Int32Array(Module.HEAP32.buffer, pointer, 1);
-      console.log(n[0])
-
-    }
-
-    function myFunction4() {
-      let modelConfig = {
-        encoderParam: "./encoder_jit_trace-pnnx.ncnn.param",
-        encoderBin: "./encoder_jit_trace-pnnx.ncnn.bin",
-        decoderParam: "./decoder_jit_trace-pnnx.ncnn.param",
-        decoderBin: "./decoder_jit_trace-pnnx.ncnn.bin",
-        joinerParam: "./joiner_jit_trace-pnnx.ncnn.param",
-        joinerBin: "./joiner_jit_trace-pnnx.ncnn.bin",
-        tokens: "./tokens.txt",
-        useVulkanCompute: 0,
-        numThreads: 1,
-      }
-
-      let decoderConfig = {
-        decodingMethod: "greedy_search",
-        numActivePaths: 4,
-      }
-
-      let featConfig = {
-        samplingRate: 16000,
-        featureDim: 80,
-      }
-
-      let configObj = {
-        featConfig: featConfig,
-        modelConfig: modelConfig,
-        decoderConfig: decoderConfig,
-        enableEndpoint: 1,
-        rule1MinTrailingSilence: 1.2,
-        rule2MinTrailingSilence: 2.4,
-        rule3MinUtternceLength: 20,
-      }
-      console.log(Module)
-
-      let recognizer = new Recognizer(configObj, Module);
-
-      let stream = recognizer.createStream();
-
-      let pointer = Module._malloc(4);
-      let a = Module.ccall(
-        "ReadData",
-        "number",
-        ["number"],
-        [pointer]
-      );
-      var n = new Int32Array(Module.HEAP32.buffer, pointer, 1);
-      console.log(n[0])
-
-      var samples = new Float32Array(Module.HEAPF32.buffer, a, n);
-      stream.acceptWaveform(16000, samples);
-
-      while(recognizer.isReady(stream)) {
-        recognizer.decode(stream);
-      }
-
-      let result = recognizer.getResult(stream)
-      console.log(result);
-
-      stream.free();
-
-      recognizer.free();
-    }
-  </script>
 </body>

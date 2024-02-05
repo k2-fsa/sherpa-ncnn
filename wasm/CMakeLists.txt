@@ -37,6 +37,7 @@ install(
   FILES
     "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.js"
     "sherpa-ncnn.js"
+    "app.js"
     "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.wasm"
     "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.data"
     # "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.html"
