@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - wasm-2
     paths:
       - '.github/workflows/build-wasm-simd.yaml'
       - 'CMakeLists.txt'
@@ -55,7 +54,7 @@ jobs:
       - name: Install emsdk
         uses: mymindstorm/setup-emsdk@v14
 
-      - name: Install emsdk
+      - name: View emsdk version
         shell: bash
         run: |
           emcc -v
