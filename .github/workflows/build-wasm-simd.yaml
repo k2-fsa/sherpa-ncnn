@@ -21,12 +21,24 @@ on:
       - 'sherpa-ncnn/csrc/*'
       - 'wasm/*'
 
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Whether to release"
+        type: boolean
+
+env:
+  RELEASE:
+    |- # Release if there is a release tag name or a release flag in workflow_dispatch
+    ${{ github.event.release.tag_name != '' || github.event.inputs.release == 'true' }}
+
 concurrency:
   group: linux-${{ github.ref }}
   cancel-in-progress: true
-
-permissions:
-  contents: read
 
 jobs:
   wasm-simd:
@@ -61,7 +73,10 @@ jobs:
           mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/*pnnx.ncnn.param .
           mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/*pnnx.ncnn.bin .
           mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/tokens.txt .
+
           rm -rf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          rm -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+
           ls -lh
 
       - name: Build sherpa-ncnn for WebAssembly
@@ -72,12 +87,22 @@ jobs:
       - name: collect files
         shell: bash
         run: |
+          SHERPA_NCNN_VERSION=v$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+
           mv build-wasm-simd/install/bin/wasm sherpa-ncnn-wasm-simd
           ls -lh sherpa-ncnn-wasm-simd
-          tar cjfv sherpa-ncnn-wasm-simd.tar.bz2 ./sherpa-ncnn-wasm-simd
+          tar cjfv sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}.tar.bz2 ./sherpa-ncnn-wasm-simd
 
       - name: Upload wasm files
         uses: actions/upload-artifact@v4
         with:
           name: sherpa-ncnn-wasm-simd
-          path: ./sherpa-ncnn-wasm-simd.tar.bz2
+          path: ./sherpa-ncnn-wasm-simd-*.tar.bz2
+
+      - name: Release wasm files
+        if: env.RELEASE == 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          overwrite: true
+          file: ./sherpa-ncnn-wasm-simd*.tar.bz2
