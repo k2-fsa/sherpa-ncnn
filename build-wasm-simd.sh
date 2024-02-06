@@ -5,6 +5,10 @@
 #
 # See also
 # https://github.com/Tencent/ncnn/wiki/how-to-build#build-for-webassembly
+#
+# Please refer to
+# https://k2-fsa.github.io/sherpa/ncnn/wasm/index.html
+# for more details.
 
 set -ex
 
