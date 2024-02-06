@@ -4,6 +4,7 @@
 
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
+const clearBtn = document.getElementById('clearBtn');
 const hint = document.getElementById('hint');
 const soundClips = document.getElementById('sound-clips');
 
@@ -11,6 +12,12 @@ let textArea = document.getElementById('results');
 
 let lastResult = '';
 let resultList = [];
+
+clearBtn.onclick = function() {
+  resultList = [];
+  textArea.value = getDisplayResult();
+  textArea.scrollTop = textArea.scrollHeight;  // auto scroll
+};
 
 function getDisplayResult() {
   let i = 0;
@@ -140,7 +147,6 @@ if (navigator.mediaDevices.getUserMedia) {
       recorder.connect(audioCtx.destination);
 
       console.log('recorder started');
-      startBtn.style.background = 'red';
 
       stopBtn.disabled = false;
       startBtn.disabled = true;

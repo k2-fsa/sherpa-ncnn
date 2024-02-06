@@ -16,7 +16,8 @@
 
 <body>
   <h1>
-    Next-gen Kaldi + WebAssembly ASR Demo
+    Next-gen Kaldi + WebAssembly<br/>
+    ASR Demo with <a href="https://github.com/k2-fsa/sherpa-ncnn">sherpa-ncnn</a>
   </h1>
   <div>
     <span id="hint">Loading model ... ...</span>
@@ -24,6 +25,7 @@
     <br/>
     <button id="startBtn" disabled>Start</button>
     <button id="stopBtn" disabled>Stop</button>
+    <button id="clearBtn">Clear</button>
     <br/>
     <br/>
     <textarea id="results" rows="10" readonly></textarea>
@@ -35,5 +37,4 @@
   <script src="sherpa-ncnn.js"></script>
   <script src="app.js"></script>
   <script src="sherpa-ncnn-wasm-main.js"></script>
-
 </body>

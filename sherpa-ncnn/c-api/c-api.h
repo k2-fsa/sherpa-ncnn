@@ -27,13 +27,6 @@
 
 #include <stdint.h>
 
-#if defined(__EMSCRIPTEN__)
-#include <emscripten.h>
-#define SHERPA_NCNN_WASM EMSCRIPTEN_KEEPALIVE
-#else
-#define SHERPA_NCNN_WASM
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,9 +49,9 @@ extern "C" {
 #endif
 
 #if defined(SHERPA_NCNN_BUILD_MAIN_LIB)
-#define SHERPA_NCNN_API SHERPA_NCNN_EXPORT SHERPA_NCNN_WASM
+#define SHERPA_NCNN_API SHERPA_NCNN_EXPORT
 #else
-#define SHERPA_NCNN_API SHERPA_NCNN_IMPORT SHERPA_NCNN_WASM
+#define SHERPA_NCNN_API SHERPA_NCNN_IMPORT
 #endif
 
 /// Please refer to
