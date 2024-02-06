@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "2.1.6")
+set(SHERPA_NCNN_VERSION "2.1.7")
 
 # Disable warning about
 #
@@ -40,6 +40,7 @@ option(SHERPA_NCNN_ENABLE_JNI "Whether to build JNI internface" OFF)
 option(SHERPA_NCNN_ENABLE_BINARY "Whether to build the binary sherpa-ncnn" ON)
 option(SHERPA_NCNN_ENABLE_TEST "Whether to build tests" OFF)
 option(SHERPA_NCNN_ENABLE_C_API "Whether to build C API" ON)
+option(SHERPA_NCNN_ENABLE_WASM "Whether to enable WASM" OFF)
 option(SHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE "Whether to generate-int8-scale-table" ON)
 option(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES "Whether to enable ffmpeg-examples" OFF)
 
@@ -137,7 +138,6 @@ if(WIN32 AND MSVC)
   endforeach()
 endif()
 
-
 include(kaldi-native-fbank)
 include(ncnn)
 
@@ -159,6 +159,9 @@ if(SHERPA_NCNN_ENABLE_C_API AND SHERPA_NCNN_ENABLE_BINARY)
   add_subdirectory(c-api-examples)
 endif()
 
+if(SHERPA_NCNN_ENABLE_WASM)
+  add_subdirectory(wasm)
+endif()
 
 set(SHERPA_NCNN_PKG_CONFIG_EXTRA_LIBS)
 
