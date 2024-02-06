@@ -16,7 +16,7 @@ mv sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/tokens.txt .
 ```
 
 You should have the following files in `assets` before you can run
-`build-wasm.sh`
+`build-wasm-simd.sh`
 
 ```
 assets fangjun$ tree .
