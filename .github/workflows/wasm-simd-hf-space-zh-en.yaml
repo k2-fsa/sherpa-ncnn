@@ -70,6 +70,40 @@ jobs:
           name: sherpa-ncnn-wasm-simd-zh-en
           path: ./sherpa-ncnn-wasm-simd-*.tar.bz2
 
+      - name: Publish to ModelScope
+        env:
+          MS_TOKEN: ${{ secrets.MODEL_SCOPE_GIT_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            SHERPA_NCNN_VERSION=v$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            git clone http://www.modelscope.cn/studios/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en.git ms
+
+            cd ms
+            git fetch
+            git pull
+            git merge -m "merge remote" --ff origin main
+
+            cp -v ../sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}/* .
+
+            git status
+            git lfs track "*.data"
+            git lfs track "*.wasm"
+
+            git add .
+            git commit -m "update model"
+            git push http://oauth2:$MS_TOKEN@www.modelscope.cn/studios/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en.git
+
       - name: Publish to huggingface
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
