@@ -1,51 +1,51 @@
 
 
-function freeConfig(config) {
+function freeConfig(config, Module) {
   if ('buffer' in config) {
-    _free(config.buffer);
+    Module._free(config.buffer);
   }
-  _free(config.ptr);
+  Module._free(config.ptr);
 }
 
 // The user should free the returned pointers
-function initSherpaNcnnModelConfig(config) {
-  let encoderParamLen = lengthBytesUTF8(config.encoderParam) + 1;
-  let decoderParamLen = lengthBytesUTF8(config.decoderParam) + 1;
-  let joinerParamLen = lengthBytesUTF8(config.joinerParam) + 1;
+function initSherpaNcnnModelConfig(config, Module) {
+  let encoderParamLen = Module.lengthBytesUTF8(config.encoderParam) + 1;
+  let decoderParamLen = Module.lengthBytesUTF8(config.decoderParam) + 1;
+  let joinerParamLen = Module.lengthBytesUTF8(config.joinerParam) + 1;
 
-  let encoderBinLen = lengthBytesUTF8(config.encoderBin) + 1;
-  let decoderBinLen = lengthBytesUTF8(config.decoderBin) + 1;
-  let joinerBinLen = lengthBytesUTF8(config.joinerBin) + 1;
+  let encoderBinLen = Module.lengthBytesUTF8(config.encoderBin) + 1;
+  let decoderBinLen = Module.lengthBytesUTF8(config.decoderBin) + 1;
+  let joinerBinLen = Module.lengthBytesUTF8(config.joinerBin) + 1;
 
-  let tokensLen = lengthBytesUTF8(config.tokens) + 1;
+  let tokensLen = Module.lengthBytesUTF8(config.tokens) + 1;
 
   let n = encoderParamLen + decoderParamLen + joinerParamLen;
   n += encoderBinLen + decoderBinLen + joinerBinLen;
   n += tokensLen;
 
-  let buffer = _malloc(n);
-  let ptr = _malloc(4 * 9);
+  let buffer = Module._malloc(n);
+  let ptr = Module._malloc(4 * 9);
 
   let offset = 0;
-  stringToUTF8(config.encoderParam, buffer + offset, encoderParamLen);
+  Module.stringToUTF8(config.encoderParam, buffer + offset, encoderParamLen);
   offset += encoderParamLen;
 
-  stringToUTF8(config.encoderBin, buffer + offset, encoderBinLen);
+  Module.stringToUTF8(config.encoderBin, buffer + offset, encoderBinLen);
   offset += encoderBinLen;
 
-  stringToUTF8(config.decoderParam, buffer + offset, decoderParamLen);
+  Module.stringToUTF8(config.decoderParam, buffer + offset, decoderParamLen);
   offset += decoderParamLen;
 
-  stringToUTF8(config.decoderBin, buffer + offset, decoderBinLen);
+  Module.stringToUTF8(config.decoderBin, buffer + offset, decoderBinLen);
   offset += decoderBinLen;
 
-  stringToUTF8(config.joinerParam, buffer + offset, joinerParamLen);
+  Module.stringToUTF8(config.joinerParam, buffer + offset, joinerParamLen);
   offset += joinerParamLen;
 
-  stringToUTF8(config.joinerBin, buffer + offset, joinerBinLen);
+  Module.stringToUTF8(config.joinerBin, buffer + offset, joinerBinLen);
   offset += joinerBinLen;
 
-  stringToUTF8(config.tokens, buffer + offset, tokensLen);
+  Module.stringToUTF8(config.tokens, buffer + offset, tokensLen);
   offset += tokensLen;
 
   offset = 0;
@@ -78,12 +78,12 @@ function initSherpaNcnnModelConfig(config) {
   }
 }
 
-function initSherpaNcnnDecoderConfig(config) {
-  let n = lengthBytesUTF8(config.decodingMethod) + 1;
-  let buffer = _malloc(n);
-  let ptr = _malloc(4 * 2);
+function initSherpaNcnnDecoderConfig(config, Module) {
+  let n = Module.lengthBytesUTF8(config.decodingMethod) + 1;
+  let buffer = Module._malloc(n);
+  let ptr = Module._malloc(4 * 2);
 
-  stringToUTF8(config.decodingMethod, buffer, n);
+  Module.stringToUTF8(config.decodingMethod, buffer, n);
 
   Module.setValue(ptr, buffer, 'i8*');
   Module.setValue(ptr + 4, config.numActivePaths, 'i32');
@@ -93,8 +93,8 @@ function initSherpaNcnnDecoderConfig(config) {
   }
 }
 
-function initSherpaNcnnFeatureExtractorConfig(config) {
-  let ptr = _malloc(4 * 2);
+function initSherpaNcnnFeatureExtractorConfig(config, Module) {
+  let ptr = Module._malloc(4 * 2);
   Module.setValue(ptr, config.samplingRate, 'float');
   Module.setValue(ptr + 4, config.featureDim, 'i32');
   return {
@@ -102,23 +102,24 @@ function initSherpaNcnnFeatureExtractorConfig(config) {
   }
 }
 
-function initSherpaNcnnRecognizerConfig(config) {
-  let featConfig = initSherpaNcnnFeatureExtractorConfig(config.featConfig);
-  let modelConfig = initSherpaNcnnModelConfig(config.modelConfig);
-  let decoderConfig = initSherpaNcnnDecoderConfig(config.decoderConfig);
+function initSherpaNcnnRecognizerConfig(config, Module) {
+  let featConfig =
+      initSherpaNcnnFeatureExtractorConfig(config.featConfig, Module);
+  let modelConfig = initSherpaNcnnModelConfig(config.modelConfig, Module);
+  let decoderConfig = initSherpaNcnnDecoderConfig(config.decoderConfig, Module);
 
   let numBytes =
       featConfig.len + modelConfig.len + decoderConfig.len + 4 * 4 + 4 * 2;
 
-  let ptr = _malloc(numBytes);
+  let ptr = Module._malloc(numBytes);
   let offset = 0;
-  _CopyHeap(featConfig.ptr, featConfig.len, ptr + offset);
+  Module._CopyHeap(featConfig.ptr, featConfig.len, ptr + offset);
   offset += featConfig.len;
 
-  _CopyHeap(modelConfig.ptr, modelConfig.len, ptr + offset)
+  Module._CopyHeap(modelConfig.ptr, modelConfig.len, ptr + offset)
   offset += modelConfig.len;
 
-  _CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
+  Module._CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
   offset += decoderConfig.len;
 
   Module.setValue(ptr + offset, config.enableEndpoint, 'i32');
@@ -146,17 +147,18 @@ function initSherpaNcnnRecognizerConfig(config) {
 }
 
 class Stream {
-  constructor(handle) {
+  constructor(handle, Module) {
     this.handle = handle;
     this.pointer = null;
-    this.n = 0
+    this.n = 0;
+    this.Module = Module;
   }
 
   free() {
     if (this.handle) {
-      _DestroyStream(this.handle);
+      this.Module._DestroyStream(this.handle);
       this.handle = null;
-      _free(this.pointer);
+      this.Module._free(this.pointer);
       this.pointer = null;
       this.n = 0;
     }
@@ -168,13 +170,15 @@ class Stream {
    */
   acceptWaveform(sampleRate, samples) {
     if (this.n < samples.length) {
-      _free(this.pointer);
-      this.pointer = _malloc(samples.length * samples.BYTES_PER_ELEMENT);
+      this.Module._free(this.pointer);
+      this.pointer =
+          this.Module._malloc(samples.length * samples.BYTES_PER_ELEMENT);
       this.n = samples.length
     }
 
-    Module.HEAPF32.set(samples, this.pointer / samples.BYTES_PER_ELEMENT);
-    _AcceptWaveform(this.handle, sampleRate, this.pointer, samples.length);
+    this.Module.HEAPF32.set(samples, this.pointer / samples.BYTES_PER_ELEMENT);
+    this.Module._AcceptWaveform(
+        this.handle, sampleRate, this.pointer, samples.length);
   }
 
   inputFinished() {
@@ -183,59 +187,56 @@ class Stream {
 };
 
 class Recognizer {
-  constructor(configObj, borrowedHandle) {
-    if (borrowedHandle) {
-      this.handle = borrowedHandle;
-      return;
-    }
+  constructor(configObj, Module) {
+    this.config = configObj;
+    let config = initSherpaNcnnRecognizerConfig(configObj, Module)
+    let handle = Module._CreateRecognizer(config.ptr);
 
-    let config = initSherpaNcnnRecognizerConfig(configObj)
-    let handle = _CreateRecognizer(config.ptr);
-
-    freeConfig(config.featConfig);
-    freeConfig(config.modelConfig);
-    freeConfig(config.decoderConfig);
-    freeConfig(config);
+    freeConfig(config.featConfig, Module);
+    freeConfig(config.modelConfig, Module);
+    freeConfig(config.decoderConfig, Module);
+    freeConfig(config, Module);
 
     this.handle = handle;
+    this.Module = Module;
   }
 
   free() {
-    _DestroyRecognizer(this.handle);
+    this.Module._DestroyRecognizer(this.handle);
     this.handle = 0
   }
 
   createStream() {
-    let handle = _CreateStream(this.handle);
-    return new Stream(handle);
+    let handle = this.Module._CreateStream(this.handle);
+    return new Stream(handle, this.Module);
   }
 
   isReady(stream) {
-    return _IsReady(this.handle, stream.handle) == 1;
+    return this.Module._IsReady(this.handle, stream.handle) == 1;
   }
 
   isEndpoint(stream) {
-    return _IsEndpoint(this.handle, stream.handle) == 1;
+    return this.Module._IsEndpoint(this.handle, stream.handle) == 1;
   }
 
   decode(stream) {
-    return _Decode(this.handle, stream.handle);
+    return this.Module._Decode(this.handle, stream.handle);
   }
 
   reset(stream) {
-    _Reset(this.handle, stream.handle);
+    this.Module._Reset(this.handle, stream.handle);
   }
 
   getResult(stream) {
-    let r = _GetResult(this.handle, stream.handle);
-    let textPtr = getValue(r, 'i8*');
-    let text = UTF8ToString(textPtr);
-    _DestroyResult(r);
+    let r = this.Module._GetResult(this.handle, stream.handle);
+    let textPtr = this.Module.getValue(r, 'i8*');
+    let text = this.Module.UTF8ToString(textPtr);
+    this.Module._DestroyResult(r);
     return text;
   }
 }
 
-function createRecognizer() {
+function createRecognizer(Module) {
   let modelConfig = {
     encoderParam: './encoder_jit_trace-pnnx.ncnn.param',
     encoderBin: './encoder_jit_trace-pnnx.ncnn.bin',
@@ -268,5 +269,10 @@ function createRecognizer() {
     rule3MinUtternceLength: 20,
   };
 
-  return new Recognizer(configObj);
+  return new Recognizer(configObj, Module);
 }
+
+module.exports = {
+  createRecognizer,
+
+};
