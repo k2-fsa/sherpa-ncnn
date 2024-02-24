@@ -1,16 +1,60 @@
+// Copyright (c)  2024  Xiaomi Corporation (authors: Fangjun Kuang)
 const fs = require('fs');
 const wav = require('wav');
 const {Readable} = require('stream');
 
-let Module = require('./sherpa-ncnn-wasm-main.js')()
-let b = require('./sherpa-ncnn.js');
+const sherpa_ncnn = require('sherpa-ncnn0');
 
-let recognizer = b.createRecognizer(Module);
-let stream = recognizer.createStream();
+function createRecognizer() {
+  let modelConfig = {
+    encoderParam:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/encoder_jit_trace-pnnx.ncnn.param',
+    encoderBin:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/encoder_jit_trace-pnnx.ncnn.bin',
+    decoderParam:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/decoder_jit_trace-pnnx.ncnn.param',
+    decoderBin:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/decoder_jit_trace-pnnx.ncnn.bin',
+    joinerParam:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/joiner_jit_trace-pnnx.ncnn.param',
+    joinerBin:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/joiner_jit_trace-pnnx.ncnn.bin',
+    tokens:
+        './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/tokens.txt',
+    useVulkanCompute: 0,
+    numThreads: 1,
+  };
+
+  let decoderConfig = {
+    decodingMethod: 'greedy_search',
+    numActivePaths: 4,
+  };
+
+  let featConfig = {
+    samplingRate: 16000,
+    featureDim: 80,
+  };
+
+  let config = {
+    featConfig: featConfig,
+    modelConfig: modelConfig,
+    decoderConfig: decoderConfig,
+    enableEndpoint: 1,
+    rule1MinTrailingSilence: 1.2,
+    rule2MinTrailingSilence: 2.4,
+    rule3MinUtternceLength: 20,
+  };
+
+  return sherpa_ncnn.createRecognizer(config);
+}
+
+const recognizer = createRecognizer();
+const stream = recognizer.createStream();
 
 console.log(recognizer.config);
 
-const waveFilename = './0.wav';
+const waveFilename =
+    './sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/test_wavs/0.wav';
 
 const reader = new wav.Reader();
 const readable = new Readable().wrap(reader);
@@ -52,7 +96,7 @@ fs.createReadStream(waveFilename, {'highWaterMark': 4096})
         recognizer.decode(stream);
       }
       const r = recognizer.getResult(stream);
-      console.log('result', r);
+      console.log('result:', r);
 
       stream.free();
       recognizer.free();

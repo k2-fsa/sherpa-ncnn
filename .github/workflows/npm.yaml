@@ -80,6 +80,8 @@ jobs:
           sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json
           sed -i.bak s/k2-fsa/$owner/g ./package.json
 
+          rm package.json.bak
+
           git diff .
 
           npm install

@@ -6,7 +6,7 @@ const wasmModule = require('./sherpa-ncnn-wasm-main.js')();
 const sherpa_ncnn = require('./sherpa-ncnn.js');
 
 function createRecognizer(config) {
-  sherpa_ncnn.createRecognizer(wasmModule, config);
+  return sherpa_ncnn.createRecognizer(wasmModule, config);
 }
 
 module.exports = {
