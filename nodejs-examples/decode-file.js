@@ -3,7 +3,7 @@ const fs = require('fs');
 const wav = require('wav');
 const {Readable} = require('stream');
 
-const sherpa_ncnn = require('sherpa-ncnn0');
+const sherpa_ncnn = require('sherpa-ncnn');
 
 function createRecognizer() {
   let modelConfig = {

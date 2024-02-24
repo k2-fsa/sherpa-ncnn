@@ -3,7 +3,7 @@
 const portAudio = require('naudiodon2');
 // console.log(portAudio.getDevices());
 
-const sherpa_ncnn = require('sherpa-ncnn0');
+const sherpa_ncnn = require('sherpa-ncnn');
 
 function createRecognizer() {
   let modelConfig = {
