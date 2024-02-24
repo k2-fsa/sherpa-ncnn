@@ -1,0 +1,36 @@
+{
+  "name": "sherpa-ncnn",
+  "version": "SHERPA_NCNN_VERSION",
+  "description": "Real-time speech recognition with Next-gen Kaldi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k2-fsa/sherpa-ncnn.git"
+  },
+  "keywords": [
+    "speech-to-text",
+    "real-time speech recognition",
+    "without internet connection",
+    "embedded systems",
+    "open source",
+    "zipformer",
+    "asr",
+    "speech",
+    "WebAssembly",
+    "wasm",
+    "local",
+    "privacy",
+    "ncnn"
+  ],
+  "author": "The next-gen Kaldi team",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/k2-fsa/sherpa-ncnn/issues"
+  },
+  "homepage": "https://github.com/k2-fsa/sherpa-ncnn#readme",
+  "dependencies": {
+  }
+}

@@ -2,7 +2,7 @@ if(NOT $ENV{SHERPA_NCNN_IS_USING_BUILD_WASM_SH})
   message(FATAL_ERROR "Please use ./build-wasm.sh to build for wasm")
 endif()
 
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin" AND NOT SHERPA_NCNN_ENABLE_WASM_FOR_NODEJS)
   message(WARNING "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin does not exist")
   message(FATAL_ERROR "Please read ${CMAKE_CURRENT_SOURCE_DIR}/assets/README.md before you continue")
 endif()
@@ -31,8 +31,20 @@ list(JOIN mangled_exported_functions "," all_exported_functions)
 include_directories(${CMAKE_SOURCE_DIR})
 set(MY_FLAGS " -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=512MB ")
 string(APPEND MY_FLAGS " -sEXPORTED_FUNCTIONS=[_CopyHeap,_malloc,_free,${all_exported_functions}] ")
-string(APPEND MY_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/assets@. ")
-string(APPEND MY_FLAGS " -sEXPORTED_RUNTIME_METHODS=['ccall','stringToUTF8','setValue','getValue'] ")
+
+if(SHERPA_NCNN_ENABLE_WASM_FOR_NODEJS)
+  string(APPEND MY_FLAGS " -sNODERAWFS=1 ")
+else()
+  string(APPEND MY_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/assets@. ")
+endif()
+
+string(APPEND MY_FLAGS " -sEXPORTED_RUNTIME_METHODS=['ccall','stringToUTF8','setValue','getValue','lengthBytesUTF8','UTF8ToString'] ")
+
+if(SHERPA_NCNN_ENABLE_WASM_FOR_NODEJS)
+  string(APPEND MY_FLAGS " -sMODULARIZE=1 -sWASM_ASYNC_COMPILATION=0 ")
+endif()
+
+
 message(STATUS "MY_FLAGS: ${MY_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MY_FLAGS}")
@@ -50,7 +62,15 @@ install(
     "index.html"
     "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.js"
     "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.wasm"
-    "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.data"
   DESTINATION
     bin/wasm
 )
+
+if(NOT SHERPA_NCNN_ENABLE_WASM_FOR_NODEJS)
+  install(
+    FILES
+      "$<TARGET_FILE_DIR:sherpa-ncnn-wasm-main>/sherpa-ncnn-wasm-main.data"
+    DESTINATION
+      bin/wasm
+  )
+endif()
