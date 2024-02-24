@@ -1,0 +1,71 @@
+name: npm
+
+on:
+  push:
+    branches:
+      - wasm-nodejs-2
+  workflow_dispatch:
+
+concurrency:
+  group: npm-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  nodejs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Display node version
+        shell: bash
+        run: |
+          node --version
+          npm --version
+
+          cd nodejs-examples
+          npm install npm
+          npm --version
+
+      - name: Build nodejs package
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          ./build-wasm-simd-for-nodejs.sh
+
+          cp -v build-wasm-simd-for-nodejs/install/bin/wasm/sherpa-ncnn-wasm-main.js ./scripts/nodejs
+          cp -v build-wasm-simd-for-nodejs/install/bin/wasm/sherpa-ncnn-wasm-main.wasm ./scripts/nodejs
+          cp -v build-wasm-simd-for-nodejs/install/bin/wasm/sherpa-ncnn.js ./scripts/nodejs
+
+          SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+          echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+
+          cd scripts/nodejs
+
+          sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json
+
+          git diff
+
+          npm install
+          npm ci
+          npm publish --provenance --access public

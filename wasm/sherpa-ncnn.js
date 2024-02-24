@@ -236,7 +236,7 @@ class Recognizer {
   }
 }
 
-function createRecognizer(Module) {
+function createRecognizer(Module, myConfig) {
   let modelConfig = {
     encoderParam: './encoder_jit_trace-pnnx.ncnn.param',
     encoderBin: './encoder_jit_trace-pnnx.ncnn.bin',
@@ -269,10 +269,16 @@ function createRecognizer(Module) {
     rule3MinUtternceLength: 20,
   };
 
+  if (myConfig) {
+    configObj = myConfig;
+  }
+
   return new Recognizer(configObj, Module);
 }
 
-module.exports = {
-  createRecognizer,
-
-};
+if (typeof process == 'object' && typeof process.versions == 'object' &&
+    typeof process.versions.node == 'string') {
+  module.exports = {
+    createRecognizer,
+  };
+}
