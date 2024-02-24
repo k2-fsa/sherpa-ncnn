@@ -70,7 +70,7 @@ jobs:
 
           SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
           echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
-          SHERPA_NCNN_VERSION="2.1.0"
+          SHERPA_NCNN_VERSION="2.1.5"
 
           cd scripts/nodejs
 
