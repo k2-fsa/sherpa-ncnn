@@ -2,7 +2,7 @@ if(NOT $ENV{SHERPA_NCNN_IS_USING_BUILD_WASM_SH})
   message(FATAL_ERROR "Please use ./build-wasm.sh to build for wasm")
 endif()
 
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin" AND NOT SHERPA_NCNN_ENABLE_WASM_FOR_NODEJS)
   message(WARNING "${CMAKE_CURRENT_SOURCE_DIR}/assets/decoder_jit_trace-pnnx.ncnn.bin does not exist")
   message(FATAL_ERROR "Please read ${CMAKE_CURRENT_SOURCE_DIR}/assets/README.md before you continue")
 endif()

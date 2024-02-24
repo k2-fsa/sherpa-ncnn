@@ -12,6 +12,7 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   nodejs:
@@ -69,13 +70,19 @@ jobs:
 
           SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
           echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+          SHERPA_NCNN_VERSION="2.1.0"
 
           cd scripts/nodejs
 
-          sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json
+          owner=${{ github.repository_owner }}
+          echo "owner: $owner"
 
-          git diff
+          sed -i.bak s/SHERPA_NCNN_VERSION/$SHERPA_NCNN_VERSION/g ./package.json
+          sed -i.bak s/k2-fsa/$owner/g ./package.json
+
+          git diff .
 
           npm install
           npm ci
+          # see https://docs.npmjs.com/generating-provenance-statements
           npm publish --provenance --access public
