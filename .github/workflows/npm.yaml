@@ -23,9 +23,19 @@ jobs:
         python-version: ["3.8"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Install emsdk
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: View emsdk version
+        shell: bash
+        run: |
+          emcc -v
+          echo "--------------------"
+          emcc --check
 
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
