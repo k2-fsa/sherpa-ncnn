@@ -169,7 +169,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out,
       Hypothesis new_hyp = prev[hyp_index];
 
       // blank id is fixed to 0
-      if (new_token != 0) {
+      if (new_token != 0 && new_token != 2) {
         new_hyp.ys.push_back(new_token);
         new_hyp.num_trailing_blanks = 0;
         new_hyp.timestamps.push_back(t + frame_offset);
@@ -247,7 +247,7 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
       float context_score = 0;
       auto context_state = new_hyp.context_state;
       // blank id is fixed to 0
-      if (new_token != 0) {
+      if (new_token != 0 && new_token != 2) {
         new_hyp.ys.push_back(new_token);
         new_hyp.num_trailing_blanks = 0;
         new_hyp.timestamps.push_back(t + frame_offset);
