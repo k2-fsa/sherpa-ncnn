@@ -126,6 +126,9 @@ fun getDecoderConfig(method: String, numActivePaths: Int): DecoderConfig {
 4 - https://huggingface.co/shaojieli/sherpa-ncnn-streaming-zipformer-fr-2023-04-14
     This model supports only French
 
+5 - https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
+    This is a small model and supports only Chinese
+
 Please follow
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
 to add more pre-trained models
@@ -194,6 +197,21 @@ fun getModelConfig(type: Int, useGPU: Boolean): ModelConfig? {
 
         4 -> {
             val modelDir = "sherpa-ncnn-streaming-zipformer-fr-2023-04-14"
+            return ModelConfig(
+                encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.param",
+                encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.bin",
+                decoderParam = "$modelDir/decoder_jit_trace-pnnx.ncnn.param",
+                decoderBin = "$modelDir/decoder_jit_trace-pnnx.ncnn.bin",
+                joinerParam = "$modelDir/joiner_jit_trace-pnnx.ncnn.param",
+                joinerBin = "$modelDir/joiner_jit_trace-pnnx.ncnn.bin",
+                tokens = "$modelDir/tokens.txt",
+                numThreads = 1,
+                useGPU = useGPU,
+            )
+        }
+
+        5 -> {
+            val modelDir = "sherpa-ncnn-streaming-zipformer-zh-14M-2023-02-23"
             return ModelConfig(
                 encoderParam = "$modelDir/encoder_jit_trace-pnnx.ncnn.param",
                 encoderBin = "$modelDir/encoder_jit_trace-pnnx.ncnn.bin",
