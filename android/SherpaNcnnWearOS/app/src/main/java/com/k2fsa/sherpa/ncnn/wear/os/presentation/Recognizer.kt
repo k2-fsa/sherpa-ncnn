@@ -25,7 +25,7 @@ object Recognizer {
                 sampleRate = 16000.0f,
                 featureDim = 80
             )
-            val modelConfig = getModelConfig(type = 5, useGPU = false)!!
+            val modelConfig = getModelConfig(type = 6, useGPU = false)!!
             val decoderConfig = getDecoderConfig(method = "greedy_search", numActivePaths = 4)
             val config = RecognizerConfig(
                 featConfig = featConfig,
