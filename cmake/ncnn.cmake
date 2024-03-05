@@ -7,6 +7,7 @@ function(download_ncnn)
 
   # Please also change ../pack-for-embedded-systems.sh
 
+  # the latest master as of 2024.03.05
   set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/964ed7a56a573c5046cc177a6cd95580ecddcddf.zip")
   set(ncnn_URL2 "https://hub.nuaa.cf/Tencent/ncnn/archive/964ed7a56a573c5046cc177a6cd95580ecddcddf.zip")
   set(ncnn_HASH "SHA256=7a02ca37bc4137862efca0627430884db21f0c7491f8f7b98f909cf4a404792e")
