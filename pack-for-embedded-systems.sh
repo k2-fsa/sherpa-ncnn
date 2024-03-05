@@ -26,7 +26,7 @@ rm -v sherpa-ncnn-${SHERPA_NCNN_VERSION}.tar.gz
 # Please also change ./build-m3axpi.sh
 wget \
   -O kaldi-native-fbank-1.18.5.tar.gz \
-  https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.18.5.tar.gz
+  https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.18.7.tar.gz
 
 wget \
   -O ncnn-sherpa-1.1.tar.gz \
