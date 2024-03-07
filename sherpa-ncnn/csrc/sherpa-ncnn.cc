@@ -40,7 +40,7 @@ Usage:
     /path/to/decoder.ncnn.bin \
     /path/to/joiner.ncnn.param \
     /path/to/joiner.ncnn.bin \
-    /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search]
+    /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search] [hotwords_file] [hotwords_score]
 
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
