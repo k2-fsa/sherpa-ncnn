@@ -60,7 +60,7 @@ Usage:
     /path/to/decoder.ncnn.bin \
     /path/to/joiner.ncnn.param \
     /path/to/joiner.ncnn.bin \
-    [num_threads] [decode_method, can be greedy_search/modified_beam_search]
+    [num_threads] [decode_method, can be greedy_search/modified_beam_search] [hotwords_file] [hotwords_score]
 
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
@@ -95,6 +95,14 @@ for a list of pre-trained models to download.
     if (method == "greedy_search" || method == "modified_beam_search") {
       config.decoder_config.method = method;
     }
+  }
+
+  if (argc >= 11) {
+    config.hotwords_file = argv[10];
+  }
+
+  if (argc == 12) {
+    config.hotwords_score = atof(argv[11]);
   }
 
   config.enable_endpoint = true;
@@ -166,6 +174,10 @@ for a list of pre-trained models to download.
     }
 
     bool is_endpoint = recognizer.IsEndpoint(s.get());
+
+    if (is_endpoint) {
+      s->Finalize();
+    }
     auto text = recognizer.GetResult(s.get()).text;
 
     if (!text.empty() && last_text != text) {

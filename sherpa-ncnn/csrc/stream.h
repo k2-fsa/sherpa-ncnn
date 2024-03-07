@@ -70,6 +70,15 @@ class Stream {
 
   void Reset();
 
+  /**
+   * Finalize the decoding result. This is mainly for decoding with hotwords
+   * (i.e. providing context_graph). It will cancel the boosting score of the
+   * partial matching paths. For example, the hotword is "BCD", the path "ABC"
+   * gets boosting score of "BC" but it fails to match the whole hotword "BCD",
+   * so we have to cancel the scores of "BC" at the end.
+   */
+  void Finalize();
+
   // Return a reference to the number of processed frames so far
   // before subsampling..
   // Initially, it is 0. It is always less than NumFramesReady().

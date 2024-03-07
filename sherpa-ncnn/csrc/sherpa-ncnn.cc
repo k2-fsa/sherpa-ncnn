@@ -40,7 +40,7 @@ Usage:
     /path/to/decoder.ncnn.bin \
     /path/to/joiner.ncnn.param \
     /path/to/joiner.ncnn.bin \
-    /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search]
+    /path/to/foo.wav [num_threads] [decode_method, can be greedy_search/modified_beam_search] [hotwords_file] [hotwords_score]
 
 Please refer to
 https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html
@@ -112,10 +112,10 @@ for a list of pre-trained models to download.
       static_cast<int>(0.3 * expected_sampling_rate));
   stream->AcceptWaveform(expected_sampling_rate, tail_paddings.data(),
                          tail_paddings.size());
-
   while (recognizer.IsReady(stream.get())) {
     recognizer.DecodeStream(stream.get());
   }
+  stream->Finalize();
   auto result = recognizer.GetResult(stream.get());
   std::cout << "Done!\n";
 

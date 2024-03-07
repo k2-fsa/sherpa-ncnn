@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include "sherpa-ncnn/csrc/context-graph.h"
 #include "sherpa-ncnn/csrc/decoder.h"
 #include "sherpa-ncnn/csrc/greedy-search-decoder.h"
 #include "sherpa-ncnn/csrc/modified-beam-search-decoder.h"
@@ -225,7 +226,11 @@ class Recognizer::Impl {
   }
 
   RecognitionResult GetResult(Stream *s) const {
+    if (IsEndpoint(s)) {
+      s->Finalize();
+    }
     DecoderResult decoder_result = s->GetResult();
+
     decoder_->StripLeadingBlanks(&decoder_result);
 
     // Those 2 parameters are figured out from sherpa source code
@@ -272,23 +277,35 @@ class Recognizer::Impl {
     std::vector<int32_t> tmp;
     std::string line;
     std::string word;
-
+    // The format of each line in hotwords_file looks like:
+    // ▁HE LL O ▁WORLD :1.5
+    // the first several items are tokens of the hotword, the item starts with
+    // ":" is the customize boosting score for this hotword, if there is no
+    // customize score it will use the score from configuration (i.e.
+    // config_.hotwords_score).
     while (std::getline(is, line)) {
       std::istringstream iss(line);
+      float tmp_score = 0.0;  // MUST be 0.0, meaning if no customize score use
+                              // the global one.
       while (iss >> word) {
         if (sym_.contains(word)) {
           int32_t number = sym_[word];
           tmp.push_back(number);
         } else {
-          NCNN_LOGE(
-              "Cannot find ID for hotword %s at line: %s. (Hint: words on the "
-              "same line are separated by spaces)",
-              word.c_str(), line.c_str());
-          exit(-1);
+          if (word[0] == ':') {
+            tmp_score = std::stof(word.substr(1));
+          } else {
+            NCNN_LOGE(
+                "Cannot find ID for hotword %s at line: %s. (Hint: words on "
+                "the "
+                "same line are separated by spaces)",
+                word.c_str(), line.c_str());
+            exit(-1);
+          }
         }
       }
-
       hotwords_.push_back(std::move(tmp));
+      boost_scores_.push_back(tmp_score);
     }
   }
 
@@ -299,6 +316,7 @@ class Recognizer::Impl {
   Endpoint endpoint_;
   SymbolTable sym_;
   std::vector<std::vector<int32_t>> hotwords_;
+  std::vector<float> boost_scores_;
 };
 
 Recognizer::Recognizer(const RecognizerConfig &config)
