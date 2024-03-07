@@ -52,9 +52,6 @@ for wave in ${waves[@]}; do
   done
 done
 
-log "-----------------------------------------------------------------"
-log "Run Zipformer transducer (Chinese, small model 14M) for hotwords "
-log "-----------------------------------------------------------------"
 log "Start testing ${repo_url} with hotwords"
 
 time $EXE \
