@@ -177,10 +177,10 @@ void ModifiedBeamSearchDecoder::Decode(ncnn::Mat encoder_out, Stream *s,
         new_hyp.num_trailing_blanks = 0;
         new_hyp.timestamps.push_back(t + frame_offset);
         if (s && s->GetContextGraph()) {
-          auto context_res =
-              s->GetContextGraph()->ForwardOneStep(context_state, new_token);
-          context_score = context_res.first;
-          new_hyp.context_state = context_res.second;
+          auto context_res = s->GetContextGraph()->ForwardOneStep(
+              context_state, new_token, false /*strict_mode*/);
+          context_score = std::get<0>(context_res);
+          new_hyp.context_state = std::get<1>(context_res);
         }
       } else {
         ++new_hyp.num_trailing_blanks;

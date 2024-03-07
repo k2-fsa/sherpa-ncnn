@@ -277,10 +277,16 @@ class Recognizer::Impl {
     std::vector<int32_t> tmp;
     std::string line;
     std::string word;
-
+    // The format of each line in hotwords_file looks like:
+    // ▁HE LL O ▁WORLD :1.5
+    // the first several items are tokens of the hotword, the item starts with
+    // ":" is the customize boosting score for this hotword, if there is no
+    // customize score it will use the score from configuration (i.e.
+    // config_.hotwords_score).
     while (std::getline(is, line)) {
       std::istringstream iss(line);
-      float tmp_score = 0.0;
+      float tmp_score = 0.0;  // MUST be 0.0, meaning if no customize score use
+                              // the global one.
       while (iss >> word) {
         if (sym_.contains(word)) {
           int32_t number = sym_[word];
@@ -298,7 +304,8 @@ class Recognizer::Impl {
           }
         }
       }
-      hotwords_.push_back(ContextItem(std::move(tmp), tmp_score));
+      hotwords_.push_back(std::move(tmp));
+      boost_scores_.push_back(tmp_score);
     }
   }
 
@@ -308,7 +315,8 @@ class Recognizer::Impl {
   std::unique_ptr<Decoder> decoder_;
   Endpoint endpoint_;
   SymbolTable sym_;
-  std::vector<ContextItem> hotwords_;
+  std::vector<std::vector<int32_t>> hotwords_;
+  std::vector<float> boost_scores_;
 };
 
 Recognizer::Recognizer(const RecognizerConfig &config)
