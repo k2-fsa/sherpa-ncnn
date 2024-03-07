@@ -6,18 +6,20 @@ function(download_ncnn)
   # https://github.com/csukuangfj/ncnn/pull/7
 
   # Please also change ../pack-for-embedded-systems.sh
-  set(ncnn_URL  "https://github.com/csukuangfj/ncnn/archive/refs/tags/sherpa-1.1.tar.gz")
-  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-sherpa-1.1.tar.gz")
-  set(ncnn_HASH "SHA256=254aaedf8ad3e6baaa63bcd5d23e9673e3973d7cb2154c18e5c7743d45b4e160")
+
+  # the latest master as of 2024.03.05
+  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/964ed7a56a573c5046cc177a6cd95580ecddcddf.zip")
+  set(ncnn_URL2 "https://hub.nuaa.cf/Tencent/ncnn/archive/964ed7a56a573c5046cc177a6cd95580ecddcddf.zip")
+  set(ncnn_HASH "SHA256=7a02ca37bc4137862efca0627430884db21f0c7491f8f7b98f909cf4a404792e")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
   set(possible_file_locations
-    $ENV{HOME}/Downloads/ncnn-sherpa-1.1.tar.gz
-    $ENV{HOME}/asr/ncnn-sherpa-1.1.tar.gz
-    ${PROJECT_SOURCE_DIR}/ncnn-sherpa-1.1.tar.gz
-    ${PROJECT_BINARY_DIR}/ncnn-sherpa-1.1.tar.gz
-    /tmp/ncnn-sherpa-1.1.tar.gz
+    $ENV{HOME}/Downloads/ncnn-964ed7a56a573c5046cc177a6cd95580ecddcddf.zip
+    $ENV{HOME}/asr/ncnn-964ed7a56a573c5046cc177a6cd95580ecddcddf.zip
+    ${PROJECT_SOURCE_DIR}/ncnn-964ed7a56a573c5046cc177a6cd95580ecddcddf.zip
+    ${PROJECT_BINARY_DIR}/ncnn-964ed7a56a573c5046cc177a6cd95580ecddcddf.zip
+    /tmp/ncnn-964ed7a56a573c5046cc177a6cd95580ecddcddf.zip
   )
 
   foreach(f IN LISTS possible_file_locations)
@@ -160,15 +162,19 @@ function(download_ncnn)
     DeconvolutionDepthWise3D
     Einsum
     DeformableConv2D
-    RelPositionalEncoding
-    MakePadMask
-    RelShift
     # GLU
     Fold
     Unfold
     GridSample
     CumulativeSum
     CopyTo
+    Erf
+    Diag
+    CELU
+    Shrink
+    RelPositionalEncoding
+    MakePadMask
+    RelShift
   )
 
   foreach(layer IN LISTS disabled_layers)

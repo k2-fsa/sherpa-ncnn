@@ -71,7 +71,7 @@ void GreedySearchDecoder::Decode(ncnn::Mat encoder_out, DecoderResult *result) {
         std::max_element(joiner_out_ptr, joiner_out_ptr + joiner_out.w)));
 
     // the blank ID is fixed to 0
-    if (new_token != 0) {
+    if (new_token != 0 && new_token != 2) {
       result->tokens.push_back(new_token);
       ncnn::Mat decoder_input = BuildDecoderInput(*result);
       decoder_out = model_->RunDecoder(decoder_input);

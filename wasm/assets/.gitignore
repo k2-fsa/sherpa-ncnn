@@ -1,0 +1,4 @@
+*.ncnn.param
+*.ncnn.bin
+tokens.txt
+*.wav

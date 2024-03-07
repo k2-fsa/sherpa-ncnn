@@ -1,0 +1,138 @@
+name: wasm-simd-hf-space-zh-en
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+
+concurrency:
+  group: wasm-simd-hf-space-zh-en-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wasm-simd-hf-space-zh-en:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install emsdk
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: View emsdk version
+        shell: bash
+        run: |
+          emcc -v
+          echo "--------------------"
+          emcc --check
+
+      - name: Download model files
+        shell: bash
+        run: |
+          cd wasm/assets
+          ls -lh
+          echo "----------"
+          wget -q https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+          tar xvf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+          mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/*pnnx.ncnn.param .
+          mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/*pnnx.ncnn.bin .
+          mv -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13/tokens.txt .
+
+          rm -rf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+          rm -v sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+
+          ls -lh
+
+      - name: Build sherpa-ncnn for WebAssembly
+        shell: bash
+        run: |
+          ./build-wasm-simd.sh
+
+      - name: collect files
+        shell: bash
+        run: |
+          SHERPA_NCNN_VERSION=v$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+
+          mv build-wasm-simd/install/bin/wasm sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}
+          ls -lh sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}
+          tar cjfv sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}.tar.bz2 ./sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}
+
+      - name: Upload wasm files
+        uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-ncnn-wasm-simd-zh-en
+          path: ./sherpa-ncnn-wasm-simd-*.tar.bz2
+
+      - name: Publish to ModelScope
+        env:
+          MS_TOKEN: ${{ secrets.MODEL_SCOPE_GIT_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            SHERPA_NCNN_VERSION=v$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            git clone http://www.modelscope.cn/studios/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en.git ms
+
+            cd ms
+            git fetch
+            git pull
+            git merge -m "merge remote" --ff origin main
+
+            cp -v ../sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}/* .
+
+            git status
+            git lfs track "*.data"
+            git lfs track "*.wasm"
+
+            git add .
+            git commit -m "update model"
+            git push http://oauth2:$MS_TOKEN@www.modelscope.cn/studios/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en.git
+
+      - name: Publish to huggingface
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            SHERPA_NCNN_VERSION=v$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            git clone https://huggingface.co/spaces/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en huggingface
+            cd huggingface
+            git fetch
+            git pull
+            git merge -m "merge remote" --ff origin main
+
+            cp -v ../sherpa-ncnn-wasm-simd-${SHERPA_NCNN_VERSION}/* .
+
+            git status
+            git lfs track "*.data"
+            git lfs track "*.wasm"
+
+            git add .
+            git commit -m "update model"
+            git push https://csukuangfj:$HF_TOKEN@huggingface.co/spaces/k2-fsa/web-assembly-asr-sherpa-ncnn-zh-en main

@@ -116,3 +116,4 @@ generate-int8-*.sh
 cmake-build-release
 cmake-build-debug
 
+node_modules

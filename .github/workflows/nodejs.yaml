@@ -1,0 +1,72 @@
+name: nodejs
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # minute (0-59)
+    # hour (0-23)
+    # day of the month (1-31)
+    # month (1-12)
+    # day of the week (0-6)
+    # nightly test at 22:50 UTC time every day
+    - cron: "50 22 * * *"
+
+concurrency:
+  group: nodejs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  nodejs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Display node version
+        shell: bash
+        run: |
+          node --version
+
+      - name: Install npm packages
+        shell: bash
+        run: |
+          cd nodejs-examples
+          npm install npm
+          npm --version
+          npm list
+
+      - name: Download model
+        shell: bash
+        run: |
+          cd nodejs-examples
+
+          curl -OL https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+          tar xvf sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+          rm sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13.tar.bz2
+          ls -lh sherpa-ncnn-streaming-zipformer-bilingual-zh-en-2023-02-13
+
+      - name: Test
+        shell: bash
+        run: |
+          cd nodejs-examples
+          node ./decode-file.js

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "naudiodon2": "^2.4.0",
+    "sherpa-ncnn": "*",
+    "wav": "^1.0.2"
+  }
+}
