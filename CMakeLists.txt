@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(sherpa-ncnn)
 
-set(SHERPA_NCNN_VERSION "2.1.9")
+set(SHERPA_NCNN_VERSION "2.1.10")
 
 # Disable warning about
 #
@@ -106,6 +106,7 @@ if(SHERPA_NCNN_ENABLE_BINARY AND UNIX AND NOT APPLE)
   include(CheckIncludeFileCXX)
   check_include_file_cxx(alsa/asoundlib.h SHERPA_NCNN_HAS_ALSA)
   if(SHERPA_NCNN_HAS_ALSA)
+    message(STATUS "With Alsa")
     add_definitions(-DSHERPA_NCNN_ENABLE_ALSA=1)
   elseif(UNIX AND NOT APPLE)
     message(WARNING "\

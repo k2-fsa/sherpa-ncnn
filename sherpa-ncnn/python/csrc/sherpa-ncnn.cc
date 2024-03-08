@@ -18,6 +18,7 @@
 
 #include "sherpa-ncnn/python/csrc/sherpa-ncnn.h"
 
+#include "sherpa-ncnn/python/csrc/alsa.h"
 #include "sherpa-ncnn/python/csrc/decoder.h"
 #include "sherpa-ncnn/python/csrc/display.h"
 #include "sherpa-ncnn/python/csrc/endpoint.h"
@@ -39,6 +40,8 @@ PYBIND11_MODULE(_sherpa_ncnn, m) {
   PybindRecognizer(&m);
 
   PybindDisplay(&m);
+
+  PybindAlsa(&m);
 }
 
 }  // namespace sherpa_ncnn

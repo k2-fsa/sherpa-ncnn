@@ -19,6 +19,7 @@
 #include "sherpa-ncnn/csrc/stream.h"
 
 #include <iostream>
+#include <utility>
 
 namespace sherpa_ncnn {
 
