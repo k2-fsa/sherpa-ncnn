@@ -26,15 +26,24 @@ jobs:
         python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         env:
+          CIBW_BEFORE_ALL: |
+            git clone --depth 1 https://github.com/alsa-project/alsa-lib
+            cd alsa-lib
+            ./gitcompile
+            cd ..
+            echo "PWD"
+            ls -lh /project/alsa-lib/src/.libs
+
+          CIBW_ENVIRONMENT: CPLUS_INCLUDE_PATH=/project/alsa-lib/include:$CPLUS_INCLUDE_PATH SHERPA_NCNN_ALSA_LIB_DIR=/project/alsa-lib/src/.libs LD_LIBRARY_PATH=/project/build/bdist.linux-x86_64/wheel/sherpa_ncnn/lib:$SHERPA_NCNN_ALSA_LIB_DIR SHERPA_NCNN_MAKE_ARGS="VERBOSE=1" SHERPA_NCNN_ENABLE_ALSA=1
           CIBW_BUILD: "${{ matrix.python-version}}-* "
-          CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
+          CIBW_SKIP: "cp27-* cp35-* cp36-* *-win32 pp* *-musllinux* *-manylinux_i686"
           CIBW_BUILD_VERBOSITY: 3
 
       - name: Display wheels
@@ -42,17 +51,35 @@ jobs:
         run: |
           ls -lh ./wheelhouse/
 
-          ls -lh ./wheelhouse/*.whl
+      - name: Install patchelf
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -q -y patchelf
+          patchelf --help
 
-      - uses: actions/upload-artifact@v2
+      - name: Patch wheels
+        shell: bash
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir ./wheels
+          sudo ./scripts/wheel/patch_wheel.py --in-dir ./wheelhouse --out-dir ./wheels
+
+          ls -lh ./wheels/
+          rm -rf ./wheelhouse
+          mv ./wheels ./wheelhouse
+
+      - uses: actions/upload-artifact@v4
         with:
+          name: ${{ matrix.python-version }}
           path: ./wheelhouse/*.whl
 
       - name: Publish to huggingface
         if: matrix.python-version == 'cp38'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           max_attempts: 20
           timeout_seconds: 200

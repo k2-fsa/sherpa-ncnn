@@ -2,17 +2,17 @@
 //
 // Copyright (c)  2024  Xiaomi Corporation
 
-#include "sherpa-ncnn/csrc/macros.h"
+#include <stdio.h>
+
 #include "sherpa-ncnn/python/csrc/alsa.h"
 
 namespace sherpa_ncnn {
-
 class FakedAlsa {
  public:
   explicit FakedAlsa(const char *) {
-    SHERPA_NCNN_LOGE("This function is for Linux only.");
+    fprintf(stderr, "This function is for Linux only.");
 #if (SHERPA_NCNN_ENABLE_ALSA == 0) && (defined(__unix__) || defined(__unix))
-    SHERPA_NCNN_LOGE(R"doc(
+    fprintf(stderr, R"doc(
 sherpa-ncnn is compiled without alsa support. To enable that, please run
   (1) sudo apt-get install alsa-utils libasound2-dev
   (2) rebuild sherpa-ncnn
@@ -43,5 +43,3 @@ void PybindAlsa(py::module *m) {
 }
 
 }  // namespace sherpa_ncnn
-
-#endif  // SHERPA_NCNN_PYTHON_CSRC_FAKED_ALSA_H_
