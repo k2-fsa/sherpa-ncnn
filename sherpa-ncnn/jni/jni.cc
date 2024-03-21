@@ -285,6 +285,7 @@ SHERPA_EXTERN_C
 JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_newFromFile(
     JNIEnv *env, jobject /*obj*/, jobject _config) {
   sherpa_ncnn::RecognizerConfig config = sherpa_ncnn::ParseConfig(env, _config);
+  NCNN_LOGE("%s", config.ToString().c_str());
   auto model = new sherpa_ncnn::SherpaNcnn(config);
 
   return (jlong)model;
@@ -301,6 +302,7 @@ JNIEXPORT jlong JNICALL Java_com_k2fsa_sherpa_ncnn_SherpaNcnn_newFromAsset(
 #endif
 
   sherpa_ncnn::RecognizerConfig config = sherpa_ncnn::ParseConfig(env, _config);
+  NCNN_LOGE("%s", config.ToString().c_str());
   auto model = new sherpa_ncnn::SherpaNcnn(
 #if __ANDROID_API__ >= 9
       mgr,
