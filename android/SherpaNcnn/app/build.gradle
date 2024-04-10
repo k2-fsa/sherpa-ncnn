@@ -4,6 +4,10 @@ plugins {
 }
 
 android {
+    aaptOptions {
+        // https://google.github.io/android-gradle-dsl/3.3/com.android.build.gradle.internal.dsl.AaptOptions.html#com.android.build.gradle.internal.dsl.AaptOptions:noCompress
+        noCompress ''
+    }
     namespace 'com.k2fsa.sherpa.ncnn'
     compileSdk 32
 
