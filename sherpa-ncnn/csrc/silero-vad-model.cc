@@ -47,7 +47,7 @@ class SileroVadModel::Impl {
 
 #if __ANDROID_API__ >= 9
   Impl(AAssetManager *mgr, const SileroVadModelConfig &config)
-      : config_(config), {
+      : config_(config) {
     model_.opt = config.opt;
     bool has_gpu = false;
 
