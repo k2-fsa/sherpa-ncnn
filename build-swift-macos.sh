@@ -27,6 +27,7 @@ if [ ! -f openmp-11.0.0.src/build/install/include/omp.h ]; then
   cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=install \
+    -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
     -DLIBOMP_ENABLE_SHARED=OFF \
     -DLIBOMP_OMPT_SUPPORT=OFF \
     -DLIBOMP_USE_HWLOC=OFF ..
@@ -51,6 +52,7 @@ mkdir -p build
 pushd build
 
 cmake \
+  -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
   -DOpenMP_C_FLAGS="-Xclang -fopenmp" \
   -DOpenMP_CXX_FLAGS="-Xclang -fopenmp" \
   -DOpenMP_C_LIB_NAMES="libomp" \
@@ -92,7 +94,7 @@ xcodebuild -create-xcframework \
 mkdir -p sherpa-ncnn.xcframework/Headers
 cp -av build/install/include/* sherpa-ncnn.xcframework/Headers
 
-pushd sherpa-ncnn.xcframework/macos/
+pushd sherpa-ncnn.xcframework/macos-arm64_x86_64/
 ln -s sherpa-ncnn.a libsherpa-ncnn.a
 popd
 

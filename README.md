@@ -98,7 +98,7 @@ https://github.com/k2-fsa/sherpa-ncnn/releases/tag/models
 
 ### Useful links
 
-- Documentation: https://k2-fsa.github.io/sherpa/onnx/
+- Documentation: https://k2-fsa.github.io/sherpa/ncnn/
 - Bilibili 演示视频: https://search.bilibili.com/all?keyword=%E6%96%B0%E4%B8%80%E4%BB%A3Kaldi
 
 ### How to reach us
