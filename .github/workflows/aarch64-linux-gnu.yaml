@@ -23,6 +23,8 @@ on:
       - 'sherpa-ncnn/csrc/*'
       - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
 
+  workflow_dispatch:
+
 concurrency:
   group: aarch64-linux-gnu-${{ github.ref }}
   cancel-in-progress: true

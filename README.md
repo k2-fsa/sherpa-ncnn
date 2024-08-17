@@ -1,7 +1,7 @@
 # Introduction
 
 You can use `sherpa-ncnn` for **real-time** speech recognition (i.e., speech-to-text)
-on
+and voice activity detection (VAD) on the following platforms
 
   - Linux
   - macOS
@@ -9,6 +9,8 @@ on
   - Embedded Linux (32-bit arm and 64-bit aarch64)
   - Android
   - etc ...
+
+It runs on locally CPU without accessing the network.
 
 We support all platforms that [ncnn](https://github.com/tencent/ncnn) supports.
 

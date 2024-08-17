@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "platform.h"
+#include "platform.h"  // NOLINT
 
 namespace sherpa_ncnn {
 namespace {

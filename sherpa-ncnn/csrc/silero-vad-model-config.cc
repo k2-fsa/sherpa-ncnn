@@ -18,6 +18,7 @@
 #include "sherpa-ncnn/csrc/silero-vad-model-config.h"
 
 #include <sstream>
+#include <string>
 
 #include "platform.h"  // for NCNN_LOGE, NOLINT
 #include "sherpa-ncnn/csrc/file-utils.h"

@@ -19,12 +19,13 @@
 #ifndef SHERPA_NCNN_CSRC_SILERO_VAD_MODEL_CONFIG_H_
 #define SHERPA_NCNN_CSRC_SILERO_VAD_MODEL_CONFIG_H_
 
+#include <memory>
+#include <string>
+
 #if __ANDROID_API__ >= 9
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #endif
-
-#include <memory>
 
 #include "net.h"  // NOLINT
 

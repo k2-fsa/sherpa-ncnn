@@ -23,6 +23,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-wasm
+
       - name: Install emsdk
         uses: mymindstorm/setup-emsdk@v14
 
@@ -53,6 +59,9 @@ jobs:
       - name: Build sherpa-ncnn for WebAssembly
         shell: bash
         run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
           ./build-wasm-simd.sh
 
       - name: collect files

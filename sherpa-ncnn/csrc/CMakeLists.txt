@@ -22,6 +22,7 @@ set(sherpa_ncnn_core_srcs
   symbol-table.cc
   tensorasstrided.cc
   wave-reader.cc
+  wave-writer.cc
   zipformer-model.cc
 )
 
