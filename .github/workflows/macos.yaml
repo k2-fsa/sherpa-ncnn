@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/macos.yaml'
       - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -16,9 +17,12 @@ on:
     paths:
       - '.github/workflows/macos.yaml'
       - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
+
+  workflow_dispatch:
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -33,22 +37,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, macos-13]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-macos
 
       - name: Configure CMake
         shell: bash
         run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
           mkdir build
           cd build
           cmake -D CMAKE_BUILD_TYPE=Release ..
 
       - name: Build sherpa-ncnn for macos
         run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
           cd build
           make -j2
 
@@ -57,6 +73,9 @@ jobs:
 
           ls -lh bin/sherpa-ncnn
           file bin/sherpa-ncnn
+
+          ls -lh bin/sherpa-ncnn-vad
+          file bin/sherpa-ncnn-vad
 
           ls -lh bin/sherpa-ncnn-microphone
           file bin/sherpa-ncnn-microphone
@@ -69,6 +88,13 @@ jobs:
         with:
           name: sherpa-ncnn-pre-built-binaries-os-${{ matrix.os }}
           path: ./build/bin
+
+      - name: Test vad
+        run: |
+          export PATH=$PWD/build/bin:$PATH
+          export EXE=sherpa-ncnn-vad
+
+          .github/scripts/test-vad.sh
 
       - name: Test sherpa-ncnn
         run: |

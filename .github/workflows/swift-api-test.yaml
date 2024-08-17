@@ -24,6 +24,8 @@ on:
       - 'sherpa-ncnn/swift-api-examples/*'
       - 'build-swift-macos.sh'
 
+  workflow_dispatch:
+
 concurrency:
   group: swift-api-test-${{ github.ref }}
   cancel-in-progress: true
@@ -44,7 +46,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-swift
+
       - name: Run swift-api-test
         shell: bash
         run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
           .github/scripts/swift-api-test.sh

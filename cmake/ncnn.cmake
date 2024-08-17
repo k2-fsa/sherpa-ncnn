@@ -112,7 +112,7 @@ function(download_ncnn)
     # UnaryOp
     ConvolutionDepthWise
     # Padding # required by innerproduct and convolution
-    Squeeze
+    # Squeeze
     # ExpandDims
     Normalize
     # Permute

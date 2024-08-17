@@ -36,7 +36,7 @@ env:
     ${{ github.event.release.tag_name != '' || github.event.inputs.release == 'true' }}
 
 concurrency:
-  group: linux-${{ github.ref }}
+  group: build-wasm-simd-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

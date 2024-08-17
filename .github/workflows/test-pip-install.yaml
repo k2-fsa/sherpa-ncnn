@@ -13,6 +13,8 @@ on:
     # nightly test at 22:50 UTC time every day
     - cron: "50 22 * * *"
 
+  workflow_dispatch:
+
 concurrency:
   group: test_pip_install-${{ github.ref }}
   cancel-in-progress: true

@@ -25,6 +25,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-npm
+
       - name: Install emsdk
         uses: mymindstorm/setup-emsdk@v14
 
@@ -59,6 +64,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
           ./build-wasm-simd-for-nodejs.sh
 
           cp -v build-wasm-simd-for-nodejs/install/bin/wasm/sherpa-ncnn-wasm-main.js ./scripts/nodejs

@@ -1,5 +1,5 @@
 /**
- * Copyright      2021  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright (c)  2022-2024  Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef SHERPA_NCNN_CSRC_WAVE_READER_H_
 #define SHERPA_NCNN_CSRC_WAVE_READER_H_
 
@@ -27,17 +26,23 @@ namespace sherpa_ncnn {
 
 /** Read a wave file with expected sample rate.
 
-    @param filename Path to a wave file. It MUST be single channel, PCM encoded.
-    @param expected_sample_rate  Expected sample rate of the wave file. If the
-                               sample rate don't match, it throws an exception.
+    @param filename Path to a wave file. It MUST be single channel, 16-bit
+                    PCM encoded.
+    @param sampling_rate  On return, it contains the sampling rate of the file.
     @param is_ok On return it is true if the reading succeeded; false otherwise.
 
     @return Return wave samples normalized to the range [-1, 1).
  */
-std::vector<float> ReadWave(const std::string &filename,
-                            float expected_sample_rate, bool *is_ok);
+std::vector<float> ReadWave(const std::string &filename, int32_t *sampling_rate,
+                            bool *is_ok);
 
-std::vector<float> ReadWave(std::istream &is, float expected_sample_rate,
+std::vector<float> ReadWave(std::istream &is, int32_t *sampling_rate,
+                            bool *is_ok);
+
+std::vector<float> ReadWave(const std::string &filename,
+                            int32_t expected_sampling_rate, bool *is_ok);
+
+std::vector<float> ReadWave(std::istream &is, int32_t expected_sampling_rate,
                             bool *is_ok);
 
 }  // namespace sherpa_ncnn

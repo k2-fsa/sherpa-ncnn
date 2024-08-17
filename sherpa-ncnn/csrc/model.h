@@ -132,7 +132,6 @@ class Model {
   // running the encoder network
   virtual int32_t Offset() const = 0;
 
- protected:
   static void InitNet(ncnn::Net &net, const std::string &param,
                       const std::string &bin);
 

@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/windows-x86.yaml'
       - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
@@ -16,9 +17,12 @@ on:
     paths:
       - '.github/workflows/windows-x86.yaml'
       - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
+
+  workflow_dispatch:
 
 concurrency:
   group: windows-x86-${{ github.ref }}
@@ -70,8 +74,17 @@ jobs:
           cmake --build . --config Release -- -m:2
 
           ls -lh ./bin/Release/sherpa-ncnn.exe
+          ls -lh ./bin/Release/sherpa-ncnn-vad.exe
           ls -lh ./bin/Release/decode-file-c-api.exe
           ls -lh ./bin/Release/sherpa-ncnn-microphone.exe
+
+      - name: Test VAD
+        shell: bash
+        run: |
+          export PATH=$PWD/build/bin/Release:$PATH
+          export EXE=sherpa-ncnn-vad.exe
+
+          .github/scripts/test-vad.sh
 
       - name: Test sherpa-ncnn
         shell: bash

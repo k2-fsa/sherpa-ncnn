@@ -6,6 +6,7 @@ set(sherpa_ncnn_core_srcs
   decoder.cc
   endpoint.cc
   features.cc
+  file-utils.cc
   greedy-search-decoder.cc
   hypothesis.cc
   lstm-model.cc
@@ -21,8 +22,17 @@ set(sherpa_ncnn_core_srcs
   symbol-table.cc
   tensorasstrided.cc
   wave-reader.cc
+  wave-writer.cc
   zipformer-model.cc
 )
+
+list(APPEND sherpa_ncnn_core_srcs
+  circular-buffer.cc
+  silero-vad-model-config.cc
+  silero-vad-model.cc
+  voice-activity-detector.cc
+)
+
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
 target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
 
@@ -37,6 +47,10 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
     add_executable(sherpa-ncnn sherpa-ncnn.cc)
     target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
     install(TARGETS sherpa-ncnn DESTINATION bin)
+
+    add_executable(sherpa-ncnn-vad sherpa-ncnn-vad.cc)
+    target_link_libraries(sherpa-ncnn-vad PRIVATE sherpa-ncnn-core)
+    install(TARGETS sherpa-ncnn-vad DESTINATION bin)
 
     if(SHERPA_NCNN_HAS_ALSA)
       add_executable(sherpa-ncnn-alsa sherpa-ncnn-alsa.cc alsa.cc)
