@@ -19,6 +19,7 @@
 #include "sherpa-ncnn/csrc/wave-reader.h"
 
 #include <cassert>
+#include <cstdint>
 #include <fstream>
 #include <utility>
 #include <vector>
