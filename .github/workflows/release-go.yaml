@@ -34,7 +34,7 @@ jobs:
         arch: [x86_64, aarch64]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: SSH to GitHub
         run: |
@@ -76,7 +76,7 @@ jobs:
           ls -lh ./wheelhouse/*.whl
           unzip -l ./wheelhouse/*.whl
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-wheels-for-go-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
@@ -91,7 +91,7 @@ jobs:
         arch: [x86_64, arm64]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Configure CMake
         shell: bash
         run: |
@@ -111,7 +111,7 @@ jobs:
 
           file install/lib/lib*
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-for-${{ matrix.arch }}
           path: ./build/install/lib/
@@ -125,7 +125,7 @@ jobs:
         os: [windows-latest]
         arch: [x64, Win32]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -149,7 +149,7 @@ jobs:
           ls -lh install/bin
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sherpa-ncnn-go-windows-${{ matrix.arch }}
           path: ./build/install/lib/
@@ -160,7 +160,7 @@ jobs:
     needs: [linux, macOS, windows]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Add SSH key
         run: |
@@ -170,37 +170,37 @@ jobs:
           ssh github.com || true
 
       - name: Retrieve artifact Linux x86_64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-wheels-for-go-x86_64
           path: ./linux_x86_64
 
       - name: Retrieve artifact Linux aarch64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-wheels-for-go-aarch64
           path: ./linux_aarch64
 
       - name: Retrieve artifact from macos-latest (x86_64)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: macos-latest-for-x86_64
           path: ./macos-x86_64
 
       - name: Retrieve artifact from macos-latest (arm64)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: macos-latest-for-arm64
           path: ./macos-arm64
 
       - name: Retrieve artifact from windows-latest (x64)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sherpa-ncnn-go-windows-x64
           path: ./windows-x64
 
       - name: Retrieve artifact from windows-latest (Win32)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sherpa-ncnn-go-windows-Win32
           path: ./windows-win32

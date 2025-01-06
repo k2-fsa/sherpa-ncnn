@@ -24,7 +24,7 @@ jobs:
         python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
@@ -41,7 +41,7 @@ jobs:
         run: |
           ls -lh ./wheelhouse/
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
 
