@@ -23,7 +23,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
@@ -40,7 +40,7 @@ jobs:
           ls -lh ./wheelhouse/*.whl
           unzip -l ./wheelhouse/*.whl
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-wheels
           path: ./wheelhouse/*.whl
@@ -51,7 +51,7 @@ jobs:
     needs: build-libs
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Retrieve artifact from ubuntu-latest
         uses: actions/download-artifact@v2
@@ -121,7 +121,7 @@ jobs:
           ./run.sh
           ls -lh packages
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         name: upload nuget packages
         with:
           name: nuget-packages

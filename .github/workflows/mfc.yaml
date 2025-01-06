@@ -53,7 +53,7 @@ jobs:
         arch: [x64, Win32]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -124,7 +124,7 @@ jobs:
           ls -lh $d/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sherpa-ncnn-${{ matrix.arch }}
           path: ./sherpa-ncnn*.exe
