@@ -122,6 +122,13 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   Module._CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
   offset += decoderConfig.len;
 
+  const hotwordsFileLen = Module.lengthBytesUTF8(config.hotwordsFile || '') + 1;
+  const bufferLen = hotwordsFileLen;
+  const buffer = Module._malloc(bufferLen);
+  
+  Module.stringToUTF8(
+    config.hotwordsFile || '', buffer, hotwordsFileLen);
+  
   Module.setValue(ptr + offset, config.enableEndpoint, 'i32');
   offset += 4;
 
@@ -134,10 +141,10 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   Module.setValue(ptr + offset, config.rule3MinUtternceLength, 'float');
   offset += 4;
 
-  Module.setValue(ptr + offset, 0, 'i32');  // hotwords file
+  Module.setValue(ptr + offset, buffer, 'i8*');  // hotwords file
   offset += 4;
 
-  Module.setValue(ptr + offset, 0.5, 'float');  // hotwords_score
+  Module.setValue(ptr + offset, config.hotwordsScore || 0.5, 'float');  // hotwords_score
   offset += 4;
 
   return {
