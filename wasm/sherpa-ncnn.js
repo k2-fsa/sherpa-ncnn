@@ -122,7 +122,7 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   Module._CopyHeap(decoderConfig.ptr, decoderConfig.len, ptr + offset)
   offset += decoderConfig.len;
 
-  const hotwordsFileLen = Module.lengthBytesUTF8(config.decoderConfig.hotwordsFile || '') + 1;
+  const hotwordsFileLen = Module.lengthBytesUTF8(config.hotwordsFile || '') + 1;
   const bufferLen = hotwordsFileLen;
   const buffer = Module._malloc(bufferLen);
   
