@@ -144,7 +144,7 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   Module.setValue(ptr + offset, buffer, 'i8*');  // hotwords file
   offset += 4;
 
-  Module.setValue(ptr + offset, config.decoderConfig.hotwordsScore || 0.5, 'float');  // hotwords_score
+  Module.setValue(ptr + offset, config.hotwordsScore || 0.5, 'float');  // hotwords_score
   offset += 4;
 
   return {
