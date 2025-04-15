@@ -128,8 +128,6 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   
   Module.stringToUTF8(
     config.decoderConfig.hotwordsFile || '', buffer, hotwordsFileLen);
-  offset += hotwordsFileLen;
-  offset = featConfig.len + modelConfig.len + decoderConfig.len;
   
   Module.setValue(ptr + offset, config.enableEndpoint, 'i32');
   offset += 4;
