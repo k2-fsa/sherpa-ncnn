@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312"]
+        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312", "cp313"]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.21.3
         env:
           CIBW_BUILD: "${{ matrix.python-version}}-* "
           CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
@@ -41,7 +41,6 @@ jobs:
           ls -lh ./wheelhouse/
 
       - name: Publish to huggingface
-        if: matrix.python-version == 'cp38'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v2
@@ -55,6 +54,7 @@ jobs:
 
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
+            export GIT_CLONE_PROTECTION_ACTIVE=false
 
             git clone https://huggingface.co/csukuangfj/sherpa-ncnn-wheels huggingface
             cd huggingface
@@ -62,7 +62,7 @@ jobs:
             git pull
             git merge -m "merge remote" --ff origin main
 
-            cp -v ../wheelhouse/*.whl .
+            cp -v ../wheelhouse/*.whl ./
 
             git status
             git add .
@@ -71,6 +71,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wheel-${{ matrix.python-version }}
           path: ./wheelhouse/*.whl
 
       - name: Publish wheels to PyPI
@@ -79,6 +80,6 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel twine setuptools
+          python3 -m pip install wheel twine==5.0.0 setuptools
 
           twine upload ./wheelhouse/*.whl
