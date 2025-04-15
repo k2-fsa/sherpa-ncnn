@@ -4,6 +4,19 @@ function freeConfig(config, Module) {
   if ('buffer' in config) {
     Module._free(config.buffer);
   }
+
+  if ('featConfig' in config) {
+    freeConfig(config.featConfig, Module)
+  }
+
+  if ('modelConfig' in config) {
+    freeConfig(config.modelConfig, Module)
+  }
+
+  if ('decoderConfig' in config) {
+    freeConfig(config.decoderConfig, Module)
+  }
+
   Module._free(config.ptr);
 }
 
@@ -125,10 +138,9 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   const hotwordsFileLen = Module.lengthBytesUTF8(config.hotwordsFile || '') + 1;
   const bufferLen = hotwordsFileLen;
   const buffer = Module._malloc(bufferLen);
-  
-  Module.stringToUTF8(
-    config.hotwordsFile || '', buffer, hotwordsFileLen);
-  
+
+  Module.stringToUTF8(config.hotwordsFile || '', buffer, hotwordsFileLen);
+
   Module.setValue(ptr + offset, config.enableEndpoint, 'i32');
   offset += 4;
 
@@ -144,12 +156,13 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   Module.setValue(ptr + offset, buffer, 'i8*');  // hotwords file
   offset += 4;
 
-  Module.setValue(ptr + offset, config.hotwordsScore || 0.5, 'float');  // hotwords_score
+  Module.setValue(
+      ptr + offset, config.hotwordsScore || 0.5, 'float');  // hotwords_score
   offset += 4;
 
   return {
     ptr: ptr, len: numBytes, featConfig: featConfig, modelConfig: modelConfig,
-        decoderConfig: decoderConfig,
+        decoderConfig: decoderConfig, buffer: buffer,
   }
 }
 
