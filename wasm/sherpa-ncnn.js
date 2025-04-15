@@ -127,7 +127,7 @@ function initSherpaNcnnRecognizerConfig(config, Module) {
   const buffer = Module._malloc(bufferLen);
   
   Module.stringToUTF8(
-    config.decoderConfig.hotwordsFile || '', buffer + offset, hotwordsFileLen);
+    config.decoderConfig.hotwordsFile || '', buffer, hotwordsFileLen);
   offset += hotwordsFileLen;
   offset = featConfig.len + modelConfig.len + decoderConfig.len;
   
