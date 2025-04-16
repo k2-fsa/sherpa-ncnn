@@ -45,3 +45,11 @@ cd ./nodejs-examples
 
 node ./real-time-speech-recognition-microphone.js
 ```
+
+### Hotwords Decode a file
+
+```bash
+cd ./nodejs-examples
+
+node ./hotwords-decode-file.js
+```
