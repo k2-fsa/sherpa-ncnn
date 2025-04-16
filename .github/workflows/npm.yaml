@@ -56,8 +56,8 @@ jobs:
           npm --version
 
           cd nodejs-examples
-          npm install npm
-          npm --version
+          # npm install npm
+          # npm --version
 
       - name: Build nodejs package
         shell: bash
