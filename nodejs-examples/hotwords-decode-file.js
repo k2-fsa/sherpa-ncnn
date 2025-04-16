@@ -1,4 +1,4 @@
-// Copyright (c)  2024  Xiaomi Corporation (authors: Fangjun Kuang)
+// authors: chen-junqiao
 const fs = require('fs');
 const wav = require('wav');
 const {Readable} = require('stream');
