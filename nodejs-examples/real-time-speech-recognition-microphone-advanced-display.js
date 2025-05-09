@@ -71,6 +71,79 @@ const micInstance = mic({
 
 const micInputStream = micInstance.getAudioStream();
 
+function clearConsole() {
+  process.stdout.write('\x1B[2J\x1B[0f');
+}
+
+/**
+ * SpeechSession class, work as a session manager with the formatOutput function
+ * Sample output:
+=== Automated Speech Recognition ===
+Current Session #1
+Time: 8:44:46 PM
+------------------------
+Recognized Sentences:
+[8:44:43 PM] 1. it's so great three result is great great 她还支持中文
+[8:44:46 PM] 2. 很厉
+------------------------
+Recognizing: 真的很厉害太厉害
+
+*/
+class SpeechSession {
+  constructor() {
+    this.startTime = Date.now();
+    this.sentences = [];
+    this.currentText = '';
+    this.lastUpdateTime = Date.now();
+  }
+
+  addOrUpdateText(text) {
+    this.currentText = text;
+    this.lastUpdateTime = Date.now();
+  }
+
+  finalizeSentence() {
+    if (this.currentText.trim()) {
+      this.sentences.push({
+        text: this.currentText.trim(),
+        timestamp: new Date().toLocaleTimeString()
+      });
+    }
+    this.currentText = '';
+  }
+
+  shouldStartNewSession() {
+    return Date.now() - this.lastUpdateTime > 10000;  // 10 seconds of silence
+  }
+}
+
+
+let currentSession = new SpeechSession();
+let sessionCount = 1;
+
+function formatOutput() {
+  clearConsole();
+  console.log('\n=== Automated Speech Recognition ===');
+  console.log(`Current Session #${sessionCount}`);
+  console.log('Time:', new Date().toLocaleTimeString());
+  console.log('------------------------');
+
+  // display history sentences
+  if (currentSession.sentences.length > 0) {
+    console.log('Recognized Sentences:');
+    currentSession.sentences.forEach((sentence, index) => {
+      console.log(`[${sentence.timestamp}] ${index + 1}. ${sentence.text}`);
+    });
+    console.log('------------------------');
+  }
+
+  // display the current sentence
+  if (currentSession.currentText) {
+    console.log('Recognizing:', currentSession.currentText);
+  }
+}
+
+
 function exitHandler(options, exitCode) {
   if (options.cleanup) {
     console.log('\nCleaned up resources...');
@@ -115,16 +188,24 @@ micInputStream.on('data', buffer => {
   const isEndpoint = recognizer.isEndpoint(stream);
   const text = recognizer.getResult(stream);
 
-  if (text.length > 0 && lastText != text) {
-    lastText = text;
-    console.log(segmentIndex, lastText);
+  if (text.length > 0) {
+    // 检查是否需要开始新会话
+    if (currentSession.shouldStartNewSession()) {
+      currentSession.finalizeSentence();
+      sessionCount++;
+      currentSession = new SpeechSession();
+    }
+
+    currentSession.addOrUpdateText(text);
+    formatOutput();
   }
+
   if (isEndpoint) {
     if (text.length > 0) {
-      lastText = text;
-      segmentIndex += 1;
+      currentSession.finalizeSentence();
+      formatOutput();
     }
-    recognizer.reset(stream)
+    recognizer.reset(stream);
   }
 });
 
@@ -147,6 +228,7 @@ async function main() {
     console.log('Starting ...');
     await startMic();
     console.log('Initialized, waiting for speech ...');
+    formatOutput();
   } catch (err) {
     console.error('Failed to initialize:', err);
     process.exit(1);
