@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 jobs:
-  nodejs:
+  npm:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -32,6 +32,9 @@ jobs:
 
       - name: Install emsdk
         uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.51
+          actions-cache-folder: 'emsdk-cache'
 
       - name: View emsdk version
         shell: bash
@@ -54,10 +57,6 @@ jobs:
         run: |
           node --version
           npm --version
-
-          cd nodejs-examples
-          # npm install npm
-          # npm --version
 
       - name: Build nodejs package
         shell: bash
