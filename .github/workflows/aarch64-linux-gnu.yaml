@@ -6,22 +6,18 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/aarch64-linux-gnu.yaml'
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
-      - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
   pull_request:
     branches:
       - master
     paths:
-      - '.github/workflows/aarch64-linux-gnu.yaml'
       - '.github/scripts/run-test.sh'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
-      - 'toolchains/aarch64-linux-gnu.toolchain.cmake'
 
   workflow_dispatch:
 
@@ -34,109 +30,46 @@ permissions:
 
 jobs:
   aarch64_linux_gnu:
+    name: shared libs ${{ matrix.shared_libs }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04-arm]
+        shared_libs: [ON, OFF]
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: cache-qemu
-        id: cache-qemu
-        uses: actions/cache@v3
-        with:
-          path: qemu-install
-          key: qemu-aarch64-install-20220908
-
-      - name: install-qemu-build-deps
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install autoconf automake autotools-dev ninja-build
-
-      - name: checkout-qemu
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
-        with:
-          repository: qemu/qemu
-          path: qemu
-          ref: f5643914a9e8f79c606a76e6a9d7ea82a3fc3e65
-
-      - name: qemu
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
-        run: |
-          cd qemu
-          ./configure --prefix=$GITHUB_WORKSPACE/qemu-install --target-list=aarch64-linux-user --disable-system
-          make -j2
-          make install
-
-      - name: cache-toolchain
-        id: cache-toolchain
-        uses: actions/cache@v3
-        with:
-          path: toolchain
-          key: gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu
-
-      - name: Download toolchain
-        if: steps.cache-toolchain.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
-
-          mkdir $GITHUB_WORKSPACE/toolchain
-          tar xvf ./gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz --strip-components 1 -C $GITHUB_WORKSPACE/toolchain
-
-      - name: Display toolchain info
-        shell: bash
-        run: |
-          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
-          aarch64-linux-gnu-gcc --version
-
-      - name: Display qemu-aarch64 -h
-        shell: bash
-        run: |
-          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
-          export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/aarch64-linux-gnu/libc
-          qemu-aarch64 -h
-
       - name: build aarch64-linux-gnu
         shell: bash
         run: |
-          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
+          mkdir build
+          cd build
+          cmake -DBUILD_SHARED_LIBS=${{ matrix.shared_libs }} ..
+          make -j
 
-          ./build-aarch64-linux-gnu.sh
+          ls -lh ./bin
+          ls -lh ./lib
 
-          ls -lh build-aarch64-linux-gnu/bin
-          ls -lh build-aarch64-linux-gnu/lib
-
-          file build-aarch64-linux-gnu/bin/sherpa-ncnn
+          file ./bin/sherpa-ncnn
 
       - name: Test sherpa-ncnn
         shell: bash
         run: |
-          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
-          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
-          export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/aarch64-linux-gnu/libc
+          export EXE="build/bin/sherpa-ncnn"
 
-          export EXE="qemu-aarch64 ./build-aarch64-linux-gnu/bin/sherpa-ncnn"
-
-          ls -lh ./build-aarch64-linux-gnu/bin
+          ls -lh ./build/bin
 
           .github/scripts/run-test.sh
 
       - name: Test C API
         shell: bash
         run: |
-          export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
-          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
-          export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/aarch64-linux-gnu/libc
+          export EXE="./build/bin/decode-file-c-api"
 
-          export EXE="qemu-aarch64 ./build-aarch64-linux-gnu/bin/decode-file-c-api"
-
-          ls -lh ./build-aarch64-linux-gnu/bin
+          ls -lh ./build/bin
 
           .github/scripts/run-test.sh
