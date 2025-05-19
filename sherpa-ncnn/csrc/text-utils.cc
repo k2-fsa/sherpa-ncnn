@@ -117,4 +117,8 @@ bool ConvertStringToReal(const std::string &str, T *out) {
   return true;
 }
 
+template bool ConvertStringToReal<float>(const std::string &str, float *out);
+
+template bool ConvertStringToReal<double>(const std::string &str, double *out);
+
 }  // namespace sherpa_ncnn
