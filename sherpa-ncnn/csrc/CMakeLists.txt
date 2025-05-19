@@ -13,6 +13,7 @@ set(sherpa_ncnn_core_srcs
   meta-data.cc
   model.cc
   modified-beam-search-decoder.cc
+  parse-options.cc
   poolingmodulenoproj.cc
   recognizer.cc
   resample.cc
@@ -21,6 +22,7 @@ set(sherpa_ncnn_core_srcs
   stream.cc
   symbol-table.cc
   tensorasstrided.cc
+  text-utils.cc
   wave-reader.cc
   wave-writer.cc
   zipformer-model.cc
