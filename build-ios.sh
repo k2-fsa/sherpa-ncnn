@@ -25,6 +25,7 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
 
   # iOS & simulator running on arm64 & x86_64
   cmake -S . \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=install \
@@ -37,6 +38,7 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
     -B build/os64
 
   cmake -S . \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DPLATFORM=SIMULATORARM64 \
@@ -48,6 +50,7 @@ if [ ! -f openmp-11.0.0.src/build/os64/install/include/omp.h ]; then
     -B build/simulator_arm64
 
   cmake -S . \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_TOOLCHAIN_FILE=../../toolchains/ios.toolchain.cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DPLATFORM=SIMULATOR64 \
