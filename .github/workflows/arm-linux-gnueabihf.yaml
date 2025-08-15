@@ -45,14 +45,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: arm-gnu-toolchain
+      - name: Install qemu
         run: |
           sudo apt-get update
           sudo apt-get install qemu-user-static
 
       - name: cache-toolchain
         id: cache-toolchain
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: toolchain
           key: gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf
@@ -74,10 +74,9 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/toolchain/bin:$PATH
           arm-linux-gnueabihf-gcc --version
 
-      - name: Display qemu-arm -h
+      - name: Display qemu-arm-static -h
         shell: bash
         run: |
-          export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
           qemu-arm-static -h
 
