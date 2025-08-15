@@ -45,10 +45,10 @@ jobs:
         with:
           fetch-depth: 0
 
-    - name: arm-gnu-toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install qemu-user-static
+      - name: arm-gnu-toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install qemu-user-static
 
       - name: cache-toolchain
         id: cache-toolchain
