@@ -29,6 +29,13 @@ set(sherpa_ncnn_core_srcs
 )
 
 list(APPEND sherpa_ncnn_core_srcs
+  offline-tts-impl.cc
+  offline-tts-model-config.cc
+  offline-tts-vits-model-config.cc
+  offline-tts.cc
+)
+
+list(APPEND sherpa_ncnn_core_srcs
   circular-buffer.cc
   silero-vad-model-config.cc
   silero-vad-model.cc
@@ -36,7 +43,13 @@ list(APPEND sherpa_ncnn_core_srcs
 )
 
 add_library(sherpa-ncnn-core ${sherpa_ncnn_core_srcs})
-target_link_libraries(sherpa-ncnn-core PUBLIC kaldi-native-fbank-core ncnn)
+target_link_libraries(sherpa-ncnn-core PUBLIC
+  kaldi-native-fbank-core
+  kaldifst_core
+  ncnn
+  fst
+  fstfar
+)
 
 if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
   install(TARGETS sherpa-ncnn-core DESTINATION ..)
