@@ -45,34 +45,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: cache-qemu
-        id: cache-qemu
-        uses: actions/cache@v3
-        with:
-          path: qemu-install
-          key: qemu-arm-install-20220907
-
-      - name: install-qemu-build-deps
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
+      - name: arm-gnu-toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install autoconf automake autotools-dev ninja-build
-
-      - name: checkout-qemu
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
-        with:
-          repository: qemu/qemu
-          path: qemu
-          ref: f5643914a9e8f79c606a76e6a9d7ea82a3fc3e65
-
-      - name: qemu
-        if: steps.cache-qemu.outputs.cache-hit != 'true'
-        run: |
-          cd qemu
-          ./configure --prefix=$GITHUB_WORKSPACE/qemu-install --target-list=arm-linux-user --disable-system
-          make -j2
-          make install
+          sudo apt-get install qemu-user-static
 
       - name: cache-toolchain
         id: cache-toolchain
@@ -103,7 +79,7 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
-          qemu-arm -h
+          qemu-arm-static -h
 
       - name: build arm-linux-gnueabihf
         shell: bash
@@ -124,7 +100,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
 
-          export EXE="qemu-arm ./build-arm-linux-gnueabihf/bin/sherpa-ncnn"
+          export EXE="qemu-arm-static ./build-arm-linux-gnueabihf/bin/sherpa-ncnn"
 
           ls -lh ./build-arm-linux-gnueabihf/bin
 
@@ -137,7 +113,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/qemu-install/bin:$PATH
           export QEMU_LD_PREFIX=$GITHUB_WORKSPACE/toolchain/arm-linux-gnueabihf/libc
 
-          export EXE="qemu-arm ./build-arm-linux-gnueabihf/bin/decode-file-c-api"
+          export EXE="qemu-arm-static ./build-arm-linux-gnueabihf/bin/decode-file-c-api"
 
           ls -lh ./build-arm-linux-gnueabihf/bin
 
