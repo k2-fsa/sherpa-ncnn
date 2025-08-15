@@ -85,7 +85,8 @@ libtool -static -o ./build/install/lib/sherpa-ncnn.a \
   build/install/lib/libncnn.a \
   build/install/lib/libsherpa-ncnn-c-api.a \
   build/install/lib/libsherpa-ncnn-core.a \
-  build/install/lib/libkaldi-native-fbank-core.a
+  build/install/lib/libkaldi-native-fbank-core.a \
+  build/install/lib/libkissfft-float.a
 
 xcodebuild -create-xcframework \
       -library "build/install/lib/sherpa-ncnn.a" \

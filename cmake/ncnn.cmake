@@ -7,19 +7,19 @@ function(download_ncnn)
 
   # Please also change ../pack-for-embedded-systems.sh
 
-  # the latest master as of 2025.05.19
-  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/6fa649f1034950dbad84596abb8c2a375e581fff.zip")
-  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip")
-  set(ncnn_HASH "SHA256=0b0540b4a8ca73430c2cea610c2e2dfc92729dc270a4f049f8b6ba2bf96bde7d")
+  # the latest master as of 2025.08.15
+  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip")
+  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip")
+  set(ncnn_HASH "SHA256=e8da29e36e202af821511160a41bb0e1dc5d8c85a07b87e82b790f8239e5bfec")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
   set(possible_file_locations
-    $ENV{HOME}/Downloads/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip
-    $ENV{HOME}/asr/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip
-    ${PROJECT_SOURCE_DIR}/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip
-    ${PROJECT_BINARY_DIR}/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip
-    /tmp/ncnn-6fa649f1034950dbad84596abb8c2a375e581fff.zip
+    $ENV{HOME}/Downloads/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
+    $ENV{HOME}/asr/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
+    ${PROJECT_SOURCE_DIR}/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
+    ${PROJECT_BINARY_DIR}/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
+    /tmp/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
   )
 
   foreach(f IN LISTS possible_file_locations)
@@ -178,6 +178,7 @@ function(download_ncnn)
     RelPositionalEncoding
     MakePadMask
     RelShift
+    # Flip
   )
 
   foreach(layer IN LISTS disabled_layers)

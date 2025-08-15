@@ -10,6 +10,7 @@
 	  sherpa-ncnn-c-api.lib;;
 	  sherpa-ncnn-core.lib;
 	  kaldi-native-fbank-core.lib;
+	  kissfft-float.lib;
 	  ncnn.lib
 	</SherpaNcnnLibraries>
   </PropertyGroup>

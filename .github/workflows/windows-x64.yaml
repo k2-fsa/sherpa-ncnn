@@ -39,14 +39,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - vs-version: vs2015
-            toolset-version: v140
-            os: windows-2019
-
-          - vs-version: vs2017
-            toolset-version: v141
-            os: windows-2019
-
           - vs-version: vs2019
             toolset-version: v142
             os: windows-2022

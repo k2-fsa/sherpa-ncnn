@@ -16,6 +16,7 @@ echo "Copy libs for Linux x86_64"
 rm -rf sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/lib*
 
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libkaldi-native-fbank-core.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
+cp -v ./linux_x86_64/sherpa_ncnn/lib/libkissfft-float.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libncnn.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libsherpa-ncnn-c-api.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
 cp -v ./linux_x86_64/sherpa_ncnn/lib/libsherpa-ncnn-core.so sherpa-ncnn-go-linux/lib/x86_64-unknown-linux-gnu/
@@ -26,6 +27,7 @@ echo "Copy libs for Linux aarch64"
 rm -rf sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/lib*
 
 cp -v ./linux_aarch64/sherpa_ncnn/lib/libkaldi-native-fbank-core.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
+cp -v ./linux_aarch64/sherpa_ncnn/lib/libkissfft-float.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
 cp -v ./linux_aarch64/sherpa_ncnn/lib/libncnn.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
 cp -v ./linux_aarch64/sherpa_ncnn/lib/libsherpa-ncnn-c-api.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
 cp -v ./linux_aarch64/sherpa_ncnn/lib/libsherpa-ncnn-core.so sherpa-ncnn-go-linux/lib/aarch64-unknown-linux-gnu/
@@ -67,6 +69,7 @@ git clone git@github.com:k2-fsa/sherpa-ncnn-go-macos.git
 echo "Copy libs for macOS x86_64"
 rm -rf sherpa-ncnn-go-macos/lib/x86_64-apple-darwin/lib*
 cp -v ./macos-x86_64/libkaldi-native-fbank-core.dylib sherpa-ncnn-go-macos/lib/x86_64-apple-darwin
+cp -v ./macos-x86_64/libkissfft-float.dylib sherpa-ncnn-go-macos/lib/x86_64-apple-darwin
 cp -v ./macos-x86_64/libncnn.dylib sherpa-ncnn-go-macos/lib/x86_64-apple-darwin
 cp -v ./macos-x86_64/libsherpa-ncnn-c-api.dylib sherpa-ncnn-go-macos/lib/x86_64-apple-darwin
 cp -v ./macos-x86_64/libsherpa-ncnn-core.dylib sherpa-ncnn-go-macos/lib/x86_64-apple-darwin
@@ -74,6 +77,7 @@ cp -v ./macos-x86_64/libsherpa-ncnn-core.dylib sherpa-ncnn-go-macos/lib/x86_64-a
 echo "Copy libs for macOS arm64"
 rm -rf sherpa-ncnn-go-macos/lib/aarch64-apple-darwin/lib*
 cp -v ./macos-arm64/libkaldi-native-fbank-core.dylib sherpa-ncnn-go-macos/lib/aarch64-apple-darwin
+cp -v ./macos-arm64/libkissfft-float.dylib sherpa-ncnn-go-macos/lib/aarch64-apple-darwin
 cp -v ./macos-arm64/libncnn.dylib sherpa-ncnn-go-macos/lib/aarch64-apple-darwin
 cp -v ./macos-arm64/libsherpa-ncnn-c-api.dylib sherpa-ncnn-go-macos/lib/aarch64-apple-darwin
 cp -v ./macos-arm64/libsherpa-ncnn-core.dylib sherpa-ncnn-go-macos/lib/aarch64-apple-darwin
@@ -113,6 +117,7 @@ git clone git@github.com:k2-fsa/sherpa-ncnn-go-windows.git
 echo "Copy libs for Windows x86_64"
 rm -fv sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu/*
 cp -v ./windows-x64/kaldi-native-fbank-core.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
+cp -v ./windows-x64/kissfft-float.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
 cp -v ./windows-x64/ncnn.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
 cp -v ./windows-x64/sherpa-ncnn-c-api.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
 cp -v ./windows-x64/sherpa-ncnn-core.dll sherpa-ncnn-go-windows/lib/x86_64-pc-windows-gnu
@@ -120,6 +125,7 @@ cp -v ./windows-x64/sherpa-ncnn-core.dll sherpa-ncnn-go-windows/lib/x86_64-pc-wi
 echo "Copy libs for Windows x86"
 rm -fv sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu/*
 cp -v ./windows-win32/kaldi-native-fbank-core.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
+cp -v ./windows-win32/kissfft-float.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
 cp -v ./windows-win32/ncnn.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
 cp -v ./windows-win32/sherpa-ncnn-c-api.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu
 cp -v ./windows-win32/sherpa-ncnn-core.dll sherpa-ncnn-go-windows/lib/i686-pc-windows-gnu

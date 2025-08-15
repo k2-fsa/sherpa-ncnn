@@ -181,11 +181,12 @@ libtool -static -o build/os64/sherpa-ncnn.a \
   build/os64/lib/libncnn.a \
   build/os64/lib/libsherpa-ncnn-c-api.a \
   build/os64/lib/libsherpa-ncnn-core.a \
-  build/os64/lib/libkaldi-native-fbank-core.a
+  build/os64/lib/libkaldi-native-fbank-core.a \
+  build/os64/lib/libkissfft-float.a
 
 mkdir -p "build/simulator/lib"
 
-for f in libncnn.a libsherpa-ncnn-c-api.a libsherpa-ncnn-core.a libkaldi-native-fbank-core.a; do
+for f in libncnn.a libsherpa-ncnn-c-api.a libsherpa-ncnn-core.a libkaldi-native-fbank-core.a libkissfft-float.a; do
   lipo -create build/simulator_arm64/lib/${f} \
                build/simulator_x86_64/lib/${f} \
        -output build/simulator/lib/${f}
@@ -197,7 +198,8 @@ libtool -static -o build/simulator/sherpa-ncnn.a \
   build/simulator/lib/libncnn.a \
   build/simulator/lib/libsherpa-ncnn-c-api.a \
   build/simulator/lib/libsherpa-ncnn-core.a \
-  build/simulator/lib/libkaldi-native-fbank-core.a
+  build/simulator/lib/libkaldi-native-fbank-core.a \
+  build/simulator/lib/libkissfft-float.a
 
 
 xcodebuild -create-xcframework \
