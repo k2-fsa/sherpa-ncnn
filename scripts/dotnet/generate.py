@@ -33,6 +33,7 @@ def get_dict():
 
 def process_linux(s):
     libs = [
+        "libkissfft-float.so",
         "libkaldi-native-fbank-core.so",
         "libncnn.so",
         "libsherpa-ncnn-c-api.so",
@@ -56,6 +57,7 @@ def process_linux(s):
 
 def process_macos(s):
     libs = [
+        "libkissfft-float.dylib",
         "libkaldi-native-fbank-core.dylib",
         "libncnn.dylib",
         "libsherpa-ncnn-c-api.dylib",
@@ -78,6 +80,7 @@ def process_macos(s):
 
 def process_windows(s):
     libs = [
+        "kissfft-float.dll",
         "kaldi-native-fbank-core.dll",
         "ncnn.dll",
         "sherpa-ncnn-c-api.dll",
