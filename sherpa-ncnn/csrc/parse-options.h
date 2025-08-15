@@ -1,6 +1,6 @@
 // sherpa-ncnn/csrc/parse-options.h
 //
-// Copyright (c)  2022-2023  Xiaomi Corporation
+// Copyright (c)  2022-2025  Xiaomi Corporation
 //
 // This file is copied and modified from kaldi/src/util/parse-options.h
 

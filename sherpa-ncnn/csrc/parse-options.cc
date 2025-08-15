@@ -14,12 +14,11 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
 
-#include "platform.h"  // NOLINT
+#include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/text-utils.h"
 
 namespace sherpa_ncnn {
@@ -82,8 +81,8 @@ void ParseOptions::RegisterTmpl(const std::string &name, T *ptr,
     this->RegisterCommon(name, ptr, doc, false);
   } else {
     if (prefix_.empty()) {
-      NCNN_LOGE("Cannot use empty prefix when registering with prefix.");
-      exit(-1);
+      SHERPA_NCNN_LOGE("Cannot use empty prefix when registering with prefix.");
+      SHERPA_NCNN_EXIT(-1);
     }
     std::string new_name = prefix_ + '.' + name;  // name becomes prefix.name
     other_parser_->Register(new_name, ptr, doc);
@@ -94,15 +93,15 @@ void ParseOptions::RegisterTmpl(const std::string &name, T *ptr,
 template <typename T>
 void ParseOptions::RegisterCommon(const std::string &name, T *ptr,
                                   const std::string &doc, bool is_standard) {
-  if (ptr != nullptr) {
-    NCNN_LOGE("null ptr!");
-    exit(-1);
+  if (!ptr) {
+    SHERPA_NCNN_LOGE("Empty pointer!");
+    SHERPA_NCNN_EXIT(-1);
   }
   std::string idx = name;
   NormalizeArgName(&idx);
   if (doc_map_.find(idx) != doc_map_.end()) {
-    NCNN_LOGE("Registering option twice, ignoring second time: %s",
-              name.c_str());
+    SHERPA_NCNN_LOGE("Registering option twice, ignoring second time: %s",
+                     name.c_str());
   } else {
     this->RegisterSpecific(name, idx, ptr, doc, is_standard);
   }
@@ -180,13 +179,13 @@ void ParseOptions::RegisterSpecific(const std::string &name,
 
 void ParseOptions::DisableOption(const std::string &name) {
   if (argv_ != nullptr) {
-    NCNN_LOGE("DisableOption must not be called after calling Read().");
-    exit(-1);
+    SHERPA_NCNN_LOGE("DisableOption must not be called after calling Read().");
+    SHERPA_NCNN_EXIT(-1);
   }
   if (doc_map_.erase(name) == 0) {
-    NCNN_LOGE("Option %s was not registered so cannot be disabled: ",
-              name.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Option %s was not registered so cannot be disabled: ",
+                     name.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   bool_map_.erase(name);
   int_map_.erase(name);
@@ -201,8 +200,8 @@ int32_t ParseOptions::NumArgs() const { return positional_args_.size(); }
 
 std::string ParseOptions::GetArg(int32_t i) const {
   if (i < 1 || i > static_cast<int32_t>(positional_args_.size())) {
-    NCNN_LOGE("ParseOptions::GetArg, invalid index %d", i);
-    exit(-1);
+    SHERPA_NCNN_LOGE("ParseOptions::GetArg, invalid index %d", i);
+    SHERPA_NCNN_EXIT(-1);
   }
 
   return positional_args_[i - 1];
@@ -226,8 +225,8 @@ static ShellType kShellType = kBash;
 static bool MustBeQuoted(const std::string &str, ShellType st) {
   // Only Bash is supported (for the moment).
   if (st != kBash) {
-    NCNN_LOGE("Invalid shell type");
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid shell type");
+    SHERPA_NCNN_EXIT(-1);
   }
 
   const char *c = str.c_str();
@@ -244,7 +243,8 @@ static bool MustBeQuoted(const std::string &str, ShellType st) {
     // Just want to make sure that a space character doesn't get automatically
     // inserted here via an automated style-checking script, like it did before.
     if (strchr(ok_chars[kBash], ' ')) {
-      exit(-1);
+      SHERPA_NCNN_LOGE("Extra space!");
+      SHERPA_NCNN_EXIT(-1);
     }
 
     for (; *c != '\0'; ++c) {
@@ -334,7 +334,7 @@ int32_t ParseOptions::Read(int32_t argc, const char *const *argv) {
         ReadConfigFile(value);
       } else if (key == "help") {
         PrintUsage();
-        exit(0);
+        SHERPA_NCNN_EXIT(0);
       }
     }
   }
@@ -356,8 +356,8 @@ int32_t ParseOptions::Read(int32_t argc, const char *const *argv) {
       Trim(&value);
       if (!SetOption(key, value, has_equal_sign)) {
         PrintUsage(true);
-        NCNN_LOGE("Invalid option %s", argv[i]);
-        exit(-1);
+        SHERPA_NCNN_LOGE("Invalid option %s", argv[i]);
+        SHERPA_NCNN_EXIT(-1);
       }
     } else {
       break;
@@ -378,7 +378,7 @@ int32_t ParseOptions::Read(int32_t argc, const char *const *argv) {
     std::ostringstream strm;
     for (int32_t j = 0; j < argc; ++j) strm << Escape(argv[j]) << " ";
     strm << '\n';
-    NCNN_LOGE("%s", strm.str().c_str());
+    SHERPA_NCNN_LOGE("%s", strm.str().c_str());
   }
   return i;
 }
@@ -419,7 +419,7 @@ void ParseOptions::PrintUsage(bool print_command_line /*=false*/) const {
     os << strm.str();
   }
 
-  NCNN_LOGE("%s", os.str().c_str());
+  SHERPA_NCNN_LOGE("%s", os.str().c_str());
 }
 
 void ParseOptions::PrintConfig(std::ostream &os) const {
@@ -443,9 +443,9 @@ void ParseOptions::PrintConfig(std::ostream &os) const {
     } else if (string_map_.end() != string_map_.find(key)) {
       os << "'" << *string_map_.at(key) << "'";
     } else {
-      NCNN_LOGE("PrintConfig: unrecognized option %s [code error]",
-                key.c_str());
-      exit(-1);
+      SHERPA_NCNN_LOGE("PrintConfig: unrecognized option %s [code error]",
+                       key.c_str());
+      SHERPA_NCNN_EXIT(-1);
     }
     os << '\n';
   }
@@ -455,8 +455,8 @@ void ParseOptions::PrintConfig(std::ostream &os) const {
 void ParseOptions::ReadConfigFile(const std::string &filename) {
   std::ifstream is(filename.c_str(), std::ifstream::in);
   if (!is.good()) {
-    NCNN_LOGE("Cannot open config file: %s", filename.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Cannot open config file: %s", filename.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
 
   std::string line, key, value;
@@ -473,13 +473,13 @@ void ParseOptions::ReadConfigFile(const std::string &filename) {
     if (line.empty()) continue;
 
     if (line.substr(0, 2) != "--") {
-      NCNN_LOGE(
+      SHERPA_NCNN_LOGE(
           "Reading config file %s: line %d does not look like a line "
           "from a sherpa-ncnn command-line program's config file: should "
           "be of the form --x=y.  Note: config files intended to "
           "be sourced by shell scripts lack the '--'.",
           filename.c_str(), line_number);
-      exit(-1);
+      SHERPA_NCNN_EXIT(-1);
     }
 
     // parse option
@@ -489,9 +489,9 @@ void ParseOptions::ReadConfigFile(const std::string &filename) {
     Trim(&value);
     if (!SetOption(key, value, has_equal_sign)) {
       PrintUsage(true);
-      NCNN_LOGE("Invalid option %s in config file %s: line %d", line.c_str(),
-                filename.c_str(), line_number);
-      exit(-1);
+      SHERPA_NCNN_LOGE("Invalid option %s in config file %s: line %d",
+                       line.c_str(), filename.c_str(), line_number);
+      SHERPA_NCNN_EXIT(-1);
     }
   }
 }
@@ -500,8 +500,8 @@ void ParseOptions::SplitLongArg(const std::string &in, std::string *key,
                                 std::string *value,
                                 bool *has_equal_sign) const {
   if (in.substr(0, 2) != "--") {
-    NCNN_LOGE("%s", in.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("in: %s", in.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   size_t pos = in.find_first_of('=', 0);
   if (pos == std::string::npos) {  // we allow --option for bools
@@ -511,8 +511,8 @@ void ParseOptions::SplitLongArg(const std::string &in, std::string *key,
     *has_equal_sign = false;
   } else if (pos == 2) {  // we also don't allow empty keys: --=value
     PrintUsage(true);
-    NCNN_LOGE("Invalid option (no key): %s", in.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid option (no key): %s", in.c_str());
+    SHERPA_NCNN_EXIT(-1);
   } else {                         // normal case: --option=value
     *key = in.substr(2, pos - 2);  // 2 because starts with --.
     *value = in.substr(pos + 1);
@@ -534,8 +534,8 @@ void ParseOptions::NormalizeArgName(std::string *str) const {
   *str = out;
 
   if (str->empty()) {
-    NCNN_LOGE("empty string!");
-    exit(-1);
+    SHERPA_NCNN_LOGE("Empty string!");
+    SHERPA_NCNN_EXIT(-1);
   }
 }
 
@@ -556,8 +556,8 @@ bool ParseOptions::SetOption(const std::string &key, const std::string &value,
                              bool has_equal_sign) {
   if (bool_map_.end() != bool_map_.find(key)) {
     if (has_equal_sign && value.empty()) {
-      NCNN_LOGE("Invalid option --%s=", key.c_str());
-      exit(-1);
+      SHERPA_NCNN_LOGE("Invalid option --%s=", key.c_str());
+      SHERPA_NCNN_EXIT(-1);
     }
     *(bool_map_[key]) = ToBool(value);
   } else if (int_map_.end() != int_map_.find(key)) {
@@ -572,8 +572,9 @@ bool ParseOptions::SetOption(const std::string &key, const std::string &value,
     *(double_map_[key]) = ToDouble(value);
   } else if (string_map_.end() != string_map_.find(key)) {
     if (!has_equal_sign) {
-      NCNN_LOGE("Invalid option --%s (option format is --x=y).", key.c_str());
-      exit(-1);
+      SHERPA_NCNN_LOGE("Invalid option --%s (option format is --x=y).",
+                       key.c_str());
+      SHERPA_NCNN_EXIT(-1);
     }
     *(string_map_[key]) = value;
   } else {
@@ -594,17 +595,18 @@ bool ParseOptions::ToBool(std::string str) const {
   }
   // if it is neither true nor false:
   PrintUsage(true);
-  NCNN_LOGE("Invalid format for boolean argument [expected true or false]: %s",
-            str.c_str());
-  exit(-1);
+  SHERPA_NCNN_LOGE(
+      "Invalid format for boolean argument [expected true or false]: %s",
+      str.c_str());
+  SHERPA_NCNN_EXIT(-1);
   return false;  // never reached
 }
 
 int32_t ParseOptions::ToInt(const std::string &str) const {
   int32_t ret = 0;
   if (!ConvertStringToInteger(str, &ret)) {
-    NCNN_LOGE("Invalid integer option \"%s\"", str.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid integer option \"%s\"", str.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   return ret;
 }
@@ -612,8 +614,8 @@ int32_t ParseOptions::ToInt(const std::string &str) const {
 int64_t ParseOptions::ToInt64(const std::string &str) const {
   int64_t ret = 0;
   if (!ConvertStringToInteger(str, &ret)) {
-    NCNN_LOGE("Invalid integer int64 option \"%s\"", str.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid integer int64 option \"%s\"", str.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   return ret;
 }
@@ -621,8 +623,8 @@ int64_t ParseOptions::ToInt64(const std::string &str) const {
 uint32_t ParseOptions::ToUint(const std::string &str) const {
   uint32_t ret = 0;
   if (!ConvertStringToInteger(str, &ret)) {
-    NCNN_LOGE("Invalid integer option \"%s\"", str.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid integer option \"%s\"", str.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   return ret;
 }
@@ -630,8 +632,8 @@ uint32_t ParseOptions::ToUint(const std::string &str) const {
 float ParseOptions::ToFloat(const std::string &str) const {
   float ret = 0;
   if (!ConvertStringToReal(str, &ret)) {
-    NCNN_LOGE("Invalid floating-point option \"%s\"", str.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid floating-point option \"%s\"", str.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   return ret;
 }
@@ -639,8 +641,8 @@ float ParseOptions::ToFloat(const std::string &str) const {
 double ParseOptions::ToDouble(const std::string &str) const {
   double ret = 0;
   if (!ConvertStringToReal(str, &ret)) {
-    NCNN_LOGE("Invalid floating-point option \"%s\"", str.c_str());
-    exit(-1);
+    SHERPA_NCNN_LOGE("Invalid floating-point option \"%s\"", str.c_str());
+    SHERPA_NCNN_EXIT(-1);
   }
   return ret;
 }
