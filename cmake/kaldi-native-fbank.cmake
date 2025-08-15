@@ -46,9 +46,9 @@ function(download_kaldi_native_fbank)
 
   add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR} EXCLUDE_FROM_ALL)
   if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
-    install(TARGETS kaldi-native-fbank-core DESTINATION ..)
+    install(TARGETS kaldi-native-fbank-core kissfft DESTINATION ..)
   else()
-    install(TARGETS kaldi-native-fbank-core DESTINATION lib)
+    install(TARGETS kaldi-native-fbank-core kissfft DESTINATION lib)
   endif()
 
   target_include_directories(kaldi-native-fbank-core
