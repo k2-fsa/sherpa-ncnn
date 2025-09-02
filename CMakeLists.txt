@@ -155,6 +155,7 @@ endif()
 include(kaldi-native-fbank)
 include(kaldifst)
 include(ncnn)
+include(json)
 
 if(SHERPA_NCNN_ENABLE_PORTAUDIO)
   include(portaudio)

@@ -669,7 +669,7 @@ std::string Gb2312ToUtf8(const std::string &text) {
 
   std::wstring wstr;
   wstr.resize(num_wchars);
-  MultiByteToWideChar(936, 0, text.c_str(), text.size(), wstr.data(),
+  MultiByteToWideChar(936, 0, text.c_str(), text.size(), &wstr[0],
                       num_wchars);
   // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-widechartomultibyte
   int32_t num_chars = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr,
@@ -679,7 +679,7 @@ std::string Gb2312ToUtf8(const std::string &text) {
   }
 
   std::string ans(num_chars, 0);
-  WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, ans.data(), num_chars,
+  WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &ans[0], num_chars,
                       nullptr, nullptr);
 
   return ans;
