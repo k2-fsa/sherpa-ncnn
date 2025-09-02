@@ -153,6 +153,7 @@ if(WIN32 AND MSVC)
 endif()
 
 include(kaldi-native-fbank)
+include(kaldifst)
 include(ncnn)
 
 if(SHERPA_NCNN_ENABLE_PORTAUDIO)
