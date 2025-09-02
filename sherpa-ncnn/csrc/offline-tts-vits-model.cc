@@ -323,17 +323,50 @@ class OfflineTtsVitsModel::Impl {
 
   ncnn::Mat RunDurationPredictor(const ncnn::Mat &x,
                                  const ncnn::Mat &noise) const {
-    return {};
+    ncnn::Extractor ex = dp_.create_extractor();
+
+    ex.input("in0", x);
+    ex.input("in1", noise);
+
+    ncnn::Mat logw;
+    ex.extract("out0", logw);
+
+    return logw;
   }
 
-  ncnn::Mat RunFlow(const ncnn::Mat &z_p) const { return {}; }
+  ncnn::Mat RunFlow(const ncnn::Mat &z_p) const {
+    ncnn::Extractor ex = flow_.create_extractor();
 
-  ncnn::Mat RunDecoder(const ncnn::Mat &z) const { return {}; }
+    ex.input("in0", z_p);
+
+    ncnn::Mat z;
+    ex.extract("out0", z);
+
+    return z;
+  }
+
+  ncnn::Mat RunDecoder(const ncnn::Mat &z) const {
+    ncnn::Extractor ex = decoder_.create_extractor();
+
+    ex.input("in0", z);
+
+    ncnn::Mat o;
+    ex.extract("out0", o);
+
+    return o;
+  }
 
  private:
-  void InitNet() { InitEncoderNet(); }
+  void InitNet() {
+    InitEncoderNet();
+    InitDurationPredictorNet();
+    InitFlowNet();
+    InitDecoderNet();
+  }
 
   void InitEncoderNet() {
+    enc_p_.opt.num_threads = config_.num_threads;
+
     // TODO(fangjun): change the module name
     enc_p_.register_custom_layer("en_enc_p_pnnx.relative_embeddings_k_module",
                                  relative_embeddings_k_module_layer_creator);
@@ -344,8 +377,41 @@ class OfflineTtsVitsModel::Impl {
     std::string bin = config_.vits.model_dir + "/encoder.ncnn.bin";
     enc_p_.load_param(param.c_str());
     enc_p_.load_model(bin.c_str());
+  }
 
-    enc_p_.opt.num_threads = config_.num_threads;
+  void InitDurationPredictorNet() {
+    dp_.opt.num_threads = config_.num_threads;
+
+    dp_.register_custom_layer(
+        "piper.train.vits.modules.piecewise_rational_quadratic_transform_"
+        "module",
+        piecewise_rational_quadratic_transform_module_layer_creator);
+
+    std::string param = config_.vits.model_dir + "/dp.ncnn.param";
+    std::string bin = config_.vits.model_dir + "/dp.ncnn.bin";
+
+    dp_.load_param(param.c_str());
+    dp_.load_model(bin.c_str());
+  }
+
+  void InitFlowNet() {
+    flow_.opt.num_threads = config_.num_threads;
+
+    std::string param = config_.vits.model_dir + "/flow.ncnn.param";
+    std::string bin = config_.vits.model_dir + "/flow.ncnn.bin";
+
+    flow_.load_param(param.c_str());
+    flow_.load_model(bin.c_str());
+  }
+
+  void InitDecoderNet() {
+    decoder_.opt.num_threads = config_.num_threads;
+
+    std::string param = config_.vits.model_dir + "/decoder.ncnn.param";
+    std::string bin = config_.vits.model_dir + "/decoder.ncnn.bin";
+
+    decoder_.load_param(param.c_str());
+    decoder_.load_model(bin.c_str());
   }
 
  private:
@@ -353,6 +419,9 @@ class OfflineTtsVitsModel::Impl {
   OfflineTtsVitsModelMetaData meta_;
 
   ncnn::Net enc_p_;
+  ncnn::Net dp_;
+  ncnn::Net flow_;
+  ncnn::Net decoder_;
 };
 
 OfflineTtsVitsModel::~OfflineTtsVitsModel() = default;
