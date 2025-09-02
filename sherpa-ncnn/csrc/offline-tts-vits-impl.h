@@ -167,10 +167,6 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
 
     for (const auto &w : words) {
       lexicon_->TokenizeWord(w, &token_ids);
-      if (token_ids.empty()) {
-        SHERPA_NCNN_LOGE("empty ids for word %s", w.c_str());
-      }
-
       if (!token_ids.empty()) {
         this_sentence.insert(this_sentence.end(), token_ids.begin(),
                              token_ids.end());
@@ -181,6 +177,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
         this_sentence.push_back(space);
 
         ans.push_back(std::move(this_sentence));
+      } else {
+        SHERPA_NCNN_LOGE("empty ids for word %s", w.c_str());
       }
     }
 
