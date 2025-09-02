@@ -9,10 +9,11 @@
 #include "sherpa-ncnn/csrc/parse-options.h"
 #include "sherpa-ncnn/csrc/wave-writer.h"
 
-static int32_t AudioCallback(const float * /*samples*/, int32_t processed,
-                             int32_t total, void *arg) {
+static int32_t AudioCallback(const float * /*samples*/, int32_t num_samples,
+                             int32_t processed, int32_t total, void *arg) {
   float progress = static_cast<float>(processed) / total;
-  printf("progress=%.3f%%\n", progress * 100);
+  printf("Progress=%.3f%%\n", progress * 100);
+
   return 1;
 }
 
@@ -86,9 +87,12 @@ or details.
   sherpa_ncnn::TtsArgs args;
   args.text = po.GetArg(1);
   args.tokens = std::vector<std::vector<int32_t>>{
-      {1,   0, 20,  0, 121, 0, 14,  0, 100, 0, 3,   0, 51, 0,
-       122, 0, 88,  0, 3,   0, 22,  0, 33,  0, 122, 0, 3,  0,
-       17,  0, 120, 0, 33,  0, 122, 0, 74,  0, 44,  2}};
+      {1,  0, 20,  0, 121, 0, 14,  0, 100, 0, 3,  0, 51,  0, 122, 0,
+       88, 0, 3,   0, 22,  0, 33,  0, 122, 0, 3,  0, 17,  0, 120, 0,
+       33, 0, 122, 0, 74,  0, 44,  0, 13,  0, 19, 0, 39,  0, 26,  0,
+       32, 0, 120, 0, 39,  0, 31,  0, 32,  0, 74, 0, 23,  0, 4,   0,
+       20, 0, 121, 0, 14,  0, 100, 0, 3,   0, 50, 0, 15,  0, 120, 0,
+       14, 0, 100, 0, 32,  0, 3,   0, 22,  0, 33, 0, 122, 0, 13,  2}};
   args.sid = sid;
   args.speed = 1.0;
   auto audio = tts.Generate(args, AudioCallback);

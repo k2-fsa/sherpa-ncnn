@@ -92,9 +92,9 @@ class OfflineTtsImpl;
 
 // If the callback returns 0, then it stops generating
 // if the callback returns 1, then it keeps generating
-using GeneratedAudioCallback =
-    std::function<int32_t(const float * /*samples*/, int32_t /*processed*/,
-                          int32_t /*total*/, void * /*arg*/)>;
+using GeneratedAudioCallback = std::function<int32_t(
+    const float * /*samples*/, int32_t /*num_samples*/, int32_t /*processed*/,
+    int32_t /*total*/, void * /*arg*/)>;
 
 class OfflineTts {
  public:
