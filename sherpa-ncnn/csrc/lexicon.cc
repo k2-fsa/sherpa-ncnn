@@ -42,11 +42,6 @@ class Lexicon::Impl {
   }
 
   void TokenizeWord(const std::string &word,
-                    std::vector<std::string> *tokens) const {
-    tokens->clear();
-  }
-
-  void TokenizeWord(const std::string &word,
                     std::vector<int32_t> *token_ids) const {
     token_ids->clear();
 
@@ -57,15 +52,9 @@ class Lexicon::Impl {
     }
   }
 
-  // return true if the word is added to the lexicon.
-  // return false if it fails to add the word
-  bool AddWord(const std::string &word,
-               const std::vector<std::string> &tokens) {
-    return true;
-  }
-
-  bool AddWord(const std::string &word, const std::vector<int32_t> &token_ids) {
-    return true;
+  void AddWord(const std::string &word, const std::vector<int32_t> &token_ids) {
+    auto w = ToLowerCase(word);
+    word2token_ids_[w] = token_ids;
   }
 
  private:
@@ -126,22 +115,13 @@ Lexicon::Lexicon(const std::string &lexicon,
     : impl_(std::make_unique<Impl>(lexicon, token2id)) {}
 
 void Lexicon::TokenizeWord(const std::string &word,
-                           std::vector<std::string> *tokens) const {
-  impl_->TokenizeWord(word, tokens);
-}
-void Lexicon::TokenizeWord(const std::string &word,
                            std::vector<int32_t> *token_ids) const {
   impl_->TokenizeWord(word, token_ids);
 }
 
-bool Lexicon::AddWord(const std::string &word,
-                      const std::vector<std::string> &tokens) const {
-  return impl_->AddWord(word, tokens);
-}
-
-bool Lexicon::AddWord(const std::string &word,
+void Lexicon::AddWord(const std::string &word,
                       const std::vector<int32_t> &token_ids) const {
-  return impl_->AddWord(word, token_ids);
+  impl_->AddWord(word, token_ids);
 }
 
 }  // namespace sherpa_ncnn

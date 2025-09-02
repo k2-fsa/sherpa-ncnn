@@ -21,17 +21,9 @@ class Lexicon {
           const std::unordered_map<std::string, int32_t>& token2id);
 
   void TokenizeWord(const std::string& word,
-                    std::vector<std::string>* tokens) const;
-
-  void TokenizeWord(const std::string& word,
                     std::vector<int32_t>* token_ids) const;
 
-  // return true if the word is added to the lexicon.
-  // return false if it fails to add the word
-  bool AddWord(const std::string& word,
-               const std::vector<std::string>& tokens) const;
-
-  bool AddWord(const std::string& word,
+  void AddWord(const std::string& word,
                const std::vector<int32_t>& token_ids) const;
 
  private:

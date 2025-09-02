@@ -19,10 +19,6 @@ class OfflineTtsImpl {
 
   static std::unique_ptr<OfflineTtsImpl> Create(const OfflineTtsConfig &config);
 
-  template <typename Manager>
-  static std::unique_ptr<OfflineTtsImpl> Create(Manager *mgr,
-                                                const OfflineTtsConfig &config);
-
   virtual GeneratedAudio Generate(const TtsArgs &args,
                                   GeneratedAudioCallback callback = nullptr,
                                   void *callback_arg = nullptr) const = 0;
@@ -33,9 +29,6 @@ class OfflineTtsImpl {
   // Number of supported speakers.
   // If it supports only a single speaker, then it return 0 or 1.
   virtual int32_t NumSpeakers() const = 0;
-
-  std::vector<int32_t> AddBlank(const std::vector<int32_t> &x,
-                                int32_t blank_id = 0) const;
 };
 
 }  // namespace sherpa_ncnn

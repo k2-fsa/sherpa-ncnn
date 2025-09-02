@@ -8,15 +8,6 @@
 #include <string>
 #include <utility>
 
-#if __ANDROID_API__ >= 9
-#include "android/asset_manager.h"
-#include "android/asset_manager_jni.h"
-#endif
-
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-ncnn/csrc/file-utils.h"
 #include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/offline-tts-impl.h"
@@ -168,10 +159,6 @@ std::string OfflineTtsConfig::ToString() const {
 OfflineTts::OfflineTts(const OfflineTtsConfig &config)
     : impl_(OfflineTtsImpl::Create(config)) {}
 
-template <typename Manager>
-OfflineTts::OfflineTts(Manager *mgr, const OfflineTtsConfig &config)
-    : impl_(OfflineTtsImpl::Create(mgr, config)) {}
-
 OfflineTts::~OfflineTts() = default;
 
 GeneratedAudio OfflineTts::Generate(
@@ -203,15 +190,5 @@ GeneratedAudio OfflineTts::Generate(
 int32_t OfflineTts::SampleRate() const { return impl_->SampleRate(); }
 
 int32_t OfflineTts::NumSpeakers() const { return impl_->NumSpeakers(); }
-
-#if __ANDROID_API__ >= 9
-template OfflineTts::OfflineTts(AAssetManager *mgr,
-                                const OfflineTtsConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTts::OfflineTts(NativeResourceManager *mgr,
-                                const OfflineTtsConfig &config);
-#endif
 
 }  // namespace sherpa_ncnn

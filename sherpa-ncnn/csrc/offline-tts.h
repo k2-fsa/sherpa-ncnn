@@ -101,9 +101,6 @@ class OfflineTts {
   ~OfflineTts();
   explicit OfflineTts(const OfflineTtsConfig &config);
 
-  template <typename Manager>
-  OfflineTts(Manager *mgr, const OfflineTtsConfig &config);
-
   // @param callback If not NULL, it is called whenever config.max_num_sentences
   //                 sentences have been processed. Note that the passed
   //                 pointer `samples` for the callback might be invalidated
