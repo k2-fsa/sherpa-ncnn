@@ -167,17 +167,19 @@ GeneratedAudio OfflineTts::Generate(
 #if !defined(_WIN32)
   return impl_->Generate(args, std::move(callback), callback_arg);
 #else
-  if (IsUtf8(text)) {
+  if (IsUtf8(args.text)) {
     return impl_->Generate(args, std::move(callback), callback_arg);
-  } else if (IsGB2312(text)) {
-    auto utf8_text = Gb2312ToUtf8(text);
+  } else if (IsGB2312(args.text)) {
+    auto utf8_text = Gb2312ToUtf8(args.text);
     static bool printed = false;
     if (!printed) {
       SHERPA_NCNN_LOGE(
           "Detected GB2312 encoded string! Converting it to UTF8.");
       printed = true;
     }
-    return impl_->Generate(args, std::move(callback), callback_arg);
+    TtsArgs utf8_args = args;
+    utf8_args.text = utf8_text;
+    return impl_->Generate(utf8_args, std::move(callback), callback_arg);
   } else {
     SHERPA_NCNN_LOGE(
         "Non UTF8 encoded string is received. You would not get expected "
