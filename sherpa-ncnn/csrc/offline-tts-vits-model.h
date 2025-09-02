@@ -5,6 +5,9 @@
 #ifndef SHERPA_NCNN_CSRC_OFFLINE_TTS_VITS_MODEL_H_
 #define SHERPA_NCNN_CSRC_OFFLINE_TTS_VITS_MODEL_H_
 
+#include <memory>
+#include <vector>
+
 #include "mat.h"  // NOLINT
 #include "sherpa-ncnn/csrc/offline-tts-model-config.h"
 #include "sherpa-ncnn/csrc/offline-tts-vits-model-meta-data.h"

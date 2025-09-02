@@ -6,7 +6,13 @@
 
 #include <math.h>
 
-#include "net.h"
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "net.h"  // NOLINT
 
 namespace sherpa_ncnn {
 
@@ -23,7 +29,7 @@ static ncnn::Mat PathAttentionImpl(const ncnn::Mat &logw, const ncnn::Mat &m_p,
   std::vector<int> w_ceil(x_lengths);
   int y_lengths = 0;
   for (int i = 0; i < x_lengths; i++) {
-    w_ceil[i] = (int)ceilf(expf(logw[i]) * length_scale);
+    w_ceil[i] = static_cast<int>(ceilf(expf(logw[i]) * length_scale));
     y_lengths += w_ceil[i];
   }
 
@@ -42,7 +48,7 @@ static ncnn::Mat PathAttentionImpl(const ncnn::Mat &logw, const ncnn::Mat &m_p,
       const int duration = w_ceil[j];
 
       for (int k = 0; k < duration; k++) {
-        ptr[k] = m + (rand() / (float)RAND_MAX) * nl;
+        ptr[k] = m + (rand() / static_cast<float>(RAND_MAX)) * nl;  // NOLINT
       }
       ptr += duration;
     }
@@ -301,7 +307,9 @@ DEFINE_LAYER_CREATOR(piecewise_rational_quadratic_transform_module)
 
 class OfflineTtsVitsModel::Impl {
  public:
-  Impl(const OfflineTtsModelConfig &config) : config_(config) { Init(); }
+  explicit Impl(const OfflineTtsModelConfig &config) : config_(config) {
+    Init();
+  }
 
   const OfflineTtsVitsModelMetaData &GetMetaData() const { return meta_; }
 
