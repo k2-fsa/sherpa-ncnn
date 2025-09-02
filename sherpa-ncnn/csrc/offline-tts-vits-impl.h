@@ -12,8 +12,10 @@
 #include <utility>
 #include <vector>
 
+#include "sherpa-ncnn/csrc/lexicon.h"
 #include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
+#include "sherpa-ncnn/csrc/text-utils.h"
 #if 0
 #include "fst/extensions/far/far.h"
 #include "kaldifst/csrc/kaldi-fst-io.h"
@@ -34,7 +36,11 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
  public:
   explicit OfflineTtsVitsImpl(const OfflineTtsConfig &config)
       : config_(config),
-        model_(std::make_unique<OfflineTtsVitsModel>(config.model)) {}
+        model_(std::make_unique<OfflineTtsVitsModel>(config.model)) {
+    lexicon_ =
+        std::make_unique<Lexicon>(config_.model.vits.model_dir + "/lexicon.txt",
+                                  model_->GetMetaData().token2id);
+  }
 
   int32_t SampleRate() const override {
     return model_->GetMetaData().sample_rate;
@@ -48,6 +54,19 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
                           GeneratedAudioCallback callback = nullptr,
                           void *callback_arg = nullptr) const override {
     TtsArgs args = _args;
+    if (args.text.empty() && args.tokens.empty()) {
+      SHERPA_NCNN_LOGE("Both text and tokens are empty.");
+      return {};
+    }
+
+    if (!args.text.empty() && !args.tokens.empty()) {
+      SHERPA_NCNN_LOGE("Both text and tokens are NOT empty.");
+      return {};
+    }
+
+    if (!args.text.empty()) {
+      args.tokens = Convert(args.text);
+    }
 
     const auto &meta_data = model_->GetMetaData();
     int32_t num_speakers = meta_data.num_speakers;
@@ -103,8 +122,22 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
   }
 
  private:
-  ncnn::Mat Process(const std::vector<int32_t> &tokens, float noise_scale_w,
+  ncnn::Mat Process(const std::vector<int32_t> &_tokens, float noise_scale_w,
                     float noise_scale, float speed) const {
+    // add bos, eos, and pad
+    const auto &meta = model_->GetMetaData();
+    int32_t bos = meta.bos;
+    int32_t eos = meta.eos;
+    int32_t pad = meta.pad;
+
+    std::vector<int32_t> tokens(2 * _tokens.size() + 2, pad);
+    tokens[0] = bos;
+    tokens.back() = eos;
+
+    for (int32_t i = 0; i < _tokens.size(); ++i) {
+      tokens[2 * i + 2] = _tokens[i];
+    }
+
     ncnn::Mat sequence(tokens.size(), 1);
     std::copy(tokens.begin(), tokens.end(), static_cast<int32_t *>(sequence));
 
@@ -134,9 +167,53 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     return o;
   }
 
+  std::vector<std::vector<int32_t>> Convert(const std::string &text) const {
+    std::vector<std::string> words = SplitUtf8(text);
+
+    const auto &token2id = model_->GetMetaData().token2id;
+    std::vector<std::vector<int32_t>> ans;
+    std::vector<int32_t> this_sentence;
+    std::vector<int32_t> token_ids;
+
+    int32_t space = token2id.at(" ");
+
+    for (const auto &w : words) {
+      lexicon_->TokenizeWord(w, &token_ids);
+      if (token_ids.empty()) {
+        SHERPA_NCNN_LOGE("empty ids for word %s", w.c_str());
+      }
+
+      if (!token_ids.empty()) {
+        std::ostringstream os;
+        os << w;
+        for (auto t : token_ids) {
+          os << t << " ";
+        }
+        SHERPA_NCNN_LOGE("%s", os.str().c_str());
+
+        this_sentence.insert(this_sentence.end(), token_ids.begin(),
+                             token_ids.end());
+
+        this_sentence.push_back(space);
+      } else if (token2id.count(w)) {
+        this_sentence.push_back(token2id.at(w));
+        this_sentence.push_back(space);
+
+        ans.push_back(std::move(this_sentence));
+      }
+    }
+
+    if (!this_sentence.empty()) {
+      ans.push_back(std::move(this_sentence));
+    }
+
+    return ans;
+  }
+
  private:
   OfflineTtsConfig config_;
   std::unique_ptr<OfflineTtsVitsModel> model_;
+  std::unique_ptr<Lexicon> lexicon_;
 };
 
 }  // namespace sherpa_ncnn

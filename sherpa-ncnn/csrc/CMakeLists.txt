@@ -29,6 +29,7 @@ set(sherpa_ncnn_core_srcs
 )
 
 list(APPEND sherpa_ncnn_core_srcs
+  lexicon.cc
   offline-tts-impl.cc
   offline-tts-model-config.cc
   offline-tts-vits-model-config.cc
