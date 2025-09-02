@@ -87,17 +87,6 @@ class Lexicon::Impl {
                          line.c_str());
         continue;
       }
-      static int32_t count = 0;
-      count++;
-      if (count < 10) {
-        std::ostringstream os;
-        os << word << " -> ";
-        for (auto t : token_list) {
-          os << t << " ";
-        }
-        os << "\n";
-        SHERPA_NCNN_LOGE("%s", os.str().c_str());
-      }
 
       word2token_ids_.insert({std::move(word), std::move(ids)});
     }

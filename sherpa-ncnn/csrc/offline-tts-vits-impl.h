@@ -58,7 +58,6 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
 
     const auto &meta_data = model_->GetMetaData();
     int32_t num_speakers = meta_data.num_speakers;
-    SHERPA_NCNN_LOGE("num_speakers: %d", num_speakers);
 
     if ((num_speakers == 1) && (args.sid != 0)) {
       SHERPA_NCNN_LOGE(
@@ -173,13 +172,6 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
       }
 
       if (!token_ids.empty()) {
-        std::ostringstream os;
-        os << w;
-        for (auto t : token_ids) {
-          os << t << " ";
-        }
-        SHERPA_NCNN_LOGE("%s", os.str().c_str());
-
         this_sentence.insert(this_sentence.end(), token_ids.begin(),
                              token_ids.end());
 
