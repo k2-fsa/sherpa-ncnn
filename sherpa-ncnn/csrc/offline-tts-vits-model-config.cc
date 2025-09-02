@@ -13,9 +13,6 @@ namespace sherpa_ncnn {
 
 void OfflineTtsVitsModelConfig::Register(ParseOptions *po) {
   po->Register("vits-model-dir", &model_dir, "Path to VITS model");
-  po->Register("vits-noise-scale", &noise_scale, "noise_scale for VITS models");
-  po->Register("vits-noise-scale-w", &noise_scale_w,
-               "noise_scale_w for VITS models");
 }
 
 bool OfflineTtsVitsModelConfig::Validate() const {
@@ -48,9 +45,7 @@ std::string OfflineTtsVitsModelConfig::ToString() const {
   std::ostringstream os;
 
   os << "OfflineTtsVitsModelConfig(";
-  os << "model_dir=\"" << model_dir << "\", ";
-  os << "noise_scale=" << noise_scale << ", ";
-  os << "noise_scale_w=" << noise_scale_w << ")";
+  os << "model_dir=\"" << model_dir << "\")";
 
   return os.str();
 }

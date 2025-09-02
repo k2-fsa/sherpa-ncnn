@@ -19,8 +19,8 @@ class OfflineTtsVitsModel {
   const OfflineTtsVitsModelMetaData &GetMetaData() const;
 
   /**
-   * @param x A 2-D tensor of shape (1, num_tokens). Note sequence.w ==
-   *          num_tokens
+   * @param sequence A 2-D tensor of shape (1, num_tokens). Note sequence.w ==
+   *                 num_tokens
    * @returns Return a vector with 3 tensors: x, m_p, logs_p
    */
   std::vector<ncnn::Mat> RunEncoder(const ncnn::Mat &sequence) const;

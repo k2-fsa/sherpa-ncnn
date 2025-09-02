@@ -82,7 +82,10 @@ struct TtsArgs {
   int32_t sid = 0;
 
   // The speed for the generated speech. E.g., 2 means 2x faster.
-  float speed = 1.0;
+  float speed = 1.0;  // speed = 1.0/length_scale
+
+  float noise_scale = 0.667;
+  float noise_scale_w = 0.8;
 };
 
 class OfflineTtsImpl;

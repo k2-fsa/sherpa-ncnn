@@ -4,6 +4,9 @@
 #ifndef SHERPA_NCNN_CSRC_OFFLINE_TTS_VITS_IMPL_H_
 #define SHERPA_NCNN_CSRC_OFFLINE_TTS_VITS_IMPL_H_
 
+#include <stdlib.h>
+
+#include <iostream>
 #include <memory>
 #include <string>
 #include <strstream>
@@ -158,35 +161,71 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     return model_->GetMetaData().num_speakers;
   }
 
-  GeneratedAudio Generate(const TtsArgs &args,
+  GeneratedAudio Generate(const TtsArgs &_args,
                           GeneratedAudioCallback callback = nullptr,
                           void *callback_arg = nullptr) const override {
+    TtsArgs args = _args;
+
     const auto &meta_data = model_->GetMetaData();
     int32_t num_speakers = meta_data.num_speakers;
     SHERPA_NCNN_LOGE("num_speakers: %d", num_speakers);
 
-    if (num_speakers == 0 && args.sid != 0) {
+    if ((num_speakers == 1) && (args.sid != 0)) {
       SHERPA_NCNN_LOGE(
           "This is a single-speaker model and supports only sid 0. Given sid: "
-          "%d. sid is ignored",
-          static_cast<int32_t>(args.sid));
+          "%d. sid is ignored. %d, %d, %d",
+          args.sid, (num_speakers == 1) && (args.sid != 0), num_speakers,
+          args.sid);
     }
 
-#if 0
-    if (num_speakers != 0 && (sid >= num_speakers || sid < 0)) {
-#if __OHOS__
-      SHERPA_NCNN_LOGE(
-          "This model contains only %{public}d speakers. sid should be in the "
-          "range [%{public}d, %{public}d]. Given: %{public}d. Use sid=0",
-          num_speakers, 0, num_speakers - 1, static_cast<int32_t>(sid));
-#else
+    if ((args.sid >= num_speakers) || (args.sid < 0)) {
       SHERPA_NCNN_LOGE(
           "This model contains only %d speakers. sid should be in the range "
           "[%d, %d]. Given: %d. Use sid=0",
-          num_speakers, 0, num_speakers - 1, static_cast<int32_t>(sid));
-#endif
-      sid = 0;
+          num_speakers, 0, num_speakers - 1, args.sid);
+      args.sid = 0;
     }
+
+    ncnn::Mat sequence(args.tokens[0].size(), 1);
+    std::copy(args.tokens[0].begin(), args.tokens[0].end(),
+              static_cast<int32_t *>(sequence));
+
+    auto encoder_out = model_->RunEncoder(sequence);
+    sequence.release();
+
+    ncnn::Mat noise(encoder_out[0].w, 2);
+    for (int32_t i = 0; i != noise.w * noise.h; ++i) {
+      noise[i] = rand() / (float)RAND_MAX * args.noise_scale_w;
+    }
+
+    ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise);
+
+    noise.release();
+    encoder_out[0].release();
+
+    ncnn::Mat z_p = model_->PathAttention(logw, encoder_out[1], encoder_out[2],
+                                          args.noise_scale, args.speed);
+    encoder_out.clear();
+    logw.release();
+
+    ncnn::Mat z = model_->RunFlow(z_p);
+    z_p.release();
+
+    ncnn::Mat o = model_->RunDecoder(z);
+    z.release();
+
+    std::cout << "o.dims: " << o.dims << "\n";
+    std::cout << "o.h: " << o.h << "\n";
+    std::cout << "o.w: " << o.w << "\n";
+
+    GeneratedAudio ans;
+    ans.sample_rate = meta_data.sample_rate;
+    ans.samples.resize(o.w);
+    std::copy(static_cast<const float *>(o),
+              static_cast<const float *>(o) + o.w, ans.samples.data());
+
+    return ans;
+#if 0
 
     std::string text = _text;
     if (config_.model.debug) {

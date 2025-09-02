@@ -22,18 +22,10 @@ struct OfflineTtsVitsModelConfig {
   //  - decoder.ncnn.{param,bin}
   std::string model_dir;
 
-  float noise_scale = 0.667;
-  float noise_scale_w = 0.8;
-  float length_scale = 1;
-
   OfflineTtsVitsModelConfig() = default;
 
-  OfflineTtsVitsModelConfig(const std::string &model_dir,
-                            float noise_scale = 0.667,
-                            float noise_scale_w = 0.8)
-      : model_dir(model_dir),
-        noise_scale(noise_scale),
-        noise_scale_w(noise_scale_w) {}
+  explicit OfflineTtsVitsModelConfig(const std::string &model_dir)
+      : model_dir(model_dir) {}
 
   void Register(ParseOptions *po);
   bool Validate() const;
