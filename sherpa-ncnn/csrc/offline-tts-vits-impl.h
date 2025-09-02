@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <strstream>
@@ -16,19 +17,6 @@
 #include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
 #include "sherpa-ncnn/csrc/text-utils.h"
-#if 0
-#include "fst/extensions/far/far.h"
-#include "kaldifst/csrc/kaldi-fst-io.h"
-#include "kaldifst/csrc/text-normalizer.h"
-#include "sherpa-ncnn/csrc/file-utils.h"
-#include "sherpa-ncnn/csrc/lexicon.h"
-#include "sherpa-ncnn/csrc/melo-tts-lexicon.h"
-#include "sherpa-ncnn/csrc/offline-tts-character-frontend.h"
-#include "sherpa-ncnn/csrc/offline-tts-frontend.h"
-#include "sherpa-ncnn/csrc/offline-tts-impl.h"
-#include "sherpa-ncnn/csrc/piper-phonemize-lexicon.h"
-#include "sherpa-ncnn/csrc/text-utils.h"
-#endif
 
 namespace sherpa_ncnn {
 
@@ -146,7 +134,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
 
     ncnn::Mat noise(encoder_out[0].w, 2);
     for (int32_t i = 0; i != noise.w * noise.h; ++i) {
-      noise[i] = rand() / (float)RAND_MAX * noise_scale_w;
+      noise[i] =
+          rand() / static_cast<float>(RAND_MAX) * noise_scale_w;  // NOLINT
     }
 
     ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise);
