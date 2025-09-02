@@ -34,11 +34,9 @@ std::vector<int32_t> OfflineTtsImpl::AddBlank(const std::vector<int32_t> &x,
 
 std::unique_ptr<OfflineTtsImpl> OfflineTtsImpl::Create(
     const OfflineTtsConfig &config) {
-#if 0
-  if (!config.model.vits.model.empty()) {
+  if (!config.model.vits.model_dir.empty()) {
     return std::make_unique<OfflineTtsVitsImpl>(config);
   }
-#endif
 
   SHERPA_NCNN_LOGE("Please provide a tts model.");
 

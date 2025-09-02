@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "sherpa-ncnn/csrc/macros.h"
+#include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
 #if 0
 #include "fst/extensions/far/far.h"
 #include "kaldifst/csrc/kaldi-fst-io.h"
@@ -21,7 +22,6 @@
 #include "sherpa-ncnn/csrc/offline-tts-character-frontend.h"
 #include "sherpa-ncnn/csrc/offline-tts-frontend.h"
 #include "sherpa-ncnn/csrc/offline-tts-impl.h"
-#include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
 #include "sherpa-ncnn/csrc/piper-phonemize-lexicon.h"
 #include "sherpa-ncnn/csrc/text-utils.h"
 #endif
@@ -31,11 +31,8 @@ namespace sherpa_ncnn {
 class OfflineTtsVitsImpl : public OfflineTtsImpl {
  public:
   explicit OfflineTtsVitsImpl(const OfflineTtsConfig &config)
-      : config_(config)
-#if 0
-        ,model_(std::make_unique<OfflineTtsVitsModel>(config.model))
-#endif
-  {
+      : config_(config),
+        model_(std::make_unique<OfflineTtsVitsModel>(config.model)) {
 #if 0
     InitFrontend();
 
@@ -165,7 +162,7 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
 #endif
   }
 
-  GeneratedAudio Generate(const GenerateArgs &args,
+  GeneratedAudio Generate(const TtsArgs &args,
                           GeneratedAudioCallback callback = nullptr,
                           void *callback_arg = nullptr) const override {
 #if 0
@@ -520,8 +517,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
 
  private:
   OfflineTtsConfig config_;
-#if 0
   std::unique_ptr<OfflineTtsVitsModel> model_;
+#if 0
   std::vector<std::unique_ptr<kaldifst::TextNormalizer>> tn_list_;
   std::unique_ptr<OfflineTtsFrontend> frontend_;
 #endif

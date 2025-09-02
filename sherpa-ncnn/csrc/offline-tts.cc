@@ -175,7 +175,7 @@ OfflineTts::OfflineTts(Manager *mgr, const OfflineTtsConfig &config)
 OfflineTts::~OfflineTts() = default;
 
 GeneratedAudio OfflineTts::Generate(
-    const GenerateArgs &args, GeneratedAudioCallback callback /*= nullptr*/,
+    const TtsArgs &args, GeneratedAudioCallback callback /*= nullptr*/,
     void *callback_arg /*= nullptr*/) const {
 #if !defined(_WIN32)
   return impl_->Generate(args, std::move(callback), callback_arg);

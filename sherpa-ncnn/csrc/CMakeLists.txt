@@ -32,6 +32,7 @@ list(APPEND sherpa_ncnn_core_srcs
   offline-tts-impl.cc
   offline-tts-model-config.cc
   offline-tts-vits-model-config.cc
+  offline-tts-vits-model.cc
   offline-tts.cc
 )
 
@@ -62,6 +63,10 @@ if(NOT SHERPA_NCNN_ENABLE_PYTHON)
     add_executable(sherpa-ncnn sherpa-ncnn.cc)
     target_link_libraries(sherpa-ncnn PRIVATE sherpa-ncnn-core)
     install(TARGETS sherpa-ncnn DESTINATION bin)
+
+    add_executable(sherpa-ncnn-offline-tts sherpa-ncnn-offline-tts.cc)
+    target_link_libraries(sherpa-ncnn-offline-tts PRIVATE sherpa-ncnn-core)
+    install(TARGETS sherpa-ncnn-offline-tts DESTINATION bin)
 
     add_executable(sherpa-ncnn-vad sherpa-ncnn-vad.cc)
     target_link_libraries(sherpa-ncnn-vad PRIVATE sherpa-ncnn-core)

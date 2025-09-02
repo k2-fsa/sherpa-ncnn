@@ -66,7 +66,7 @@ struct GeneratedAudio {
   GeneratedAudio ScaleSilence(float scale) const;
 };
 
-struct GenerateArgs {
+struct TtsArgs {
   // A string containing words separated by spaces
   std::string text;
 
@@ -109,7 +109,7 @@ class OfflineTts {
   //                 he/she wants to access the samples after the callback
   //                 returns. The callback is called in the current thread.
   // @param callback_arg The arg passed to callback, if callback is not NULL.
-  GeneratedAudio Generate(const GenerateArgs &args,
+  GeneratedAudio Generate(const TtsArgs &args,
                           GeneratedAudioCallback callback = nullptr,
                           void *callback_arg = nullptr) const;
 

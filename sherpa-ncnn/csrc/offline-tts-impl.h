@@ -23,7 +23,7 @@ class OfflineTtsImpl {
   static std::unique_ptr<OfflineTtsImpl> Create(Manager *mgr,
                                                 const OfflineTtsConfig &config);
 
-  virtual GeneratedAudio Generate(const GenerateArgs &args,
+  virtual GeneratedAudio Generate(const TtsArgs &args,
                                   GeneratedAudioCallback callback = nullptr,
                                   void *callback_arg = nullptr) const = 0;
 
