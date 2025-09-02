@@ -7,12 +7,18 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 
 namespace sherpa_ncnn {
 
 struct OfflineTtsVitsModelMetaData {
   int32_t num_speakers;
   int32_t sample_rate;
+  std::unordered_map<std::string, int32_t> token2id;
+
+  int32_t pad;
+  int32_t bos;
+  int32_t eos;
 };
 
 OfflineTtsVitsModelMetaData ReadFromConfigJson(const std::string& filename);
