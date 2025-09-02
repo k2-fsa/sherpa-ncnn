@@ -4,14 +4,51 @@
 
 #include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
 
+#include <math.h>
+
 #include "net.h"
 
 namespace sherpa_ncnn {
 
+// this function is is modified from nihui's implementation
 static ncnn::Mat PathAttentionImpl(const ncnn::Mat &logw, const ncnn::Mat &m_p,
                                    ncnn::Mat &logs_p, float noise_scale,
                                    float speed) {
-  return {};
+  float length_scale = 1 / speed;
+
+  const int x_lengths = logw.w;
+
+  const int depth = m_p.h;
+
+  std::vector<int> w_ceil(x_lengths);
+  int y_lengths = 0;
+  for (int i = 0; i < x_lengths; i++) {
+    w_ceil[i] = (int)ceilf(expf(logw[i]) * length_scale);
+    y_lengths += w_ceil[i];
+  }
+
+  ncnn::Mat z_p;
+
+  z_p.create(y_lengths, depth);
+
+  for (int i = 0; i < depth; i++) {
+    const float *m_p_ptr = m_p.row(i);
+    const float *logs_p_ptr = logs_p.row(i);
+    float *ptr = z_p.row(i);
+
+    for (int j = 0; j < x_lengths; j++) {
+      const float m = m_p_ptr[j];
+      const float nl = expf(logs_p_ptr[j]) * noise_scale;
+      const int duration = w_ceil[j];
+
+      for (int k = 0; k < duration; k++) {
+        ptr[k] = m + (rand() / (float)RAND_MAX) * nl;
+      }
+      ptr += duration;
+    }
+  }
+
+  return z_p;
 }
 
 // this class is written by nihui
@@ -92,6 +129,176 @@ class relative_embeddings_v_module : public ncnn::Layer {
 
 DEFINE_LAYER_CREATOR(relative_embeddings_v_module)
 
+// this class is from by nihui
+class piecewise_rational_quadratic_transform_module : public ncnn::Layer {
+ public:
+  piecewise_rational_quadratic_transform_module() { one_blob_only = false; }
+
+  virtual int forward(const std::vector<ncnn::Mat> &bottom_blobs,
+                      std::vector<ncnn::Mat> &top_blobs,
+                      const ncnn::Option &opt) const {
+    const ncnn::Mat &h = bottom_blobs[0];
+    const ncnn::Mat &x1 = bottom_blobs[1];
+    ncnn::Mat &outputs = top_blobs[0];
+
+    const int num_bins = 10;
+    const int filter_channels = 192;
+    const bool reverse = true;
+    const float tail_bound = 5.0f;
+    const float DEFAULT_MIN_BIN_WIDTH = 1e-3f;
+    const float DEFAULT_MIN_BIN_HEIGHT = 1e-3f;
+    const float DEFAULT_MIN_DERIVATIVE = 1e-3f;
+
+    // x1 shape: (w=N, h=1, c=1), h shape (w=29*N, h=1, c=1) due to Fortran
+    // layout
+    const int batch_size = x1.w;
+    const int h_params_per_item = 2 * num_bins + (num_bins - 1);  // 29
+
+    outputs = x1.clone();
+
+    float *out_ptr = outputs;
+
+    for (int i = 0; i < batch_size; ++i) {
+      const float current_x = ((const float *)x1)[i];
+
+      const float *h_data = h.row(i);
+
+      if (current_x < -tail_bound || current_x > tail_bound) {
+        continue;
+      }
+
+      std::vector<float> unnormalized_widths(num_bins);
+      std::vector<float> unnormalized_heights(num_bins);
+      std::vector<float> unnormalized_derivatives(num_bins + 1);
+
+      const float inv_sqrt_filter_channels = 1.0f / sqrtf(filter_channels);
+      for (int j = 0; j < num_bins; ++j) {
+        unnormalized_widths[j] = h_data[j] * inv_sqrt_filter_channels;
+      }
+      for (int j = 0; j < num_bins; ++j) {
+        unnormalized_heights[j] =
+            h_data[num_bins + j] * inv_sqrt_filter_channels;
+      }
+      for (int j = 0; j < num_bins - 1; ++j) {
+        unnormalized_derivatives[j + 1] = h_data[2 * num_bins + j];
+      }
+
+      const float constant = logf(expf(1.f - DEFAULT_MIN_DERIVATIVE) - 1.f);
+      unnormalized_derivatives[0] = constant;
+      unnormalized_derivatives[num_bins] = constant;
+
+      const float left = -tail_bound, right = tail_bound;
+      const float bottom = -tail_bound, top = tail_bound;
+
+      std::vector<float> widths(num_bins);
+      float w_max = -INFINITY;
+      for (float val : unnormalized_widths) w_max = std::max(w_max, val);
+      float w_sum = 0.f;
+      for (int j = 0; j < num_bins; ++j) {
+        widths[j] = expf(unnormalized_widths[j] - w_max);
+        w_sum += widths[j];
+      }
+      for (int j = 0; j < num_bins; ++j) {
+        widths[j] =
+            DEFAULT_MIN_BIN_WIDTH +
+            (1.f - DEFAULT_MIN_BIN_WIDTH * num_bins) * (widths[j] / w_sum);
+      }
+
+      std::vector<float> cumwidths(num_bins + 1);
+      cumwidths[0] = left;
+      float current_w_sum = 0.f;
+      for (int j = 0; j < num_bins - 1; ++j) {
+        current_w_sum += widths[j];
+        cumwidths[j + 1] = left + (right - left) * current_w_sum;
+      }
+      cumwidths[num_bins] = right;
+
+      std::vector<float> heights(num_bins);
+      float h_max = -INFINITY;
+      for (float val : unnormalized_heights) h_max = std::max(h_max, val);
+      float h_sum = 0.f;
+      for (int j = 0; j < num_bins; ++j) {
+        heights[j] = expf(unnormalized_heights[j] - h_max);
+        h_sum += heights[j];
+      }
+      for (int j = 0; j < num_bins; ++j) {
+        heights[j] =
+            DEFAULT_MIN_BIN_HEIGHT +
+            (1.f - DEFAULT_MIN_BIN_HEIGHT * num_bins) * (heights[j] / h_sum);
+      }
+
+      std::vector<float> cumheights(num_bins + 1);
+      cumheights[0] = bottom;
+      float current_h_sum = 0.f;
+      for (int j = 0; j < num_bins - 1; ++j) {
+        current_h_sum += heights[j];
+        cumheights[j + 1] = bottom + (top - bottom) * current_h_sum;
+      }
+      cumheights[num_bins] = top;
+
+      std::vector<float> derivatives(num_bins + 1);
+      for (int j = 0; j < num_bins + 1; ++j) {
+        float x = unnormalized_derivatives[j];
+        derivatives[j] =
+            DEFAULT_MIN_DERIVATIVE +
+            (x > 0 ? x + logf(1.f + expf(-x)) : logf(1.f + expf(x)));
+      }
+
+      int bin_idx = 0;
+      if (reverse) {
+        auto it =
+            std::upper_bound(cumheights.begin(), cumheights.end(), current_x);
+        bin_idx = std::distance(cumheights.begin(), it) - 1;
+      } else {
+        auto it =
+            std::upper_bound(cumwidths.begin(), cumwidths.end(), current_x);
+        bin_idx = std::distance(cumwidths.begin(), it) - 1;
+      }
+      bin_idx = std::max(0, std::min(bin_idx, num_bins - 1));
+
+      const float input_cumwidths = cumwidths[bin_idx];
+      const float input_bin_widths =
+          cumwidths[bin_idx + 1] - cumwidths[bin_idx];
+      const float input_cumheights = cumheights[bin_idx];
+      const float input_heights = cumheights[bin_idx + 1] - cumheights[bin_idx];
+      const float input_derivatives = derivatives[bin_idx];
+      const float input_derivatives_plus_one = derivatives[bin_idx + 1];
+      const float delta = input_heights / input_bin_widths;
+
+      if (reverse) {
+        float a =
+            (current_x - input_cumheights) *
+                (input_derivatives + input_derivatives_plus_one - 2 * delta) +
+            input_heights * (delta - input_derivatives);
+        float b =
+            input_heights * input_derivatives -
+            (current_x - input_cumheights) *
+                (input_derivatives + input_derivatives_plus_one - 2 * delta);
+        float c = -delta * (current_x - input_cumheights);
+        float discriminant = b * b - 4 * a * c;
+        discriminant = std::max(0.f, discriminant);
+        float root = (2 * c) / (-b - sqrtf(discriminant));
+        out_ptr[i] = root * input_bin_widths + input_cumwidths;
+      } else {
+        float theta = (current_x - input_cumwidths) / input_bin_widths;
+        float theta_one_minus_theta = theta * (1 - theta);
+        float numerator =
+            input_heights *
+            (delta * theta * theta + input_derivatives * theta_one_minus_theta);
+        float denominator =
+            delta +
+            ((input_derivatives + input_derivatives_plus_one - 2 * delta) *
+             theta_one_minus_theta);
+        out_ptr[i] = input_cumheights + numerator / denominator;
+      }
+    }
+
+    return 0;
+  }
+};
+
+DEFINE_LAYER_CREATOR(piecewise_rational_quadratic_transform_module)
+
 class OfflineTtsVitsModel::Impl {
  public:
   Impl(const OfflineTtsModelConfig &config) : config_(config) { InitNet(); }
@@ -127,6 +334,7 @@ class OfflineTtsVitsModel::Impl {
   void InitNet() { InitEncoderNet(); }
 
   void InitEncoderNet() {
+    // TODO(fangjun): change the module name
     enc_p_.register_custom_layer("en_enc_p_pnnx.relative_embeddings_k_module",
                                  relative_embeddings_k_module_layer_creator);
     enc_p_.register_custom_layer("en_enc_p_pnnx.relative_embeddings_v_module",
