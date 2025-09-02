@@ -54,6 +54,8 @@ function(download_ncnn)
   set(NCNN_PIXEL_AFFINE OFF CACHE BOOL "" FORCE)
   set(NCNN_PIXEL_DRAWING OFF CACHE BOOL "" FORCE)
   set(NCNN_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
+  set(NCNN_C_API OFF CACHE BOOL "" FORCE)
+  set(NCNN_INSTALL_SDK OFF CACHE BOOL "" FORCE)
 
   set(NCNN_SHARED_LIB ${BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
@@ -144,11 +146,11 @@ function(download_ncnn)
     Swish
     # Gemm
     GroupNorm
-    LayerNorm
+    # LayerNorm
     Softplus
     GRU
     MultiHeadAttention
-    GELU
+    # GELU
     # Convolution1D
     Pooling1D
     # ConvolutionDepthWise1D
@@ -156,7 +158,7 @@ function(download_ncnn)
     ConvolutionDepthWise3D
     Pooling3D
     # MatMul
-    Deconvolution1D
+    # Deconvolution1D
     # DeconvolutionDepthWise1D
     Deconvolution3D
     DeconvolutionDepthWise3D

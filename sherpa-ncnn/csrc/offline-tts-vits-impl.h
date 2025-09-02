@@ -151,38 +151,28 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
   }
 
   int32_t SampleRate() const override {
-#if 0
     return model_->GetMetaData().sample_rate;
-#endif
   }
 
   int32_t NumSpeakers() const override {
-#if 0
     return model_->GetMetaData().num_speakers;
-#endif
   }
 
   GeneratedAudio Generate(const TtsArgs &args,
                           GeneratedAudioCallback callback = nullptr,
                           void *callback_arg = nullptr) const override {
-#if 0
     const auto &meta_data = model_->GetMetaData();
     int32_t num_speakers = meta_data.num_speakers;
+    SHERPA_NCNN_LOGE("num_speakers: %d", num_speakers);
 
-    if (num_speakers == 0 && sid != 0) {
-#if __OHOS__
-      SHERPA_NCNN_LOGE(
-          "This is a single-speaker model and supports only sid 0. Given sid: "
-          "%{public}d. sid is ignored",
-          static_cast<int32_t>(sid));
-#else
+    if (num_speakers == 0 && args.sid != 0) {
       SHERPA_NCNN_LOGE(
           "This is a single-speaker model and supports only sid 0. Given sid: "
           "%d. sid is ignored",
-          static_cast<int32_t>(sid));
-#endif
+          static_cast<int32_t>(args.sid));
     }
 
+#if 0
     if (num_speakers != 0 && (sid >= num_speakers || sid < 0)) {
 #if __OHOS__
       SHERPA_NCNN_LOGE(

@@ -32,6 +32,7 @@ list(APPEND sherpa_ncnn_core_srcs
   offline-tts-impl.cc
   offline-tts-model-config.cc
   offline-tts-vits-model-config.cc
+  offline-tts-vits-model-meta-data.cc
   offline-tts-vits-model.cc
   offline-tts.cc
 )

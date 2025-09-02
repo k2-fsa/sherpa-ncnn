@@ -85,6 +85,10 @@ or details.
   const auto begin = std::chrono::steady_clock::now();
   sherpa_ncnn::TtsArgs args;
   args.text = po.GetArg(1);
+  args.tokens = std::vector<std::vector<int32_t>>{
+      {1,   0, 20,  0, 121, 0, 14,  0, 100, 0, 3,   0, 51, 0,
+       122, 0, 88,  0, 3,   0, 22,  0, 33,  0, 122, 0, 3,  0,
+       17,  0, 120, 0, 33,  0, 122, 0, 74,  0, 44,  2}};
   args.sid = sid;
   args.speed = 1.0;
   auto audio = tts.Generate(args, AudioCallback);

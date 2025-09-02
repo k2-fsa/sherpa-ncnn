@@ -301,7 +301,7 @@ DEFINE_LAYER_CREATOR(piecewise_rational_quadratic_transform_module)
 
 class OfflineTtsVitsModel::Impl {
  public:
-  Impl(const OfflineTtsModelConfig &config) : config_(config) { InitNet(); }
+  Impl(const OfflineTtsModelConfig &config) : config_(config) { Init(); }
 
   const OfflineTtsVitsModelMetaData &GetMetaData() const { return meta_; }
 
@@ -357,6 +357,11 @@ class OfflineTtsVitsModel::Impl {
   }
 
  private:
+  void Init() {
+    InitNet();
+    meta_ = ReadFromConfigJson(config_.vits.model_dir + "/config.json");
+  }
+
   void InitNet() {
     InitEncoderNet();
     InitDurationPredictorNet();
