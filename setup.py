@@ -11,8 +11,12 @@ from cmake.cmake_extension import (
     BuildExtension,
     bdist_wheel,
     cmake_extension,
+    is_macos_x64,
     is_windows,
 )
+
+if is_macos_x64():
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.15"
 
 
 def read_long_description():

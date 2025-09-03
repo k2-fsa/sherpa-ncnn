@@ -1,14 +1,14 @@
 from pathlib import Path
 
 import numpy as np
-from _sherpa_ncnn import (
+from sherpa_ncnn.lib._sherpa_ncnn import (
     DecoderConfig,
     EndpointConfig,
     FeatureExtractorConfig,
     ModelConfig,
 )
-from _sherpa_ncnn import Recognizer as _Recognizer
-from _sherpa_ncnn import RecognizerConfig
+from sherpa_ncnn.lib._sherpa_ncnn import Recognizer as _Recognizer
+from sherpa_ncnn.lib._sherpa_ncnn import RecognizerConfig
 
 
 def _assert_file_exists(f: str):

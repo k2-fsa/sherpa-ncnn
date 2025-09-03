@@ -1,33 +1,33 @@
 function(download_kaldi_native_fbank)
   include(FetchContent)
 
-  # Please also change ../pack-for-embedded-systems.sh
-  set(kaldi_native_fbank_URL   "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.21.3.tar.gz")
-  set(kaldi_native_fbank_URL2  "https://hf-mirror.com/csukuangfj/sherpa-onnx-cmake-deps/resolve/main/kaldi-native-fbank-1.21.3.tar.gz")
-  set(kaldi_native_fbank_HASH "SHA256=d409eddae5a46dc796f0841880f489ff0728b96ae26218702cd438c28667c70e")
+  set(kaldi_native_fbank_URL   "https://github.com/csukuangfj/kaldi-native-fbank/archive/refs/tags/v1.21.5.tar.gz")
+  set(kaldi_native_fbank_URL2  "https://hf-mirror.com/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/kaldi-native-fbank-1.21.5.tar.gz")
+  set(kaldi_native_fbank_HASH "SHA256=499966d4cdeb05060df2b26a0c171f92a6a2a119e7747b69e621e62c7fad0e9c")
 
-  # If you don't have access to the Internet, please download it to your
-  # local drive and modify the following line according to your needs.
+  set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  set(KALDI_NATIVE_FBANK_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
+  set(KALDI_NATIVE_FBANK_ENABLE_CHECK OFF CACHE BOOL "" FORCE)
+
+  # If you don't have access to the Internet,
+  # please pre-download kaldi-native-fbank
   set(possible_file_locations
-    $ENV{HOME}/Downloads/kaldi-native-fbank-1.21.3.tar.gz
-    $ENV{HOME}/asr/kaldi-native-fbank-1.21.3.tar.gz
-    ${PROJECT_SOURCE_DIR}/kaldi-native-fbank-1.21.3.tar.gz
-    ${PROJECT_BINARY_DIR}/kaldi-native-fbank-1.21.3.tar.gz
-    /tmp/kaldi-native-fbank-1.21.3.tar.gz
+    $ENV{HOME}/Downloads/kaldi-native-fbank-1.21.5.tar.gz
+    ${CMAKE_SOURCE_DIR}/kaldi-native-fbank-1.21.5.tar.gz
+    ${CMAKE_BINARY_DIR}/kaldi-native-fbank-1.21.5.tar.gz
+    /tmp/kaldi-native-fbank-1.21.5.tar.gz
+    /star-fj/fangjun/download/github/kaldi-native-fbank-1.21.5.tar.gz
   )
 
   foreach(f IN LISTS possible_file_locations)
     if(EXISTS ${f})
       set(kaldi_native_fbank_URL  "${f}")
       file(TO_CMAKE_PATH "${kaldi_native_fbank_URL}" kaldi_native_fbank_URL)
-      set(kaldi_native_fbank_URL2)
+      message(STATUS "Found local downloaded kaldi-native-fbank: ${kaldi_native_fbank_URL}")
+      set(kaldi_native_fbank_URL2 )
       break()
     endif()
   endforeach()
-
-  set(KALDI_NATIVE_FBANK_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(KALDI_NATIVE_FBANK_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
-  set(KALDI_NATIVE_FBANK_ENABLE_CHECK OFF CACHE BOOL "" FORCE)
 
   FetchContent_Declare(kaldi_native_fbank
     URL
@@ -44,18 +44,31 @@ function(download_kaldi_native_fbank)
   message(STATUS "kaldi-native-fbank is downloaded to ${kaldi_native_fbank_SOURCE_DIR}")
   message(STATUS "kaldi-native-fbank's binary dir is ${kaldi_native_fbank_BINARY_DIR}")
 
+  if(BUILD_SHARED_LIBS)
+    set(_build_shared_libs_bak ${BUILD_SHARED_LIBS})
+    set(BUILD_SHARED_LIBS OFF)
+  endif()
+
   add_subdirectory(${kaldi_native_fbank_SOURCE_DIR} ${kaldi_native_fbank_BINARY_DIR} EXCLUDE_FROM_ALL)
-  if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
-    install(TARGETS kaldi-native-fbank-core kissfft DESTINATION ..)
-  else()
-    install(TARGETS kaldi-native-fbank-core kissfft DESTINATION lib)
+
+  if(_build_shared_libs_bak)
+    set_target_properties(kaldi-native-fbank-core
+      PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        C_VISIBILITY_PRESET hidden
+        CXX_VISIBILITY_PRESET hidden
+    )
+    set(BUILD_SHARED_LIBS ON)
   endif()
 
   target_include_directories(kaldi-native-fbank-core
     INTERFACE
       ${kaldi_native_fbank_SOURCE_DIR}/
   )
+
+  if(NOT BUILD_SHARED_LIBS)
+    install(TARGETS kaldi-native-fbank-core kissfft DESTINATION lib)
+  endif()
 endfunction()
 
 download_kaldi_native_fbank()
-

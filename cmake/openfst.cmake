@@ -103,9 +103,7 @@ function(download_openfst)
     PUBLIC
       ${openfst_SOURCE_DIR}/src/include
   )
-  if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
-    install(TARGETS fst fstfar DESTINATION ..)
-  else()
+  if(NOT BUILD_SHARED_LIBS)
     install(TARGETS fst fstfar DESTINATION lib)
   endif()
 endfunction()

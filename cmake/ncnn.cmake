@@ -197,11 +197,7 @@ function(download_ncnn)
   message(STATUS "ncnn's binary dir is ${ncnn_BINARY_DIR}")
 
   add_subdirectory(${ncnn_SOURCE_DIR} ${ncnn_BINARY_DIR} EXCLUDE_FROM_ALL)
-  if(SHERPA_NCNN_ENABLE_PYTHON AND WIN32)
-    install(TARGETS ncnn DESTINATION ..)
-  else()
-    install(TARGETS ncnn DESTINATION lib)
-  endif()
+  install(TARGETS ncnn DESTINATION lib)
 endfunction()
 
 download_ncnn()
