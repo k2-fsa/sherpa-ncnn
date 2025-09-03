@@ -5,13 +5,13 @@ on:
     branches:
       - master
       - tts-ci
-    paths:
-      - '.github/workflows/linux.yaml'
-      - '.github/scripts/run-test.sh'
-      - '.github/scripts/test-vad.sh'
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'sherpa-ncnn/csrc/*'
+    # paths:
+    #   - '.github/workflows/linux.yaml'
+    #   - '.github/scripts/run-test.sh'
+    #   - '.github/scripts/test-vad.sh'
+    #   - 'CMakeLists.txt'
+    #   - 'cmake/**'
+    #   - 'sherpa-ncnn/csrc/*'
   pull_request:
     branches:
       - master
@@ -96,9 +96,23 @@ jobs:
 
           cd build
 
+          cmake --build . --config Release -j2
           cmake  --build . --config Release --target install -j2
 
-      - name: Display build output
+      - name: Display build output (build)
+        shell: bash
+        run: |
+          ls -lh build/*
+
+          echo "---build/bin/"
+
+          ls -lh build/bin/
+
+          echo "---build/lib/"
+
+          ls -lh build/lib/
+
+      - name: Display build output (install)
         shell: bash
         run: |
           ls -lh build/install/*
@@ -132,7 +146,7 @@ jobs:
       - name: Test vad
         shell: bash
         run: |
-          export PATH=$PWD/build/install/bin:$PATH
+          export PATH=$PWD/build/bin:$PATH
           export EXE=sherpa-ncnn-vad
 
           .github/scripts/test-vad.sh
@@ -140,7 +154,7 @@ jobs:
       - name: Test sherpa-ncnn
         shell: bash
         run: |
-          export PATH=$PWD/build/install/bin:$PATH
+          export PATH=$PWD/build/bin:$PATH
           export EXE=sherpa-ncnn
 
           .github/scripts/run-test.sh
@@ -148,7 +162,7 @@ jobs:
       - name: Test C API
         shell: bash
         run: |
-          export PATH=$PWD/build/install/bin:$PATH
+          export PATH=$PWD/build/bin:$PATH
           export EXE=decode-file-c-api
 
           .github/scripts/run-test.sh
