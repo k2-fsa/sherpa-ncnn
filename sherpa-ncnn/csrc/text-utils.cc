@@ -403,59 +403,39 @@ void ToLowerCase(std::string *in_out) {
 
 std::wstring ToLowerCase(const std::wstring &s) {
   std::wstring ans(s.size(), 0);
+
+  // clang-format off
+  static std::unordered_map<wchar_t, wchar_t> up2low = {
+    {L'À', L'à'},
+    {L'Â', L'â'},
+    {L'Æ', L'æ'},
+    {L'Ç', L'ç'},
+    {L'È', L'è'},
+    {L'É', L'é'},
+    {L'Ë', L'ë'},
+    {L'Î', L'î'},
+    {L'Ï', L'ï'},
+    {L'Ô', L'ô'},
+    {L'Ù', L'ù'},
+    {L'Û', L'û'},
+    {L'Ü',L'ü' },
+    {L'Á', L'á'},
+    {L'Í', L'í'},
+    {L'Ó', L'ó'},
+    {L'Ú', L'ú'},
+    {L'Ñ',L'ñ' },
+    {L'Ì', L'ì'},
+    {L'Ò', L'ò'},
+    {L'Ä', L'ä'},
+    {L'Ö', L'ö'},
+  };
+  // clang-format on
+
   std::transform(s.begin(), s.end(), ans.begin(), [](wchar_t c) -> wchar_t {
-    switch (c) {
-      // French
-      case L'À':
-        return L'à';
-      case L'Â':
-        return L'â';
-      case L'Æ':
-        return L'æ';
-      case L'Ç':
-        return L'ç';
-      case L'È':
-        return L'è';
-      case L'É':
-        return L'é';
-      case L'Ë':
-        return L'ë';
-      case L'Î':
-        return L'î';
-      case L'Ï':
-        return L'ï';
-      case L'Ô':
-        return L'ô';
-      case L'Ù':
-        return L'ù';
-      case L'Û':
-        return L'û';
-      case L'Ü':
-        return L'ü';
-
-      // others
-      case L'Á':
-        return L'á';
-      case L'Í':
-        return L'í';
-      case L'Ó':
-        return L'ó';
-      case L'Ú':
-        return L'ú';
-      case L'Ñ':
-        return L'ñ';
-      case L'Ì':
-        return L'ì';
-      case L'Ò':
-        return L'ò';
-      case L'Ä':
-        return L'ä';
-      case L'Ö':
-        return L'ö';
-        // TODO(fangjun): Add more
-
-      default:
-        return std::towlower(c);
+    if (up2low.count(c)) {
+      return up2low.at(c);
+    } else {
+      return std::towlower(c);
     }
   });
   return ans;
@@ -669,8 +649,7 @@ std::string Gb2312ToUtf8(const std::string &text) {
 
   std::wstring wstr;
   wstr.resize(num_wchars);
-  MultiByteToWideChar(936, 0, text.c_str(), text.size(), &wstr[0],
-                      num_wchars);
+  MultiByteToWideChar(936, 0, text.c_str(), text.size(), &wstr[0], num_wchars);
   // https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-widechartomultibyte
   int32_t num_chars = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr,
                                           0, nullptr, nullptr);
@@ -679,8 +658,8 @@ std::string Gb2312ToUtf8(const std::string &text) {
   }
 
   std::string ans(num_chars, 0);
-  WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &ans[0], num_chars,
-                      nullptr, nullptr);
+  WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &ans[0], num_chars, nullptr,
+                      nullptr);
 
   return ans;
 }

@@ -10,6 +10,7 @@ set(sherpa_ncnn_core_srcs
   greedy-search-decoder.cc
   hypothesis.cc
   lstm-model.cc
+  math.cc
   meta-data.cc
   model.cc
   modified-beam-search-decoder.cc

@@ -9,12 +9,12 @@
 #include <algorithm>
 #include <memory>
 #include <string>
-#include <strstream>
 #include <utility>
 #include <vector>
 
 #include "sherpa-ncnn/csrc/lexicon.h"
 #include "sherpa-ncnn/csrc/macros.h"
+#include "sherpa-ncnn/csrc/math.h"
 #include "sherpa-ncnn/csrc/offline-tts-vits-model.h"
 #include "sherpa-ncnn/csrc/text-utils.h"
 
@@ -132,10 +132,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     sequence.release();
 
     ncnn::Mat noise(encoder_out[0].w, 2);
-    for (int32_t i = 0; i != noise.w * noise.h; ++i) {
-      noise[i] =
-          rand() / static_cast<float>(RAND_MAX) * noise_scale_w;  // NOLINT
-    }
+    RandomVectorFill(static_cast<float *>(noise), noise.w * noise.h, 0,
+                     noise_scale_w);
 
     ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise);
 

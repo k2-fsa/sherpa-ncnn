@@ -1,0 +1,168 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+      - tts-ci
+    paths:
+      - '.github/workflows/build.yaml'
+      - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/build.yaml'
+      - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+
+          - os: ubuntu-24.04-arm
+            arch: arm64
+
+          - os: macos-latest
+            arch: arm64
+
+          - os: macos-13
+            arch: x64
+
+          - os: windows-latest
+            arch: x86
+
+          - os: windows-latest
+            arch: x64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-build
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          if [[ ${{ matrix.os }} == 'windows-latest' && ${{ matrix.arch }} == 'x86' ]]; then
+            extra_opts="-A Win32"
+          else
+            extra_opts=""
+          fi
+
+          mkdir build
+          cd build
+          cmake "$extra_opts" \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES=OFF \
+            -D CMAKE_INSTALL_PREFIX=./install \
+            ..
+
+      - name: Build sherpa-ncnn for ${{ matrix.os }} ${{ matrix.arch }}
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
+          cd build
+
+          cmake --build . --config Release -j2
+          cmake  --build . --config Release --target install -j2
+
+      - name: Display build output (build)
+        shell: bash
+        run: |
+          ls -lh build/*
+
+          echo "---build/bin/"
+
+          ls -lh build/bin/
+
+          echo "---build/lib/"
+
+          ls -lh build/lib/
+
+      - name: Display build output (install)
+        shell: bash
+        run: |
+          ls -lh build/install/*
+
+      - name: Test tts
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/tts-models/ncnn-vits-piper-en_US-amy-low.tar.bz2
+          tar xvf ncnn-vits-piper-en_US-amy-low.tar.bz2
+          rm ncnn-vits-piper-en_US-amy-low.tar.bz2
+          ls -lh ncnn-vits-piper-en_US-amy-low
+
+          ./build/install/bin/sherpa-ncnn-offline-tts \
+              --num-threads=1 \
+              --vits-model-dir=./ncnn-vits-piper-en_US-amy-low/  \
+              "And so, my fellow Americans: ask not what your country can do for you; ask what you can do for your country. My fellow citizens of the world: ask not what America will do for you, but what together we can do for the freedom of man"
+
+      - name: Display tts wav
+        shell: bash
+        run: |
+          ls -lh generated.wav
+          mv generated.wav ${{ matrix.os }}-${{ matrix.arch }}.wav
+          ls -lh *.wav
+
+      - name: Upload tts wav
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.arch }}
+          path: ./*.wav
+
+      - name: Test vad
+        shell: bash
+        run: |
+          export PATH=$PWD/build/bin:$PATH
+          export EXE=sherpa-ncnn-vad
+
+          .github/scripts/test-vad.sh
+
+      - name: Test sherpa-ncnn
+        shell: bash
+        run: |
+          export PATH=$PWD/build/bin:$PATH
+          export EXE=sherpa-ncnn
+
+          .github/scripts/run-test.sh
+
+      - name: Test C API
+        shell: bash
+        run: |
+          export PATH=$PWD/build/bin:$PATH
+          export EXE=decode-file-c-api
+
+          .github/scripts/run-test.sh
