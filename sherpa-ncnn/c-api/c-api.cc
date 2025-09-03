@@ -26,6 +26,11 @@
 #include "sherpa-ncnn/csrc/display.h"
 #include "sherpa-ncnn/csrc/model.h"
 #include "sherpa-ncnn/csrc/recognizer.h"
+#include "sherpa-ncnn/csrc/version.h"
+
+const char *SherpaNcnnGetVersionStr() { return sherpa_ncnn::GetVersionStr(); }
+const char *SherpaNcnnGetGitSha1() { return sherpa_ncnn::GetGitSha1(); }
+const char *SherpaNcnnGetGitDate() { return sherpa_ncnn::GetGitDate(); }
 
 struct SherpaNcnnRecognizer {
   std::unique_ptr<sherpa_ncnn::Recognizer> recognizer;

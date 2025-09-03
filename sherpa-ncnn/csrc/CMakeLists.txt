@@ -24,6 +24,7 @@ set(sherpa_ncnn_core_srcs
   symbol-table.cc
   tensorasstrided.cc
   text-utils.cc
+  version.cc
   wave-reader.cc
   wave-writer.cc
   zipformer-model.cc
@@ -63,6 +64,9 @@ if(SHERPA_NCNN_ENABLE_BINARY)
   add_executable(sherpa-ncnn sherpa-ncnn.cc)
   add_executable(sherpa-ncnn-offline-tts sherpa-ncnn-offline-tts.cc)
   add_executable(sherpa-ncnn-vad sherpa-ncnn-vad.cc)
+
+  add_executable(sherpa-ncnn-version sherpa-ncnn-version.cc version.cc)
+  install(TARGETS sherpa-ncnn-version DESTINATION bin)
 
   set(main_exes
     sherpa-ncnn
@@ -109,7 +113,7 @@ if(SHERPA_NCNN_ENABLE_BINARY)
 
       if(SHERPA_NCNN_ENABLE_PYTHON)
         target_link_libraries(${exe} "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/../lib/python${PYTHON_VERSION}/site-packages/sherpa_ncnn/lib")
-      elseif(SHERPA_NCNN_SPLIT_PYTHON_PACKAGE)
+      else()
         foreach(ver in ITEMS 3.8 3.9 3.10 3.11 3.12 3.13 3.14)
           target_link_libraries(${exe} "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/../lib/python${ver}/site-packages/sherpa_ncnn/lib")
         endforeach()

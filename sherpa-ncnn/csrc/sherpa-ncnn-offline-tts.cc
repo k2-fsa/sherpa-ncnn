@@ -27,7 +27,7 @@ wget https://github.com/k2-fsa/sherpa-ncnn/releases/download/tts-models/ncnn-vit
 tar xf ncnn-vits-piper-en_US-amy-low.tar.bz2
 
 ./bin/sherpa-ncnn-offline-tts \
- --vits-model-dir=./vits-piper-en_US-amy-low \
+ --vits-model-dir=./ncnn-vits-piper-en_US-amy-low \
  --output-filename=./generated.wav \
  "Today as always, men fall into two groups: slaves and free men. Whoever does not have two-thirds of his day for himself, is a slave, whatever he may be: a statesman, a businessman, an official, or a scholar."
 

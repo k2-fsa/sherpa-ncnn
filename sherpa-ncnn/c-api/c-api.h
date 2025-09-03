@@ -44,7 +44,7 @@ extern "C" {
 #define SHERPA_NCNN_IMPORT
 #endif
 #else  // WIN32
-#define SHERPA_NCNN_EXPORT
+#define SHERPA_NCNN_EXPORT __attribute__((visibility("default")))
 #define SHERPA_NCNN_IMPORT SHERPA_NCNN_EXPORT
 #endif
 
@@ -53,6 +53,30 @@ extern "C" {
 #else
 #define SHERPA_NCNN_API SHERPA_NCNN_IMPORT
 #endif
+
+// Please don't free the returned pointer.
+// Please don't modify the memory pointed by the returned pointer.
+//
+// The memory pointed by the returned pointer is statically allocated.
+//
+// Example return value: "1.12.1"
+SHERPA_NCNN_API const char *SherpaNcnnGetVersionStr();
+
+// Please don't free the returned pointer.
+// Please don't modify the memory pointed by the returned pointer.
+//
+// The memory pointed by the returned pointer is statically allocated.
+//
+// Example return value: "6982b86c"
+SHERPA_NCNN_API const char *SherpaNcnnGetGitSha1();
+
+// Please don't free the returned pointer.
+// Please don't modify the memory pointed by the returned pointer.
+//
+// The memory pointed by the returned pointer is statically allocated.
+//
+// Example return value: "Fri Jun 20 11:22:52 2025"
+SHERPA_NCNN_API const char *SherpaNcnnGetGitDate();
 
 /// Please refer to
 /// https://k2-fsa.github.io/sherpa/ncnn/pretrained_models/index.html

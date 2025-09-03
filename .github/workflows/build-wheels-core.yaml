@@ -1,0 +1,581 @@
+name: build-wheels-core
+
+on:
+  push:
+    branches:
+      - wheel-bins
+      - wheel
+    tags:
+      - '*'
+  workflow_dispatch:
+
+env:
+  SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1
+
+
+concurrency:
+  group: build-wheels-core-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core_linux:
+    name: core ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - name: Build sherpa-ncnn
+        uses: addnab/docker-run-action@v3
+        with:
+            image: quay.io/pypa/manylinux2014_${{ matrix.arch }}
+            options: |
+              --volume ${{ github.workspace }}/:/home/runner/work/sherpa-ncnn/sherpa-ncnn
+            shell: bash
+            run: |
+              uname -a
+              gcc --version
+              cmake --version
+              cat /etc/*release
+              id
+              pwd
+
+              cd /home/runner/work/sherpa-ncnn/sherpa-ncnn
+
+              find /opt -name "python*"
+
+              echo "--------------------"
+              export PATH=/opt/_internal/cpython-3.10.18/bin:$PATH
+              which python3
+              python3 --version
+
+              python3 -m venv my
+
+              source ./my/bin/activate
+
+              python3 -m pip install setuptools wheel twine
+
+              git clone --depth 1 --branch v1.2.12 https://github.com/alsa-project/alsa-lib
+              pushd alsa-lib
+              ./gitcompile
+              popd
+
+              export CPLUS_INCLUDE_PATH=$PWD/alsa-lib/include:$CPLUS_INCLUDE_PATH
+              export SHERPA_NCNN_ALSA_LIB_DIR=$PWD/alsa-lib/src/.libs
+
+              mkdir build
+              pushd build
+
+              cmake \
+                -D BUILD_SHARED_LIBS=ON \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D SHERPA_NCNN_ENABLE_BINARY=ON \
+                -D CMAKE_INSTALL_PREFIX=./install \
+                ..
+
+              make -j2
+              make install
+
+              ls -lh lib
+              ls -lh bin
+
+              echo "----"
+              ls -lh install/lib
+
+              echo "----"
+              ls -lh install/bin
+
+              echo 'sherpa-ncnn-core'
+              mkdir -p ../scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+              cp -v ./install/lib/lib*.so ../scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+
+              mkdir -p ../scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+              cp -v ./install/include/sherpa-ncnn/c-api/*.h ../scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+
+              pushd ../scripts/wheel/sherpa-ncnn-core
+              python3 setup.py bdist_wheel --plat-name=manylinux2014_${{ matrix.arch }}
+
+              ls -lh dist
+              unzip -l dist/*.whl
+
+              popd
+
+              echo 'sherpa-ncnn-bin'
+
+              mkdir -p ../scripts/wheel/sherpa-ncnn-bin/bin
+              cp -v ./install/bin/sherpa-ncnn* ../scripts/wheel/sherpa-ncnn-bin/bin
+
+              pushd ../scripts/wheel/sherpa-ncnn-bin
+              python3 setup.py bdist_wheel --plat-name=manylinux2014_${{ matrix.arch }}
+
+              ls -lh dist
+              unzip -l dist/*.whl
+
+              popd
+
+      - name: Collect wheels
+        shell: bash
+        run: |
+          sudo chown -R $USER ./scripts/wheel
+          mkdir wheelhouse
+          cp -v ./scripts/wheel/sherpa-ncnn-core/dist/*.whl ./wheelhouse
+          cp -v ./scripts/wheel/sherpa-ncnn-bin/dist/*.whl ./wheelhouse
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-core-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./wheelhouse/*.whl
+
+      - name: Show wheels
+        shell: bash
+        run: |
+          sudo chown -R $USER ./scripts/wheel
+          ls -lh ./scripts/wheel/sherpa-ncnn-core/dist
+          ls -lh ./scripts/wheel/sherpa-ncnn-bin/dist
+
+          unzip -l ./scripts/wheel/sherpa-ncnn-core/dist/*.whl
+          echo "---"
+          unzip -l ./scripts/wheel/sherpa-ncnn-bin/dist/*.whl
+
+      - name: Install patchelf
+        shell: bash
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -q -y patchelf
+          patchelf --help
+
+      - name: Patch wheels
+        shell: bash
+        run: |
+          mkdir ./wheels
+          sudo ./scripts/wheel/patch_wheel.py --in-dir ./wheelhouse --out-dir ./wheels
+
+          ls -lh ./wheels/
+          rm -rf ./wheelhouse
+          mv ./wheels ./wheelhouse
+
+      - name: Display wheels after patchelf
+        shell: bash
+        run: |
+          cd ./wheelhouse
+          ls -lh *.whl
+
+          unzip sherpa_ncnn_core*.whl
+          unzip sherpa_ncnn_bin*.whl
+
+          echo "---lib---"
+          ls -lh sherpa_ncnn/lib
+
+          echo "---bin---"
+          ls -lh sherpa_ncnn_bin-*.data/data/bin/
+
+          readelf -d sherpa_ncnn_bin-*.data/data/bin/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-core-${{ matrix.os }}-${{ matrix.arch }}-patched
+          path: ./wheelhouse/*.whl
+
+      - name: Test
+        shell: bash
+        run: |
+          python3 -m pip install ./wheelhouse/*.whl
+
+          which sherpa-ncnn-offline-tts
+
+          which sherpa-ncnn-version
+          sherpa-ncnn-version
+
+          sherpa-ncnn-offline-tts --help
+
+      - name: Publish wheels to PyPI
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine==5.0.0 setuptools
+
+          twine upload ./wheelhouse/*.whl
+
+  core_macos:
+    name: core ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-13
+            arch: x86_64
+
+          - os: macos-latest
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python3 -m pip install setuptools wheel twine
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-sherpa-ncnn-core-${{ matrix.arch }}
+
+      - name: Configure CMake ${{ matrix.os }} ${{ matrix.arch }}
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          mkdir build
+          cd build
+
+          cmake \
+            -D CMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
+            -D BUILD_SHARED_LIBS=ON \
+            -D SHERPA_NCNN_ENABLE_BINARY=ON \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_OSX_ARCHITECTURES='x86_64' \
+            -D CMAKE_INSTALL_PREFIX=./install \
+            ..
+
+      - name: Configure CMake ${{ matrix.os }} ${{ matrix.arch }}
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          mkdir build
+          cd build
+
+          cmake \
+            -D BUILD_SHARED_LIBS=ON \
+            -D SHERPA_NCNN_ENABLE_BINARY=ON \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_OSX_ARCHITECTURES='arm64' \
+            -D CMAKE_INSTALL_PREFIX=./install \
+            ..
+
+      - name: Build sherpa-ncnn for ${{ matrix.os }} ${{ matrix.arch }}
+        shell: bash
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
+          cd build
+          make -j2
+          make install
+
+          ls -lh lib
+          ls -lh bin
+
+      - name: Copy files
+        shell: bash
+        run: |
+          echo 'sherpa-ncnn-core'
+          mkdir -p scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+          cp -v ./build/install/lib/lib* ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+
+          mkdir -p ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+          cp -v ./build/install/include/sherpa-ncnn/c-api/*.h ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+
+          echo 'sherpa-ncnn-bin'
+
+          mkdir -p ./scripts/wheel/sherpa-ncnn-bin/bin
+          cp -v ./build/install/bin/sherpa-ncnn* ./scripts/wheel/sherpa-ncnn-bin/bin
+
+      - name: Build sherpa-ncnn-core
+        shell: bash
+        run: |
+          pushd ./scripts/wheel/sherpa-ncnn-core
+          if [[ ${{ matrix.arch }} == 'x86_64' ]]; then
+            python3 setup.py bdist_wheel --plat-name=macosx_10_15_x86_64
+          else
+            python3 setup.py bdist_wheel --plat-name=macosx_11_0_arm64
+          fi
+
+          ls -lh dist
+          unzip -l dist/*.whl
+          mkdir t
+
+          cd t
+
+          unzip ../dist/*.whl
+
+          ls -lh sherpa_ncnn/lib/
+
+          popd
+
+      - name: Build sherpa-ncnn-bin
+        shell: bash
+        run: |
+          pushd ./scripts/wheel/sherpa-ncnn-bin
+
+          if [[ ${{ matrix.arch }} == 'x86_64' ]]; then
+            python3 setup.py bdist_wheel --plat-name=macosx_10_15_x86_64
+          else
+            python3 setup.py bdist_wheel --plat-name=macosx_11_0_arm64
+          fi
+
+          ls -lh dist
+          unzip -l dist/*.whl
+
+          mkdir t
+          cd t
+
+          unzip ../dist/*.whl
+
+          ls -lh sherpa_ncnn_bin-*.data/data/bin/*
+
+          popd
+
+      - name: Collect wheels
+        shell: bash
+        run: |
+          cp -v ./scripts/wheel/sherpa-ncnn-core/dist/*.whl .
+          cp -v ./scripts/wheel/sherpa-ncnn-bin/dist/*.whl .
+
+          ls -lh *.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-core-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./*.whl
+
+      - name: Test
+        shell: bash
+        run: |
+          python3 -m pip install ./*.whl
+
+          which sherpa-ncnn-offline-tts
+
+          which sherpa-ncnn-version
+          sherpa-ncnn-version
+
+          sherpa-ncnn-offline-tts --help
+
+      - name: Publish wheels to PyPI
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine==5.0.0 setuptools
+
+          twine upload ./*.whl
+
+  core_windows:
+    name: core ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            arch: x64
+
+          - os: windows-2022
+            arch: Win32
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - name: Set up Python
+        if: matrix.arch == 'x64'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Set up Python
+        if: matrix.arch == 'Win32'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          architecture: x86
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python3 -m pip install wheel twine==5.0.0 setuptools
+
+      - name: Configure CMake ${{ matrix.os }} ${{ matrix.arch }}
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+
+          cmake \
+            -A ${{ matrix.arch }} \
+            -D BUILD_SHARED_LIBS=ON \
+            -D SHERPA_NCNN_ENABLE_BINARY=ON \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_OSX_ARCHITECTURES='x86_64' \
+            -D CMAKE_INSTALL_PREFIX=./install \
+            ..
+
+      - name: Build sherpa-ncnn for ${{ matrix.os }} ${{ matrix.arch }}
+        shell: bash
+        run: |
+          cd build
+
+          cmake --build . --config Release  -- -m:2
+          cmake --build . --config Release --target install -- -m:2
+
+          ls -lh lib
+          ls -lh bin
+
+      - name: Show
+        shell: bash
+        run: |
+          echo "---bin---"
+          ls -lh build/install/bin
+          echo "---lib---"
+          ls -lh build/install/lib
+          echo "---include---"
+          ls -lh build/install/include
+
+      - name: Copy files
+        shell: bash
+        run: |
+          echo 'sherpa-ncnn-core'
+          mkdir -p scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+          cp -v ./build/install/lib/ncnn.dll ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+          cp -v ./build/install/lib/sherpa-ncnn-c-api.dll ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+          cp -v ./build/install/lib/ncnn.lib ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+          cp -v ./build/install/lib/sherpa-ncnn-c-api.lib ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/lib
+
+          mkdir -p ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+          cp -v ./build/install/include/sherpa-ncnn/c-api/*.h ./scripts/wheel/sherpa-ncnn-core/sherpa_ncnn/include/sherpa-ncnn/c-api
+
+          echo 'sherpa-ncnn-bin'
+
+          mkdir -p ./scripts/wheel/sherpa-ncnn-bin/bin
+          cp -v ./build/install/bin/sherpa-ncnn* ./scripts/wheel/sherpa-ncnn-bin/bin
+
+      - name: Build sherpa-ncnn-core
+        shell: bash
+        run: |
+          pushd ./scripts/wheel/sherpa-ncnn-core
+          if [[ ${{ matrix.arch }} == 'x64' ]]; then
+            python3 setup.py bdist_wheel --plat-name=win_amd64
+          else
+            python3 setup.py bdist_wheel --plat-name=win32
+          fi
+
+          ls -lh dist
+          unzip -l dist/*.whl
+          mkdir t
+
+          cd t
+
+          unzip ../dist/*.whl
+
+          ls -lh sherpa_ncnn/lib/
+
+          popd
+
+      - name: Build sherpa-ncnn-bin
+        shell: bash
+        run: |
+          pushd ./scripts/wheel/sherpa-ncnn-bin
+
+          if [[ ${{ matrix.arch }} == 'x64' ]]; then
+            python3 setup.py bdist_wheel --plat-name=win_amd64
+          else
+            python3 setup.py bdist_wheel --plat-name=win32
+          fi
+
+          ls -lh dist
+          unzip -l dist/*.whl
+
+          mkdir t
+          cd t
+
+          unzip ../dist/*.whl
+
+          ls -lh sherpa_ncnn_bin-*.data/data/Scripts/*
+
+          popd
+
+      - name: Collect wheels
+        shell: bash
+        run: |
+          cp -v ./scripts/wheel/sherpa-ncnn-core/dist/*.whl .
+          cp -v ./scripts/wheel/sherpa-ncnn-bin/dist/*.whl .
+
+          ls -lh *.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-core-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./*.whl
+
+      - name: Test
+        shell: bash
+        run: |
+          python3 -m pip install ./*.whl
+          which sherpa-ncnn-offline-tts
+
+          which sherpa-ncnn-offline-tts
+
+          which sherpa-ncnn-version
+          sherpa-ncnn-version
+
+          sherpa-ncnn-offline-tts --help
+
+      - name: Publish wheels to PyPI
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine==5.0.0 setuptools
+
+          twine upload ./*.whl
