@@ -170,6 +170,8 @@ if(SHERPA_NCNN_ENABLE_PYTHON)
   include(pybind11)
 endif()
 
+include(show-info)
+
 add_subdirectory(sherpa-ncnn)
 
 if(SHERPA_NCNN_ENABLE_FFMPEG_EXAMPLES)

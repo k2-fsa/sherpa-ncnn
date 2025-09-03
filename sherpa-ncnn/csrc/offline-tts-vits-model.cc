@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "net.h"  // NOLINT
+#include "sherpa-ncnn/csrc/math.h"
 
 namespace sherpa_ncnn {
 
@@ -47,9 +48,13 @@ static ncnn::Mat PathAttentionImpl(const ncnn::Mat &logw, const ncnn::Mat &m_p,
       const float nl = expf(logs_p_ptr[j]) * noise_scale;
       const int duration = w_ceil[j];
 
+#if 1
+      RandomVectorFill(ptr, duration, m, m + nl);
+#else
       for (int k = 0; k < duration; k++) {
         ptr[k] = m + (rand() / static_cast<float>(RAND_MAX)) * nl;  // NOLINT
       }
+#endif
       ptr += duration;
     }
   }

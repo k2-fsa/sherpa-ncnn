@@ -85,13 +85,13 @@ void OfflineTtsConfig::Register(ParseOptions *po) {
   model.Register(po);
 
   po->Register("tts-rule-fsts", &rule_fsts,
-               "It not empty, it contains a list of rule FST filenames."
+               "If not empty, it contains a list of rule FST filenames."
                "Multiple filenames are separated by a comma and they are "
                "applied from left to right. An example value: "
                "rule1.fst,rule2.fst,rule3.fst");
 
   po->Register("tts-rule-fars", &rule_fars,
-               "It not empty, it contains a list of rule FST archive filenames."
+               "If not empty, it contains a list of rule FST archive filenames."
                "Multiple filenames are separated by a comma and they are "
                "applied from left to right. An example value: "
                "rule1.far,rule2.far,rule3.far. Note that an *.far can contain "

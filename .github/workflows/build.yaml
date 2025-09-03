@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   build:
-    name: ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,7 +42,7 @@ jobs:
           - os: ubuntu-latest
             arch: x64
 
-          - os: ubuntu-24.04-arm64
+          - os: ubuntu-24.04-arm
             arch: arm64
 
           - os: macos-latest
@@ -88,7 +88,7 @@ jobs:
             -D CMAKE_INSTALL_PREFIX=./install \
             ..
 
-      - name: Build sherpa-ncnn for ${{ matrix.os }}
+      - name: Build sherpa-ncnn for ${{ matrix.os }} ${{ matrix.arch }}
         shell: bash
         run: |
           export CMAKE_CXX_COMPILER_LAUNCHER=ccache

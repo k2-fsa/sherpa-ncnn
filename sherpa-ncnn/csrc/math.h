@@ -116,5 +116,9 @@ std::vector<int32_t> TopkIndex(const T *vec, int32_t size, int32_t topk) {
   return index;
 }
 
+// fill a vector of length n, pointed by p, with uniformly distributed
+// numbers from the range (a, b)
+void RandomVectorFill(float *p, int32_t n, float a = 0, float b = 1);
+
 }  // namespace sherpa_ncnn
 #endif  // SHERPA_NCNN_CSRC_MATH_H_
