@@ -5,18 +5,18 @@ on:
     branches:
       - master
       - tts-ci
-    # paths:
-    #   - '.github/workflows/linux.yaml'
-    #   - '.github/scripts/run-test.sh'
-    #   - '.github/scripts/test-vad.sh'
-    #   - 'CMakeLists.txt'
-    #   - 'cmake/**'
-    #   - 'sherpa-ncnn/csrc/*'
+    paths:
+      - '.github/workflows/build.yaml'
+      - '.github/scripts/run-test.sh'
+      - '.github/scripts/test-vad.sh'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'sherpa-ncnn/csrc/*'
   pull_request:
     branches:
       - master
     paths:
-      - '.github/workflows/linux.yaml'
+      - '.github/workflows/build.yaml'
       - '.github/scripts/run-test.sh'
       - '.github/scripts/test-vad.sh'
       - 'CMakeLists.txt'

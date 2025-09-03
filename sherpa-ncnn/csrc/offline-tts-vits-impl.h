@@ -132,15 +132,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     sequence.release();
 
     ncnn::Mat noise(encoder_out[0].w, 2);
-#if 1
     RandomVectorFill(static_cast<float *>(noise), noise.w * noise.h, 0,
                      noise_scale_w);
-#else
-    for (int32_t i = 0; i != noise.w * noise.h; ++i) {
-      noise[i] =
-          rand() / static_cast<float>(RAND_MAX) * noise_scale_w;  // NOLINT
-    }
-#endif
 
     ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise);
 
