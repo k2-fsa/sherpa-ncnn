@@ -13,7 +13,7 @@ print("bin_files", bin_files)
 
 setup(
     name="sherpa-ncnn-bin",
-    version="0.0.1",
+    version="2.1.12",
     description="Binary executables for sherpa-ncnn",
     author="The sherpa-ncnn development team",
     url="https://github.com/k2-fsa/sherpa-ncnn",
@@ -23,7 +23,7 @@ setup(
     packages=[],
     data_files=[("Scripts", bin_files) if is_windows() else ("bin", bin_files)],
     install_requires=[
-        "sherpa-ncnn-core==0.0.1",
+        "sherpa-ncnn-core==2.1.12",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

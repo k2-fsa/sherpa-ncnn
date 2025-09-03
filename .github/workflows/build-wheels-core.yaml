@@ -8,12 +8,6 @@ on:
     tags:
       - '*'
   workflow_dispatch:
-    inputs:
-      publish_sherpa_ncnn_core:
-        description: "Publish sherpa-ncnn-core"
-        required: false
-        default: "true"
-        type: boolean
 
 env:
   SHERPA_NCNN_IS_IN_GITHUB_ACTIONS: 1

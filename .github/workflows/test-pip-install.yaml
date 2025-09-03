@@ -36,6 +36,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
       # see https://github.com/microsoft/setup-msbuild
       - name: Add msbuild to PATH
         if: startsWith(matrix.os, 'windows')
