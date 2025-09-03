@@ -24,6 +24,7 @@ set(sherpa_ncnn_core_srcs
   symbol-table.cc
   tensorasstrided.cc
   text-utils.cc
+  version.cc
   wave-reader.cc
   wave-writer.cc
   zipformer-model.cc
@@ -63,6 +64,9 @@ if(SHERPA_NCNN_ENABLE_BINARY)
   add_executable(sherpa-ncnn sherpa-ncnn.cc)
   add_executable(sherpa-ncnn-offline-tts sherpa-ncnn-offline-tts.cc)
   add_executable(sherpa-ncnn-vad sherpa-ncnn-vad.cc)
+
+  add_executable(sherpa-ncnn-version sherpa-ncnn-version.cc version.cc)
+  install(TARGETS sherpa-ncnn-version DESTINATION bin)
 
   set(main_exes
     sherpa-ncnn
