@@ -128,3 +128,27 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}
           path: ./*.wav
+
+      - name: Test vad
+        shell: bash
+        run: |
+          export PATH=$PWD/build/install/bin:$PATH
+          export EXE=sherpa-ncnn-vad
+
+          .github/scripts/test-vad.sh
+
+      - name: Test sherpa-ncnn
+        shell: bash
+        run: |
+          export PATH=$PWD/build/install/bin:$PATH
+          export EXE=sherpa-ncnn
+
+          .github/scripts/run-test.sh
+
+      - name: Test C API
+        shell: bash
+        run: |
+          export PATH=$PWD/build/install/bin:$PATH
+          export EXE=decode-file-c-api
+
+          .github/scripts/run-test.sh
