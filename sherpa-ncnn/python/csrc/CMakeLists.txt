@@ -42,6 +42,4 @@ if(SHERPA_NCNN_HAS_ALSA)
   endif()
 endif()
 
-install(TARGETS _sherpa_ncnn
-  DESTINATION ../
-)
+install(TARGETS _sherpa_ncnn DESTINATION lib)

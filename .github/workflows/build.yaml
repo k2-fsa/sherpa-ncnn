@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - tts-ci
+      - refactor-python-wheel
     paths:
       - '.github/workflows/build.yaml'
       - '.github/scripts/run-test.sh'
@@ -166,3 +166,75 @@ jobs:
           export EXE=decode-file-c-api
 
           .github/scripts/run-test.sh
+
+  build_python:
+    name: ${{ matrix.os }} ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest, ubuntu-24.04-arm, macos-13]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+    env:
+      PYTHONUTF8: 1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-build-python-${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python deps
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine==5.0.0 setuptools
+
+      - name: Build ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
+          cmake --version
+
+          python3 setup.py bdist_wheel
+
+      - name: Show ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          ls -lh dist
+          unzip -l ./dist/*.whl
+          cd dist
+
+          unzip ./*.whl
+          echo "---"
+
+          ls -lh sherpa_ncnn/
+          echo "---"
+          ls -lh sherpa_ncnn/lib
+
+      - name: Install ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          ls -lh dist
+          python3 -m pip install ./dist/*.whl
+
+      - name: Test ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-conv-emformer-transducer-2022-12-06.tar.bz2
+          tar xvf sherpa-ncnn-conv-emformer-transducer-2022-12-06.tar.bz2
+          rm sherpa-ncnn-conv-emformer-transducer-2022-12-06.tar.bz2
+          ls -lh sherpa-ncnn-conv-emformer-transducer-2022-12-06
+
+          python3 ./python-api-examples/decode-file.py

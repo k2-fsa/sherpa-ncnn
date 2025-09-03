@@ -20,6 +20,10 @@ def is_macos():
     return platform.system() == "Darwin"
 
 
+def is_macos_x64():
+    return platform.system() == "Darwin" and platform.machine() == "x86_64"
+
+
 def is_windows():
     return platform.system() == "Windows"
 
@@ -38,7 +42,6 @@ try:
                 # The generated wheel has a name ending with
                 # -linux_x86_64.whl
                 self.root_is_pure = False
-
 
 except ImportError:
     bdist_wheel = None
@@ -66,13 +69,18 @@ class BuildExtension(build_ext):
         make_args = os.environ.get("SHERPA_NCNN_MAKE_ARGS", "")
         system_make_args = os.environ.get("MAKEFLAGS", "")
 
-        if cmake_args == "":
-            cmake_args = "-DCMAKE_BUILD_TYPE=Release"
+        if "CMAKE_BUILD_TYPE" not in cmake_args:
+            cmake_args += " -DCMAKE_BUILD_TYPE=Release "
 
         extra_cmake_args = f" -DCMAKE_INSTALL_PREFIX={install_dir} "
-        extra_cmake_args += f" -DBUILD_SHARED_LIBS=ON "
-        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PYTHON=ON "
-        extra_cmake_args += f" -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF "
+        extra_cmake_args += " -DBUILD_SHARED_LIBS=ON "
+        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_PYTHON=ON "
+        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF "
+        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_BINARY=OFF "
+        extra_cmake_args += " -DSHERPA_NCNN_ENABLE_C_API=OFF "
+
+        if is_macos_x64():
+            extra_cmake_args += " -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15' "
 
         if "PYTHON_EXECUTABLE" not in cmake_args:
             print(f"Setting PYTHON_EXECUTABLE to {sys.executable}")
