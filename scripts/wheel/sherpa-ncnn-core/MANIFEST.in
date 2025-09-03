@@ -1,0 +1,2 @@
+recursive-include sherpa_ncnn/lib *
+recursive-include sherpa_ncnn/include *

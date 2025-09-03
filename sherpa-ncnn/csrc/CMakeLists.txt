@@ -109,7 +109,7 @@ if(SHERPA_NCNN_ENABLE_BINARY)
 
       if(SHERPA_NCNN_ENABLE_PYTHON)
         target_link_libraries(${exe} "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/../lib/python${PYTHON_VERSION}/site-packages/sherpa_ncnn/lib")
-      elseif(SHERPA_NCNN_SPLIT_PYTHON_PACKAGE)
+      else()
         foreach(ver in ITEMS 3.8 3.9 3.10 3.11 3.12 3.13 3.14)
           target_link_libraries(${exe} "-Wl,-rpath,${SHERPA_NCNN_RPATH_ORIGIN}/../lib/python${ver}/site-packages/sherpa_ncnn/lib")
         endforeach()

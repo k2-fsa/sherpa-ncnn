@@ -125,3 +125,5 @@ node_modules
 *-bak
 *.bin
 *.param
+*.dylib
+*.egg-info
