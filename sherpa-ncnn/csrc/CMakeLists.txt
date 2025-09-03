@@ -99,7 +99,7 @@ if(SHERPA_NCNN_ENABLE_BINARY)
   endif()
 
   foreach(exe IN LISTS main_exes)
-    target_link_libraries(${exe} sherpa-onnx-core)
+    target_link_libraries(${exe} sherpa-ncnn-core)
     install(TARGETS ${exe} DESTINATION bin)
   endforeach()
   if(NOT WIN32)
