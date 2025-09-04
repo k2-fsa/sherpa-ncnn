@@ -22,8 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        python-version: ["cp37", "cp38", "cp39", "cp310", "cp311", "cp312", "cp313"]
+        os: [ubuntu-latest]
+        python-version: ["cp38", "cp39", "cp310", "cp311", "cp312", "cp313", "cp314"]
         manylinux: [manylinux2014]
 
     steps:
@@ -38,7 +38,7 @@ jobs:
       # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
       # for a list of versions
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v3.1.4
         env:
           CIBW_BEFORE_ALL: |
             git clone --depth 1 --branch v1.2.12 https://github.com/alsa-project/alsa-lib
@@ -116,7 +116,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel twine setuptools
+          python3 -m pip install wheel twine==5.0.0 setuptools
 
           twine upload ./wheelhouse/*.whl
 
@@ -134,6 +134,6 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel twine setuptools
+          python3 -m pip install wheel twine==5.0.0 setuptools
           twine upload dist/sherpa*.tar.gz
 
