@@ -1,4 +1,4 @@
-// sherpa-ncnn/csrc/version.h
+// sherpa-ncnn/csrc/version.cc
 //
 // Copyright      2025  Xiaomi Corporation
 
