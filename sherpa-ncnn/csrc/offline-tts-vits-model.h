@@ -29,13 +29,22 @@ class OfflineTtsVitsModel {
   std::vector<ncnn::Mat> RunEncoder(const ncnn::Mat &sequence) const;
 
   /**
+   * @param sid Speaker ID.
+   * @returns Return the embedding of this speaker ID.
+   *
+   * Note: For models with a single speaker, it returns an empty mat.
+   */
+  ncnn::Mat RunEmbedding(int32_t sid) const;
+
+  /**
    * @param x It is the x returned by RunEncoder()
    * @param noise A 2-D tensor of shape (2, x.w). Note x.w == noise.w
+   * @param g Return value from RunEmbedding()
    *
    * @returns Return logw
    */
-  ncnn::Mat RunDurationPredictor(const ncnn::Mat &x,
-                                 const ncnn::Mat &noise) const;
+  ncnn::Mat RunDurationPredictor(const ncnn::Mat &x, const ncnn::Mat &noise,
+                                 const ncnn::Mat &g) const;
 
   /**
    * @param logw It is returned by RunDurationPredictor()
@@ -52,15 +61,17 @@ class OfflineTtsVitsModel {
 
   /**
    * @param z_p It is returned by PathAttention()
+   * @param g Return value from RunEmbedding()
    * @returns Return z
    */
-  ncnn::Mat RunFlow(const ncnn::Mat &z_p) const;
+  ncnn::Mat RunFlow(const ncnn::Mat &z_p, const ncnn::Mat &g) const;
 
   /**
    * @param z It is returned by RunFlow()
+   * @param g Return value from RunEmbedding()
    * @returns Return a 1-D float tensor containing audio samples
    */
-  ncnn::Mat RunDecoder(const ncnn::Mat &z) const;
+  ncnn::Mat RunDecoder(const ncnn::Mat &z, const ncnn::Mat &g) const;
 
  private:
   class Impl;

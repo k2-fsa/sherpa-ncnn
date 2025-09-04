@@ -82,8 +82,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     for (const auto &tokens : args.tokens) {
       ++processed;
 
-      ncnn::Mat o =
-          Process(tokens, args.noise_scale_w, args.noise_scale, args.speed);
+      ncnn::Mat o = Process(tokens, args.sid, args.noise_scale_w,
+                            args.noise_scale, args.speed);
 
       samples.insert(samples.end(), static_cast<const float *>(o),
                      static_cast<const float *>(o) + o.w);
@@ -109,8 +109,8 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
   }
 
  private:
-  ncnn::Mat Process(const std::vector<int32_t> &_tokens, float noise_scale_w,
-                    float noise_scale, float speed) const {
+  ncnn::Mat Process(const std::vector<int32_t> &_tokens, int32_t sid,
+                    float noise_scale_w, float noise_scale, float speed) const {
     // add bos, eos, and pad
     const auto &meta = model_->GetMetaData();
     int32_t bos = meta.bos;
@@ -135,7 +135,9 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     RandomVectorFill(static_cast<float *>(noise), noise.w * noise.h, 0,
                      noise_scale_w);
 
-    ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise);
+    ncnn::Mat g = model_->RunEmbedding(sid);
+
+    ncnn::Mat logw = model_->RunDurationPredictor(encoder_out[0], noise, g);
 
     noise.release();
     encoder_out[0].release();
@@ -145,11 +147,11 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
     encoder_out.clear();
     logw.release();
 
-    ncnn::Mat z = model_->RunFlow(z_p);
+    ncnn::Mat z = model_->RunFlow(z_p, g);
     z_p.release();
 
-    ncnn::Mat o = model_->RunDecoder(z);
-    z.release();
+    ncnn::Mat o = model_->RunDecoder(z, g);
+
     return o;
   }
 
@@ -172,9 +174,14 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
         this_sentence.push_back(space);
       } else if (token2id.count(w)) {
         this_sentence.push_back(token2id.at(w));
-        this_sentence.push_back(space);
+        if (w != "-") {
+          // handle cases like two-thirds
+          this_sentence.push_back(space);
+        }
 
-        ans.push_back(std::move(this_sentence));
+        if (w == "." || w == "?" || w == "!") {
+          ans.push_back(std::move(this_sentence));
+        }
       } else {
         SHERPA_NCNN_LOGE("empty ids for word %s", w.c_str());
       }

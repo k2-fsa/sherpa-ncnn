@@ -8,6 +8,7 @@
 
 #include "sherpa-ncnn/csrc/file-utils.h"
 #include "sherpa-ncnn/csrc/macros.h"
+#include "sherpa-ncnn/csrc/offline-tts-vits-model-meta-data.h"
 
 namespace sherpa_ncnn {
 
@@ -21,12 +22,25 @@ bool OfflineTtsVitsModelConfig::Validate() const {
     return false;
   }
 
+  if (!FileExists(model_dir + "/config.json")) {
+    SHERPA_NCNN_LOGE("'%s' does not exist!",
+                     (model_dir + "/config.json").c_str());
+    return false;
+  }
+
   std::vector<std::string> files_to_check = {
-      "config.json",      "lexicon.txt",   "encoder.ncnn.param",
-      "encoder.ncnn.bin", "dp.ncnn.param", "dp.ncnn.bin",
-      "flow.ncnn.param",  "flow.ncnn.bin", "decoder.ncnn.param",
-      "decoder.ncnn.bin",
+      "lexicon.txt",   "encoder.ncnn.param", "encoder.ncnn.bin",
+      "dp.ncnn.param", "dp.ncnn.bin",        "flow.ncnn.param",
+      "flow.ncnn.bin", "decoder.ncnn.param", "decoder.ncnn.bin",
   };
+
+  OfflineTtsVitsModelMetaData meta =
+      ReadFromConfigJson(model_dir + "/config.json");
+
+  if (meta.num_speakers > 1) {
+    files_to_check.push_back("embedding.ncnn.param");
+    files_to_check.push_back("embedding.ncnn.bin");
+  }
 
   bool ok = true;
   for (const auto &f : files_to_check) {
