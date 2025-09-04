@@ -11,11 +11,15 @@ import sys
 sys.path.insert(0, './src')
 import pnnx
 
-if len(sys.argv) != 2:
-    print(f"Usage: python {sys.argv[0]} en.ckpt")
+if len(sys.argv) != 2 and len(sys.argv) != 3:
+    print(f"Usage: python {sys.argv[0]} en.ckpt [1|0]")
     sys.exit(0)
 
 ckptpath = sys.argv[1]
+fp16 = True
+
+if len(sys.argv) == 3:
+    fp16 = int(sys.argv[2]) == 1
 
 from piper.train.vits.lightning import VitsModel
 import piper
@@ -47,7 +51,7 @@ if num_speakers > 1:
         return g
 
     model_g.forward = infer_forward_emb_g
-    pnnx.export(model_g, 'embedding.torchscript', (sid,))
+    pnnx.export(model_g, 'embedding.torchscript', (sid,), fp16=fp16)
 
     # export enc_p
     def infer_forward_enc_p(text):
@@ -55,7 +59,7 @@ if num_speakers > 1:
         return x, m_p, logs_p
 
     model_g.forward = infer_forward_enc_p
-    pnnx.export(model_g, 'encoder.torchscript', (sequences,), (sequences2,), moduleop='piper.train.vits.attentions.relative_embeddings_k_module,piper.train.vits.attentions.relative_embeddings_v_module')
+    pnnx.export(model_g, 'encoder.torchscript', (sequences,), (sequences2,), moduleop='piper.train.vits.attentions.relative_embeddings_k_module,piper.train.vits.attentions.relative_embeddings_v_module', fp16=fp16)
 
     # export dp
     def infer_forward_dp(x, noise, g):
@@ -71,7 +75,7 @@ if num_speakers > 1:
     g = torch.rand(1, 512, 1)
 
     model_g.forward = infer_forward_dp
-    pnnx.export(model_g, 'dp.torchscript', (x, noise, g), (x2, noise2, g), moduleop='piper.train.vits.modules.piecewise_rational_quadratic_transform_module')
+    pnnx.export(model_g, 'dp.torchscript', (x, noise, g), (x2, noise2, g), moduleop='piper.train.vits.modules.piecewise_rational_quadratic_transform_module', fp16=fp16)
 
     # export flow
     def infer_forward_flow(z_p, g):
@@ -82,7 +86,7 @@ if num_speakers > 1:
     z_p = torch.rand(1, 192, 224)
 
     model_g.forward = infer_forward_flow
-    pnnx.export(model_g, 'flow.torchscript', (z_p, g))
+    pnnx.export(model_g, 'flow.torchscript', (z_p, g), fp16=fp16)
 
     # export dec
     def infer_forward_dec(z, g):
@@ -92,7 +96,7 @@ if num_speakers > 1:
     z = torch.rand(1, 192, 164)
 
     model_g.forward = infer_forward_dec
-    pnnx.export(model_g, 'decoder.torchscript', (z, g))
+    pnnx.export(model_g, 'decoder.torchscript', (z, g), fp16=fp16)
 
 else:
     # export enc_p
@@ -102,7 +106,7 @@ else:
 
     model_g.forward = infer_forward_enc_p
 
-    pnnx.export(model_g, 'encoder.torchscript', (sequences,), (sequences2,), moduleop='piper.train.vits.attentions.relative_embeddings_k_module,piper.train.vits.attentions.relative_embeddings_v_module')
+    pnnx.export(model_g, 'encoder.torchscript', (sequences,), (sequences2,), moduleop='piper.train.vits.attentions.relative_embeddings_k_module,piper.train.vits.attentions.relative_embeddings_v_module', fp16=fp16)
 
     # export dp
     def infer_forward_dp(x, noise):
@@ -118,7 +122,7 @@ else:
     noise2 = torch.rand(1, 2, dummy_input_length2) * noise_scale_w
 
     model_g.forward = infer_forward_dp
-    pnnx.export(model_g, 'dp.torchscript', (x, noise), (x2, noise2), moduleop='piper.train.vits.modules.piecewise_rational_quadratic_transform_module')
+    pnnx.export(model_g, 'dp.torchscript', (x, noise), (x2, noise2), moduleop='piper.train.vits.modules.piecewise_rational_quadratic_transform_module', fp16=fp16)
 
     # export flow
     def infer_forward_flow(z_p):
@@ -130,7 +134,7 @@ else:
     z_p = torch.rand(1, 192, 224)
 
     model_g.forward = infer_forward_flow
-    pnnx.export(model_g, 'flow.torchscript', (z_p, ))
+    pnnx.export(model_g, 'flow.torchscript', (z_p, ), fp16=fp16)
 
     # export dec
     def infer_forward_dec(z):
@@ -141,4 +145,4 @@ else:
     z = torch.rand(1, 192, 164)
 
     model_g.forward = infer_forward_dec
-    pnnx.export(model_g, 'decoder.torchscript', (z, ))
+    pnnx.export(model_g, 'decoder.torchscript', (z, ), fp16=fp16)
