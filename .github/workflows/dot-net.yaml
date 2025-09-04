@@ -14,99 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-libs:
-    name: dot-net for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Update version
-        shell: bash
-        run: |
-          ./new-release.sh
-          git diff .
-
-      # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
-      # for a list of versions
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.4
-        env:
-          CIBW_BEFORE_BUILD: "pip install -U cmake numpy"
-          CIBW_BUILD: "cp38-*64"
-          CIBW_SKIP: "cp27-* cp35-* *-win32 pp* *-musllinux*"
-          CIBW_BUILD_VERBOSITY: 3
-
-      - name: Display wheels
-        shell: bash
-        run: |
-          ls -lh ./wheelhouse/*.whl
-          unzip -l ./wheelhouse/*.whl
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-wheels
-          path: ./wheelhouse/*.whl
-
   build-nuget-packages:
     name: build-nuget-packages
     runs-on: ubuntu-latest
-    needs: build-libs
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Retrieve artifact from ubuntu-latest
-        uses: actions/download-artifact@v2
-        with:
-          name: ubuntu-latest-wheels
-          path: ./linux
-
-      - name: Retrieve artifact from macos-latest
-        uses: actions/download-artifact@v2
-        with:
-          name: macos-latest-wheels
-          path: ./macos
-
-      - name: Retrieve artifact from windows-latest
-        uses: actions/download-artifact@v2
-        with:
-          name: windows-latest-wheels
-          path: ./windows
-
-      - name: Display wheels
-        shell: bash
-        run: |
-          tree .
-
-      - name: Unzip Ubuntu wheels
-        shell: bash
-        run: |
-          cd linux
-          unzip ./*.whl
-          tree .
-
-          cp -v sherpa_ncnn.libs/libgomp*.so* sherpa_ncnn/lib
-
-      - name: Unzip macOS wheels
-        shell: bash
-        run: |
-          cd macos
-          unzip ./*.whl
-          tree .
-
-      - name: Unzip Windows wheels
-        shell: bash
-        run: |
-          cd windows
-          unzip ./*.whl
-          cp -v ./ncnn.dll sherpa_ncnn/lib/
-          cp -v ./sherpa-ncnn-core.dll sherpa_ncnn/lib/
-          tree .
 
       - name: Setup .NET Core 3.1
         uses: actions/setup-dotnet@v1
@@ -128,6 +41,12 @@ jobs:
           ./run.sh
           ls -lh packages
 
+      - name: show nuget packages
+        shell: bash
+        run: |
+          cd scripts/dotnet
+          ls -lh packages
+
       - uses: actions/upload-artifact@v4
         name: upload nuget packages
         with:
@@ -140,6 +59,6 @@ jobs:
         env:
           API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          # API_KEY is valid until 2024.05.02
+          # API_KEY is valid until 2026.09.03
           cd scripts/dotnet/packages
           dotnet nuget push ./org.k2fsa.sherpa.ncnn.*.nupkg --skip-duplicate --api-key $API_KEY --source https://api.nuget.org/v3/index.json
