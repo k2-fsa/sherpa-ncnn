@@ -3,7 +3,6 @@ name: build-wheels-core
 on:
   push:
     branches:
-      - wheel-bins
       - wheel
     tags:
       - '*'
@@ -217,6 +216,11 @@ jobs:
             git config --global user.email "csukuangfj@gmail.com"
             git config --global user.name "Fangjun Kuang"
 
+            SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+            echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+
+            d=./$SHERPA_NCNN_VERSION
+
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
 
@@ -226,7 +230,8 @@ jobs:
             git pull
             git merge -m "merge remote" --ff origin main
 
-            cp -v ../wheelhouse/*.whl .
+            mkdir -p $d
+            cp -v ../wheelhouse/*.whl $d
 
             git status
             git add .
@@ -431,6 +436,12 @@ jobs:
             git config --global user.email "csukuangfj@gmail.com"
             git config --global user.name "Fangjun Kuang"
 
+            SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+            echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+
+            d=./$SHERPA_NCNN_VERSION
+
+
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
 
@@ -440,7 +451,8 @@ jobs:
             git pull
             git merge -m "merge remote" --ff origin main
 
-            cp -v ../*.whl .
+            mkdir -p $d
+            cp -v ../*.whl $d
 
             git status
             git add .
@@ -637,6 +649,11 @@ jobs:
             git config --global user.email "csukuangfj@gmail.com"
             git config --global user.name "Fangjun Kuang"
 
+            SHERPA_NCNN_VERSION=$(grep "SHERPA_NCNN_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+            echo "SHERPA_NCNN_VERSION $SHERPA_NCNN_VERSION"
+
+            d=./$SHERPA_NCNN_VERSION
+
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
 
@@ -646,7 +663,9 @@ jobs:
             git pull
             git merge -m "merge remote" --ff origin main
 
-            cp -v ../*.whl .
+            mkdir -p $d
+
+            cp -v ../*.whl $d/
 
             git status
             git add .

@@ -4,8 +4,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <OutputType>Library</OutputType>
     <LangVersion>8.0</LangVersion>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
-    <RuntimeIdentifiers>linux-x64;osx-x64;win-x64</RuntimeIdentifiers>
+    <TargetFrameworks>net8.0;net7.0;net6.0;net45;net40;net35;net20;netstandard2.0</TargetFrameworks>
+    <RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64;win-x86</RuntimeIdentifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>sherpa-ncnn</AssemblyName>
     <Version>{{ version }}</Version>
@@ -49,8 +49,11 @@
 
   <ItemGroup>
     <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.linux-x64" Version="{{ version }}" />
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.linux-arm64" Version="{{ version }}" />
     <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.osx-x64"   Version="{{ version }}" />
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.osx-arm64"   Version="{{ version }}" />
     <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.win-x64"   Version="{{ version }}" />
+    <PackageReference Include="org.k2fsa.sherpa.ncnn.runtime.win-x86"   Version="{{ version }}" />
   </ItemGroup>
 
 </Project>

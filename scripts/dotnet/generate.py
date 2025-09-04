@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # Copyright (c)  2023  Xiaomi Corporation
 
-import argparse
+import os
 import re
 from pathlib import Path
 
 import jinja2
 
 SHERPA_NCNN_DIR = Path(__file__).resolve().parent.parent.parent
+
+src_dir = os.environ.get("src_dir", "/tmp")
 
 
 def get_version():
@@ -27,96 +29,79 @@ def read_proj_file(filename):
 def get_dict():
     version = get_version()
     return {
-        "version": get_version(),
+        "version": version,
     }
 
 
-def process_linux(s):
+def process_linux(s, rid):
     libs = [
-        "libkissfft-float.so",
-        "libkaldi-native-fbank-core.so",
         "libncnn.so",
         "libsherpa-ncnn-c-api.so",
-        "libsherpa-ncnn-core.so",
-        "libgomp-a34b3233.so.1.0.0",
     ]
-    prefix = f"{SHERPA_NCNN_DIR}/linux/sherpa_ncnn/lib/"
+    prefix = f"{src_dir}/linux-{rid}/"
     libs = [prefix + lib for lib in libs]
     libs = "\n      ;".join(libs)
 
     d = get_dict()
-    d["dotnet_rid"] = "linux-x64"
+    d["dotnet_rid"] = f"linux-{rid}"
     d["libs"] = libs
 
     environment = jinja2.Environment()
     template = environment.from_string(s)
     s = template.render(**d)
-    with open("./linux/sherpa-ncnn.runtime.csproj", "w") as f:
+    with open(f"./linux-{rid}/sherpa-ncnn.runtime.csproj", "w") as f:
         f.write(s)
 
 
-def process_macos(s):
+def process_macos(s, rid):
     libs = [
-        "libkissfft-float.dylib",
-        "libkaldi-native-fbank-core.dylib",
         "libncnn.dylib",
         "libsherpa-ncnn-c-api.dylib",
-        "libsherpa-ncnn-core.dylib",
     ]
-    prefix = f"{SHERPA_NCNN_DIR}/macos/sherpa_ncnn/lib/"
+    prefix = f"{src_dir}/macos-{rid}/"
     libs = [prefix + lib for lib in libs]
     libs = "\n      ;".join(libs)
 
     d = get_dict()
-    d["dotnet_rid"] = "osx-x64"
+    d["dotnet_rid"] = f"osx-{rid}"
     d["libs"] = libs
 
     environment = jinja2.Environment()
     template = environment.from_string(s)
     s = template.render(**d)
-    with open("./macos/sherpa-ncnn.runtime.csproj", "w") as f:
+    with open(f"./macos-{rid}/sherpa-ncnn.runtime.csproj", "w") as f:
         f.write(s)
 
 
-def process_windows(s):
+def process_windows(s, rid):
     libs = [
-        "kissfft-float.dll",
-        "kaldi-native-fbank-core.dll",
         "ncnn.dll",
         "sherpa-ncnn-c-api.dll",
-        "sherpa-ncnn-core.dll",
     ]
-    prefix1 = f"{SHERPA_NCNN_DIR}/windows/sherpa_ncnn/lib"
-    prefix2 = f"{SHERPA_NCNN_DIR}/windows/sherpa_ncnn"
-    prefix3 = f"{SHERPA_NCNN_DIR}/windows"
 
-    lib_list = []
-    for lib in libs:
-        for prefix in [prefix1, prefix2, prefix3]:
-            f = Path(prefix) / lib
-            if f.is_file():
-                lib_list.append(str(f))
-                break
-
-    print("lib_list", lib_list)
-    libs = "\n      ;".join(lib_list)
+    prefix = f"{src_dir}/windows-{rid}/"
+    libs = [prefix + lib for lib in libs]
+    libs = "\n      ;".join(libs)
 
     d = get_dict()
-    d["dotnet_rid"] = "win-x64"
+    d["dotnet_rid"] = f"win-{rid}"
     d["libs"] = libs
 
     environment = jinja2.Environment()
     template = environment.from_string(s)
     s = template.render(**d)
-    with open("./windows/sherpa-ncnn.runtime.csproj", "w") as f:
+    with open(f"./windows-{rid}/sherpa-ncnn.runtime.csproj", "w") as f:
         f.write(s)
 
 
 def main():
     s = read_proj_file("./sherpa-ncnn.csproj.runtime.in")
-    process_linux(s)
-    process_macos(s)
-    process_windows(s)
+    process_linux(s, "x64")
+    process_linux(s, "arm64")
+    process_macos(s, "x64")
+    process_macos(s, "arm64")
+    process_windows(s, "x64")
+    process_windows(s, "x86")
 
     s = read_proj_file("./sherpa-ncnn.csproj.in")
     d = get_dict()
