@@ -1,0 +1,357 @@
+diff --git a/src/piper/train/vits/attentions.py b/src/piper/train/vits/attentions.py
+index 50364ad..1b1b6ad 100644
+--- a/src/piper/train/vits/attentions.py
++++ b/src/piper/train/vits/attentions.py
+@@ -57,20 +57,25 @@ class Encoder(nn.Module):
+             )
+             self.norm_layers_2.append(LayerNorm(hidden_channels))
+ 
+-    def forward(self, x, x_mask):
+-        attn_mask = x_mask.unsqueeze(2) * x_mask.unsqueeze(-1)
+-        x = x * x_mask
++    # def forward(self, x, x_mask):
++    def forward(self, x):
++        # attn_mask = x_mask.unsqueeze(2) * x_mask.unsqueeze(-1)
++        # x = x * x_mask
++        x = x
+         for attn_layer, norm_layer_1, ffn_layer, norm_layer_2 in zip(
+             self.attn_layers, self.norm_layers_1, self.ffn_layers, self.norm_layers_2
+         ):
+-            y = attn_layer(x, x, attn_mask)
++            # y = attn_layer(x, x, attn_mask)
++            y = attn_layer(x, x)
+             y = self.drop(y)
+             x = norm_layer_1(x + y)
+ 
+-            y = ffn_layer(x, x_mask)
++            # y = ffn_layer(x, x_mask)
++            y = ffn_layer(x)
+             y = self.drop(y)
+             x = norm_layer_2(x + y)
+-        x = x * x_mask
++        # x = x * x_mask
++        x = x
+         return x
+ 
+ 
+@@ -158,6 +163,37 @@ class Decoder(nn.Module):
+         return x
+ 
+ 
++class relative_embeddings_k_module(nn.Module):
++    def __init__(self):
++        super(relative_embeddings_k_module, self).__init__()
++        self.window_size = 4
++
++    def forward(self, v_28):
++        length = v_28.size(2)
++
++        v_29 = F.pad(v_28, mode='constant', pad=(0,length-self.window_size,0,0,0,0), value=None)
++        v_30 = v_29.view(1, 2, -1)
++        v_31 = v_30[...,:-length]
++        v_32 = v_31.view(1, 2, length, length+self.window_size)
++        v_33 = v_32[...,self.window_size:]
++        return v_33
++
++
++class relative_embeddings_v_module(nn.Module):
++    def __init__(self):
++        super(relative_embeddings_v_module, self).__init__()
++        self.window_size = 4
++
++    def forward(self, x):
++        length = x.size(2)
++
++        v_37 = F.pad(x, mode='constant', pad=(self.window_size,0,0,0,0,0,0,0), value=None)
++        v_38 = v_37.view(1, 2, -1)
++        v_39 = F.pad(v_38, mode='constant', pad=(0,length,0,0,0,0), value=None)
++        v_40 = v_39.view(1, 2, -1, length+self.window_size+1)
++        v_41 = v_40[:,:,:,:self.window_size*2+1]
++        return v_41
++
+ class MultiHeadAttention(nn.Module):
+     def __init__(
+         self,
+@@ -192,6 +228,9 @@ class MultiHeadAttention(nn.Module):
+         self.conv_o = nn.Conv1d(channels, out_channels, 1)
+         self.drop = nn.Dropout(p_dropout)
+ 
++        self.relative_embeddings_k = relative_embeddings_k_module()
++        self.relative_embeddings_v = relative_embeddings_v_module()
++
+         if window_size is not None:
+             n_heads_rel = 1 if heads_share else n_heads
+             rel_stddev = self.k_channels**-0.5
+@@ -229,16 +268,19 @@ class MultiHeadAttention(nn.Module):
+         key = key.view(b, self.n_heads, self.k_channels, t_s).transpose(2, 3)
+         value = value.view(b, self.n_heads, self.k_channels, t_s).transpose(2, 3)
+ 
+-        scores = torch.matmul(query / math.sqrt(self.k_channels), key.transpose(-2, -1))
++        # scores = torch.matmul(query / math.sqrt(self.k_channels), key.transpose(-2, -1))
++        k = query / math.sqrt(self.k_channels)
++        scores = torch.matmul(k, key.transpose(-2, -1))
+         if self.window_size is not None:
+             assert (
+                 t_s == t_t
+             ), "Relative attention is only available for self-attention."
+-            key_relative_embeddings = self._get_relative_embeddings(self.emb_rel_k, t_s)
+-            rel_logits = self._matmul_with_relative_keys(
+-                query / math.sqrt(self.k_channels), key_relative_embeddings
+-            )
+-            scores_local = self._relative_position_to_absolute_position(rel_logits)
++            # key_relative_embeddings = self._get_relative_embeddings(self.emb_rel_k, t_s)
++            # rel_logits = self._matmul_with_relative_keys(
++            #     query / math.sqrt(self.k_channels), key_relative_embeddings
++            # )
++            # scores_local = self._relative_position_to_absolute_position(rel_logits)
++            scores_local = self.relative_embeddings_k(torch.matmul(k, self.emb_rel_k.unsqueeze(0).transpose(-2, -1)))
+             scores = scores + scores_local
+         if self.proximal_bias:
+             assert t_s == t_t, "Proximal bias is only available for self-attention."
+@@ -259,13 +301,15 @@ class MultiHeadAttention(nn.Module):
+         p_attn = self.drop(p_attn)
+         output = torch.matmul(p_attn, value)
+         if self.window_size is not None:
+-            relative_weights = self._absolute_position_to_relative_position(p_attn)
+-            value_relative_embeddings = self._get_relative_embeddings(
+-                self.emb_rel_v, t_s
+-            )
+-            output = output + self._matmul_with_relative_values(
+-                relative_weights, value_relative_embeddings
+-            )
++            # relative_weights = self._absolute_position_to_relative_position(p_attn)
++            # value_relative_embeddings = self._get_relative_embeddings(
++            #     self.emb_rel_v, t_s
++            # )
++            # output = output + self._matmul_with_relative_values(
++            #     relative_weights, value_relative_embeddings
++            # )
++            v_local = self.relative_embeddings_v(p_attn)
++            output = output + torch.matmul(v_local, self.emb_rel_v.unsqueeze(0))
+         output = (
+             output.transpose(2, 3).contiguous().view(b, d, t_t)
+         )  # [b, n_h, t_t, d_k] -> [b, d, t_t]
+@@ -383,11 +427,14 @@ class FFN(nn.Module):
+         self.conv_2 = nn.Conv1d(filter_channels, out_channels, kernel_size)
+         self.drop = nn.Dropout(p_dropout)
+ 
+-    def forward(self, x, x_mask):
++    # def forward(self, x, x_mask):
++    def forward(self, x):
+         if self.causal:
+-            padding1 = self._causal_padding(x * x_mask)
++            # padding1 = self._causal_padding(x * x_mask)
++            padding1 = self._causal_padding(x)
+         else:
+-            padding1 = self._same_padding(x * x_mask)
++            # padding1 = self._same_padding(x * x_mask)
++            padding1 = self._same_padding(x)
+ 
+         x = self.conv_1(padding1)
+ 
+@@ -398,13 +445,16 @@ class FFN(nn.Module):
+         x = self.drop(x)
+ 
+         if self.causal:
+-            padding2 = self._causal_padding(x * x_mask)
++            # padding2 = self._causal_padding(x * x_mask)
++            padding2 = self._causal_padding(x)
+         else:
+-            padding2 = self._same_padding(x * x_mask)
++            # padding2 = self._same_padding(x * x_mask)
++            padding2 = self._same_padding(x)
+ 
+         x = self.conv_2(padding2)
+ 
+-        return x * x_mask
++        # return x * x_mask
++        return x
+ 
+     def _causal_padding(self, x):
+         if self.kernel_size == 1:
+diff --git a/src/piper/train/vits/commons.py b/src/piper/train/vits/commons.py
+index 3f334c3..c9f52b7 100644
+--- a/src/piper/train/vits/commons.py
++++ b/src/piper/train/vits/commons.py
+@@ -96,9 +96,9 @@ def subsequent_mask(length: int):
+     return mask
+ 
+ 
+-@torch.jit.script
+-def fused_add_tanh_sigmoid_multiply(input_a, input_b, n_channels):
+-    n_channels_int = n_channels[0]
++# @torch.jit.script
++def fused_add_tanh_sigmoid_multiply(input_a, input_b, n_channels_int):
++    # n_channels_int = n_channels[0]
+     in_act = input_a + input_b
+     t_act = torch.tanh(in_act[:, :n_channels_int, :])
+     s_act = torch.sigmoid(in_act[:, n_channels_int:, :])
+diff --git a/src/piper/train/vits/models.py b/src/piper/train/vits/models.py
+index b1fc106..545dee0 100644
+--- a/src/piper/train/vits/models.py
++++ b/src/piper/train/vits/models.py
+@@ -60,7 +60,8 @@ class StochasticDurationPredictor(nn.Module):
+         if gin_channels != 0:
+             self.cond = nn.Conv1d(gin_channels, filter_channels, 1)
+ 
+-    def forward(self, x, x_mask, w=None, g=None, reverse=False, noise_scale=1.0):
++    # def forward(self, x, x_mask, w=None, g=None, reverse=False, noise_scale=1.0):
++    def forward(self, x, z, x_mask, w=None, g=None, reverse=False):
+         x = torch.detach(x)
+         x = self.pre(x)
+         if g is not None:
+@@ -108,7 +109,7 @@ class StochasticDurationPredictor(nn.Module):
+         else:
+             flows = list(reversed(self.flows))
+             flows = flows[:-2] + [flows[-1]]  # remove a useless vflow
+-            z = torch.randn(x.size(0), 2, x.size(2)).type_as(x) * noise_scale
++            # z = torch.randn(x.size(0), 2, x.size(2)).type_as(x) * noise_scale
+ 
+             for flow in flows:
+                 z = flow(z, x_mask, g=x, reverse=reverse)
+@@ -195,18 +196,22 @@ class TextEncoder(nn.Module):
+         )
+         self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
+ 
+-    def forward(self, x, x_lengths):
++    # def forward(self, x, x_lengths):
++    def forward(self, x):
+         x = self.emb(x) * math.sqrt(self.hidden_channels)  # [b, t, h]
+         x = torch.transpose(x, 1, -1)  # [b, h, t]
+-        x_mask = torch.unsqueeze(
+-            commons.sequence_mask(x_lengths, x.size(2)), 1
+-        ).type_as(x)
++        # x_mask = torch.unsqueeze(
++        #     commons.sequence_mask(x_lengths, x.size(2)), 1
++        # ).type_as(x)
+ 
+-        x = self.encoder(x * x_mask, x_mask)
+-        stats = self.proj(x) * x_mask
++        # x = self.encoder(x * x_mask, x_mask)
++        x = self.encoder(x)
++        # stats = self.proj(x) * x_mask
++        stats = self.proj(x)
+ 
+         m, logs = torch.split(stats, self.out_channels, dim=1)
+-        return x, m, logs, x_mask
++        # return x, m, logs, x_mask
++        return x, m, logs
+ 
+ 
+ class ResidualCouplingBlock(nn.Module):
+diff --git a/src/piper/train/vits/modules.py b/src/piper/train/vits/modules.py
+index 656e497..3ac6057 100644
+--- a/src/piper/train/vits/modules.py
++++ b/src/piper/train/vits/modules.py
+@@ -183,7 +183,7 @@ class WN(torch.nn.Module):
+ 
+     def forward(self, x, x_mask, g=None, **kwargs):
+         output = torch.zeros_like(x)
+-        n_channels_tensor = torch.IntTensor([self.hidden_channels])
++        # n_channels_tensor = torch.IntTensor([self.hidden_channels])
+ 
+         if g is not None:
+             g = self.cond_layer(g)
+@@ -196,7 +196,8 @@ class WN(torch.nn.Module):
+             else:
+                 g_l = torch.zeros_like(x_in)
+ 
+-            acts = fused_add_tanh_sigmoid_multiply(x_in, g_l, n_channels_tensor)
++            # acts = fused_add_tanh_sigmoid_multiply(x_in, g_l, n_channels_tensor)
++            acts = fused_add_tanh_sigmoid_multiply(x_in, g_l, self.hidden_channels)
+             acts = self.drop(acts)
+ 
+             res_skip_acts = self.res_skip_layers[i](acts)
+@@ -461,11 +462,31 @@ class ResidualCouplingLayer(nn.Module):
+             logdet = torch.sum(logs, [1, 2])
+             return x, logdet
+         else:
+-            x1 = (x1 - m) * torch.exp(-logs) * x_mask
++            # x1 = (x1 - m) * torch.exp(-logs) * x_mask
++            x1 = (x1 - m) * x_mask
+             x = torch.cat([x0, x1], 1)
+             return x
+ 
+ 
++class piecewise_rational_quadratic_transform_module(nn.Module):
++    def forward(self, x1, h, num_bins, filter_channels, reverse, tail_bound):
++
++        unnormalized_widths = h[..., : num_bins] / math.sqrt(filter_channels)
++        unnormalized_heights = h[..., num_bins : 2 * num_bins] / math.sqrt(filter_channels)
++        unnormalized_derivatives = h[..., 2 * num_bins :]
++
++        x1, logabsdet = piecewise_rational_quadratic_transform(
++            x1,
++            unnormalized_widths,
++            unnormalized_heights,
++            unnormalized_derivatives,
++            inverse=reverse,
++            tails="linear",
++            tail_bound=tail_bound,
++        )
++
++        return x1
++
+ class ConvFlow(nn.Module):
+     def __init__(
+         self,
+@@ -493,6 +514,8 @@ class ConvFlow(nn.Module):
+         self.proj.weight.data.zero_()
+         self.proj.bias.data.zero_()
+ 
++        self.piecewise_rational_quadratic_transform = piecewise_rational_quadratic_transform_module()
++
+     def forward(self, x, x_mask, g=None, reverse=False):
+         x0, x1 = torch.split(x, [self.half_channels] * 2, 1)
+         h = self.pre(x0)
+@@ -502,26 +525,30 @@ class ConvFlow(nn.Module):
+         b, c, t = x0.shape
+         h = h.reshape(b, c, -1, t).permute(0, 1, 3, 2)  # [b, cx?, t] -> [b, c, t, ?]
+ 
+-        unnormalized_widths = h[..., : self.num_bins] / math.sqrt(self.filter_channels)
+-        unnormalized_heights = h[..., self.num_bins : 2 * self.num_bins] / math.sqrt(
+-            self.filter_channels
+-        )
+-        unnormalized_derivatives = h[..., 2 * self.num_bins :]
+-
+-        x1, logabsdet = piecewise_rational_quadratic_transform(
+-            x1,
+-            unnormalized_widths,
+-            unnormalized_heights,
+-            unnormalized_derivatives,
+-            inverse=reverse,
+-            tails="linear",
+-            tail_bound=self.tail_bound,
+-        )
++        # unnormalized_widths = h[..., : self.num_bins] / math.sqrt(self.filter_channels)
++        # unnormalized_heights = h[..., self.num_bins : 2 * self.num_bins] / math.sqrt(
++        #     self.filter_channels
++        # )
++        # unnormalized_derivatives = h[..., 2 * self.num_bins :]
++        #
++        # x1, logabsdet = piecewise_rational_quadratic_transform(
++        #     x1,
++        #     unnormalized_widths,
++        #     unnormalized_heights,
++        #     unnormalized_derivatives,
++        #     inverse=reverse,
++        #     tails="linear",
++        #     tail_bound=self.tail_bound,
++        # )
++
++        x1 = self.piecewise_rational_quadratic_transform(x1, h, self.num_bins, self.filter_channels, reverse, self.tail_bound)
+ 
+         x = torch.cat([x0, x1], 1) * x_mask
+ 
+-        logdet = torch.sum(logabsdet * x_mask, [1, 2])
+-        if not reverse:
+-            return x, logdet
+-        else:
+-            return x
++        # logdet = torch.sum(logabsdet * x_mask, [1, 2])
++        # if not reverse:
++        #     return x, logdet
++        # else:
++        #     return x
++
++        return x
