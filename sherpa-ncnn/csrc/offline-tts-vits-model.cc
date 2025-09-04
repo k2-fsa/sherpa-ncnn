@@ -329,12 +329,16 @@ class OfflineTtsVitsModel::Impl {
     return {x, m_p, logs_p};
   }
 
-  ncnn::Mat RunDurationPredictor(const ncnn::Mat &x,
-                                 const ncnn::Mat &noise) const {
+  ncnn::Mat RunDurationPredictor(const ncnn::Mat &x, const ncnn::Mat &noise,
+                                 const ncnn::Mat &g) const {
     ncnn::Extractor ex = dp_.create_extractor();
 
     ex.input("in0", x);
     ex.input("in1", noise);
+
+    if (meta_.num_speakers > 1) {
+      ex.input("in2", g);
+    }
 
     ncnn::Mat logw;
     ex.extract("out0", logw);
@@ -342,10 +346,13 @@ class OfflineTtsVitsModel::Impl {
     return logw;
   }
 
-  ncnn::Mat RunFlow(const ncnn::Mat &z_p) const {
+  ncnn::Mat RunFlow(const ncnn::Mat &z_p, const ncnn::Mat &g) const {
     ncnn::Extractor ex = flow_.create_extractor();
 
     ex.input("in0", z_p);
+    if (meta_.num_speakers > 1) {
+      ex.input("in1", g);
+    }
 
     ncnn::Mat z;
     ex.extract("out0", z);
@@ -353,10 +360,13 @@ class OfflineTtsVitsModel::Impl {
     return z;
   }
 
-  ncnn::Mat RunDecoder(const ncnn::Mat &z) const {
+  ncnn::Mat RunDecoder(const ncnn::Mat &z, const ncnn::Mat &g) const {
     ncnn::Extractor ex = decoder_.create_extractor();
 
     ex.input("in0", z);
+    if (meta_.num_speakers > 1) {
+      ex.input("in1", g);
+    }
 
     ncnn::Mat o;
     ex.extract("out0", o);
@@ -364,10 +374,33 @@ class OfflineTtsVitsModel::Impl {
     return o;
   }
 
+  ncnn::Mat RunEmbedding(int32_t sid) const {
+    if (meta_.num_speakers < 2) {
+      return {};
+    }
+
+    sid = sid < 0 ? 0 : sid;
+    sid = sid > meta_.num_speakers - 1 ? meta_.num_speakers - 1 : sid;
+
+    ncnn::Extractor ex = embedding_.create_extractor();
+
+    ncnn::Mat in(1);
+    static_cast<int32_t *>(in)[0] = sid;
+
+    ex.input("in0", in);
+
+    ncnn::Mat g;
+    ex.extract("out0", g);
+
+    g = g.reshape(1, g.w);
+
+    return g;
+  }
+
  private:
   void Init() {
-    InitNet();
     meta_ = ReadFromConfigJson(config_.vits.model_dir + "/config.json");
+    InitNet();
   }
 
   void InitNet() {
@@ -375,16 +408,27 @@ class OfflineTtsVitsModel::Impl {
     InitDurationPredictorNet();
     InitFlowNet();
     InitDecoderNet();
+
+    if (meta_.num_speakers > 1) {
+      InitEmbeddingNet();
+    }
   }
 
   void InitEncoderNet() {
     enc_p_.opt.num_threads = config_.num_threads;
 
-    // TODO(fangjun): change the module name
+    // en_enc_p_pnnx is for our first version.
     enc_p_.register_custom_layer("en_enc_p_pnnx.relative_embeddings_k_module",
                                  relative_embeddings_k_module_layer_creator);
     enc_p_.register_custom_layer("en_enc_p_pnnx.relative_embeddings_v_module",
                                  relative_embeddings_v_module_layer_creator);
+
+    enc_p_.register_custom_layer(
+        "piper.train.vits.attentions.relative_embeddings_k_module",
+        relative_embeddings_k_module_layer_creator);
+    enc_p_.register_custom_layer(
+        "piper.train.vits.attentions.relative_embeddings_v_module",
+        relative_embeddings_v_module_layer_creator);
 
     std::string param = config_.vits.model_dir + "/encoder.ncnn.param";
     std::string bin = config_.vits.model_dir + "/encoder.ncnn.bin";
@@ -427,6 +471,16 @@ class OfflineTtsVitsModel::Impl {
     decoder_.load_model(bin.c_str());
   }
 
+  void InitEmbeddingNet() {
+    embedding_.opt.num_threads = config_.num_threads;
+
+    std::string param = config_.vits.model_dir + "/embedding.ncnn.param";
+    std::string bin = config_.vits.model_dir + "/embedding.ncnn.bin";
+
+    embedding_.load_param(param.c_str());
+    embedding_.load_model(bin.c_str());
+  }
+
  private:
   OfflineTtsModelConfig config_;
   OfflineTtsVitsModelMetaData meta_;
@@ -435,6 +489,7 @@ class OfflineTtsVitsModel::Impl {
   ncnn::Net dp_;
   ncnn::Net flow_;
   ncnn::Net decoder_;
+  ncnn::Net embedding_;
 };
 
 OfflineTtsVitsModel::~OfflineTtsVitsModel() = default;
@@ -451,9 +506,10 @@ std::vector<ncnn::Mat> OfflineTtsVitsModel::RunEncoder(
   return impl_->RunEncoder(sequence);
 }
 
-ncnn::Mat OfflineTtsVitsModel::RunDurationPredictor(
-    const ncnn::Mat &x, const ncnn::Mat &noise) const {
-  return impl_->RunDurationPredictor(x, noise);
+ncnn::Mat OfflineTtsVitsModel::RunDurationPredictor(const ncnn::Mat &x,
+                                                    const ncnn::Mat &noise,
+                                                    const ncnn::Mat &g) const {
+  return impl_->RunDurationPredictor(x, noise, g);
 }
 
 ncnn::Mat OfflineTtsVitsModel::PathAttention(const ncnn::Mat &logw,
@@ -463,12 +519,18 @@ ncnn::Mat OfflineTtsVitsModel::PathAttention(const ncnn::Mat &logw,
   return PathAttentionImpl(logw, m_p, logs_p, noise_scale, speed);
 }
 
-ncnn::Mat OfflineTtsVitsModel::RunFlow(const ncnn::Mat &z_p) const {
-  return impl_->RunFlow(z_p);
+ncnn::Mat OfflineTtsVitsModel::RunFlow(const ncnn::Mat &z_p,
+                                       const ncnn::Mat &g) const {
+  return impl_->RunFlow(z_p, g);
 }
 
-ncnn::Mat OfflineTtsVitsModel::RunDecoder(const ncnn::Mat &z) const {
-  return impl_->RunDecoder(z);
+ncnn::Mat OfflineTtsVitsModel::RunDecoder(const ncnn::Mat &z,
+                                          const ncnn::Mat &g) const {
+  return impl_->RunDecoder(z, g);
+}
+
+ncnn::Mat OfflineTtsVitsModel::RunEmbedding(int32_t sid) const {
+  return impl_->RunEmbedding(sid);
 }
 
 }  // namespace sherpa_ncnn
