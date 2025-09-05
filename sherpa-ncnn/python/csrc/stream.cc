@@ -18,6 +18,8 @@
 
 #include "sherpa-ncnn/python/csrc/stream.h"
 
+#include <vector>
+
 #include "sherpa-ncnn/csrc/stream.h"
 
 namespace sherpa_ncnn {

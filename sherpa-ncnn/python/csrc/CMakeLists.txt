@@ -9,7 +9,6 @@ set(srcs
   recognizer.cc
   sherpa-ncnn.cc
   stream.cc
-  offline-tts-vits-model-config.cc
 )
 list(APPEND srcs
   offline-tts-model-config.cc

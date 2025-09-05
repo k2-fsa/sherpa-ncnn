@@ -4,7 +4,9 @@
 #include "sherpa-ncnn/python/csrc/offline-tts.h"
 
 #include <algorithm>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "sherpa-ncnn/csrc/offline-tts.h"
 #include "sherpa-ncnn/python/csrc/offline-tts-model-config.h"

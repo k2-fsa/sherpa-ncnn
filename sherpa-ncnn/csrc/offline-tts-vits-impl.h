@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <memory>
-#include <regex>
+#include <regex>  // NOLINT
 #include <string>
 #include <unordered_map>
 #include <utility>

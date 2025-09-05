@@ -15,7 +15,7 @@ void PybindOfflineTtsVitsModelConfig(py::module *m) {
 
   py::class_<PyClass>(*m, "OfflineTtsVitsModelConfig")
       .def(py::init<>())
-      .def(py::init<const std::string>(), py::arg("model_dir") = "")
+      .def(py::init<const std::string &>(), py::arg("model_dir") = "")
       .def_readwrite("model_dir", &PyClass::model_dir)
       .def("__str__", &PyClass::ToString)
       .def("validate", &PyClass::Validate);
