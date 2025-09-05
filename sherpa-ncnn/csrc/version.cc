@@ -7,17 +7,17 @@
 namespace sherpa_ncnn {
 
 const char *GetGitDate() {
-  static const char *date = "Wed Sep 3 23:39:44 2025";
+  static const char *date = "Fri Sep 5 23:27:34 2025";
   return date;
 }
 
 const char *GetGitSha1() {
-  static const char *sha1 = "b0928b0e";
+  static const char *sha1 = "3c4dbcbf";
   return sha1;
 }
 
 const char *GetVersionStr() {
-  static const char *version = "2.1.13";
+  static const char *version = "2.1.14";
   return version;
 }
 

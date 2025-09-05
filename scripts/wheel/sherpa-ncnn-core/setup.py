@@ -21,7 +21,7 @@ def get_binaries():
 
 setup(
     name="sherpa-ncnn-core",
-    version="2.1.13",
+    version="2.1.14",
     description="Core shared libraries for sherpa-ncnn",
     packages=["sherpa_ncnn"],
     include_package_data=True,
