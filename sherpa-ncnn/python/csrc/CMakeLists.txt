@@ -14,6 +14,7 @@ set(srcs
 list(APPEND srcs
   offline-tts-model-config.cc
   offline-tts-vits-model-config.cc
+  offline-tts.cc
 )
 
 if(SHERPA_NCNN_HAS_ALSA)

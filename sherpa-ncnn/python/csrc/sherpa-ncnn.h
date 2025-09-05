@@ -19,6 +19,7 @@
 #ifndef SHERPA_NCNN_PYTHON_CSRC_SHERPA_NCNN_H_
 #define SHERPA_NCNN_PYTHON_CSRC_SHERPA_NCNN_H_
 
+#include "pybind11/functional.h"
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
