@@ -12,7 +12,7 @@ import re
 import sys
 
 if len(sys.argv) != 2:
-    raise ValueError("python3 ./generate-lexicon.py <en-us|en-gb-x-rp>")
+    raise ValueError("python3 ./generate_lexicon_english.py <en-us|en-gb-x-rp>")
 
 
 def read_lexicon():
