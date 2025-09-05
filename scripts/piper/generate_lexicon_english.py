@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright    2023  Xiaomi Corp.        (authors: Fangjun Kuang)
+# Copyright    2025  Xiaomi Corp.        (authors: Fangjun Kuang)
 
 try:
     from piper_phonemize import phonemize_espeak

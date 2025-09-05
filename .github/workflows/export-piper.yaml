@@ -45,6 +45,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip pnnx
           python3 -m pip install piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
+          python3 -m pip install --upgrade pip pypinyin
 
       - name: Generate script
         env:
@@ -128,6 +129,62 @@ jobs:
               ncnn-vits-piper-en_GB-alba-medium
               ncnn-vits-piper-en_GB-aru-medium-fp16
               ncnn-vits-piper-en_GB-aru-medium
+              ncnn-vits-piper-en_GB-cori-high-fp16
+              ncnn-vits-piper-en_GB-cori-high
+              ncnn-vits-piper-en_GB-cori-medium-fp16
+              ncnn-vits-piper-en_GB-cori-medium
+              ncnn-vits-piper-en_GB-jenny_dioco-medium-fp16
+              ncnn-vits-piper-en_GB-jenny_dioco-medium
+              ncnn-vits-piper-en_GB-northern_english_male-medium-fp16
+              ncnn-vits-piper-en_GB-northern_english_male-medium
+              ncnn-vits-piper-en_GB-semaine-medium-fp16
+              ncnn-vits-piper-en_GB-semaine-medium
+              ncnn-vits-piper-en_GB-vctk-medium-fp16
+              ncnn-vits-piper-en_GB-vctk-medium
+              ncnn-vits-piper-en_US-amy-medium-fp16
+              ncnn-vits-piper-en_US-amy-medium
+              ncnn-vits-piper-en_US-arctic-medium-fp16
+              ncnn-vits-piper-en_US-arctic-medium
+              ncnn-vits-piper-en_US-bryce-medium-fp16
+              ncnn-vits-piper-en_US-bryce-medium
+              ncnn-vits-piper-en_US-hfc_female-medium-fp16
+              ncnn-vits-piper-en_US-hfc_female-medium
+              ncnn-vits-piper-en_US-hfc_male-medium-fp16
+              ncnn-vits-piper-en_US-hfc_male-medium
+              ncnn-vits-piper-en_US-joe-medium-fp16
+              ncnn-vits-piper-en_US-joe-medium
+              ncnn-vits-piper-en_US-john-medium-fp16
+              ncnn-vits-piper-en_US-john-medium
+              ncnn-vits-piper-en_US-kristin-medium-fp16
+              ncnn-vits-piper-en_US-kristin-medium
+              ncnn-vits-piper-en_US-kusal-medium-fp16
+              ncnn-vits-piper-en_US-kusal-medium
+              ncnn-vits-piper-en_US-l2arctic-medium-fp16
+              ncnn-vits-piper-en_US-k2arctic-medium
+              ncnn-vits-piper-en_US-lessac-high-fp16
+              ncnn-vits-piper-en_US-lessac-high
+              ncnn-vits-piper-en_US-lessac-low-fp16
+              ncnn-vits-piper-en_US-lessac-low
+              ncnn-vits-piper-en_US-lessac-medium-fp16
+              ncnn-vits-piper-en_US-lessac-medium
+              ncnn-vits-piper-en_US-libritts_r-medium-fp16
+              ncnn-vits-piper-en_US-libritts_r-medium
+              ncnn-vits-piper-en_US-ljspeech-high-fp16
+              ncnn-vits-piper-en_US-ljspeech-high
+              ncnn-vits-piper-en_US-ljspeech-medium-fp16
+              ncnn-vits-piper-en_US-ljspeech-medium
+              ncnn-vits-piper-en_US-ryan-medium-fp16
+              ncnn-vits-piper-en_US-ryan-medium
+              ncnn-vits-piper-en_US-sam-medium-fp16
+              ncnn-vits-piper-en_US-sam-medium
+              ncnn-vits-piper-en_GB-miro-high-fp16
+              ncnn-vits-piper-en_GB-miro-high
+              ncnn-vits-piper-en_GB-dii-high-fp16
+              ncnn-vits-piper-en_GB-dii-high
+              ncnn-vits-piper-en_US-glados-high-fp16
+              ncnn-vits-piper-en_US-glados-high
+              ncnn-vits-piper-en_US-miro-high-fp16
+              ncnn-vits-piper-en_US-miro-high
             )
             for d in ${dirs[@]}; do
               src=scripts/piper/release/$d

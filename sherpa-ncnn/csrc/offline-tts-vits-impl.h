@@ -245,7 +245,9 @@ class OfflineTtsVitsImpl : public OfflineTtsImpl {
         this_sentence.push_back(token2id.at(w));
         if (w == ",") {
           this_sentence.push_back(space);
-        } else if (w == "." || w == "?" || w == "!" || w == ";") {
+        }
+
+        if (w == "," || w == "." || w == "?" || w == "!" || w == ";") {
           ans.push_back(std::move(this_sentence));
         }
       } else {

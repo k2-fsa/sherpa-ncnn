@@ -11,16 +11,25 @@ log() {
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') (${fname}:${BASH_LINENO[0]}:${FUNCNAME[1]}) $*"
 }
 
-wget -q https://huggingface.co/csukuangfj/vits-ljs/resolve/main/CMU.in.IPA.txt
+function generate_english_lexicon() {
+  wget -q https://huggingface.co/csukuangfj/vits-ljs/resolve/main/CMU.in.IPA.txt
 
-python3 ./generate-lexicon.py en-us
-mv lexicon.txt lexicon-en_US.txt
+  python3 ./generate_lexicon_english.py en-us
+  mv lexicon.txt lexicon-en_US.txt
 
-python3 ./generate-lexicon.py en-gb-x-rp
-mv lexicon.txt lexicon-en_GB.txt
+  python3 ./generate_lexicon_english.py en-gb-x-rp
+  mv lexicon.txt lexicon-en_GB.txt
+}
 
-head -n 30 lexicon*.txt
-sleep 4
+
+function generate_chinese_lexicon() {
+  python3 ./generate_lexicon_chinese.py
+
+}
+
+generate_chinese_lexicon
+generate_english_lexicon
+
 
 mkdir -p release
 
@@ -56,6 +65,9 @@ mv -v *.ncnn.param $dst
 mv -v *.ncnn.bin $dst
 cp -v config.json $dst
 cp -v ../lexicon-$lang.txt $dst/lexicon.txt
+cp -v MODEL_CARD $dst || true
+cp -v README $dst || true
+cp -v README.md $dst || true
 
 python3 ./export_ncnn.py $checkpoint 1
 
@@ -63,6 +75,10 @@ mv *.ncnn.param $dst_fp16
 mv *.ncnn.bin $dst_fp16
 cp -v config.json $dst_fp16
 cp -v ../lexicon-$lang.txt $dst_fp16/lexicon.txt
+
+cp -v MODEL_CARD $dst_fp16 || true
+cp -v README $dst_fp16 || true
+cp -v README.md $dst_fp16 || true
 
 ls -lh $dst
 echo "---"
