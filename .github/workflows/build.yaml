@@ -203,7 +203,7 @@ jobs:
         shell: bash
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install wheel twine==5.0.0 setuptools
+          python3 -m pip install wheel twine==5.0.0 setuptools soundfile
 
       - name: Build ${{ matrix.os }} ${{ matrix.python-version }}
         shell: bash
@@ -235,7 +235,7 @@ jobs:
           ls -lh dist
           python3 -m pip install ./dist/*.whl
 
-      - name: Test ${{ matrix.os }} ${{ matrix.python-version }}
+      - name: Test asr ${{ matrix.os }} ${{ matrix.python-version }}
         shell: bash
         run: |
           curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-conv-emformer-transducer-2022-12-06.tar.bz2
@@ -244,3 +244,49 @@ jobs:
           ls -lh sherpa-ncnn-conv-emformer-transducer-2022-12-06
 
           python3 ./python-api-examples/decode-file.py
+
+      - name: Test Chinese tts ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/tts-models/ncnn-vits-piper-zh_CN-huayan-medium-fp16.tar.bz2
+          tar xvf ncnn-vits-piper-zh_CN-huayan-medium-fp16.tar.bz2
+          rm ncnn-vits-piper-zh_CN-huayan-medium-fp16.tar.bz2
+          ls -lh ncnn-vits-piper-zh_CN-huayan-medium-fp16
+
+          python3 ./python-api-examples/tts-piper-chinese-single-speaker.py
+          ls -lh *.wav
+
+          rm -rf ncnn-vits-piper-zh_CN-huayan-medium-fp16
+
+      - name: Test English tts 1 ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/tts-models/ncnn-vits-piper-en_US-bryce-medium-fp16.tar.bz2
+          tar xvf ncnn-vits-piper-en_US-bryce-medium-fp16.tar.bz2
+          rm ncnn-vits-piper-en_US-bryce-medium-fp16.tar.bz2
+          ls -lh ncnn-vits-piper-en_US-bryce-medium-fp16
+
+          python3 ./python-api-examples/tts-piper-english-single-speaker.py
+          ls -lh *.wav
+
+          rm -rf ncnn-vits-piper-en_US-bryce-medium-fp16
+
+      - name: Test English tts 2 ${{ matrix.os }} ${{ matrix.python-version }}
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/tts-models/ncnn-vits-piper-en_US-libritts_r-medium-fp16.tar.bz2
+          tar xvf ncnn-vits-piper-en_US-libritts_r-medium-fp16.tar.bz2
+          rm ncnn-vits-piper-en_US-libritts_r-medium-fp16.tar.bz2
+          ls -lh ncnn-vits-piper-en_US-libritts_r-medium-fp16
+
+
+          python3 ./python-api-examples/tts-piper-english-multi-speakers.py
+          ls -lh *.wav
+
+          rm -rf ncnn-vits-piper-en_US-libritts_r-medium-fp16
+
+      - name: Upload tts wav
+        uses: actions/upload-artifact@v4
+        with:
+          name: tts-${{ matrix.os }}-${{ matrix.python-version }}
+          path: ./*.wav
