@@ -57,6 +57,10 @@ class Lexicon::Impl {
     word2token_ids_[w] = token_ids;
   }
 
+  bool Contains(const std::string &word) const {
+    return word2token_ids_.count(word) > 0;
+  }
+
  private:
   void Init(std::istream &is) {
     std::string word;
@@ -111,6 +115,10 @@ void Lexicon::TokenizeWord(const std::string &word,
 void Lexicon::AddWord(const std::string &word,
                       const std::vector<int32_t> &token_ids) const {
   impl_->AddWord(word, token_ids);
+}
+
+bool Lexicon::Contains(const std::string &word) const {
+  return impl_->Contains(word);
 }
 
 }  // namespace sherpa_ncnn

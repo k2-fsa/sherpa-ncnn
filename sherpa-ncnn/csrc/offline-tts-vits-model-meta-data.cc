@@ -25,6 +25,7 @@ OfflineTtsVitsModelMetaData ReadFromConfigJson(const std::string& filename) {
 
   OfflineTtsVitsModelMetaData ans;
   ans.sample_rate = data["audio"]["sample_rate"];
+  ans.voice = data["espeak"]["voice"];
   ans.num_speakers = data["num_speakers"];
   ans.token2id = LoadToken2ID(data);
 

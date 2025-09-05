@@ -26,6 +26,8 @@ class Lexicon {
   void AddWord(const std::string& word,
                const std::vector<int32_t>& token_ids) const;
 
+  bool Contains(const std::string& word) const;
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;
