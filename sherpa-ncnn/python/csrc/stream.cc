@@ -25,11 +25,15 @@ namespace sherpa_ncnn {
 void PybindStream(py::module *m) {
   using PyClass = Stream;
   py::class_<PyClass>(*m, "Stream")
-      .def("accept_waveform",
-           [](PyClass &self, float sample_rate, py::array_t<float> waveform) {
-             self.AcceptWaveform(sample_rate, waveform.data(), waveform.size());
-           })
-      .def("input_finished", &PyClass::InputFinished);
+      .def(
+          "accept_waveform",
+          [](PyClass &self, float sample_rate,
+             const std::vector<float> &waveform) {
+            self.AcceptWaveform(sample_rate, waveform.data(), waveform.size());
+          },
+          py::call_guard<py::gil_scoped_release>())
+      .def("input_finished", &PyClass::InputFinished,
+           py::call_guard<py::gil_scoped_release>());
 }
 
 }  // namespace sherpa_ncnn
