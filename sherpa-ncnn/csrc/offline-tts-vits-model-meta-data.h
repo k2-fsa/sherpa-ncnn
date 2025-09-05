@@ -16,6 +16,9 @@ struct OfflineTtsVitsModelMetaData {
   int32_t sample_rate;
   std::unordered_map<std::string, int32_t> token2id;
 
+  // cmn for Chinese
+  std::string voice;
+
   int32_t pad;
   int32_t bos;
   int32_t eos;

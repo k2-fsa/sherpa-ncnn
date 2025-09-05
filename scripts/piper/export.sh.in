@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Copyright    2025  Xiaomi Corp.        (authors: Fangjun Kuang)
+#
+# Auto generated! Do NOT edit!
+
+set -ex
+
+log() {
+  # This function is from espnet
+  local fname=${BASH_SOURCE[1]##*/}
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') (${fname}:${BASH_LINENO[0]}:${FUNCNAME[1]}) $*"
+}
+
+function generate_english_lexicon() {
+  wget -q https://huggingface.co/csukuangfj/vits-ljs/resolve/main/CMU.in.IPA.txt
+
+  python3 ./generate_lexicon_english.py en-us
+  mv lexicon.txt lexicon-en_US.txt
+
+  python3 ./generate_lexicon_english.py en-gb-x-rp
+  mv lexicon.txt lexicon-en_GB.txt
+}
+
+
+function generate_chinese_lexicon() {
+  python3 ./generate_lexicon_chinese.py
+
+}
+
+generate_chinese_lexicon
+generate_english_lexicon
+
+
+mkdir -p release
+
+{% for model in model_list %}
+
+name={{ model.name }}
+kind={{ model.kind }}
+lang={{ model.lang }}
+checkpoint={{ model.checkpoint }}
+text="{{ model.text }}"
+num_speakers={{ model.ns }}
+sample_rate={{ model.sr }}
+
+pushd piper1-gpl
+
+echo "---"
+
+{{ model.cmd }}
+
+echo "files"
+
+ls -lh
+echo "---"
+
+dst=ncnn-vits-piper-$lang-$name-$kind
+dst_fp16=ncnn-vits-piper-$lang-$name-$kind-fp16
+mkdir -p $dst $dst_fp16
+
+# float32
+python3 ./export_ncnn.py $checkpoint 0
+
+mv -v *.ncnn.param $dst
+mv -v *.ncnn.bin $dst
+cp -v config.json $dst
+cp -v ../lexicon-$lang.txt $dst/lexicon.txt
+cp -v MODEL_CARD $dst || true
+cp -v README $dst || true
+cp -v README.md $dst || true
+
+python3 ./export_ncnn.py $checkpoint 1
+
+mv *.ncnn.param $dst_fp16
+mv *.ncnn.bin $dst_fp16
+cp -v config.json $dst_fp16
+cp -v ../lexicon-$lang.txt $dst_fp16/lexicon.txt
+
+cp -v MODEL_CARD $dst_fp16 || true
+cp -v README $dst_fp16 || true
+cp -v README.md $dst_fp16 || true
+
+ls -lh $dst
+echo "---"
+ls -lh $dst_fp16
+
+tar cjf ${dst}.tar.bz2 $dst
+tar cjf ${dst_fp16}.tar.bz2 $dst_fp16
+
+mv $dst ../release
+mv $dst_fp16 ../release
+
+mv ${dst}.tar.bz2 ../
+mv ${dst_fp16}.tar.bz2 ../
+
+rm -v $checkpoint
+rm -v config.json
+
+popd
+
+ls -lh release/*
+ls -lh *.tar.bz2
+
+{% endfor %}
