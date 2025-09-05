@@ -67,6 +67,17 @@ struct GeneratedAudio {
 };
 
 struct TtsArgs {
+  TtsArgs() = default;
+  TtsArgs(const std::string &text,
+          const std::vector<std::vector<int32_t>> &tokens, int32_t sid = 0,
+          float speed = 1.0, float noise_scale = 0.667f,
+          float noise_scale_w = 0.8f)
+      : text(text),
+        tokens(tokens),
+        sid(sid),
+        speed(speed),
+        noise_scale(noise_scale),
+        noise_scale_w(noise_scale_w) {}
   // A string containing words separated by spaces
   std::string text;
 
@@ -84,8 +95,8 @@ struct TtsArgs {
   // The speed for the generated speech. E.g., 2 means 2x faster.
   float speed = 1.0;  // speed = 1.0/length_scale
 
-  float noise_scale = 0.667;
-  float noise_scale_w = 0.8;
+  float noise_scale = 0.667f;
+  float noise_scale_w = 0.8f;
 };
 
 class OfflineTtsImpl;

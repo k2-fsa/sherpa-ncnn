@@ -284,3 +284,9 @@ jobs:
           ls -lh *.wav
 
           rm -rf ncnn-vits-piper-en_US-libritts_r-medium-fp16
+
+      - name: Upload tts wav
+        uses: actions/upload-artifact@v4
+        with:
+          name: tts-${{ matrix.os }}-${{ matrix.python-version }}
+          path: ./*.wav

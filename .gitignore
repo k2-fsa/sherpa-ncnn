@@ -127,3 +127,4 @@ node_modules
 *.param
 *.dylib
 *.egg-info
+*.so

@@ -3,6 +3,9 @@ from sherpa_ncnn.lib._sherpa_ncnn import (
     Display,
     OfflineTtsModelConfig,
     OfflineTtsVitsModelConfig,
+    OfflineTtsConfig,
+    OfflineTts,
+    TtsArgs,
 )
 
 from .recognizer import Recognizer
