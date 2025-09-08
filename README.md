@@ -1,8 +1,8 @@
 ### Supported functions
 
-|Real-time Speech recognition| Voice activity detection |
-|----------------------------|--------------------------|
-|   ✔️                        |         ✔️                |
+|Real-time Speech recognition|Speech synthesis | Voice activity detection |
+|----------------------------|-----------------|--------------------------|
+|   ✔️                        |✔️                |         ✔️                |
 
 ### Supported platforms
 
@@ -32,6 +32,7 @@ It also supports WebAssembly.
 This repository supports running the following functions **locally**
 
   - Streaming speech-to-text (i.e., real-time speech recognition)
+  - Text to speech (e.g., vits models from [piper](https://github.com/OHF-Voice/piper1-gpl))
   - VAD (e.g., [silero-vad](https://github.com/snakers4/silero-vad))
 
 on the following platforms and operating systems:
