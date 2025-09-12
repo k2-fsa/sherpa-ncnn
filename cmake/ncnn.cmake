@@ -7,19 +7,19 @@ function(download_ncnn)
 
   # Please also change ../pack-for-embedded-systems.sh
 
-  # the latest master as of 2025.08.15
-  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip")
-  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip")
-  set(ncnn_HASH "SHA256=e8da29e36e202af821511160a41bb0e1dc5d8c85a07b87e82b790f8239e5bfec")
+  # the latest master as of 2025.09.12
+  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip")
+  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip")
+  set(ncnn_HASH "SHA256=dd4f494896e62d561140cdbdf2369754e36efa73b81f9cf0576aa0cd5566a47b")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
   set(possible_file_locations
-    $ENV{HOME}/Downloads/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
-    $ENV{HOME}/asr/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
-    ${PROJECT_SOURCE_DIR}/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
-    ${PROJECT_BINARY_DIR}/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
-    /tmp/ncnn-d68ea6b4d551bbdc3781f68fd4bb1e1b87a4eb1d.zip
+    $ENV{HOME}/Downloads/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
+    $ENV{HOME}/asr/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
+    ${PROJECT_SOURCE_DIR}/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
+    ${PROJECT_BINARY_DIR}/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
+    /tmp/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
   )
 
   foreach(f IN LISTS possible_file_locations)
