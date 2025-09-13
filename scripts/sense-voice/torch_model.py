@@ -508,8 +508,8 @@ class SenseVoiceSmall(nn.Module):
         self.input_size = 80 * 7
         self.vocab_size = 25055
 
-        self.neg_mean = neg_mean.reshape(1, 1, -1)
-        self.inv_stddev = inv_stddev.reshape(1, 1, -1)
+        self.neg_mean = neg_mean
+        self.inv_stddev = inv_stddev
         print(self.neg_mean.shape, self.inv_stddev.shape)
 
         self.lid_dict = {

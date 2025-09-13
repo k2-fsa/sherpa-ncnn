@@ -8,20 +8,6 @@ import torch
 from torch_model import SenseVoiceSmall
 
 
-def disable_reshape():
-    lines = []
-    with open("./model.ncnn.param") as f:
-        for line in f:
-            line = line.strip()
-            if "add_0" in line:
-                line = line.replace("7", "4")
-            lines.append(line)
-
-    with open("./model.ncnn.param", "w") as f:
-        for line in lines:
-            f.write(f"{line}\n")
-
-
 def load_cmvn(filename) -> Tuple[List[float], List[float]]:
     neg_mean = None
     inv_stddev = None
@@ -84,7 +70,6 @@ def main():
         (x2, prompt, pos_emb2),
         fp16=True,
     )
-    disable_reshape()
 
 
 if __name__ == "__main__":
