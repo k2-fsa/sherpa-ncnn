@@ -1,0 +1,10 @@
+*.wav
+am.mvn
+model_ncnn.py
+model_pnnx.py
+model.pnnx.onnx
+model.pt
+model.torchscript
+path.sh
+tokens.txt
+*.model

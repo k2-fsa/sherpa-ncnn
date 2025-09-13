@@ -128,3 +128,4 @@ node_modules
 *.dylib
 *.egg-info
 *.so
+sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-202*
