@@ -1,0 +1,108 @@
+name: export-sense-voice
+
+on:
+  push:
+    branches:
+      - export-sense-voice
+  workflow_dispatch:
+
+concurrency:
+  group: export-sense-voice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export-sense-voice:
+    if: github.repository_owner == 'k2-fsa' || github.repository_owner == 'csukuangfj'
+    name: ${{ matrix.framework }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+        python-version: ["3.10"]
+        # framework: ["FunASR", "WSYue-ASR"]
+        framework: ["FunASR"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip pnnx torch "numpy<2" sentencepiece
+
+      - name: Run SenseVoice from FunAsr
+        if: matrix.framework == 'FunASR'
+        shell: bash
+        run: |
+          cd scripts/sense-voice
+
+          curl -SL -O https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/am.mvn
+          curl -SL -O https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/model.pt
+          curl -SL -O https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/chn_jpn_yue_eng_ko_spectok.bpe.model
+
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/en.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ja.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ko.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/yue.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/zh.wav
+
+          rm -f README.md || true
+
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/README.md
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/LICENSE
+
+          python3 ./export-ncnn.py
+
+          echo "collect results"
+          d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17
+          mkdir -p $d
+
+          mkdir -p $d
+          mkdir -p $d/test_wavs
+
+          cp -v README.md $d
+          cp -v LICENSE $d
+          cp -v model.ncnn.param $d
+          cp -v model.ncnn.bin $d
+          cp -v tokens.txt $d
+          cp -v *.wav $d/test_wavs
+          ls -lh $d
+          tar cjfv $d.tar.bz2 $d
+          ls -lh *.tar.bz2
+          rm -rf d
+
+          echo "----show---"
+          ls -lh *.tar.bz2
+
+          mv *.tar.bz2 ../..
+
+      - name: Show generated model files
+        shell: bash
+        run: |
+          ls -lh *.tar.bz2
+
+      - name: Release
+        if: github.repository_owner == 'csukuangfj'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: ./sherpa-ncnn-*.tar.bz2
+          overwrite: true
+          repo_name: k2-fsa/sherpa-ncnn
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_NCNN_TOKEN }}
+          tag: asr-models
+
+      - name: Release
+        if: github.repository_owner == 'k2-fsa'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: ./sherpa-ncnn-*.tar.bz2
+          overwrite: true
+          tag: asr-models
