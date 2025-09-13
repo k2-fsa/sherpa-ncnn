@@ -16,6 +16,27 @@ def get_args():
     )
 
     parser.add_argument(
+        "--model-ncnn-param",
+        type=str,
+        required=True,
+        help="path to model.ncnn.param",
+    )
+
+    parser.add_argument(
+        "--model-ncnn-bin",
+        type=str,
+        required=True,
+        help="path to model.ncnn.bin",
+    )
+
+    parser.add_argument(
+        "--tokens",
+        type=str,
+        required=True,
+        help="path to tokens.txt",
+    )
+
+    parser.add_argument(
         "--wave",
         type=str,
         required=True,
@@ -116,8 +137,7 @@ def compute_feat(
 
 def main():
     args = get_args()
-    wave = args.wave
-    samples, sample_rate = load_audio(wave)
+    samples, sample_rate = load_audio(args.wave)
     if sample_rate != 16000:
         import librosa
 
@@ -141,8 +161,8 @@ def main():
 
     with ncnn.Net() as net:
         net.opt.num_threads = 1
-        net.load_param("./model.ncnn.param")
-        net.load_model("./model.ncnn.bin")
+        net.load_param(args.model_ncnn_param)
+        net.load_model(args.model_ncnn_bin)
 
         with net.create_extractor() as ex:
             x = features
