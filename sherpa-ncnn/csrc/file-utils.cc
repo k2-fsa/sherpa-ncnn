@@ -18,19 +18,28 @@
 
 #include "sherpa-ncnn/csrc/file-utils.h"
 
+#include <filesystem>
 #include <fstream>
 #include <string>
+
+#include "sherpa-ncnn/csrc/macros.h"
+
+#if defined(__ANDROID__) && __ANDROID_API__ < 29
+namespace fs = std::__fs::filesystem;
+#else
+namespace fs = std::filesystem;
+#endif
 
 namespace sherpa_ncnn {
 
 bool FileExists(const std::string &filename) {
-  return std::ifstream(filename).good();
+  return fs::exists(filename) && fs::is_regular_file(filename);
 }
 
 void AssertFileExists(const std::string &filename) {
   if (!FileExists(filename)) {
     NCNN_LOGE("filename '%s' does not exist", filename.c_str());
-    exit(-1);
+    SHERPA_NCNN_EXIT(-1);
   }
 }
 

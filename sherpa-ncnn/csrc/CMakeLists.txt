@@ -31,6 +31,16 @@ set(sherpa_ncnn_core_srcs
 )
 
 list(APPEND sherpa_ncnn_core_srcs
+  offline-ctc-greedy-search-decoder.cc
+  offline-model-config.cc
+  offline-recognizer-impl.cc
+  offline-recognizer.cc
+  offline-sense-voice-model-config.cc
+  offline-sense-voice-model.cc
+  offline-stream.cc
+)
+
+list(APPEND sherpa_ncnn_core_srcs
   lexicon.cc
   offline-tts-impl.cc
   offline-tts-model-config.cc
@@ -62,6 +72,7 @@ endif()
 
 if(SHERPA_NCNN_ENABLE_BINARY)
   add_executable(sherpa-ncnn sherpa-ncnn.cc)
+  add_executable(sherpa-ncnn-offline sherpa-ncnn-offline.cc)
   add_executable(sherpa-ncnn-offline-tts sherpa-ncnn-offline-tts.cc)
   add_executable(sherpa-ncnn-vad sherpa-ncnn-vad.cc)
 
@@ -70,6 +81,7 @@ if(SHERPA_NCNN_ENABLE_BINARY)
 
   set(main_exes
     sherpa-ncnn
+    sherpa-ncnn-offline
     sherpa-ncnn-offline-tts
     sherpa-ncnn-vad
   )

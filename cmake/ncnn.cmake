@@ -7,19 +7,19 @@ function(download_ncnn)
 
   # Please also change ../pack-for-embedded-systems.sh
 
-  # the latest master as of 2025.09.12
-  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip")
-  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip")
-  set(ncnn_HASH "SHA256=dd4f494896e62d561140cdbdf2369754e36efa73b81f9cf0576aa0cd5566a47b")
+  # the latest master as of 2025.09.15
+  set(ncnn_URL  "https://github.com/Tencent/ncnn/archive/c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip")
+  set(ncnn_URL2 "https://huggingface.co/csukuangfj/sherpa-ncnn-cmake-deps/resolve/main/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip")
+  set(ncnn_HASH "SHA256=da5563a86045d66ecf34820f82edec67906f988c61ecd3787f7e5df8bdfb43c0")
 
   # If you don't have access to the Internet, please download it to your
   # local drive and modify the following line according to your needs.
   set(possible_file_locations
-    $ENV{HOME}/Downloads/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
-    $ENV{HOME}/asr/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
-    ${PROJECT_SOURCE_DIR}/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
-    ${PROJECT_BINARY_DIR}/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
-    /tmp/ncnn-0d23ad013b0e8f316e730b511de2d9b7a0c5f475.zip
+    $ENV{HOME}/Downloads/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip
+    $ENV{HOME}/asr/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip
+    ${PROJECT_SOURCE_DIR}/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip
+    ${PROJECT_BINARY_DIR}/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip
+    /tmp/ncnn-c4193aadbbb56582aa87b1850dd3d98fb8fd936d.zip
   )
 
   foreach(f IN LISTS possible_file_locations)
@@ -57,6 +57,8 @@ function(download_ncnn)
   set(NCNN_C_API OFF CACHE BOOL "" FORCE)
   set(NCNN_INSTALL_SDK OFF CACHE BOOL "" FORCE)
 
+  set(NCNN_DISABLE_EXCEPTION OFF CACHE BOOL "" FORCE)
+
   set(NCNN_SHARED_LIB ${BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
   set(NCNN_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
@@ -80,7 +82,7 @@ function(download_ncnn)
     # Crop
     Deconvolution
     # Dropout
-    Eltwise
+    # Eltwise
     ELU
     # Embed
     Exp

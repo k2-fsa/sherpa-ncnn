@@ -123,6 +123,20 @@ jobs:
         run: |
           ls -lh build/install/*
 
+      - name: Test offline sense-voice
+        shell: bash
+        run: |
+          curl -SL -O https://github.com/k2-fsa/sherpa-ncnn/releases/download/asr-models/sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+          tar xvf sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+          ./build/install/bin/sherpa-ncnn-offline \
+            --sense-voice-model-dir=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17 \
+            --tokens=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/tokens.txt \
+            sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/test_wavs/zh.wav \
+            sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/test_wavs/en.wav \
+            sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/test_wavs/yue.wav \
+            sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/test_wavs/ja.wav \
+            sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/test_wavs/ko.wav
+
       - name: Test tts
         shell: bash
         run: |

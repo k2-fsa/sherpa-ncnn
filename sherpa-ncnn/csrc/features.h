@@ -22,6 +22,8 @@
 #include <memory>
 #include <string>
 
+#include "sherpa-ncnn/csrc/parse-options.h"
+
 namespace ncnn {
 class Mat;
 }
@@ -32,7 +34,46 @@ struct FeatureExtractorConfig {
   int32_t sampling_rate = 16000;
   int32_t feature_dim = 80;
 
+  // minimal frequency for Mel-filterbank, in Hz
+  float low_freq = 20.0f;
+
+  // maximal frequency of Mel-filterbank
+  // in Hz; negative value is subtracted from Nyquist freq.:
+  // i.e. for sampling_rate 16000 / 2 - 400 = 7600Hz
+  //
+  // Please see
+  // https://github.com/lhotse-speech/lhotse/blob/master/lhotse/features/fbank.py#L27
+  // and
+  // https://github.com/k2-fsa/sherpa-onnx/issues/514
+  float high_freq = -400.0f;
+
+  // dithering constant, useful for signals with hard-zeroes in non-speech parts
+  // this prevents large negative values in log-mel filterbanks
+  //
+  // In k2, audio samples are in range [-1..+1], in kaldi the range was
+  // [-32k..+32k], so the value 0.00003 is equivalent to kaldi default 1.0
+  //
+  float dither = 0.0f;  // dithering disabled by default
+
+  // Set internally by some models, e.g., paraformer sets it to false.
+  // This parameter is not exposed to users from the commandline
+  // If true, the feature extractor expects inputs to be normalized to
+  // the range [-1, 1].
+  // If false, we will multiply the inputs by 32768
+  bool normalize_samples = true;
+
+  bool snip_edges = false;
+  float frame_shift_ms = 10.0f;   // in milliseconds.
+  float frame_length_ms = 25.0f;  // in milliseconds.
+  bool is_librosa = false;
+  bool remove_dc_offset = true;       // Subtract mean of wave before FFT.
+  float preemph_coeff = 0.97f;        // Preemphasis coefficient.
+  std::string window_type = "povey";  // e.g. Hamming window
+  bool round_to_power_of_two = true;
+
   std::string ToString() const;
+
+  void Register(ParseOptions *po);
 };
 
 class FeatureExtractor {
