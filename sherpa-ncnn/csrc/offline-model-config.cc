@@ -31,6 +31,7 @@ bool OfflineModelConfig::Validate() const {
 
   if (tokens.empty()) {
     SHERPA_NCNN_LOGE("Please provide --tokens");
+    return false;
   }
 
   if (!FileExists(tokens)) {

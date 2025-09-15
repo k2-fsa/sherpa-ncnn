@@ -5,7 +5,6 @@
 #include "sherpa-ncnn/csrc/offline-recognizer-impl.h"
 
 #include <string>
-#include <strstream>
 #include <utility>
 #include <vector>
 

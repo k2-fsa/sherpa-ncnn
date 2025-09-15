@@ -96,7 +96,8 @@ class OfflineSenseVoiceModel::Impl {
     PostInit();
   }
 
-  ncnn::Mat Forward(ncnn::Mat features, int32_t language, int32_t text_norm) {
+  ncnn::Mat Forward(const ncnn::Mat &features, int32_t language,
+                    int32_t text_norm) {
     ncnn::Mat prompt(4);
     int32_t *p_prompt = prompt;
     p_prompt[0] = language;
