@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <limits>
+#include <sstream>
 #include <utility>
 
 #include "kaldi-native-fbank/csrc/online-feature.h"

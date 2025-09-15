@@ -75,7 +75,6 @@ class SinusoidalPositionEncoder {
 
  private:
   std::mutex mutex_;
-  int32_t max_len_;
   int32_t dim_;
   ncnn::Mat pos_;
 };
@@ -86,7 +85,15 @@ class OfflineSenseVoiceModel::Impl {
  public:
   explicit Impl(const OfflineModelConfig &config)
       : config_(config), pos_encoder_(560) {
-    Init();
+    InitNet();
+    PostInit();
+  }
+
+  template <typename Manager>
+  explicit Impl(Manager *mgr, const OfflineModelConfig &config)
+      : config_(config), pos_encoder_(560) {
+    InitNet(mgr);
+    PostInit();
   }
 
   ncnn::Mat Forward(ncnn::Mat features, int32_t language, int32_t text_norm) {
@@ -117,15 +124,7 @@ class OfflineSenseVoiceModel::Impl {
   }
 
  private:
-  void Init() {
-    net_.opt.num_threads = config_.num_threads;
-
-    std::string param = config_.sense_voice.model_dir + "/model.ncnn.param";
-    std::string bin = config_.sense_voice.model_dir + "/model.ncnn.bin";
-
-    net_.load_param(param.c_str());
-    net_.load_model(bin.c_str());
-
+  void PostInit() {
     meta_data_.vocab_size = 25055;
     meta_data_.window_size = 7;
     meta_data_.window_shift = 6;
@@ -144,6 +143,40 @@ class OfflineSenseVoiceModel::Impl {
         {"auto", lang_auto}, {"zh", lang_zh}, {"en", lang_en},
         {"ja", lang_ja},     {"ko", lang_ko}, {"yue", lang_yue},
     };
+  }
+
+  void InitNet() {
+    net_.opt.num_threads = config_.num_threads;
+
+    std::string param = config_.sense_voice.model_dir + "/model.ncnn.param";
+    std::string bin = config_.sense_voice.model_dir + "/model.ncnn.bin";
+
+    if (net_.load_param(param.c_str())) {
+      SHERPA_NCNN_LOGE("Failed to load param from '%s'", param.c_str());
+      SHERPA_NCNN_EXIT(-1);
+    }
+    if (net_.load_model(bin.c_str())) {
+      SHERPA_NCNN_LOGE("Failed to load bin from '%s'", bin.c_str());
+      SHERPA_NCNN_EXIT(-1);
+    }
+  }
+
+  template <typename Manager>
+  void InitNet(Manager *mgr) {
+    net_.opt.num_threads = config_.num_threads;
+
+    std::string param = config_.sense_voice.model_dir + "/model.ncnn.param";
+    std::string bin = config_.sense_voice.model_dir + "/model.ncnn.bin";
+
+    if (net_.load_param(mgr, param.c_str())) {
+      SHERPA_NCNN_LOGE("Failed to load param from asset '%s'", param.c_str());
+      SHERPA_NCNN_EXIT(-1);
+    }
+
+    if (net_.load_model(mgr, bin.c_str())) {
+      SHERPA_NCNN_LOGE("Failed to load bin from asset '%s'", bin.c_str());
+      SHERPA_NCNN_EXIT(-1);
+    }
   }
 
  private:

@@ -4,6 +4,7 @@
 #ifndef SHERPA_NCNN_CSRC_OFFLINE_SENSE_VOICE_MODEL_META_DATA_H_
 #define SHERPA_NCNN_CSRC_OFFLINE_SENSE_VOICE_MODEL_META_DATA_H_
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -12,14 +13,14 @@ namespace sherpa_ncnn {
 
 struct OfflineSenseVoiceModelMetaData {
   // ID for using inverse text normalization
-  int32_t with_itn_id;
+  int32_t with_itn_id = 0;
 
   // ID for not using inverse text normalization
-  int32_t without_itn_id;
+  int32_t without_itn_id = 0;
 
-  int32_t window_size;   // lfr_m
-  int32_t window_shift;  // lfr_n
-  int32_t vocab_size;
+  int32_t window_size = 7;   // lfr_m
+  int32_t window_shift = 6;  // lfr_n
+  int32_t vocab_size = 0;
 
   int32_t subsampling_factor = 1;
 

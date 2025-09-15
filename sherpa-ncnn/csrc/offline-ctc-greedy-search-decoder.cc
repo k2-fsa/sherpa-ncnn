@@ -1,4 +1,4 @@
-// sherpa-ncnn/csrc/offline-ctc-greedy-search-decoder.h
+// sherpa-ncnn/csrc/offline-ctc-greedy-search-decoder.cc
 //
 // Copyright (c)  2025  Xiaomi Corporation
 

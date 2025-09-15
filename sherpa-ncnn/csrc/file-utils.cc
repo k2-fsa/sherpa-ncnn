@@ -24,7 +24,11 @@
 
 #include "sherpa-ncnn/csrc/macros.h"
 
+#if defined(__ANDROID__) && __ANDROID_API__ < 29
+namespace fs = std::__fs::filesystem;
+#else
 namespace fs = std::filesystem;
+#endif
 
 namespace sherpa_ncnn {
 

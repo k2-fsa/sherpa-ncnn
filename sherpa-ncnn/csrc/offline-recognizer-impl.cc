@@ -10,7 +10,6 @@
 #include <vector>
 
 #if __ANDROID_API__ >= 9
-
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #endif
@@ -52,11 +51,13 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
 }
 
 #if __ANDROID_API__ >= 9
-template OfflineRecognizerImpl::OfflineRecognizerImpl(
-    AAssetManager *mgr, const OfflineRecognizerConfig &config);
-
 template std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
     AAssetManager *mgr, const OfflineRecognizerConfig &config);
+#endif
+
+#if __OHOS__
+template std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
+    NativeResourceManager *mgr, const OfflineRecognizerConfig &config);
 #endif
 
 }  // namespace sherpa_ncnn

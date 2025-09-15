@@ -4,6 +4,7 @@
 
 #include "sherpa-ncnn/csrc/offline-sense-voice-model-config.h"
 
+#include <sstream>
 #include <vector>
 
 #include "sherpa-ncnn/csrc/file-utils.h"
