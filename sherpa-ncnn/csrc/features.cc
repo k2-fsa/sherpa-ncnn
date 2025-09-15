@@ -29,6 +29,30 @@
 
 namespace sherpa_ncnn {
 
+void FeatureExtractorConfig::Register(ParseOptions *po) {
+  po->Register("sample-rate", &sampling_rate,
+               "Sampling rate of the input waveform. "
+               "Note: You can have a different "
+               "sample rate for the input waveform. We will do resampling "
+               "inside the feature extractor");
+
+  po->Register("feat-dim", &feature_dim,
+               "Feature dimension. Must match the one expected by the model. "
+               "Not used by whisper and CED models");
+
+  po->Register("low-freq", &low_freq, "Low cutoff frequency for mel bins");
+
+  po->Register("high-freq", &high_freq,
+               "High cutoff frequency for mel bins "
+               "(if <= 0, offset from Nyquist)");
+
+  po->Register("dither", &dither,
+               "Dithering constant (0.0 means no dither). "
+               "By default the audio samples are in range [-1,+1], "
+               "so 0.00003 is a good value, "
+               "equivalent to the default 1.0 from kaldi");
+}
+
 std::string FeatureExtractorConfig::ToString() const {
   std::ostringstream os;
 
