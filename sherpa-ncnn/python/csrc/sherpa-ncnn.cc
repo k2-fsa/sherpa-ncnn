@@ -24,6 +24,8 @@
 #include "sherpa-ncnn/python/csrc/endpoint.h"
 #include "sherpa-ncnn/python/csrc/features.h"
 #include "sherpa-ncnn/python/csrc/model.h"
+#include "sherpa-ncnn/python/csrc/offline-recognizer.h"
+#include "sherpa-ncnn/python/csrc/offline-stream.h"
 #include "sherpa-ncnn/python/csrc/offline-tts.h"
 #include "sherpa-ncnn/python/csrc/recognizer.h"
 #include "sherpa-ncnn/python/csrc/stream.h"
@@ -45,6 +47,8 @@ PYBIND11_MODULE(_sherpa_ncnn, m) {
   PybindAlsa(&m);
 
   PybindOfflineTts(&m);
+  PybindOfflineStream(&m);
+  PybindOfflineRecognizer(&m);
 }
 
 }  // namespace sherpa_ncnn
