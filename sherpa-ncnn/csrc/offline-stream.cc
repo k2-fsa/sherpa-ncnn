@@ -1,6 +1,6 @@
 // sherpa-ncnn/csrc/offline-stream.cc
 //
-// Copyright (c)  2023  Xiaomi Corporation
+// Copyright (c)  2025  Xiaomi Corporation
 
 #include "sherpa-ncnn/csrc/offline-stream.h"
 
@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
-#include "mat.h"
+#include "mat.h"  // NOLINT
 #include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/offline-recognizer.h"
 #include "sherpa-ncnn/csrc/resample.h"

@@ -7,7 +7,7 @@
 #include <math.h>
 
 #include <algorithm>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <string>
 #include <utility>
 
@@ -20,8 +20,8 @@
 #include "rawfile/raw_file_manager.h"
 #endif
 
-#include "mat.h"
-#include "net.h"
+#include "mat.h"  // NOLINT
+#include "net.h"  // NOLINT
 #include "sherpa-ncnn/csrc/file-utils.h"
 #include "sherpa-ncnn/csrc/macros.h"
 #include "sherpa-ncnn/csrc/text-utils.h"

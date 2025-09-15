@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "mat.h"
+#include "mat.h"  // NOLINT
 
 namespace sherpa_ncnn {
 
