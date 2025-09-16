@@ -68,6 +68,8 @@ function(download_portaudio)
   install(TARGETS
     pa_devs
   DESTINATION bin)
+  add_custom_target(build_pa_devs ALL DEPENDS pa_devs)
+
 
 endfunction()
 
