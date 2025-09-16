@@ -121,47 +121,26 @@ for a list of pre-trained models to download.
 
   sherpa_ncnn::Microphone mic;
 
-  PaDeviceIndex num_devices = Pa_GetDeviceCount();
-  fprintf(stderr, "Num devices: %d\n", num_devices);
-
-  PaStreamParameters param;
-
-  param.device = Pa_GetDefaultInputDevice();
-  if (param.device == paNoDevice) {
+  int32_t device_index = Pa_GetDefaultInputDevice();
+  if (device_index == paNoDevice) {
     fprintf(stderr, "No default input device found\n");
-    exit(EXIT_FAILURE);
-  }
-  fprintf(stderr, "Use default device: %d\n", param.device);
-
-  const PaDeviceInfo *info = Pa_GetDeviceInfo(param.device);
-  fprintf(stderr, "  Name: %s\n", info->name);
-  fprintf(stderr, "  Max input channels: %d\n", info->maxInputChannels);
-
-  param.channelCount = 1;
-  param.sampleFormat = paFloat32;
-
-  param.suggestedLatency = info->defaultLowInputLatency;
-  param.hostApiSpecificStreamInfo = nullptr;
-  const float sample_rate = 16000;
-
-  PaStream *stream;
-  PaError err =
-      Pa_OpenStream(&stream, &param, nullptr, /* &outputParameters, */
-                    sample_rate,
-                    0,          // frames per buffer
-                    paClipOff,  // we won't output out of range samples
-                                // so don't bother clipping them
-                    RecordCallback, s.get());
-  if (err != paNoError) {
-    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
+    fprintf(stderr, "If you are using Linux, please switch to \n");
+    fprintf(stderr, " ./bin/sherpa-ncnn-alsa \n");
     exit(EXIT_FAILURE);
   }
 
-  err = Pa_StartStream(stream);
-  fprintf(stderr, "Started\n");
+  const char *pDeviceIndex = std::getenv("SHERPA_NCNN_MIC_DEVICE");
+  if (pDeviceIndex) {
+    fprintf(stderr, "Use specified device: %s\n", pDeviceIndex);
+    device_index = atoi(pDeviceIndex);
+  } else {
+    fprintf(stderr, "Use default device: %d\n", device_index);
+  }
 
-  if (err != paNoError) {
-    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
+  float sample_rate = 16000;
+
+  if (!mic.OpenDevice(device_index, sample_rate, 1, RecordCallback, s.get())) {
+    fprintf(stderr, "Failed to open microphone device %d\n", device_index);
     exit(EXIT_FAILURE);
   }
 
@@ -198,12 +177,6 @@ for a list of pre-trained models to download.
     }
 
     Pa_Sleep(20);  // sleep for 20ms
-  }
-
-  err = Pa_CloseStream(stream);
-  if (err != paNoError) {
-    fprintf(stderr, "portaudio error: %s\n", Pa_GetErrorText(err));
-    exit(EXIT_FAILURE);
   }
 
   return 0;

@@ -29,6 +29,7 @@ function(download_portaudio)
   # Always use static build
   set(PA_BUILD_SHARED OFF CACHE BOOL "" FORCE)
   set(PA_BUILD_STATIC ON CACHE BOOL "" FORCE)
+  set(PA_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
 
   FetchContent_Declare(portaudio
     URL
@@ -51,6 +52,8 @@ function(download_portaudio)
 
   add_subdirectory(${portaudio_SOURCE_DIR} ${portaudio_BINARY_DIR} EXCLUDE_FROM_ALL)
 
+  set_target_properties(pa_devs PROPERTIES OUTPUT_NAME "sherpa-ncnn-pa-devs")
+
   set_target_properties(portaudio_static PROPERTIES OUTPUT_NAME "sherpa-ncnn-portaudio_static")
   if(NOT WIN32)
     target_compile_options(portaudio_static PRIVATE "-Wno-deprecated-declarations")
@@ -61,6 +64,10 @@ function(download_portaudio)
       portaudio_static
     DESTINATION lib)
   endif()
+
+  install(TARGETS
+    pa_devs
+  DESTINATION bin)
 
 endfunction()
 

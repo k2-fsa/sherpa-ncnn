@@ -29,7 +29,7 @@ namespace sherpa_ncnn {
 class SileroVadModel::Impl {
  public:
   explicit Impl(const SileroVadModelConfig &config) : config_(config) {
-    model_.opt = config.opt;
+    model_.opt.num_threads = config.num_threads;
     bool has_gpu = false;
 
 #if NCNN_VULKAN
@@ -41,14 +41,17 @@ class SileroVadModel::Impl {
       NCNN_LOGE("Use GPU");
     }
 
-    Model::InitNet(model_, config_.param, config_.bin);
+    std::string param = config_.model_dir + "/silero.ncnn.param";
+    std::string bin = config_.model_dir + "/silero.ncnn.bin";
+
+    Model::InitNet(model_, param, bin);
     PostInit();
   }
 
 #if __ANDROID_API__ >= 9
   Impl(AAssetManager *mgr, const SileroVadModelConfig &config)
       : config_(config) {
-    model_.opt = config.opt;
+    model_.opt.num_threads = config.num_threads;
     bool has_gpu = false;
 
 #if NCNN_VULKAN
@@ -60,7 +63,10 @@ class SileroVadModel::Impl {
       NCNN_LOGE("Use GPU");
     }
 
-    Model::InitNet(mgr, model_, config_.param, config_.bin);
+    std::string param = config_.model_dir + "/silero.ncnn.param";
+    std::string bin = config_.model_dir + "/silero.ncnn.bin";
+
+    Model::InitNet(mgr, model_, param, bin);
 
     PostInit();
   }

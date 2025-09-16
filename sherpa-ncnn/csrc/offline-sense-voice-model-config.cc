@@ -28,7 +28,7 @@ void OfflineSenseVoiceModelConfig::Register(ParseOptions *po) {
 
 bool OfflineSenseVoiceModelConfig::Validate() const {
   if (model_dir.empty()) {
-    SHERPA_NCNN_LOGE("Please provide --sense-voice-model_dir");
+    SHERPA_NCNN_LOGE("Please provide --sense-voice-model-dir");
     return false;
   }
 
