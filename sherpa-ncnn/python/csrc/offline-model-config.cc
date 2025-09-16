@@ -1,6 +1,6 @@
 // sherpa-ncnn/python/csrc/offline-model-config.cc
 //
-// Copyright (c)  2023 by manyeyes
+// Copyright (c)  2025  Xiaomi Corporation
 
 #include "sherpa-ncnn/python/csrc/offline-model-config.h"
 

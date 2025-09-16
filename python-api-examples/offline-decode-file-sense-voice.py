@@ -5,7 +5,7 @@
 This file shows how to use the sherpa-ncnn Python API to decode a file
 with sense-voice ASR models.
 
-Plese download model files from
+Please download model files from
 https://github.com/k2-fsa/sherpa-ncnn/releases/tag/asr-models
 
 Example:

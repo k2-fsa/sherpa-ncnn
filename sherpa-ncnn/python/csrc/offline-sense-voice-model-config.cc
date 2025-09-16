@@ -1,6 +1,6 @@
 // sherpa-ncnn/python/csrc/offline-sense-voice-model-config.cc
 //
-// Copyright (c)  2024  Xiaomi Corporation
+// Copyright (c)  2025  Xiaomi Corporation
 
 #include "sherpa-ncnn/csrc/offline-sense-voice-model-config.h"
 

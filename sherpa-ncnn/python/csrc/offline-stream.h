@@ -13,4 +13,4 @@ void PybindOfflineStream(py::module *m);
 
 }
 
-#endif  // SHERPA_ncnn_PYTHON_CSRC_OFFLINE_STREAM_H_
+#endif  // SHERPA_NCNN_PYTHON_CSRC_OFFLINE_STREAM_H_
