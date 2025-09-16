@@ -1,6 +1,6 @@
 // sherpa-ncnn/python/csrc/offline-tts.cc
 //
-// Copyright (c)  2023  Xiaomi Corporation
+// Copyright (c)  2025  Xiaomi Corporation
 #include "sherpa-ncnn/python/csrc/offline-tts.h"
 
 #include <algorithm>

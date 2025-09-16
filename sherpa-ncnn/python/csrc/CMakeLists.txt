@@ -10,6 +10,14 @@ set(srcs
   sherpa-ncnn.cc
   stream.cc
 )
+
+list(APPEND srcs
+  offline-model-config.cc
+  offline-recognizer.cc
+  offline-sense-voice-model-config.cc
+  offline-stream.cc
+)
+
 list(APPEND srcs
   offline-tts-model-config.cc
   offline-tts-vits-model-config.cc
