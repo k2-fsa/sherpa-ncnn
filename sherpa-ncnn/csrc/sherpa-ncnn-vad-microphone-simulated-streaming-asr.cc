@@ -7,8 +7,9 @@
 #include <stdlib.h>
 
 #include <algorithm>
-#include <chrono>  // NOLINT
-#include <mutex>   // NOLINT
+#include <chrono>              // NOLINT
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
 #include <queue>
 #include <string>
 #include <vector>
