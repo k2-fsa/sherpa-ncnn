@@ -1,4 +1,4 @@
-// sherpa-ncnn/csrc/sherpa-ncnn-vad-microphone.cc
+// sherpa-ncnn/csrc/sherpa-ncnn-vad-microphone-offline-asr.cc
 //
 // Copyright (c)  2025  Xiaomi Corporation
 
@@ -7,11 +7,17 @@
 #include <stdlib.h>
 
 #include <algorithm>
+#include <chrono>  // NOLINT
+#include <iomanip>
 #include <mutex>  // NOLINT
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "portaudio.h"  // NOLINT
 #include "sherpa-ncnn/csrc/circular-buffer.h"
 #include "sherpa-ncnn/csrc/microphone.h"
+#include "sherpa-ncnn/csrc/offline-recognizer.h"
 #include "sherpa-ncnn/csrc/resample.h"
 #include "sherpa-ncnn/csrc/voice-activity-detector.h"
 #include "sherpa-ncnn/csrc/wave-writer.h"
@@ -37,45 +43,49 @@ static void Handler(int32_t /*sig*/) {
   fprintf(stdout, "\nCaught Ctrl + C. Exiting...\n");
 }
 
+static std::string GetCurrentDatetimeAsString() {
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+  std::tm local_time = *std::localtime(&now_time);
+
+  std::stringstream ss;
+  ss << std::put_time(&local_time, "%Y-%m-%d-%H-%M-%S");
+
+  return ss.str();
+}
+
 int32_t main(int32_t argc, char *argv[]) {
   signal(SIGINT, Handler);
 
   const char *kUsageMessage = R"usage(
-This file shows how to use silero vad with a microphone.
+This program shows how to use a streaming VAD with non-streaming ASR in
+sherpa-ncnn.
 
-===========Usage============:
+(1) SenseVoice
 
-0. Build sherpa-ncnn
---------------------
+cd /path/to/sherpa-ncnn/build
 
-mkdir -p $HOME/open-source
-cd $HOME/open-source
-git clone https://github.com/k2-fsa/sherpa-ncnn
-cd sherpa-ncnn
-mkdir build
-cd build
-cmake ..
-make -j3
-
-1. Download the vad model
--------------------------
-
-cd $HOME/open-source/sherpa-ncnn/build
 wget https://github.com/k2-fsa/sherpa-ncnn/releases/download/models/sherpa-ncnn-silero-vad.tar.bz2
 tar xvf sherpa-ncnn-silero-vad.tar.bz2
 
-2. Run it!
-----------
+wget https://github.com/k2-fsa/sherpa-ncnn/releases/download/asr-models/sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+tar xvf sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
 
-cd $HOME/open-source/sherpa-ncnn/build
+  ./bin/sherpa-ncnn-vad-microphone-offline-asr \
+    --silero-vad-model-dir=./sherpa-ncnn-silero-vad \
+    --sense-voice-model-dir=./sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17 \
+    --tokens=./sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/tokens.txt \
+    --num-threads=1
 
-./bin/sherpa-ncnn-vad-microphone --silero-vad-model-dir=sherpa-ncnn-silero-vad
 )usage";
 
   sherpa_ncnn::ParseOptions po(kUsageMessage);
-  sherpa_ncnn::SileroVadModelConfig config;
+  sherpa_ncnn::SileroVadModelConfig vad_config;
 
-  config.Register(&po);
+  sherpa_ncnn::OfflineRecognizerConfig asr_config;
+
+  vad_config.Register(&po);
+  asr_config.Register(&po);
 
   int32_t user_device_index = -1;  // -1 means to use default value
   int32_t user_sample_rate = -1;   // -1 means to use default value
@@ -89,24 +99,33 @@ cd $HOME/open-source/sherpa-ncnn/build
               "You can use sherpa-ncnn-pa-devs to list sample rate of "
               "available devices");
 
-  po.Read(argc, argv);
-
   if (argc == 1) {
     po.PrintUsage();
     exit(EXIT_FAILURE);
   }
 
+  po.Read(argc, argv);
   if (po.NumArgs() != 0) {
     po.PrintUsage();
     exit(EXIT_FAILURE);
   }
 
-  fprintf(stdout, "%s\n", config.ToString().c_str());
+  fprintf(stdout, "%s\n", vad_config.ToString().c_str());
+  fprintf(stdout, "%s\n", asr_config.ToString().c_str());
 
-  if (!config.Validate()) {
-    fprintf(stdout, "Errors in config!\n");
+  if (!vad_config.Validate()) {
+    fprintf(stdout, "Errors in vad_config!\n");
     return -1;
   }
+
+  if (!asr_config.Validate()) {
+    fprintf(stdout, "Errors in asr_config!\n");
+    return -1;
+  }
+
+  fprintf(stdout, "Creating recognizer ...\n");
+  sherpa_ncnn::OfflineRecognizer recognizer(asr_config);
+  fprintf(stdout, "Recognizer created!\n");
 
   sherpa_ncnn::Microphone mic;
 
@@ -116,14 +135,14 @@ cd $HOME/open-source/sherpa-ncnn/build
     exit(EXIT_FAILURE);
   }
 
-  mic.PrintDevices(device_index);
-
   if (user_device_index >= 0) {
     fprintf(stdout, "Use specified device: %d\n", user_device_index);
     device_index = user_device_index;
   } else {
     fprintf(stdout, "Use default device: %d\n", device_index);
   }
+
+  mic.PrintDevices(device_index);
 
   float mic_sample_rate = 16000;
   if (user_sample_rate > 0) {
@@ -133,7 +152,7 @@ cd $HOME/open-source/sherpa-ncnn/build
 
   if (!mic.OpenDevice(device_index, mic_sample_rate, 1, RecordCallback,
                       nullptr)) {
-    fprintf(stdout, "Failed to open microphone device %d\n", device_index);
+    fprintf(stdout, "Failed to open device %d\n", device_index);
     exit(EXIT_FAILURE);
   }
 
@@ -148,12 +167,13 @@ cd $HOME/open-source/sherpa-ncnn/build
         mic_sample_rate, sample_rate, lowpass_cutoff, lowpass_filter_width);
   }
 
-  auto vad = std::make_unique<sherpa_ncnn::VoiceActivityDetector>(config);
+  auto vad = std::make_unique<sherpa_ncnn::VoiceActivityDetector>(vad_config);
 
-  int32_t window_size = config.window_size;
-  bool printed = false;
+  fprintf(stdout, "Started. Please speak\n");
 
-  int32_t k = 0;
+  int32_t window_size = vad_config.window_size;
+  int32_t index = 0;
+
   while (!stop) {
     {
       std::lock_guard<std::mutex> lock(mutex);
@@ -169,32 +189,28 @@ cd $HOME/open-source/sherpa-ncnn/build
         }
 
         vad->AcceptWaveform(samples.data(), samples.size());
-
-        if (vad->IsSpeechDetected() && !printed) {
-          printed = true;
-          fprintf(stdout, "\nDetected speech!\n");
-        }
-        if (!vad->IsSpeechDetected()) {
-          printed = false;
-        }
-
-        while (!vad->Empty()) {
-          const auto &segment = vad->Front();
-          float duration = segment.samples.size() / sample_rate;
-          fprintf(stdout, "Duration: %.3f seconds\n", duration);
-
-          char filename[128];
-          snprintf(filename, sizeof(filename), "seg-%d-%.3fs.wav", k, duration);
-          k += 1;
-          sherpa_ncnn::WriteWave(filename, sample_rate, segment.samples.data(),
-                                 segment.samples.size());
-          fprintf(stdout, "Saved to %s\n", filename);
-          fprintf(stdout, "----------\n");
-
-          vad->Pop();
-        }
       }
     }
+
+    while (!vad->Empty()) {
+      const auto &segment = vad->Front();
+      auto s = recognizer.CreateStream();
+      s->AcceptWaveform(sample_rate, segment.samples.data(),
+                        segment.samples.size());
+      recognizer.DecodeStream(s.get());
+      const auto &result = s->GetResult();
+      if (!result.text.empty()) {
+        fprintf(stdout, "%2d: %s\n", index, result.text.c_str());
+        std::string filename = GetCurrentDatetimeAsString() + "-" +
+                               std::to_string(index) + "-" + result.text +
+                               ".wav";
+        sherpa_ncnn::WriteWave(filename, sample_rate, segment.samples.data(),
+                               segment.samples.size());
+        ++index;
+      }
+      vad->Pop();
+    }
+
     Pa_Sleep(100);  // sleep for 100ms
   }
 

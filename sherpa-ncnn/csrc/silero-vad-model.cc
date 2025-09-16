@@ -18,6 +18,7 @@
 
 #include "sherpa-ncnn/csrc/silero-vad-model.h"
 
+#include <string>
 #include <vector>
 
 #include "net.h"  // NOLINT

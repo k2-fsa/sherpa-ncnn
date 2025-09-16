@@ -103,15 +103,21 @@ if(SHERPA_NCNN_ENABLE_BINARY)
   if(SHERPA_NCNN_ENABLE_PORTAUDIO)
     add_executable(sherpa-ncnn-microphone sherpa-ncnn-microphone.cc microphone.cc)
     add_executable(sherpa-ncnn-vad-microphone sherpa-ncnn-vad-microphone.cc microphone.cc)
+    add_executable(sherpa-ncnn-vad-microphone-offline-asr sherpa-ncnn-vad-microphone-offline-asr.cc microphone.cc)
+    add_executable(sherpa-ncnn-vad-microphone-simulated-streaming-asr sherpa-ncnn-vad-microphone-simulated-streaming-asr.cc microphone.cc)
     list(APPEND main_exes
       sherpa-ncnn-microphone
       sherpa-ncnn-vad-microphone
+      sherpa-ncnn-vad-microphone-offline-asr
+      sherpa-ncnn-vad-microphone-simulated-streaming-asr
     )
 
     set(PA_LIB portaudio_static)
 
     target_link_libraries(sherpa-ncnn-microphone ${PA_LIB})
     target_link_libraries(sherpa-ncnn-vad-microphone ${PA_LIB})
+    target_link_libraries(sherpa-ncnn-vad-microphone-offline-asr ${PA_LIB})
+    target_link_libraries(sherpa-ncnn-vad-microphone-simulated-streaming-asr ${PA_LIB})
   endif()
 
   foreach(exe IN LISTS main_exes)

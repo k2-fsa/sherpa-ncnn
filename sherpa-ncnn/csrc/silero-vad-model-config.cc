@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "sherpa-ncnn/csrc/file-utils.h"
 #include "sherpa-ncnn/csrc/macros.h"
