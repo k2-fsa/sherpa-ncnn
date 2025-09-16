@@ -76,7 +76,26 @@ cd $HOME/open-source/sherpa-ncnn/build
   sherpa_ncnn::SileroVadModelConfig config;
 
   config.Register(&po);
+
+  int32_t user_device_index = -1;  // -1 means to use default value
+  int32_t user_sample_rate = -1;   // -1 means to use default value
+
+  po.Register("--device-index", &user_device_index,
+              "If provided, we use it to replace the default device index."
+              "You can use sherpa-ncnn-pa-devs to list available devices");
+
+  po.Register("--mic-sample-rate", &user_sample_rate,
+              "If provided, we use it to replace the default sample rate."
+              "You can use sherpa-ncnn-pa-devs to list sample rate of "
+              "available devices");
+
   po.Read(argc, argv);
+
+  if (argc == 1) {
+    po.PrintUsage();
+    exit(EXIT_FAILURE);
+  }
+
   if (po.NumArgs() != 0) {
     po.PrintUsage();
     exit(EXIT_FAILURE);
@@ -99,19 +118,17 @@ cd $HOME/open-source/sherpa-ncnn/build
     exit(EXIT_FAILURE);
   }
 
-  const char *pDeviceIndex = std::getenv("SHERPA_NCNN_MIC_DEVICE");
-  if (pDeviceIndex) {
-    fprintf(stderr, "Use specified device: %s\n", pDeviceIndex);
-    device_index = atoi(pDeviceIndex);
+  if (user_device_index >= 0) {
+    fprintf(stderr, "Use specified device: %d\n", user_device_index);
+    device_index = user_device_index;
   } else {
     fprintf(stderr, "Use default device: %d\n", device_index);
   }
 
   float mic_sample_rate = 16000;
-  const char *pSampleRateStr = std::getenv("SHERPA_NCNN_MIC_SAMPLE_RATE");
-  if (pSampleRateStr) {
-    fprintf(stderr, "Use sample rate %f for mic\n", mic_sample_rate);
-    mic_sample_rate = atof(pSampleRateStr);
+  if (user_sample_rate > 0) {
+    fprintf(stderr, "Use sample rate %f for mic\n", user_sample_rate);
+    mic_sample_rate = user_sample_rate;
   }
 
   if (!mic.OpenDevice(device_index, mic_sample_rate, 1, RecordCallback,
