@@ -80,11 +80,11 @@ cd $HOME/open-source/sherpa-ncnn/build
   int32_t user_device_index = -1;  // -1 means to use default value
   int32_t user_sample_rate = -1;   // -1 means to use default value
 
-  po.Register("--device-index", &user_device_index,
+  po.Register("mic-device-index", &user_device_index,
               "If provided, we use it to replace the default device index."
               "You can use sherpa-ncnn-pa-devs to list available devices");
 
-  po.Register("--mic-sample-rate", &user_sample_rate,
+  po.Register("mic-sample-rate", &user_sample_rate,
               "If provided, we use it to replace the default sample rate."
               "You can use sherpa-ncnn-pa-devs to list sample rate of "
               "available devices");
@@ -127,7 +127,7 @@ cd $HOME/open-source/sherpa-ncnn/build
 
   float mic_sample_rate = 16000;
   if (user_sample_rate > 0) {
-    fprintf(stderr, "Use sample rate %f for mic\n", user_sample_rate);
+    fprintf(stderr, "Use sample rate %d for mic\n", user_sample_rate);
     mic_sample_rate = user_sample_rate;
   }
 
