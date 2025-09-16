@@ -31,6 +31,7 @@ if [ ! -f alsa-lib/src/.libs/libasound.so ]; then
 fi
 
 export CPLUS_INCLUDE_PATH=$PWD/alsa-lib/include:$CPLUS_INCLUDE_PATH
+export C_INCLUDE_PATH=$PWD/alsa-lib/include:$C_INCLUDE_PATH
 export SHERPA_NCNN_ALSA_LIB_DIR=$PWD/alsa-lib/src/.libs
 
 cmake \
@@ -38,7 +39,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DSHERPA_NCNN_ENABLE_PYTHON=OFF \
-  -DSHERPA_NCNN_ENABLE_PORTAUDIO=OFF \
+  -DSHERPA_NCNN_ENABLE_PORTAUDIO=ON \
   -DSHERPA_NCNN_ENABLE_JNI=OFF \
   -DSHERPA_NCNN_ENABLE_BINARY=ON \
   -DSHERPA_NCNN_ENABLE_TEST=OFF \
