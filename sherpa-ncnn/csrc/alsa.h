@@ -53,7 +53,7 @@ class Alsa {
 
   int32_t actual_channel_count_ = 1;
 
-  // If there are multipel channels, we use this channel for recognition
+  // If there are multiple channels, we use this channel for recognition
   int32_t channel_to_use_ = 0;
 
   std::unique_ptr<LinearResample> resampler_;

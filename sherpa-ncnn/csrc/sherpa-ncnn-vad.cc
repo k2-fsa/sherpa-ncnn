@@ -66,8 +66,7 @@ cd $HOME/open-source/sherpa-ncnn/build
 
   sherpa_ncnn::SileroVadModelConfig config;
   config.sample_rate = 16000;
-  config.param = "./sherpa-ncnn-silero-vad/silero.ncnn.param";
-  config.bin = "./sherpa-ncnn-silero-vad/silero.ncnn.bin";
+  config.model_dir = "./sherpa-ncnn-silero-vad";
   config.window_size = 512;
 
   if (!config.Validate()) {

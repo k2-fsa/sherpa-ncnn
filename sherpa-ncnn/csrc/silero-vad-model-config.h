@@ -22,18 +22,13 @@
 #include <memory>
 #include <string>
 
-#if __ANDROID_API__ >= 9
-#include "android/asset_manager.h"
-#include "android/asset_manager_jni.h"
-#endif
-
-#include "net.h"  // NOLINT
+#include "sherpa-ncnn/csrc/parse-options.h"
 
 namespace sherpa_ncnn {
 
 struct SileroVadModelConfig {
-  std::string param;  // path to silero.ncnn.param
-  std::string bin;    // path to silero.ncnn.bin
+  // It should contain silero.ncnn.param and silero.ncnn.bin
+  std::string model_dir;
 
   // threshold to classify a segment as speech
   //
@@ -52,9 +47,9 @@ struct SileroVadModelConfig {
   int32_t sample_rate = 16000;
 
   bool use_vulkan_compute = true;
+  int32_t num_threads = 1;
 
-  ncnn::Option opt;
-
+  void Register(ParseOptions *po);
   bool Validate() const;
 
   std::string ToString() const;
