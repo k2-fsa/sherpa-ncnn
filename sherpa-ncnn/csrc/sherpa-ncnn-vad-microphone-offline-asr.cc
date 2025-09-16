@@ -99,7 +99,7 @@ tar xvf sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
               "You can use sherpa-ncnn-pa-devs to list sample rate of "
               "available devices");
 
-  if (argc == 0) {
+  if (argc == 1) {
     po.PrintUsage();
     exit(EXIT_FAILURE);
   }

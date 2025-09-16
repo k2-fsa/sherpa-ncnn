@@ -49,6 +49,11 @@ jobs:
           ./new-release.sh
           git diff .
 
+      - name: Install alsa
+        shell: bash
+        run: |
+          sudo apt-get install alsa-utils libasound2-dev pkg-config
+
       - name: build aarch64-linux-gnu
         shell: bash
         run: |

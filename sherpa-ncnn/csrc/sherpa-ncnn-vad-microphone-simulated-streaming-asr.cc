@@ -1,4 +1,4 @@
-// sherpa-ncnn/csrc/sherpa-ncnn-vad-microphone-offline-asr.cc
+// sherpa-ncnn/csrc/sherpa-ncnn-vad-microphone-simulated-streaming-asr.cc
 //
 // Copyright (c)  2025  Xiaomi Corporation
 
@@ -7,8 +7,9 @@
 #include <stdlib.h>
 
 #include <algorithm>
-#include <chrono>  // NOLINT
-#include <mutex>   // NOLINT
+#include <chrono>              // NOLINT
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
 #include <queue>
 #include <string>
 #include <vector>
@@ -93,7 +94,7 @@ tar xvf sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
               "You can use sherpa-ncnn-pa-devs to list sample rate of "
               "available devices");
 
-  if (argc == 0) {
+  if (argc == 1) {
     po.PrintUsage();
     exit(EXIT_FAILURE);
   }
