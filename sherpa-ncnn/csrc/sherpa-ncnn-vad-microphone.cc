@@ -34,7 +34,7 @@ static int32_t RecordCallback(const void *input_buffer,
 
 static void Handler(int32_t /*sig*/) {
   stop = true;
-  fprintf(stderr, "\nCaught Ctrl + C. Exiting...\n");
+  fprintf(stdout, "\nCaught Ctrl + C. Exiting...\n");
 }
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -101,10 +101,10 @@ cd $HOME/open-source/sherpa-ncnn/build
     exit(EXIT_FAILURE);
   }
 
-  fprintf(stderr, "%s\n", config.ToString().c_str());
+  fprintf(stdout, "%s\n", config.ToString().c_str());
 
   if (!config.Validate()) {
-    fprintf(stderr, "Errors in config!\n");
+    fprintf(stdout, "Errors in config!\n");
     return -1;
   }
 
@@ -112,28 +112,28 @@ cd $HOME/open-source/sherpa-ncnn/build
 
   int32_t device_index = Pa_GetDefaultInputDevice();
   if (device_index == paNoDevice) {
-    fprintf(stderr, "No default input device found\n");
-    fprintf(stderr, "If you are using Linux, please switch to \n");
-    fprintf(stderr, " ./bin/sherpa-ncnn-vad-alsa \n");
+    fprintf(stdout, "No default input device found\n");
+    fprintf(stdout, "If you are using Linux, please switch to \n");
+    fprintf(stdout, " ./bin/sherpa-ncnn-vad-alsa \n");
     exit(EXIT_FAILURE);
   }
 
   if (user_device_index >= 0) {
-    fprintf(stderr, "Use specified device: %d\n", user_device_index);
+    fprintf(stdout, "Use specified device: %d\n", user_device_index);
     device_index = user_device_index;
   } else {
-    fprintf(stderr, "Use default device: %d\n", device_index);
+    fprintf(stdout, "Use default device: %d\n", device_index);
   }
 
   float mic_sample_rate = 16000;
   if (user_sample_rate > 0) {
-    fprintf(stderr, "Use sample rate %d for mic\n", user_sample_rate);
+    fprintf(stdout, "Use sample rate %d for mic\n", user_sample_rate);
     mic_sample_rate = user_sample_rate;
   }
 
   if (!mic.OpenDevice(device_index, mic_sample_rate, 1, RecordCallback,
                       nullptr)) {
-    fprintf(stderr, "Failed to open microphone device %d\n", device_index);
+    fprintf(stdout, "Failed to open microphone device %d\n", device_index);
     exit(EXIT_FAILURE);
   }
 
@@ -172,7 +172,7 @@ cd $HOME/open-source/sherpa-ncnn/build
 
         if (vad->IsSpeechDetected() && !printed) {
           printed = true;
-          fprintf(stderr, "\nDetected speech!\n");
+          fprintf(stdout, "\nDetected speech!\n");
         }
         if (!vad->IsSpeechDetected()) {
           printed = false;
@@ -181,15 +181,15 @@ cd $HOME/open-source/sherpa-ncnn/build
         while (!vad->Empty()) {
           const auto &segment = vad->Front();
           float duration = segment.samples.size() / sample_rate;
-          fprintf(stderr, "Duration: %.3f seconds\n", duration);
+          fprintf(stdout, "Duration: %.3f seconds\n", duration);
 
           char filename[128];
           snprintf(filename, sizeof(filename), "seg-%d-%.3fs.wav", k, duration);
           k += 1;
           sherpa_ncnn::WriteWave(filename, sample_rate, segment.samples.data(),
                                  segment.samples.size());
-          fprintf(stderr, "Saved to %s\n", filename);
-          fprintf(stderr, "----------\n");
+          fprintf(stdout, "Saved to %s\n", filename);
+          fprintf(stdout, "----------\n");
 
           vad->Pop();
         }
