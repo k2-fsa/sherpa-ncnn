@@ -13,7 +13,7 @@ concurrency:
 jobs:
   export-sense-voice:
     if: github.repository_owner == 'k2-fsa' || github.repository_owner == 'csukuangfj'
-    name: ${{ matrix.framework }}
+    name: ${{ matrix.framework }} fp16=${{ matrix.fp16 }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -21,6 +21,7 @@ jobs:
         os: [macos-latest]
         python-version: ["3.10"]
         framework: ["FunASR", "WSYue-ASR"]
+        fp16: ["1", "0"]
 
     steps:
       - uses: actions/checkout@v4
@@ -56,10 +57,15 @@ jobs:
           curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/README.md
           curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/LICENSE
 
-          python3 ./export-ncnn.py
+          fp16=${{ matrix.fp16 }}
+
+          python3 ./export-ncnn.py --fp16 $fp16
 
           echo "collect results"
           d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17
+          if [[ $fp16 == "0" ]];
+            d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-float32-2024-07-17
+          fi
           mkdir -p $d
 
           mkdir -p $d
@@ -104,10 +110,15 @@ jobs:
 
           curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2025-09-09/resolve/main/README.md
 
-          python3 ./export-ncnn.py
+          fp16=${{ matrix.fp16 }}
+
+          python3 ./export-ncnn.py --fp16 $fp16
 
           echo "collect results"
           d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2025-09-09
+          if [[ $fp16 == "0" ]]; then
+            d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-float32-2025-09-09
+          fi
 
           mkdir -p $d
           mkdir -p $d/test_wavs
