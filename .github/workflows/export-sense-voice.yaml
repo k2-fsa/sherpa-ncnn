@@ -31,6 +31,37 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: ccache
+        if: matrix.fp16 == '0'
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-export-sense-voice
+
+      - name: Build ncnn2int8
+        if: matrix.fp16 == '0'
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+          git clone https://github.com/tencent/ncnn
+          cd ncnn
+          mkdir build
+          cd build
+          cmake ..
+          make -j2 ncnn2int8
+          ls -lh tools/quantize/ncnn2int8
+
+          ./tools/quantize/ncnn2int8 || true
+
+      - name: Show ncnn2int8
+        if: matrix.fp16 == '0'
+        shell: bash
+        run: |
+          p=$PWD
+          ls -lh $p/ncnn/build/tools/quantize/ncnn2int8
+          $p/ncnn/build/tools/quantize/ncnn2int8 || true
+
       - name: Install Python dependencies
         shell: bash
         run: |
@@ -40,6 +71,7 @@ jobs:
         if: matrix.framework == 'FunASR'
         shell: bash
         run: |
+          p=$PWD
           cd scripts/sense-voice
 
           curl -SL -O https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/am.mvn
@@ -63,7 +95,7 @@ jobs:
 
           echo "collect results"
           d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17
-          if [[ $fp16 == "0" ]];
+          if [[ $fp16 == "0" ]]; then
             d=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-float32-2024-07-17
           fi
           mkdir -p $d
@@ -80,7 +112,37 @@ jobs:
           ls -lh $d
           tar cjfv $d.tar.bz2 $d
           ls -lh *.tar.bz2
-          rm -rf d
+
+          if [[ $fp16 == "0" ]]; then
+            pushd $d
+            touch a.txt
+            $p/ncnn/build/tools/quantize/ncnn2int8 \
+              ./model.ncnn.param \
+              ./model.ncnn.bin \
+              ./model.int8.ncnn.param \
+              ./model.int8.ncnn.bin \
+              a.txt
+            rm a.txt
+            ls -lh *.bin
+            popd
+
+            d2=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17
+            mkdir $d2
+            cp -av $d/* $d2
+
+            pushd $d2
+            mv model.int8.ncnn.param model.ncnn.param
+            mv model.int8.ncnn.bin model.ncnn.bin
+            popd
+
+            rm -v $d/model.int8.*
+
+            tar cjfv $d2.tar.bz2 $d2
+            ls -lh $d2
+            rm -rf $d2
+          fi
+
+          rm -rf $d
 
           echo "----show---"
           ls -lh *.tar.bz2
@@ -91,6 +153,7 @@ jobs:
         if: matrix.framework == 'WSYue-ASR'
         shell: bash
         run: |
+          p=$PWD
           cd scripts/sense-voice
 
           curl -SL -O https://huggingface.co/ASLP-lab/WSYue-ASR/resolve/main/sensevoice_small_yue/model.pt
@@ -131,7 +194,38 @@ jobs:
           ls -lh $d
           tar cjfv $d.tar.bz2 $d
           ls -lh *.tar.bz2
-          rm -rf d
+
+          if [[ $fp16 == "0" ]]; then
+            pushd $d
+            touch a.txt
+            $p/ncnn/build/tools/quantize/ncnn2int8 \
+              ./model.ncnn.param \
+              ./model.ncnn.bin \
+              ./model.int8.ncnn.param \
+              ./model.int8.ncnn.bin \
+              a.txt
+            rm a.txt
+
+            ls -lh *.bin
+            popd
+
+            d2=sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-2025-09-09
+            mkdir $d2
+            cp -av $d/* $d2
+
+            pushd $d2
+            mv model.int8.ncnn.param model.ncnn.param
+            mv model.int8.ncnn.bin model.ncnn.bin
+            popd
+
+            rm -v $d/model.int8.*
+
+            tar cjfv $d2.tar.bz2 $d2
+            ls -lh $d2
+            rm -rf $d2
+          fi
+
+          rm -rf $d
 
           echo "----show---"
           ls -lh *.tar.bz2
