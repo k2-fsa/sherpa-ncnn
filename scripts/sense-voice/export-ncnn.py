@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
 
+import argparse
 from typing import List, Tuple
 
 import pnnx
 import sentencepiece as spm
 import torch
+
 from torch_model import SenseVoiceSmall
+
+
+def get_args():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        "--fp16",
+        type=int,
+        default=1,
+        help="1 to use fp16. 0 to use float32",
+    )
+
+    return parser.parse_args()
 
 
 def load_cmvn(filename) -> Tuple[List[float], List[float]]:
@@ -35,6 +52,9 @@ def generate_tokens(sp):
 
 @torch.no_grad()
 def main():
+    args = get_args()
+    fp16 = args.fp16
+
     sp = spm.SentencePieceProcessor()
     sp.load("./chn_jpn_yue_eng_ko_spectok.bpe.model")
     generate_tokens(sp)
@@ -68,7 +88,7 @@ def main():
         "model.torchscript",
         (x1, prompt, pos_emb1),
         (x2, prompt, pos_emb2),
-        fp16=True,
+        fp16=fp16,
     )
 
 
