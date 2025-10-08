@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Code in this file is copied and modified from
+https://github.com/modelscope/FunASR
 """
 import math
 from typing import Dict, List, Optional, Tuple

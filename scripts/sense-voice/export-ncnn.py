@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c)  2025  Xiaomi Corporation
 
 import argparse
 from typing import List, Tuple
@@ -53,7 +54,7 @@ def generate_tokens(sp):
 @torch.no_grad()
 def main():
     args = get_args()
-    fp16 = args.fp16
+    fp16 = bool(args.fp16)
 
     sp = spm.SentencePieceProcessor()
     sp.load("./chn_jpn_yue_eng_ko_spectok.bpe.model")

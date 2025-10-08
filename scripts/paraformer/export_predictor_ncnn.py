@@ -4,7 +4,7 @@
 import pnnx
 import torch
 
-from export_encoder_ncnn import load_model
+from export_encoder_ncnn import load_model, get_args
 from torch_model import CifPredictorV2
 
 if __name__ == "__main__":
@@ -34,7 +34,9 @@ def main():
     print("loading model")
     model = load_model()
 
-    fp16 = False
+    args = get_args()
+    fp16 = bool(args.fp16)
+
     x1 = torch.rand(1, 100, 512, dtype=torch.float32)
     x2 = torch.rand(1, 200, 512, dtype=torch.float32)
 

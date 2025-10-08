@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c)  2025  Xiaomi Corporation
 
+import argparse
 from typing import List, Tuple
 
 import pnnx
@@ -8,6 +9,21 @@ import torch
 import yaml
 
 from torch_model import Paraformer, SANMEncoder
+
+
+def get_args():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        "--fp16",
+        type=int,
+        default=1,
+        help="1 to use fp16. 0 to use float32",
+    )
+
+    return parser.parse_args()
 
 
 def load_cmvn(filename) -> Tuple[List[float], List[float]]:
@@ -85,7 +101,9 @@ def main():
     print("loading model")
     model = load_model()
 
-    fp16 = True
+    args = get_args()
+    fp16 = bool(args.fp16)
+
     x1 = torch.rand(1, 100, 560, dtype=torch.float32)
     x2 = torch.rand(1, 200, 560, dtype=torch.float32)
 

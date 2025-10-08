@@ -4,7 +4,7 @@
 import pnnx
 import torch
 
-from export_encoder_ncnn import load_model
+from export_encoder_ncnn import load_model, get_args
 
 
 @torch.no_grad()
@@ -12,7 +12,9 @@ def main():
     print("loading model")
     model = load_model()
 
-    fp16 = False
+    args = get_args()
+    fp16 = bool(args.fp16)
+    print("fp16", fp16)
 
     encoder_out1 = torch.rand(1, 100, 512, dtype=torch.float32)
     acoustic_embeds1 = torch.rand(1, 10, 512, dtype=torch.float32)
