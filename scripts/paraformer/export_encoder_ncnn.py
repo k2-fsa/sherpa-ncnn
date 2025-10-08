@@ -7,24 +7,24 @@ import yaml
 
 from torch_model import Paraformer, SANMEncoder
 
+if __name__ == "__main__":
 
-def modified_sanm_encoder_forward(
-    self: SANMEncoder, xs_pad: torch.Tensor, pos: torch.Tensor
-):
-    xs_pad = xs_pad * self.output_size() ** 0.5
+    def modified_sanm_encoder_forward(
+        self: SANMEncoder, xs_pad: torch.Tensor, pos: torch.Tensor
+    ):
+        xs_pad = xs_pad * self.output_size() ** 0.5
 
-    xs_pad = xs_pad + pos
+        xs_pad = xs_pad + pos
 
-    xs_pad = self.encoders0(xs_pad)[0]
-    xs_pad = self.encoders(xs_pad)[0]
+        xs_pad = self.encoders0(xs_pad)[0]
+        xs_pad = self.encoders(xs_pad)[0]
 
-    if self.normalize_before:
-        xs_pad = self.after_norm(xs_pad)
+        if self.normalize_before:
+            xs_pad = self.after_norm(xs_pad)
 
-    return xs_pad
+        return xs_pad
 
-
-SANMEncoder.forward = modified_sanm_encoder_forward
+    SANMEncoder.forward = modified_sanm_encoder_forward
 
 
 def load_model():
