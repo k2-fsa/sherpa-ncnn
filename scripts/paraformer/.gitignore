@@ -10,3 +10,4 @@ predictor_ncnn.py
 predictor_pnnx.py
 *.torchscript
 *.zip
+tokens.txt
