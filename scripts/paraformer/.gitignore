@@ -1,0 +1,8 @@
+am.mvn
+config.yaml
+*.pnnx.onnx
+*.pt
+encoder_ncnn.py
+encoder_pnnx.py
+*.torchscript
+

@@ -38,7 +38,12 @@ class EncoderLayerSANM(nn.Module):
         self.dropout_rate = dropout_rate
 
     def forward(
-        self, x, mask, cache=None, mask_shfit_chunk=None, mask_att_chunk_encoder=None
+        self,
+        x,
+        mask=None,
+        cache=None,
+        mask_shfit_chunk=None,
+        mask_att_chunk_encoder=None,
     ):
         """Compute encoded features.
 
@@ -176,7 +181,7 @@ class MultiHeadedAttentionSANM(nn.Module):
         right_padding = kernel_size - 1 - left_padding
         self.pad_fn = nn.ConstantPad1d((left_padding, right_padding), 0.0)
 
-    def forward_fsmn(self, inputs, mask, mask_shfit_chunk=None):
+    def forward_fsmn(self, inputs, mask=None, mask_shfit_chunk=None):
         b, t, d = inputs.size()
         if mask is not None:
             mask = torch.reshape(mask, (b, -1, 1))
@@ -223,7 +228,7 @@ class MultiHeadedAttentionSANM(nn.Module):
 
         return q_h, k_h, v_h, v
 
-    def forward_attention(self, value, scores, mask, mask_att_chunk_encoder=None):
+    def forward_attention(self, value, scores, mask=None, mask_att_chunk_encoder=None):
         """Compute attention context vector.
 
         Args:
@@ -261,7 +266,7 @@ class MultiHeadedAttentionSANM(nn.Module):
 
         return self.linear_out(x)  # (batch, time1, d_model)
 
-    def forward(self, x, mask, mask_shfit_chunk=None, mask_att_chunk_encoder=None):
+    def forward(self, x, mask=None, mask_shfit_chunk=None, mask_att_chunk_encoder=None):
         """Compute scaled dot product attention.
 
         Args:
@@ -468,7 +473,7 @@ class SANMEncoder(nn.Module):
     def forward(
         self,
         xs_pad: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
+    ) -> torch.Tensor:
         """Embed positions in tensor.
 
         Args:
