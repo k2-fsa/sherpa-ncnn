@@ -977,7 +977,6 @@ class ParaformerSANMDecoder(torch.nn.Module):
         self,
         hs_pad: torch.Tensor,
         ys_in_pad: torch.Tensor,
-        ys_in_lens: torch.Tensor,
         chunk_mask: torch.Tensor = None,
         return_hidden: bool = False,
         return_both: bool = False,
@@ -990,7 +989,6 @@ class ParaformerSANMDecoder(torch.nn.Module):
                 input token ids, int64 (batch, maxlen_out)
                 if input_layer == "embed"
                 input tensor (batch, maxlen_out, #mels) in the other cases
-            ys_in_lens: (batch)
         Returns:
             (tuple): tuple containing:
 
@@ -1268,7 +1266,7 @@ class Paraformer(torch.nn.Module):
         if torch.max(pre_token_length) < 1:
             return []
 
-        decoder_outs = self.decoder(encoder_out, pre_acoustic_embeds, pre_token_length)
+        decoder_outs = self.decoder(encoder_out, pre_acoustic_embeds)
         # decoder_outs: (N, num_tokens, vocab_size)
         return decoder_outs, pre_token_length
 

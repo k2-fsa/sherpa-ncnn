@@ -17,18 +17,16 @@ def main():
 
     encoder_out1 = torch.rand(1, 100, 512, dtype=torch.float32)
     acoustic_embeds1 = torch.rand(1, 10, 512, dtype=torch.float32)
-    token_num1 = torch.tensor([10], dtype=torch.int32)
 
     encoder_out2 = torch.rand(1, 50, 512, dtype=torch.float32)
     acoustic_embeds2 = torch.rand(1, 8, 512, dtype=torch.float32)
-    token_num2 = torch.tensor([8], dtype=torch.int32)
 
     print("exporting")
     pnnx.export(
         model.decoder,
         "decoder.torchscript",
-        (encoder_out1, acoustic_embeds1, token_num1),
-        (encoder_out2, acoustic_embeds2, token_num2),
+        (encoder_out1, acoustic_embeds1),
+        (encoder_out2, acoustic_embeds2),
         fp16=fp16,
     )
 
