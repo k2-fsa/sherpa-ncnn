@@ -1140,7 +1140,6 @@ class CifPredictorV2(torch.nn.Module):
         mask_chunk_predictor=None,
         target_label_length=None,
     ):
-
         h = hidden
         context = h.transpose(1, 2)
         queries = self.pad(context)

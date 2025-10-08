@@ -6,5 +6,7 @@ encoder_ncnn.py
 encoder_pnnx.py
 decoder_ncnn.py
 decoder_pnnx.py
+predictor_ncnn.py
+predictor_pnnx.py
 *.torchscript
 *.zip

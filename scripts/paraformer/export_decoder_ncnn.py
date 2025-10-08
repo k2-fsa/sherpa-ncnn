@@ -3,7 +3,6 @@
 
 import pnnx
 import torch
-import yaml
 
 from export_encoder_ncnn import load_model
 
