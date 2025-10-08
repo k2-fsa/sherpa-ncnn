@@ -92,7 +92,7 @@ jobs:
 
             mkdir -p $d
 
-            cp -v ..wheelhouse//*.whl $d/
+            cp -v ../wheelhouse/*.whl $d/
 
             git status
             git add .
