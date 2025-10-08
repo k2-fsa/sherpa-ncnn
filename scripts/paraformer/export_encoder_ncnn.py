@@ -1,17 +1,40 @@
 #!/usr/bin/env python3
 # Copyright (c)  2025  Xiaomi Corporation
 
+from typing import List, Tuple
+
 import pnnx
 import torch
 import yaml
 
 from torch_model import Paraformer, SANMEncoder
 
+
+def load_cmvn(filename) -> Tuple[List[float], List[float]]:
+    neg_mean = None
+    inv_stddev = None
+
+    with open(filename) as f:
+        for line in f:
+            if not line.startswith("<LearnRateCoef>"):
+                continue
+            t = line.split()[3:-1]
+
+            if neg_mean is None:
+                neg_mean = list(map(lambda x: float(x), t))
+            else:
+                inv_stddev = list(map(lambda x: float(x), t))
+
+    return neg_mean, inv_stddev
+
+
 if __name__ == "__main__":
 
     def modified_sanm_encoder_forward(
         self: SANMEncoder, xs_pad: torch.Tensor, pos: torch.Tensor
     ):
+        xs_pad = (xs_pad + self.neg_mean) * self.inv_stddev
+
         xs_pad = xs_pad * self.output_size() ** 0.5
 
         xs_pad = xs_pad + pos
@@ -32,7 +55,15 @@ def load_model():
         config = yaml.safe_load(f)
 
     print("creating model")
+
+    neg_mean, inv_stddev = load_cmvn("./am.mvn")
+
+    neg_mean = torch.tensor(neg_mean, dtype=torch.float32)
+    inv_stddev = torch.tensor(inv_stddev, dtype=torch.float32)
+
     m = Paraformer(
+        neg_mean=neg_mean,
+        inv_stddev=inv_stddev,
         input_size=560,
         vocab_size=8404,
         encoder_conf=config["encoder_conf"],
@@ -54,7 +85,7 @@ def main():
     print("loading model")
     model = load_model()
 
-    fp16 = False
+    fp16 = True
     x1 = torch.rand(1, 100, 560, dtype=torch.float32)
     x2 = torch.rand(1, 200, 560, dtype=torch.float32)
 

@@ -9,25 +9,6 @@ import numpy as np
 from test_encoder_ncnn import SinusoidalPositionEncoder
 
 
-def load_cmvn():
-    neg_mean = None
-    inv_std = None
-
-    with open("am.mvn") as f:
-        for line in f:
-            if not line.startswith("<LearnRateCoef>"):
-                continue
-            t = line.split()[3:-1]
-            t = list(map(lambda x: float(x), t))
-
-            if neg_mean is None:
-                neg_mean = np.array(t, dtype=np.float32)
-            else:
-                inv_std = np.array(t, dtype=np.float32)
-
-    return neg_mean, inv_std
-
-
 def compute_feat(filename):
     sample_rate = 16000
     samples, _ = librosa.load(filename, sr=sample_rate)
@@ -57,9 +38,7 @@ def compute_feat(filename):
         shape=(T, features.shape[1] * window_size),
         strides=((window_shift * features.shape[1]) * 4, 4),
     )
-    neg_mean, inv_std = load_cmvn()
-    features = (features + neg_mean) * inv_std
-    return features
+    return np.copy(features)
 
 
 def load_tokens():
@@ -163,7 +142,7 @@ def run_decoder(encoder_out, acoustic_embedding):
 
 
 def main():
-    features = compute_feat("./16.wav")
+    features = compute_feat("./1.wav")
     pos_emb = (
         SinusoidalPositionEncoder()(1, features.shape[0], features.shape[1])
         .squeeze(0)
@@ -178,7 +157,7 @@ def main():
     acoustic_embedding, fire_idx = get_acoustic_embedding(alpha, encoder_out)
     print("acoustic_embedding.shape", acoustic_embedding.shape)
     print("fire_idx", fire_idx)
-    print([i * 0.06 for i in fire_idx], len(fire_idx))
+    print([(i - 1.5) * 0.06 for i in fire_idx if i > 1.5], len(fire_idx))
 
     decoder_out = run_decoder(encoder_out, acoustic_embedding)
     yseq = decoder_out.argmax(axis=-1).tolist()

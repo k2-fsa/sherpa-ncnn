@@ -358,6 +358,8 @@ class SANMEncoder(nn.Module):
 
     def __init__(
         self,
+        neg_mean: torch.Tensor,
+        inv_stddev: torch.Tensor,
         input_size: int,
         output_size: int = 256,
         attention_heads: int = 4,
@@ -386,6 +388,8 @@ class SANMEncoder(nn.Module):
         tf2torch_tensor_name_prefix_tf: str = "seq2seq/encoder",
     ):
         super().__init__()
+        self.neg_mean = neg_mean
+        self.inv_stddev = inv_stddev
         self._output_size = output_size
         assert input_layer == "pe", input_layer
 
@@ -481,6 +485,7 @@ class SANMEncoder(nn.Module):
         Returns:
             position embedded tensor and mask
         """
+        xs_pad = (xs_pad + self.neg_mean) * self.inv_stddev
         masks = None
         xs_pad = xs_pad * self.output_size() ** 0.5
 
@@ -1225,6 +1230,8 @@ class Paraformer(torch.nn.Module):
 
     def __init__(
         self,
+        neg_mean: torch.Tensor,
+        inv_stddev: torch.Tensor,
         input_size: int,
         vocab_size: int,
         ignore_id=-1,
@@ -1233,8 +1240,11 @@ class Paraformer(torch.nn.Module):
         predictor_conf: Optional[Dict] = None,
     ):
         super().__init__()
+
         self.ignore_id = ignore_id
-        self.encoder = SANMEncoder(input_size=input_size, **encoder_conf)
+        self.encoder = SANMEncoder(
+            neg_mean, inv_stddev, input_size=input_size, **encoder_conf
+        )
         encoder_output_size = self.encoder.output_size()
 
         self.decoder = ParaformerSANMDecoder(
