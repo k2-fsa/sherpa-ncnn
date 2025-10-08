@@ -79,6 +79,7 @@ def main():
         y1 = run_ncnn(x)
         print(y0.shape, y0.sum(), y0.mean())
         print(y1.shape, y1.sum(), y1.mean())
+        print((y0 - y1).abs().max())
 
 
 if __name__ == "__main__":
