@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c)  2025  Xiaomi Corporation
 import argparse
 from typing import Tuple
 
