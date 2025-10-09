@@ -135,7 +135,19 @@ by following the code)
 fun getOfflineModelConfig(type: Int): OfflineModelConfig? {
     when (type) {
         0 -> {
+            // int8
             val modelDir = "sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17"
+            return OfflineModelConfig(
+                senseVoice = OfflineSenseVoiceModelConfig(
+                    modelDir = modelDir,
+                ),
+                tokens = "$modelDir/tokens.txt",
+            )
+        }
+
+        1 -> {
+            // fp16
+            val modelDir = "sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17"
             return OfflineModelConfig(
                 senseVoice = OfflineSenseVoiceModelConfig(
                     modelDir = modelDir,
