@@ -10,21 +10,16 @@
 
 namespace sherpa_ncnn {
 
-static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
+static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config,
+                                                bool *ok) {
   OfflineRecognizerConfig ans;
 
   jclass cls = env->GetObjectClass(config);
   jfieldID fid;
 
   //---------- decoding ----------
-  fid = env->GetFieldID(cls, "decodingMethod", "Ljava/lang/String;");
-  jstring s = (jstring)env->GetObjectField(config, fid);
-  const char *p = env->GetStringUTFChars(s, nullptr);
-  ans.decoding_method = p;
-  env->ReleaseStringUTFChars(s, p);
-
-  fid = env->GetFieldID(cls, "blankPenalty", "F");
-  ans.blank_penalty = env->GetFloatField(config, fid);
+  SHERPA_NCNN_JNI_READ_STRING(ans.decoding_method, decodingMethod, cls, config);
+  SHERPA_NCNN_JNI_READ_FLOAT(ans.blank_penalty, blankPenalty, cls, config);
 
   //---------- feat config ----------
   fid = env->GetFieldID(cls, "featConfig",
@@ -32,14 +27,14 @@ static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
   jobject feat_config = env->GetObjectField(config, fid);
   jclass feat_config_cls = env->GetObjectClass(feat_config);
 
-  fid = env->GetFieldID(feat_config_cls, "sampleRate", "I");
-  ans.feat_config.sampling_rate = env->GetIntField(feat_config, fid);
+  SHERPA_NCNN_JNI_READ_INT(ans.feat_config.sampling_rate, sampleRate,
+                           feat_config_cls, feat_config);
 
-  fid = env->GetFieldID(feat_config_cls, "featureDim", "I");
-  ans.feat_config.feature_dim = env->GetIntField(feat_config, fid);
+  SHERPA_NCNN_JNI_READ_INT(ans.feat_config.feature_dim, featureDim,
+                           feat_config_cls, feat_config);
 
-  fid = env->GetFieldID(feat_config_cls, "dither", "F");
-  ans.feat_config.dither = env->GetFloatField(feat_config, fid);
+  SHERPA_NCNN_JNI_READ_FLOAT(ans.feat_config.dither, dither, feat_config_cls,
+                             feat_config);
 
   //---------- model config ----------
   fid = env->GetFieldID(cls, "modelConfig",
@@ -47,17 +42,14 @@ static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
   jobject model_config = env->GetObjectField(config, fid);
   jclass model_config_cls = env->GetObjectClass(model_config);
 
-  fid = env->GetFieldID(model_config_cls, "tokens", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(model_config, fid);
-  p = env->GetStringUTFChars(s, nullptr);
-  ans.model_config.tokens = p;
-  env->ReleaseStringUTFChars(s, p);
+  SHERPA_NCNN_JNI_READ_STRING(ans.model_config.tokens, tokens, model_config_cls,
+                              model_config);
 
-  fid = env->GetFieldID(model_config_cls, "numThreads", "I");
-  ans.model_config.num_threads = env->GetIntField(model_config, fid);
+  SHERPA_NCNN_JNI_READ_INT(ans.model_config.num_threads, numThreads,
+                           model_config_cls, model_config);
 
-  fid = env->GetFieldID(model_config_cls, "debug", "Z");
-  ans.model_config.debug = env->GetBooleanField(model_config, fid);
+  SHERPA_NCNN_JNI_READ_BOOL(ans.model_config.debug, debug, model_config_cls,
+                            model_config);
 
   // sense voice
   fid = env->GetFieldID(model_config_cls, "senseVoice",
@@ -65,24 +57,17 @@ static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
   jobject sense_voice_config = env->GetObjectField(model_config, fid);
   jclass sense_voice_config_cls = env->GetObjectClass(sense_voice_config);
 
-  fid =
-      env->GetFieldID(sense_voice_config_cls, "modelDir", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(sense_voice_config, fid);
-  p = env->GetStringUTFChars(s, nullptr);
-  ans.model_config.sense_voice.model_dir = p;
-  env->ReleaseStringUTFChars(s, p);
+  SHERPA_NCNN_JNI_READ_STRING(ans.model_config.sense_voice.model_dir, modelDir,
+                              sense_voice_config_cls, sense_voice_config);
 
-  fid =
-      env->GetFieldID(sense_voice_config_cls, "language", "Ljava/lang/String;");
-  s = (jstring)env->GetObjectField(sense_voice_config, fid);
-  p = env->GetStringUTFChars(s, nullptr);
-  ans.model_config.sense_voice.language = p;
-  env->ReleaseStringUTFChars(s, p);
+  SHERPA_NCNN_JNI_READ_STRING(ans.model_config.sense_voice.language, language,
+                              sense_voice_config_cls, sense_voice_config);
 
-  fid = env->GetFieldID(sense_voice_config_cls, "useInverseTextNormalization",
-                        "Z");
-  ans.model_config.sense_voice.use_itn =
-      env->GetBooleanField(sense_voice_config, fid);
+  SHERPA_NCNN_JNI_READ_BOOL(ans.model_config.sense_voice.use_itn,
+                            useInverseTextNormalization, sense_voice_config_cls,
+                            sense_voice_config);
+
+  *ok = true;
 
   return ans;
 }
@@ -102,7 +87,13 @@ Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromAsset(JNIEnv *env,
     return 0;
   }
 #endif
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return 0;
+  }
 
   if (config.model_config.debug) {
     // logcat truncates long strings, so we split the string into chunks
@@ -126,7 +117,13 @@ JNIEXPORT jlong JNICALL
 Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromFile(JNIEnv *env,
                                                          jobject /*obj*/,
                                                          jobject _config) {
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return 0;
+  }
 
   if (config.model_config.debug) {
     auto str_vec = sherpa_ncnn::SplitString(config.ToString(), 128);
@@ -148,7 +145,13 @@ Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromFile(JNIEnv *env,
 SHERPA_NCNN_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_setConfig(
     JNIEnv *env, jobject /*obj*/, jlong ptr, jobject _config) {
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return;
+  }
 
   if (config.model_config.debug) {
     SHERPA_NCNN_LOGE("set config:\n%s", config.ToString().c_str());
