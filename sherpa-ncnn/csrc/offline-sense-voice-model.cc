@@ -164,6 +164,14 @@ class OfflineSenseVoiceModel::Impl {
 
   template <typename Manager>
   void InitNet(Manager *mgr) {
+    if (!config_.sense_voice.model_dir.empty() &&
+        config_.sense_voice.model_dir[0] == '/') {
+      SHERPA_NCNN_LOGE(
+          "You are using an absolute path but you did NOT set assetManager to "
+          "null");
+      SHERPA_NCNN_LOGE("You will likely to get initialization failures");
+    }
+
     net_.opt.num_threads = config_.num_threads;
 
     std::string param = config_.sense_voice.model_dir + "/model.ncnn.param";

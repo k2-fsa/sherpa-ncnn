@@ -129,3 +129,4 @@ node_modules
 *.egg-info
 *.so
 sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-202*
+sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-202*

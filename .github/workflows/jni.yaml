@@ -10,7 +10,9 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
+      - 'sherpa-ncnn/kotlin-api/*'
       - '.github/scripts/test-jni.sh'
+      - 'kotlin-api-examples/*'
   pull_request:
     branches:
       - master
@@ -20,7 +22,9 @@ on:
       - 'cmake/**'
       - 'sherpa-ncnn/csrc/*'
       - 'sherpa-ncnn/jni/*'
+      - 'sherpa-ncnn/kotlin-api/*'
       - '.github/scripts/test-jni.sh'
+      - 'kotlin-api-examples/*'
 
   workflow_dispatch:
 
@@ -65,6 +69,16 @@ jobs:
         run: |
           java -version
           echo "JAVA_HOME is: ${JAVA_HOME}"
+
+      - name:  Test Kotlin (SenseVoice)
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
+          cd kotlin-api-examples
+
+          ./run-offline-sense-voice-asr.sh
 
       - name:  Run JNI test
         shell: bash

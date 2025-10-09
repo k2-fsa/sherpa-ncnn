@@ -1,24 +1,12 @@
-/**
- * Copyright (c)  2023-2024  Xiaomi Corporation (authors: Fangjun Kuang)
- *
- * See LICENSE for clarification regarding multiple authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// sherpa-ncnn/csrc/file-utils.cc
+//
+// Copyright (c)  2022-2023  Xiaomi Corporation
 
 #include "sherpa-ncnn/csrc/file-utils.h"
 
 #include <fstream>
+#include <memory>
+#include <sstream>
 #include <string>
 
 #include "sherpa-ncnn/csrc/macros.h"
@@ -31,9 +19,80 @@ bool FileExists(const std::string &filename) {
 
 void AssertFileExists(const std::string &filename) {
   if (!FileExists(filename)) {
-    NCNN_LOGE("filename '%s' does not exist", filename.c_str());
-    SHERPA_NCNN_EXIT(-1);
+    SHERPA_NCNN_LOGE("filename '%s' does not exist", filename.c_str());
+    exit(-1);
   }
 }
+
+std::vector<char> ReadFile(const std::string &filename) {
+  std::ifstream input(filename, std::ios::binary);
+  std::vector<char> buffer(std::istreambuf_iterator<char>(input), {});
+  return buffer;
+}
+
+#if __ANDROID_API__ >= 9
+std::vector<char> ReadFile(AAssetManager *mgr, const std::string &filename) {
+  if (!filename.empty() && filename[0] == '/') {
+    SHERPA_NCNN_LOGE(
+        "You are using an absolute path '%s', but assetManager is NOT set to "
+        "null.",
+        filename.c_str());
+
+    SHERPA_NCNN_LOGE(
+        "Please set assetManager to null when you load model files from the SD "
+        "card");
+
+    SHERPA_NCNN_LOGE(
+        "See also https://github.com/k2-fsa/sherpa-onnx/issues/2562");
+  }
+
+  AAsset *asset = AAssetManager_open(mgr, filename.c_str(), AASSET_MODE_BUFFER);
+  if (!asset) {
+    __android_log_print(ANDROID_LOG_FATAL, "sherpa-ncnn",
+                        "Read binary file: Load '%s' failed", filename.c_str());
+    exit(-1);
+  }
+
+  auto p = reinterpret_cast<const char *>(AAsset_getBuffer(asset));
+  size_t asset_length = AAsset_getLength(asset);
+
+  std::vector<char> buffer(p, p + asset_length);
+  AAsset_close(asset);
+
+  return buffer;
+}
+#endif
+
+#if __OHOS__
+std::vector<char> ReadFile(NativeResourceManager *mgr,
+                           const std::string &filename) {
+  std::unique_ptr<RawFile, decltype(&OH_ResourceManager_CloseRawFile)> fp(
+      OH_ResourceManager_OpenRawFile(mgr, filename.c_str()),
+      OH_ResourceManager_CloseRawFile);
+
+  if (!fp) {
+    std::ostringstream os;
+    os << "Read file '" << filename << "' failed.";
+    SHERPA_NCNN_LOGE("%s", os.str().c_str());
+    return {};
+  }
+
+  auto len = static_cast<int32_t>(OH_ResourceManager_GetRawFileSize(fp.get()));
+
+  std::vector<char> buffer(len);
+
+  int32_t n = OH_ResourceManager_ReadRawFile(fp.get(), buffer.data(), len);
+
+  if (n != len) {
+    std::ostringstream os;
+    os << "Read file '" << filename << "' failed. Number of bytes read: " << n
+       << ". Expected bytes to read: " << len;
+    SHERPA_NCNN_LOGE("%s", os.str().c_str());
+    return {};
+  }
+
+  return buffer;
+}
+#endif
 
 }  // namespace sherpa_ncnn
