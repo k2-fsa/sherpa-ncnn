@@ -9,6 +9,15 @@ if(NOT DEFINED ANDROID_ABI)
   include_directories($ENV{JAVA_HOME}/include/darwin)
 endif()
 
-add_library(sherpa-ncnn-jni jni.cc)
+add_library(sherpa-ncnn-jni
+  common.cc
+  jni.cc
+  offline-recognizer.cc
+  offline-stream.cc
+)
+
+target_compile_definitions(sherpa-ncnn-jni PRIVATE SHERPA_NCNN_BUILD_SHARED_LIBS=1)
+target_compile_definitions(sherpa-ncnn-jni PRIVATE SHERPA_NCNN_BUILD_MAIN_LIB=1)
+
 target_link_libraries(sherpa-ncnn-jni sherpa-ncnn-core)
 install(TARGETS sherpa-ncnn-jni DESTINATION lib)
