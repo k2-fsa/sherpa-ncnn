@@ -7,5 +7,5 @@ data class FeatureConfig(
 )
 
 fun getFeatureConfig(sampleRate: Int, featureDim: Int, dither: Float = 0.0f): FeatureConfig {
-    return FeatureConfig(sampleRate = sampleRate, featureDim = featureDim, dither=dither)
+    return FeatureConfig(sampleRate = sampleRate, featureDim = featureDim, dither = dither)
 }
