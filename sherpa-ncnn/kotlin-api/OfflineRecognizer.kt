@@ -129,7 +129,7 @@ by following the code)
 
 0 - sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17 (Chinese, English, Japanese, Korean, Cantonese, 中英日韩粤语)
     https://github.com/k2-fsa/sherpa-ncnn/releases/download/asr-models/sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
-    See also its fp16 models at http://localhost:6006/ncnn/sense-voice/pretrained.html#sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17-chinese-english-japanese-korean-cantonese
+    See also its fp16 models at https://k2-fsa.github.io/sherpa/ncnn/sense-voice/pretrained.html#sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17-chinese-english-japanese-korean-cantonese
 
  */
 fun getOfflineModelConfig(type: Int): OfflineModelConfig? {

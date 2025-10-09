@@ -19,7 +19,7 @@ if [[ ! -f ../build/lib/libsherpa-ncnn-jni.dylib  && ! -f ../build/lib/libsherpa
   popd
 fi
 
-export LD_LIBRARY_PATH=$PWD/build/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$PWD/../build/lib:$LD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 
 if [ ! -f ./sherpa-ncnn-sense-voice-zh-en-ja-ko-yue-2024-07-17/tokens.txt ]; then
