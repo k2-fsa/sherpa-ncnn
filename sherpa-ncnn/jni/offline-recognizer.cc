@@ -10,7 +10,8 @@
 
 namespace sherpa_ncnn {
 
-static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
+static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config,
+                                                bool *ok) {
   OfflineRecognizerConfig ans;
 
   jclass cls = env->GetObjectClass(config);
@@ -66,6 +67,8 @@ static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config) {
                             useInverseTextNormalization, sense_voice_config_cls,
                             sense_voice_config);
 
+  *ok = true;
+
   return ans;
 }
 
@@ -84,7 +87,13 @@ Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromAsset(JNIEnv *env,
     return 0;
   }
 #endif
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return 0;
+  }
 
   if (config.model_config.debug) {
     // logcat truncates long strings, so we split the string into chunks
@@ -108,7 +117,13 @@ JNIEXPORT jlong JNICALL
 Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromFile(JNIEnv *env,
                                                          jobject /*obj*/,
                                                          jobject _config) {
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return 0;
+  }
 
   if (config.model_config.debug) {
     auto str_vec = sherpa_ncnn::SplitString(config.ToString(), 128);
@@ -130,7 +145,13 @@ Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_newFromFile(JNIEnv *env,
 SHERPA_NCNN_EXTERN_C
 JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_ncnn_OfflineRecognizer_setConfig(
     JNIEnv *env, jobject /*obj*/, jlong ptr, jobject _config) {
-  auto config = sherpa_ncnn::GetOfflineConfig(env, _config);
+  bool ok = false;
+  auto config = sherpa_ncnn::GetOfflineConfig(env, _config, &ok);
+
+  if (!ok) {
+    SHERPA_NCNN_LOGE("Please read the error message carefully");
+    return;
+  }
 
   if (config.model_config.debug) {
     SHERPA_NCNN_LOGE("set config:\n%s", config.ToString().c_str());
