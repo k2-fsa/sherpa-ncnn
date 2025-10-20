@@ -55,6 +55,6 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" 
     -DSHERPA_NCNN_ENABLE_GENERATE_INT8_SCALE_TABLE=OFF \
     -DCMAKE_INSTALL_PREFIX=./install \
     -DANDROID_ABI="x86" \
-    -DANDROID_PLATFORM=android-14 ..
+    -DANDROID_PLATFORM=android-21 ..
 make VERBOSE=1 -j4
 make install/strip
