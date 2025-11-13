@@ -1,0 +1,1 @@
+sherpa-ncnn.unitypackage的内容与Assets文件夹内容一致，均不含sharpa-ncnn大模型包，需要自主下载
