@@ -210,6 +210,22 @@ const std::vector<float> &Alsa::Read16(int32_t num_samples) {
   int32_t count =
       snd_pcm_readi(capture_handle_, samples16_.data(), num_samples);
   if (count == -EPIPE) {
+    static int32_t num_over_runs = 0;
+    ++num_over_runs;
+    fprintf(stderr, "number of overruns: %d/%d\n", num_over_runs,
+            num_allowed_over_runs_);
+
+    if (num_over_runs < num_allowed_over_runs_) {
+      int32_t err = snd_pcm_prepare(capture_handle_);
+      if (err) {
+        fprintf(stderr, "Failed to recover from overrun: %s\n",
+                snd_strerror(err));
+        exit(-1);
+      }
+
+      static std::vector<float> tmp;
+      return tmp;
+    }
     fprintf(
         stderr,
         "An overrun occurred, which means the RTF of the current "
@@ -238,6 +254,24 @@ const std::vector<float> &Alsa::Read32(int32_t num_samples) {
   int32_t count =
       snd_pcm_readi(capture_handle_, samples32_.data(), num_samples);
   if (count == -EPIPE) {
+    static int32_t num_over_runs = 0;
+    ++num_over_runs;
+
+    fprintf(stderr, "number of overruns: %d/%d\n", num_over_runs,
+            num_allowed_over_runs_);
+
+    if (num_over_runs < num_allowed_over_runs_) {
+      int32_t err = snd_pcm_prepare(capture_handle_);
+      if (err) {
+        fprintf(stderr, "Failed to recover from overrun: %s\n",
+                snd_strerror(err));
+        exit(-1);
+      }
+
+      static std::vector<float> tmp;
+      return tmp;
+    }
+
     fprintf(
         stderr,
         "An overrun occurred, which means the RTF of the current "

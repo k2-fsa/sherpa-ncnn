@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cctype>  // std::tolower
 #include <cstdint>
+#include <fstream>
 
 #include "sherpa-ncnn/csrc/alsa.h"
 #include "sherpa-ncnn/csrc/display.h"
@@ -147,8 +148,37 @@ as the device_name.
   std::string last_text;
   int32_t segment_index = 0;
   sherpa_ncnn::Display display;
+
+  fprintf(stderr, "Writing to test.pcm\n");
+  fprintf(stderr, "Please use\n");
+  fprintf(stderr,
+          " sox -t raw -c 1 -e floating-point -b 32 -r %d test.pcm test.wav\n",
+          alsa.GetExpectedSampleRate());
+  fprintf(stderr, "to convert test.pcm to test.wav\n");
+
+  std::ofstream os("test.pcm", std::ios::out | std::ios::binary);
+
+  int32_t num_samples_wrote = 0;
+
   while (!stop) {
     const std::vector<float> samples = alsa.Read(chunk);
+    if (!samples.empty()) {
+      if (os.is_open()) {
+        fprintf(stderr, "Writing %d samples\n", int32_t(samples.size()));
+        os.write(reinterpret_cast<const char *>(samples.data()),
+                 samples.size() * sizeof(float));
+        num_samples_wrote += samples.size();
+        fprintf(stderr, "Wrote %d samples so far\n", num_samples_wrote);
+        if (num_samples_wrote > 10 * alsa.GetExpectedSampleRate()) {
+          fprintf(stderr,
+                  "Closing test.pcm after writing 10 seconds of data\n");
+          os.close();
+        }
+      }
+    } else {
+      fprintf(stderr, "empty samples!");
+      continue;
+    }
 
     s->AcceptWaveform(expected_sampling_rate, samples.data(), samples.size());
     while (recognizer.IsReady(s.get())) {
