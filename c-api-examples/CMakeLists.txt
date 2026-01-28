@@ -1,3 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR})
 add_executable(decode-file-c-api decode-file-c-api.c)
+add_executable(tts-c-api tts-c-api.c)
 target_link_libraries(decode-file-c-api sherpa-ncnn-c-api)
+target_link_libraries(tts-c-api sherpa-ncnn-c-api)
