@@ -1,4 +1,4 @@
-# Introductino
+# Introduction
 
 This note describes how to install Vulkan on macOS.
 
