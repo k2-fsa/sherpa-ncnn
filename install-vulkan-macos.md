@@ -1,4 +1,4 @@
-# Introduction
+# Introductino
 
 This note describes how to install Vulkan on macOS.
 
@@ -7,8 +7,8 @@ for more details.
 
 ## 1.3.236.0
 
-1. Download https://sdk.lunarg.com/sdk/download/1.3.236.0/mac/vulkansdk-macos-1.3.236.0.dmg
-2. Double click `vulkansdk-macos-1.3.236.0.dmg` to run it after downloading
+1. Download the Vulkan SDK installer for macOS from https://vulkan.lunarg.com/sdk/home
+2. Double click the downloaded `.dmg` to run it after downloading
 3. Doulbe click the icon `InstallVulkan`
 4. Click `Next`.
 5. Specify the directory where Vulkan SDK will be installed. Here, I use
