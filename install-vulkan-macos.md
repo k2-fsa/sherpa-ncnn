@@ -7,7 +7,7 @@ for more details.
 
 ## 1.3.236.0
 
-1. Download https://sdk.lunarg.com/sdk/download/1.3.236.0/mac/vulkansdk-macos-1.3.236.0.dmg
+1. Download https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
 2. Double click `vulkansdk-macos-1.3.236.0.dmg` to run it after downloading
 3. Double click the icon `InstallVulkan`
 4. Click `Next`.
